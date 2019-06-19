@@ -30,34 +30,34 @@ public class Main {
   @Command(name = "com.foreseeti.mal.Main")
   private static class Options {
     @Parameters(paramLabel = "FILE",
-                description = "MAL specification to compile")
+        description = "MAL specification to compile")
     public File file;
     @Option(names = {"-l", "--lexer"},
-            description = "Run the lexer and print the tokens")
+        description = "Run the lexer and print the tokens")
     public boolean lexer = false;
     @Option(names = {"-p", "--parser"},
-            description = "Run the parser and print the AST")
+        description = "Run the parser and print the AST")
     public boolean parser = false;
     @Option(names = {"-a", "--analyzer"},
-            description = "Run the analyzer and print the results")
+        description = "Run the analyzer and print the results")
     public boolean analyzer = false;
     @Option(names = {"-t", "--target"},
-            paramLabel = "TARGET",
-            description = "Compilation target")
+        paramLabel = "TARGET",
+        description = "Compilation target")
     public String target = "reference";
     @Option(names = {"-v", "--verbose"},
-            description = "Print verbose output")
+        description = "Print verbose output")
     public boolean verbose = false;
     @Option(names = {"-d", "--debug"},
-            description = "Print debug output")
+        description = "Print debug output")
     public boolean debug = false;
     @Option(names = {"-h", "--help"},
-            usageHelp = true,
-            description = "Print this help and exit")
+        usageHelp = true,
+        description = "Print this help and exit")
     public boolean help = false;
     @Option(names = {"-V", "--version"},
-            versionHelp = true,
-            description = "Print version information and exit")
+        versionHelp = true,
+        description = "Print version information and exit")
     public boolean version = false;
   }
 
@@ -130,8 +130,18 @@ public class Main {
     }
 
     if (opts.lexer) {
-      System.err.println("Not yet implemented");
-      System.exit(1);
+      try {
+        Lexer lexer = new Lexer(opts.file);
+        Token t = lexer.next();
+        while(t.getType() != TokenType.EOF) {
+          System.out.printf("%s:%s:%s %s\n", t.getType().toString(), t.getLine(), t.getCol(), t.getStringValue());
+          t = lexer.next();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      } catch (LexerException e) {
+        e.printStackTrace();
+      }
     } else if (opts.parser) {
       System.err.println("Not yet implemented");
       System.exit(1);

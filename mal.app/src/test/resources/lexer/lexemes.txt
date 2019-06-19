@@ -1,0 +1,8 @@
+// comment
+/* multiline
+comment */
+"string"
+"escape\b\n\t\r\"\\"
+1
+1.2
+identifier

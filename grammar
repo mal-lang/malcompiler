@@ -3,15 +3,21 @@
 <define>        ::= HASH ID COLON STRING
 <meta>          ::= (INFO | ASSUMPTIONS | RATIONALE) COLON STRING
 <include>       ::= INCLUDE STRING
+<number>        ::= INT | FLOAT
 
 <category>      ::= CATEGORY ID <meta>* LCURLY <asset>* RCURLY
-<asset>         ::= ABSTRACT? ASSET ID (EXTENDS ID)? <meta>* LCURLY <attackstep>* RCURLY
+<asset>         ::= ABSTRACT? ASSET ID (EXTENDS ID)? <meta>* LCURLY (<attackstep> | <variable>)* RCURLY
 <attackstep>    ::= <astype> ID <ttc>? <meta>* <existence>? ((INHERIT | OVERRIDE) <statement> (COMMA <statement>)*)?
-<astype>        ::= ALL | ANY | DEFENSE | EXIST | NOTEXIST
-<ttc>           ::= LBRACKET ID LPAREN FLOAT (COMMA FLOAT)* RPAREN RBRACKET
+<astype>        ::= ALL | ANY | HASH | EXIST | NOTEXIST
+<ttc>           ::= LBRACKET <ttc-expr>? RBRACKET
+<ttc-expr>      ::= <ttc-term> ((PLUS | MINUS) <ttc-term>)*
+<ttc-term>      ::= <ttc-fact> ((STAR | DIVIDE) <ttc-fact>)*
+<ttc-fact>      ::= <ttc-prim> (POWER <ttc-fact>)?
+<ttc-prim>      ::= ID (LPAREN (<number> (COMMA <number>)*)? RPAREN)? | LPAREN <ttc-expr> RPAREN
 <existence>     ::= REQUIRE ID (COMMA ID)*
 
-<statement>     ::= LET ID ASSIGN <expr> | <expr>
+<statement>     ::= <variable> | <expr>
+<variable>      ::= LET ID ASSIGN <expr>
 <expr>          ::= <step> ((UNION | INTERSECT) <step>)*
 <step>          ::= <transitive> (DOT <transitive>)*
 <transitive>    ::= <subtype> STAR?
@@ -28,12 +34,11 @@
 INCLUDE         ::= "include"
 INFO            ::= "info"
 ASSUMPTIONS     ::= "assumptions"
-RATIONALE       ::= "rationale
+RATIONALE       ::= "rationale"
 CATEGORY        ::= "category"
 ABSTRACT        ::= "abstract"
 ASSET           ::= "asset"
 EXTENDS         ::= "extends"
-EXIST           ::= "exist"
 ASSOCIATIONS    ::= "associations"
 LET             ::= "let"
 EXIST           ::= "E"
@@ -41,12 +46,10 @@ EXIST           ::= "E"
 
 ; tokens
 EOF             ; end of file
-DIGIT           ; [0-9]
-LETTER          ; [A-Za-z]
 STRING          ; java string literal
 ID              ; java identifier
-INT             ::= DIGIT+
-FLOAT           ::= DIGIT+ (DOT DIGIT+)?
+INT             ::= [0-9]+
+FLOAT           ::= [0-9]+ (DOT [0-9]+)?
 HASH            ::= "#"
 COLON           ::= ":"
 LCURLY          ::= "{"
@@ -55,7 +58,6 @@ INHERIT         ::= "+>"
 OVERRIDE        ::= "->"
 ALL             ::= "&"
 ANY             ::= "|"
-DEFENSE         ::= "#"
 NOTEXIST        ::= "!E"
 LBRACKET        ::= "["
 RBRACKET        ::= "]"
@@ -69,5 +71,9 @@ INTERSECT       ::= "/\"
 DOT             ::= "."
 RANGE           ::= ".."
 STAR            ::= "*"
+PLUS            ::= "+"
+MINUS           ::= "-"
+DIVIDE          ::= "/"
+POWER           ::= "^"
 LARROW          ::= "<--"
 RARROW          ::= "-->"
