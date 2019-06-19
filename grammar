@@ -1,0 +1,73 @@
+; rules
+<mal>           ::= (<category> | <associations> | <include> | <define>)* EOF
+<define>        ::= HASH ID COLON STRING
+<meta>          ::= (INFO | ASSUMPTIONS | RATIONALE) COLON STRING
+<include>       ::= INCLUDE STRING
+
+<category>      ::= CATEGORY ID <meta>* LCURLY <asset>* RCURLY
+<asset>         ::= ABSTRACT? ASSET ID (EXTENDS ID)? <meta>* LCURLY <attackstep>* RCURLY
+<attackstep>    ::= <astype> ID <ttc>? <meta>* <existence>? ((INHERIT | OVERRIDE) <statement> (COMMA <statement>)*)?
+<astype>        ::= ALL | ANY | DEFENSE | EXIST | NOTEXIST
+<ttc>           ::= LBRACKET ID LPAREN FLOAT (COMMA FLOAT)* RPAREN RBRACKET
+<existence>     ::= REQUIRE ID (COMMA ID)*
+
+<statement>     ::= LET ID ASSIGN <expr> | <expr>
+<expr>          ::= <step> ((UNION | INTERSECT) <step>)*
+<step>          ::= <transitive> (DOT <transitive>)*
+<transitive>    ::= <subtype> STAR?
+<subtype>       ::= <prim> <type>?
+<prim>          ::= ID | LPAREN <expr> RPAREN
+
+<associations>  ::= ASSOCIATIONS LCURLY <association>* RCURLY
+<association>   ::= ID <type> <mult> LARROW ID RARROW <mult> <type> ID <meta>*
+<mult>          ::= INT (RANGE (INT | STAR))? | STAR
+<type>          ::= LBRACKET ID LBRACKET
+
+
+; keywords
+INCLUDE         ::= "include"
+INFO            ::= "info"
+ASSUMPTIONS     ::= "assumptions"
+RATIONALE       ::= "rationale
+CATEGORY        ::= "category"
+ABSTRACT        ::= "abstract"
+ASSET           ::= "asset"
+EXTENDS         ::= "extends"
+EXIST           ::= "exist"
+ASSOCIATIONS    ::= "associations"
+LET             ::= "let"
+EXIST           ::= "E"
+
+
+; tokens
+EOF             ; end of file
+DIGIT           ; [0-9]
+LETTER          ; [A-Za-z]
+STRING          ; java string literal
+ID              ; java identifier
+INT             ::= DIGIT+
+FLOAT           ::= DIGIT+ (DOT DIGIT+)?
+HASH            ::= "#"
+COLON           ::= ":"
+LCURLY          ::= "{"
+RCURLY          ::= "}"
+INHERIT         ::= "+>"
+OVERRIDE        ::= "->"
+ALL             ::= "&"
+ANY             ::= "|"
+DEFENSE         ::= "#"
+NOTEXIST        ::= "!E"
+LBRACKET        ::= "["
+RBRACKET        ::= "]"
+LPAREN          ::= "("
+RPAREN          ::= ")"
+COMMA           ::= ","
+REQUIRE         ::= "<-"
+ASSIGN          ::= "="
+UNION           ::= "\/"
+INTERSECT       ::= "/\"
+DOT             ::= "."
+RANGE           ::= ".."
+STAR            ::= "*"
+LARROW          ::= "<--"
+RARROW          ::= "-->"
