@@ -15,4 +15,6 @@
  */
 module mal.app {
   exports com.foreseeti.mal;
+  requires info.picocli;
+  opens com.foreseeti.mal to info.picocli;
 }

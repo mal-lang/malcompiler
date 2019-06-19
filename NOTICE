@@ -5,3 +5,7 @@ Copyright 2017-2019 The MAL founders and contributors
 MAL founders: Pontus Johnson, Mathias Ekstedt, Robert Lagerström
 
 MAL contributors: Foreseeti AB, Sotirios Katsikeas
+
+This product includes/uses software, picocli 4.0.0-beta-1b (https://github.com/remkop/picocli),
+developed by Remko Popma  (https://github.com/remkop)
+License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)

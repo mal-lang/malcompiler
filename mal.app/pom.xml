@@ -13,6 +13,7 @@
   <groupId>com.foreseeti.mal</groupId>
   <artifactId>mal.app</artifactId>
   <packaging>jar</packaging>
+  <name>MAL Compiler</name>
 
   <build>
     <plugins>
@@ -34,6 +35,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <addDefaultEntries>false</addDefaultEntries>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
               <mainClass>com.foreseeti.mal.Main</mainClass>
               <packageName>com.foreseeti.mal</packageName>
             </manifest>
@@ -45,6 +47,32 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.0.0-M3</version>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.1.1</version>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <mainClass>com.foreseeti.mal.Main</mainClass>
+              <packageName>com.foreseeti.mal</packageName>
+            </manifest>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -54,6 +82,11 @@
       <artifactId>junit-jupiter</artifactId>
       <version>5.4.2</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli</artifactId>
+      <version>4.0.0-beta-1b</version>
     </dependency>
   </dependencies>
 </project>
