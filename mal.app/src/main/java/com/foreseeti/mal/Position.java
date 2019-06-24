@@ -15,8 +15,25 @@
  */
 package com.foreseeti.mal;
 
-public class LexerException extends Exception {
-  public LexerException(String message) {
-    super(message);
+public class Position {
+  public final String filename;
+  public final int line;
+  public final int col;
+
+  public Position(String filename, int line, int col) {
+    this.filename = filename;
+    this.line = line;
+    this.col = col;
+  }
+
+  public Position(Position pos) {
+    this.filename = pos.filename;
+    this.line = pos.line;
+    this.col = pos.col;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%s:%d:%d", filename, line, col);
   }
 }

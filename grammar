@@ -1,20 +1,22 @@
 ; rules
 <mal>           ::= (<category> | <associations> | <include> | <define>)* EOF
 <define>        ::= HASH ID COLON STRING
-<meta>          ::= (INFO | ASSUMPTIONS | RATIONALE) COLON STRING
+<meta>          ::= <meta-type> COLON STRING
+<meta-type>     ::= INFO | ASSUMPTIONS | RATIONALE
 <include>       ::= INCLUDE STRING
 <number>        ::= INT | FLOAT
 
 <category>      ::= CATEGORY ID <meta>* LCURLY <asset>* RCURLY
 <asset>         ::= ABSTRACT? ASSET ID (EXTENDS ID)? <meta>* LCURLY (<attackstep> | <variable>)* RCURLY
-<attackstep>    ::= <astype> ID <ttc>? <meta>* <existence>? ((INHERIT | OVERRIDE) <statement> (COMMA <statement>)*)?
+<attackstep>    ::= <astype> ID <ttc>? <meta>* <existence>? <reaches>?
 <astype>        ::= ALL | ANY | HASH | EXIST | NOTEXIST
 <ttc>           ::= LBRACKET <ttc-expr>? RBRACKET
 <ttc-expr>      ::= <ttc-term> ((PLUS | MINUS) <ttc-term>)*
 <ttc-term>      ::= <ttc-fact> ((STAR | DIVIDE) <ttc-fact>)*
 <ttc-fact>      ::= <ttc-prim> (POWER <ttc-fact>)?
 <ttc-prim>      ::= ID (LPAREN (<number> (COMMA <number>)*)? RPAREN)? | LPAREN <ttc-expr> RPAREN
-<existence>     ::= REQUIRE ID (COMMA ID)*
+<existence>     ::= REQUIRE <statement> (COMMA <statement>)*
+<reaches>       ::= (INHERIT | OVERRIDE) <statement> (COMMA <statement>)*
 
 <statement>     ::= <variable> | <expr>
 <variable>      ::= LET ID ASSIGN <expr>
@@ -26,7 +28,8 @@
 
 <associations>  ::= ASSOCIATIONS LCURLY <association>* RCURLY
 <association>   ::= ID <type> <mult> LARROW ID RARROW <mult> <type> ID <meta>*
-<mult>          ::= INT (RANGE (INT | STAR))? | STAR
+<mult>          ::= <mult-unit> (RANGE <mult-unit>)?
+<mult-unit>     ::= INT | STAR
 <type>          ::= LBRACKET ID LBRACKET
 
 

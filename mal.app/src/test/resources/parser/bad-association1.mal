@@ -1,0 +1,3 @@
+associations {
+  A [a] 1 <- l -> 1 [b] B
+}

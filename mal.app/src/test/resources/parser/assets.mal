@@ -1,0 +1,36 @@
+category Cat {
+  asset A
+    info: "Info1"
+    rationale: "Reason1"
+    assumptions: "None1"
+  {
+  }
+
+  abstract asset B
+    info: "Info2"
+    rationale: "Reason2"
+    assumptions: "None2"
+  {
+    let x = y
+  }
+
+  asset C extends A
+    info: "Info3"
+    rationale: "Reason3"
+    assumptions: "None3"
+  {
+    & a
+    | a
+  }
+
+  abstract asset D extends B
+    info: "Info4"
+    rationale: "Reason4"
+    assumptions: "None4"
+  {
+    # a
+    let x = y
+    E b
+    !E c
+  }
+}

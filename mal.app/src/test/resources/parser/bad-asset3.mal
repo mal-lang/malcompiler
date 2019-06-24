@@ -1,0 +1,3 @@
+category Cat {
+  asset A extends { }
+}

@@ -1,0 +1,65 @@
+category Cat {
+  // Testing TTC
+  asset A {
+    &  a [a+b]
+    |  b [a-b]
+    #  c [a*b]
+    E  d [a/b]
+    !E e [a^b]
+    &  a [a+b*c]
+    |  b [a*b^e+c]
+    #  c [(a+b)*c]
+    E  d [a+(b*c)]
+    !E e [(a*b)+c]
+    &  a [a*(b+c)]
+    |  b [a()]
+    #  c [a(0)]
+    E  d [a(13)]
+    !E e [a(3.14)]
+    &  a [a(1, 1.1)]
+    |  b [a(1, 2.3, 3) + b]
+  }
+
+  // Testing meta
+  asset B {
+    & a
+      info: "Info"
+    | b
+      info: "Info"
+      rationale: "Reason"
+    # c [TTC]
+      info: "Info"
+  }
+
+  // Testing existence
+  asset C {
+    E a
+      <- let x = y,
+         a.y,
+         let a = b,
+         b,
+         c \/ d,
+         a.(b[C])*
+  }
+
+  // Testing reaches
+  asset D {
+    & a
+      -> let x = y,
+         a.y,
+         let a = b,
+         b,
+         c \/ d,
+         a.(b[C])*
+    | b
+      <- x
+      -> y
+    # c [t]
+      <- x
+      +> y
+    E d [t]
+      info: "Info"
+      <- x
+      -> y
+  }
+}

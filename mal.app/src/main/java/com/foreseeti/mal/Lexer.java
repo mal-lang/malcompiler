@@ -59,14 +59,21 @@ public class Lexer {
   }
 
   public Lexer(File file) throws IOException {
-    filename = file.getName();
+    this(file, file.getName());
+  }
+
+  public Lexer(File file, String relativeName) throws IOException {
+    if (!file.exists()) {
+      throw new IOException(String.format("%s: No such file or directory", relativeName));
+    }
+    filename = relativeName;
     input = Files.readAllBytes(file.toPath());
     line = 1;
     col = 1;
     index = 0;
   }
 
-  public Token next() throws LexerException {
+  public Token next() throws SyntaxError {
     lexeme = "";
     char c = consume();
     switch (c) {
@@ -111,7 +118,7 @@ public class Lexer {
           consume();
           return createToken(TokenType.NOTEXIST);
         } else {
-          exception("Expected 'E'");
+          throw exception("Expected 'E'");
         }
       case '[':
         return createToken(TokenType.LBRACKET);
@@ -131,7 +138,7 @@ public class Lexer {
           consume();
           return createToken(TokenType.REQUIRE);
         } else {
-          exception("Expected '-' or '--'");
+          throw exception("Expected '-' or '--'");
         }
       case '=':
         return createToken(TokenType.ASSIGN);
@@ -140,7 +147,7 @@ public class Lexer {
           consume();
           return createToken(TokenType.UNION);
         } else {
-          exception("Expected '/'");
+          throw exception("Expected '/'");
         }
       case '/':
         if(peek() == '\\') {
@@ -158,7 +165,7 @@ public class Lexer {
           while(!peek(2).equals("*/")) {
             consume();
             if(peek() == '\0') {
-              exception(String.format("Unterminated comment starting at %s:%s", startline, startcol));
+              throw exception(String.format("Unterminated comment starting at %s:%s", startline, startcol));
             }
           }
           consume(2);
@@ -184,12 +191,12 @@ public class Lexer {
           if(peek() == '\\') {
             String escapeSequence = peek(2);
             if(!escapeSequences.containsKey(escapeSequence)) {
-              exception(String.format("Invalid escape sequence %s", escapeSequence));
+              throw exception(String.format("Invalid escape sequence %s", escapeSequence));
             }
             lexeme += escapeSequences.get(escapeSequence);
             index += 2;
           } else if(peek() == '\0' || peek() == '\n') {
-            exception(String.format("Unterminated string starting at %s:%s", startline, startcol));
+            throw exception(String.format("Unterminated string starting at %s:%s", startline, startcol));
           } else {
             consume();
           }
@@ -219,11 +226,9 @@ public class Lexer {
             }
             return createToken(TokenType.FLOAT);
           }
-        } else {
-          exception(String.format("Unexpected token '%s'", lexeme));
         }
+        throw exception(String.format("Unexpected token '%s'", lexeme));
     }
-    return null;
   }
 
   private String consume(int n) {
@@ -282,8 +287,8 @@ public class Lexer {
     }
   }
 
-  private void exception(String msg) throws LexerException {
-    throw new LexerException(String.format("%s:%s:%s %s", filename, line, col, msg));
+  private SyntaxError exception(String msg) {
+    return new SyntaxError(filename, line, col, msg);
   }
 
   private static boolean isDigit(char c) {

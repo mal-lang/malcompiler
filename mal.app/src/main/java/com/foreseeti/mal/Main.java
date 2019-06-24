@@ -133,18 +133,23 @@ public class Main {
       try {
         Lexer lexer = new Lexer(opts.file);
         Token t = lexer.next();
-        while(t.getType() != TokenType.EOF) {
-          System.out.printf("%s:%s:%s %s\n", t.getType().toString(), t.getLine(), t.getCol(), t.getStringValue());
+        while (t.type != TokenType.EOF) {
+          System.out.printf("%s:%d:%d %s\n", t.type.toString(), t.line, t.col, t.stringValue);
           t = lexer.next();
         }
-      } catch (IOException e) {
-        e.printStackTrace();
-      } catch (LexerException e) {
-        e.printStackTrace();
+      } catch (Exception e) {
+        System.err.println(e.getMessage());
+        System.exit(1);
       }
     } else if (opts.parser) {
-      System.err.println("Not yet implemented");
-      System.exit(1);
+      try {
+        var parser = new Parser(opts.file);
+        var ast = parser.parse();
+        System.out.println(ast.toString());
+      } catch (IOException | SyntaxError e) {
+        System.err.println(e.getMessage());
+        System.exit(1);
+      }
     } else if (opts.analyzer) {
       System.err.println("Not yet implemented");
       System.exit(1);

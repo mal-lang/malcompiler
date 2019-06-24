@@ -1,0 +1,7 @@
+category Cat {
+  asset A {
+    & a
+      ->
+        info: "Info"
+  }
+}

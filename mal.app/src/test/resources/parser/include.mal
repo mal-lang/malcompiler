@@ -1,0 +1,5 @@
+#a: "b"
+
+include "included1.mal"
+
+#b: "c"

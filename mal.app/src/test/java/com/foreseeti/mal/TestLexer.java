@@ -43,32 +43,32 @@ public class TestLexer {
   }
 
   @Test
-  public void testLexerTokens() throws IOException, LexerException {
+  public void testLexerTokens() throws IOException, SyntaxError {
     File input = new File(getClass().getClassLoader().getResource("lexer/tokens.txt").getFile());
     Lexer lexer = new Lexer(input);
     List<TokenType> tokenTypes = Arrays.asList(TokenType.HASH, TokenType.COLON, TokenType.LCURLY, TokenType.RCURLY, TokenType.INHERIT, TokenType.OVERRIDE, TokenType.ALL, TokenType.ANY, TokenType.NOTEXIST, TokenType.LBRACKET, TokenType.RBRACKET, TokenType.LPAREN, TokenType.RPAREN, TokenType.COMMA, TokenType.REQUIRE, TokenType.ASSIGN, TokenType.UNION, TokenType.INTERSECT, TokenType.DOT, TokenType.RANGE, TokenType.STAR, TokenType.PLUS, TokenType.MINUS, TokenType.DIVIDE, TokenType.POWER, TokenType.LARROW, TokenType.RARROW, TokenType.EOF);
     for(TokenType tokenType : tokenTypes) {
-      assertEquals(tokenType, lexer.next().getType());
+      assertEquals(tokenType, lexer.next().type);
     }
   }
 
   @Test
-  public void testLexerKeywords() throws IOException, LexerException {
+  public void testLexerKeywords() throws IOException, SyntaxError {
     File input = new File(getClass().getClassLoader().getResource("lexer/keywords.txt").getFile());
     Lexer lexer = new Lexer(input);
     List<TokenType> tokenTypes = Arrays.asList(TokenType.INCLUDE, TokenType.INFO, TokenType.ASSUMPTIONS, TokenType.RATIONALE, TokenType.CATEGORY, TokenType.ABSTRACT, TokenType.ASSET, TokenType.EXTENDS, TokenType.ASSOCIATIONS, TokenType.LET, TokenType.EXIST, TokenType.EOF);
     for(TokenType tokenType : tokenTypes) {
-      assertEquals(tokenType, lexer.next().getType());
+      assertEquals(tokenType, lexer.next().type);
     }
   }
 
   @Test
-  public void testLexerLexemes() throws IOException, LexerException {
+  public void testLexerLexemes() throws IOException, SyntaxError {
     File input = new File(getClass().getClassLoader().getResource("lexer/lexemes.txt").getFile());
     Lexer lexer = new Lexer(input);
     List<TokenType> tokenTypes = Arrays.asList(TokenType.STRING, TokenType.STRING, TokenType.INT, TokenType.FLOAT, TokenType.ID, TokenType.EOF);
     for(TokenType tokenType : tokenTypes) {
-      assertEquals(tokenType, lexer.next().getType());
+      assertEquals(tokenType, lexer.next().type);
     }
   }
 
@@ -79,7 +79,7 @@ public class TestLexer {
     try {
       lexer.next();
       fail();
-    } catch (LexerException e) {
+    } catch (SyntaxError e) {
       return;
     }
   }
@@ -91,7 +91,7 @@ public class TestLexer {
     try {
       lexer.next();
       fail();
-    } catch (LexerException e) {
+    } catch (SyntaxError e) {
       return;
     }
   }
@@ -103,7 +103,7 @@ public class TestLexer {
     try {
       lexer.next();
       fail();
-    } catch (LexerException e) {
+    } catch (SyntaxError e) {
       return;
     }
   }
@@ -115,7 +115,7 @@ public class TestLexer {
     try {
       lexer.next();
       fail();
-    } catch (LexerException e) {
+    } catch (SyntaxError e) {
       return;
     }
   }

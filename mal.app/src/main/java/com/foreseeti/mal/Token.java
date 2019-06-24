@@ -15,62 +15,41 @@
  */
 package com.foreseeti.mal;
 
-public class Token {
-  private TokenType type;
-  private String filename;
-  private String stringValue;
-  private double doubleValue;
-  private int intValue;
-  private int line;
-  private int col;
+public class Token extends Position {
+  public final TokenType type;
+  public final String stringValue;
+  public final double doubleValue;
+  public final int intValue;
 
   public Token(TokenType type, String filename, int line, int col) {
+    super(filename, line, col);
     this.type = type;
-    this.filename = filename;
-    this.line = line;
-    this.col = col;
+    this.stringValue = "";
+    this.doubleValue = 0.0;
+    this.intValue = 0;
   }
 
   public Token(TokenType type, String filename, int line, int col, String stringValue) {
-    this(type, filename, line, col);
+    super(filename, line, col);
+    this.type = type;
     this.stringValue = stringValue;
+    this.doubleValue = 0.0;
+    this.intValue = 0;
   }
 
   public Token(TokenType type, String filename, int line, int col, double doubleValue) {
-    this(type, filename, line, col);
+    super(filename, line, col);
+    this.type = type;
+    this.stringValue = "";
     this.doubleValue = doubleValue;
+    this.intValue = 0;
   }
 
   public Token(TokenType type, String filename, int line, int col, int intValue) {
-    this(type, filename, line, col);
+    super(filename, line, col);
+    this.type = type;
+    this.stringValue = "";
+    this.doubleValue = 0.0;
     this.intValue = intValue;
-  }
-
-  public TokenType getType() {
-    return type;
-  }
-
-  public String getFilename() {
-    return filename;
-  }
-
-  public int getLine() {
-    return line;
-  }
-
-  public int getCol() {
-    return col;
-  }
-
-  public String getStringValue() {
-    return stringValue;
-  }
-
-  public double getDoubleValue() {
-    return doubleValue;
-  }
-
-  public int getIntValue() {
-    return intValue;
   }
 }
