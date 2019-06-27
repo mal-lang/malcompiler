@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module mal.app {
-  // copied from main module descriptor
-  exports com.foreseeti.mal;
-  requires info.picocli;
-  requires java.logging;
-  opens com.foreseeti.mal to info.picocli;
+package com.foreseeti.mal;
 
-  // additional test requirement
-  requires transitive org.junit.jupiter.api;
-
-  // test resources
-  opens lexer;
-  opens parser;
-  opens analyzer;
+public class SemanticError extends Exception {
+  public SemanticError(String message) {
+    super(message);
+  }
 }

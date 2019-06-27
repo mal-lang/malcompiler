@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
+import java.util.logging.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -27,6 +28,8 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 
 public class Main {
+  private static final Logger LOGGER = Logger.getGlobal();
+
   @Command(name = "com.foreseeti.mal.Main")
   private static class Options {
     @Parameters(paramLabel = "FILE",
@@ -151,8 +154,16 @@ public class Main {
         System.exit(1);
       }
     } else if (opts.analyzer) {
-      System.err.println("Not yet implemented");
-      System.exit(1);
+      try {
+        var parser = new Parser(opts.file);
+        var ast = parser.parse();
+        var a = new Analyzer(ast, opts.verbose, opts.debug);
+        a.analyze();
+        System.out.println("done");
+      } catch (IOException | SyntaxError | SemanticError e) {
+        System.err.println(e.getMessage());
+        System.exit(1);
+      }
     } else if (opts.target.equals("reference")) {
       System.err.println("Not yet implemented");
       System.exit(1);

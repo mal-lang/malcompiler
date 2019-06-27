@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 import com.foreseeti.mal.TokenType;
 
 public class Lexer {
+  private static final Logger LOGGER = Logger.getGlobal();
   private String filename;
   private byte[] input;
   private int index;
@@ -63,6 +65,7 @@ public class Lexer {
   }
 
   public Lexer(File file, String relativeName) throws IOException {
+    LOGGER.fine(String.format("Creating lexer with file '%s'", relativeName));
     if (!file.exists()) {
       throw new IOException(String.format("%s: No such file or directory", relativeName));
     }

@@ -1,0 +1,21 @@
+#id: "id"
+#version: "0.0.0"
+category cat {
+  asset A {
+    // define variable 'var' visible by '& access' and '| compromise'
+    let var = compromise
+    & access ->
+      // redefine 'var'
+      let var = b,
+      var.compromise
+    | compromise ->
+      // variable 'var' should be as defined on L4
+      b.var
+  }
+  asset B {
+    | compromise
+  }
+}
+associations {
+  A [a] * <-- ab --> * [b] B
+}

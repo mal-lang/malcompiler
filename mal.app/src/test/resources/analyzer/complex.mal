@@ -1,0 +1,78 @@
+/*
+Modified version of "MAL Example with all Features" from Appendix A in
+"MAL BoK: the Meta Attack Language Body of Knowledge and User Guide" to
+be semantically and syntactically correct as well as have more features.
+*/
+#id: "complex"
+#version: "1.0.0"
+category Person {
+  abstract asset User {
+    | impersonate
+      -> compromise,
+      stealInformation
+    | compromise
+      -> computer.stealSecret
+    | stealInformation
+      //collect example, a reference to attack step stolenSecrets via 2 steps.
+      -> computer.internalHD.stealHDSecrets
+    | stealFolder
+      //varible example, declaring a variable to be valid within an attack step.
+      -> let MYVAR = externalHD.stealFolder,
+      computer.MYVAR
+  }
+  asset Student extends User {}
+  asset Teacher extends User {
+    | accessSchoolComputer
+      info: "An extra level of protection, their school computer must be used to impersonate them."
+      -> compromise
+  }
+}
+category Hardware {
+  asset Computer {
+    let HDDs = externalHD \/ internalHD
+    | malwareInfection
+      -> interceptTraffic
+    | interceptTraffic
+      -> retrievePassword
+    & retrievePassword
+      info: "Retrieval of password is only possible if password is unencrypted"
+      -> user.impersonate
+    | bypassFirewall [ExponentialDistribution(0.05) * GammaDistribution(1.2, 1.7)]
+      -> firewall.bypassFirewall
+    | stealSecret
+      //Set example, only when the external and internal HD have their secrets stolen do we have stolen secrets.
+      -> HDDs.stealHDSecrets
+    # passwordEncrypted
+      -> retrievePassword
+    E firewallProtected
+      <- firewall
+      -> firewall.bypassFirewall
+  }
+  asset Firewall {
+    & bypassFirewall
+      -> computer.retrievePassword,
+      computer.interceptTraffic,
+      //TypeOf example, after the firewall is bypassed the teacher can be impersonated.
+      user[Teacher].impersonate
+  }
+  asset Harddrive {
+    | stealHDSecrets
+    | stealFolder
+    //Transitive example, we can refer many steps away without writing all of the steps.
+      -> ((folder.(subFolder)*).accessFolder)
+  }
+  asset SecretFolder {
+    | accessFolder
+  }
+}
+associations {
+  Computer [studentComputer] 1..* <-- Use --> 1 [student] Student
+  Computer [teacherComputer] 1 <-- Use --> 1 [teacher] Teacher
+  Computer [computer] * <-- Protect --> 1 [firewall] Firewall
+  Firewall [firewall] 1 <-- Protect --> * [user] User
+  Computer [computer] 1 <-- Storage --> 1 [user] User
+  Computer [extHDComputer] 1 <-- Use --> 1 [externalHD] Harddrive
+  Computer [intHDComputer] 1 <-- Contain --> 1 [internalHD] Harddrive
+  Harddrive [internalHD] 1 <-- Contain --> * [folder] SecretFolder
+  SecretFolder [folder] 1 <-- Contain --> * [subFolder] SecretFolder
+}

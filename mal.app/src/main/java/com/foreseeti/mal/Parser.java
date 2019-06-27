@@ -94,7 +94,7 @@ public class Parser {
     attackStepFirst.add(TokenType.NOTEXIST);
   }
 
-  // <mal> ::= (<category> | <associations> | <include> | <define>)* EOF
+  // <mal> ::= (<category> | <associations> | <include> | <define>)* EOF
   public AST parse() throws SyntaxError {
     var ast = new AST();
     next();
@@ -545,7 +545,7 @@ public class Parser {
     return e;
   }
 
-  // <prim> ::= ID | LPAREN <expr> RPAREN
+  // <prim> ::= ID | LPAREN <expr> RPAREN
   private AST.Expr parsePrim() throws SyntaxError {
     var firstToken = tok;
 

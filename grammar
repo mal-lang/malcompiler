@@ -1,5 +1,5 @@
 ; rules
-<mal>           ::= (<category> | <associations> | <include> | <define>)* EOF
+<mal>           ::= (<category> | <associations> | <include> | <define>)* EOF
 <define>        ::= HASH ID COLON STRING
 <meta>          ::= <meta-type> COLON STRING
 <meta-type>     ::= INFO | ASSUMPTIONS | RATIONALE
@@ -23,7 +23,7 @@
 <step>          ::= <transitive> (DOT <transitive>)*
 <transitive>    ::= <subtype> STAR?
 <subtype>       ::= <prim> <type>?
-<prim>          ::= ID | LPAREN <expr> RPAREN
+<prim>          ::= ID | LPAREN <expr> RPAREN
 
 <associations>  ::= ASSOCIATIONS LCURLY <association>* RCURLY
 <association>   ::= ID <type> <mult> LARROW ID RARROW <mult> <type> ID <meta>*
