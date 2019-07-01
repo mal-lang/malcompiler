@@ -145,7 +145,7 @@ public class Main {
       try {
         var parser = new Parser(opts.file);
         var ast = parser.parse();
-        System.out.println(ast.toString());
+        System.out.print(ast.toString());
       } catch (IOException | SyntaxError e) {
         System.err.println(e.getMessage());
         System.exit(1);

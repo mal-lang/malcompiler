@@ -425,21 +425,30 @@ public class Parser {
     }
   }
 
-  // <existence> ::= REQUIRE <statement> (COMMA <statement>)*
+  // <existence> ::= REQUIRE (<variable> | <expr>) (COMMA (<variable> | <expr>))*
   private AST.Requires parseExistence() throws SyntaxError {
     var firstToken = tok;
 
     expect(TokenType.REQUIRE);
-    var requires = new ArrayList<AST.Statement>();
-    requires.add(parseStatement());
+    var variables = new ArrayList<AST.Variable>();
+    var requires = new ArrayList<AST.Expr>();
+    if (tok.type == TokenType.LET) {
+      variables.add(parseVariable());
+    } else {
+      requires.add(parseExpr());
+    }
     while (tok.type == TokenType.COMMA) {
       next();
-      requires.add(parseStatement());
+      if (tok.type == TokenType.LET) {
+        variables.add(parseVariable());
+      } else {
+        requires.add(parseExpr());
+      }
     }
-    return new AST.Requires(firstToken, requires);
+    return new AST.Requires(firstToken, variables, requires);
   }
 
-  // <reaches> ::= (INHERIT | OVERRIDE) <statement> (COMMA <statement>)*
+  // <reaches> ::= (INHERIT | OVERRIDE) (<variable> | <expr>) (COMMA (<variable> | <expr>))*
   private AST.Reaches parseReaches() throws SyntaxError {
     var firstToken = tok;
 
@@ -452,22 +461,22 @@ public class Parser {
       throw syntaxErrorExpectedTok(TokenType.INHERIT, TokenType.OVERRIDE);
     }
     next();
-    var statements = new ArrayList<AST.Statement>();
-    statements.add(parseStatement());
+    var variables = new ArrayList<AST.Variable>();
+    var reaches = new ArrayList<AST.Expr>();
+    if (tok.type == TokenType.LET) {
+      variables.add(parseVariable());
+    } else {
+      reaches.add(parseExpr());
+    }
     while (tok.type == TokenType.COMMA) {
       next();
-      statements.add(parseStatement());
+      if (tok.type == TokenType.LET) {
+        variables.add(parseVariable());
+      } else {
+        reaches.add(parseExpr());
+      }
     }
-    return new AST.Reaches(firstToken, inherits, statements);
-  }
-
-  // <statement> ::= <variable> | <expr>
-  private AST.Statement parseStatement() throws SyntaxError {
-    if (tok.type == TokenType.LET) {
-      return parseVariable();
-    } else {
-      return parseExpr();
-    }
+    return new AST.Reaches(firstToken, inherits, variables, reaches);
   }
 
   // <variable> ::= LET ID ASSIGN <expr>

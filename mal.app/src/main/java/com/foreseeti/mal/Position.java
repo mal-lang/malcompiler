@@ -32,8 +32,12 @@ public class Position {
     this.col = pos.col;
   }
 
+  public String posString() {
+    return String.format("%s:%d:%d", filename, line, col);
+  }
+
   @Override
   public String toString() {
-    return String.format("%s:%d:%d", filename, line, col);
+    return posString();
   }
 }

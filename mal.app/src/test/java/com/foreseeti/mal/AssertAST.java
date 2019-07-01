@@ -216,32 +216,15 @@ public class AssertAST {
 
   private static void assertRequires(AST.Requires expected, AST.Requires actual) {
     assertPosition(expected, actual);
-    assertStatementList(expected.requires, actual.requires);
+    assertVariableList(expected.variables, actual.variables);
+    assertExprList(expected.requires, actual.requires);
   }
 
   private static void assertReaches(AST.Reaches expected, AST.Reaches actual) {
     assertPosition(expected, actual);
     assertEqualsPos(expected.inherits, actual.inherits, actual);
-    assertStatementList(expected.statements, actual.statements);
-  }
-
-  private static void assertStatement(AST.Statement expected, AST.Statement actual) {
-    if (expected instanceof AST.Variable) {
-      assertTruePos(actual instanceof AST.Variable, actual);
-      assertVariable((AST.Variable) expected, (AST.Variable) actual);
-    } else if (expected instanceof AST.Expr) {
-      assertTruePos(actual instanceof AST.Expr, actual);
-      assertExpr((AST.Expr) expected, (AST.Expr) actual);
-    } else {
-      failPos("Invalid expected subtype of Statement", expected);
-    }
-  }
-
-  private static void assertStatementList(List<AST.Statement> expected, List<AST.Statement> actual) {
-    assertEquals(expected.size(), actual.size());
-    for (int i = 0; i < expected.size(); i++) {
-      assertStatement(expected.get(i), actual.get(i));
-    }
+    assertVariableList(expected.variables, actual.variables);
+    assertExprList(expected.reaches, actual.reaches);
   }
 
   private static void assertVariable(AST.Variable expected, AST.Variable actual) {
@@ -279,6 +262,13 @@ public class AssertAST {
       assertIDExpr((AST.IDExpr) expected, (AST.IDExpr) actual);
     } else {
       failPos("Invalid expected subtype of Expr", expected);
+    }
+  }
+
+  private static void assertExprList(List<AST.Expr> expected, List<AST.Expr> actual) {
+    assertEquals(expected.size(), actual.size());
+    for (int i = 0; i < expected.size(); i++) {
+      assertExpr(expected.get(i), actual.get(i));
     }
   }
 

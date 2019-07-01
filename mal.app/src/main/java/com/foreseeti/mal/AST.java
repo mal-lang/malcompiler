@@ -27,19 +27,9 @@ public class AST {
   @Override
   public String toString() {
     var sb = new StringBuilder();
-    for (var define : defines) {
-      sb.append(define.toString());
-      sb.append('\n');
-    }
-    for (var category : categories) {
-      sb.append(category.toString());
-      sb.append('\n');
-    }
-    sb.append("associations {\n");
-    for (var association : associations) {
-      sb.append(association.toString());
-    }
-    sb.append("}\n");
+    sb.append(String.format("%s,\n", Define.listToString(defines, 0)));
+    sb.append(String.format("%s,\n", Category.listToString(categories, 0)));
+    sb.append(String.format("%s\n", Association.listToString(associations, 0)));
     return sb.toString();
   }
 
@@ -89,7 +79,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("<%s:%d:%d>ID(%s)", filename, line, col, id);
+      return String.format("ID(%s, \"%s\")", posString(), id);
     }
   }
 
@@ -105,7 +95,22 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("<%s:%d:%d>Define(%s, \"%s\")", filename, line, col, key.toString(), value);
+      return String.format("Define(%s, %s, \"%s\")", posString(), key.toString(), value);
+    }
+
+    public static String listToString(List<Define> defines, int spaces) {
+      var indent = " ".repeat(spaces);
+      var sb = new StringBuilder();
+      sb.append(String.format("%sdefines = {\n", indent));
+      for (int i = 0; i < defines.size(); i++) {
+        sb.append(String.format("%s  %s", indent, defines.get(i).toString()));
+        if (i < defines.size() - 1) {
+          sb.append(',');
+        }
+        sb.append('\n');
+      }
+      sb.append(String.format("%s}", indent));
+      return sb.toString();
     }
   }
 
@@ -138,7 +143,22 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("<%s:%d:%d>Meta(%s, \"%s\")", filename, line, col, type.toString(), string);
+      return String.format("Meta(%s, %s, \"%s\")", posString(), type.name(), string);
+    }
+
+    public static String listToString(List<Meta> meta, int spaces) {
+      var indent = " ".repeat(spaces);
+      var sb = new StringBuilder();
+      sb.append(String.format("%smeta = {\n", indent));
+      for (int i = 0; i < meta.size(); i++) {
+        sb.append(String.format("%s  %s", indent, meta.get(i).toString()));
+        if (i < meta.size() - 1) {
+          sb.append(',');
+        }
+        sb.append('\n');
+      }
+      sb.append(String.format("%s}", indent));
+      return sb.toString();
     }
   }
 
@@ -154,16 +174,28 @@ public class AST {
       this.assets = assets;
     }
 
-    @Override
-    public String toString() {
+    public String toString(int spaces) {
+      var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
-      sb.append(String.format("<%s:%d:%d>Category(%s)\n", filename, line, col, name.toString()));
-      for (var m : meta) {
-        sb.append(String.format("  %s\n", m.toString()));
+      sb.append(String.format("%sCategory(%s, %s,\n", indent, posString(), name.toString()));
+      sb.append(String.format("%s,\n", Meta.listToString(meta, spaces + 2)));
+      sb.append(String.format("%s\n", Asset.listToString(assets, spaces + 2)));
+      sb.append(String.format("%s)", indent));
+      return sb.toString();
+    }
+
+    public static String listToString(List<Category> categories, int spaces) {
+      var indent = " ".repeat(spaces);
+      var sb = new StringBuilder();
+      sb.append(String.format("%scategories = {\n", indent));
+      for (int i = 0; i < categories.size(); i++) {
+        sb.append(String.format("%s", categories.get(i).toString(spaces + 2)));
+        if (i < categories.size() - 1) {
+          sb.append(',');
+        }
+        sb.append('\n');
       }
-      for (var a : assets) {
-        sb.append(a.toString());
-      }
+      sb.append(String.format("%s}", indent));
       return sb.toString();
     }
   }
@@ -186,19 +218,29 @@ public class AST {
       this.variables = variables;
     }
 
-    @Override
-    public String toString() {
+    public String toString(int spaces) {
+      var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
-      sb.append(String.format("  <%s:%d:%d>Asset(%s, %s, %s)\n", filename, line, col, isAbstract ? "abstract" : "not abstract", name.toString(), parent.isEmpty() ? "no parent" : parent.get().toString()));
-      for (var m : meta) {
-        sb.append(String.format("    %s\n", m.toString()));
+      sb.append(String.format("%sAsset(%s, %s, %s, %s,\n", indent, posString(), isAbstract ? "ABSTRACT" : "NOT_ABSTRACT", name.toString(), parent.isEmpty() ? "NO_PARENT" : String.format("PARENT(%s)", parent.get().toString())));
+      sb.append(String.format("%s,\n", Meta.listToString(meta, spaces + 2)));
+      sb.append(String.format("%s,\n", AttackStep.listToString(attackSteps, spaces + 2)));
+      sb.append(String.format("%s\n", Variable.listToString(variables, spaces + 2)));
+      sb.append(String.format("%s)", indent));
+      return sb.toString();
+    }
+
+    public static String listToString(List<Asset> assets, int spaces) {
+      var indent = " ".repeat(spaces);
+      var sb = new StringBuilder();
+      sb.append(String.format("%sassets = {\n", indent));
+      for (int i = 0; i < assets.size(); i++) {
+        sb.append(String.format("%s", assets.get(i).toString(spaces + 2)));
+        if (i < assets.size() - 1) {
+          sb.append(',');
+        }
+        sb.append('\n');
       }
-      for (var a : attackSteps) {
-        sb.append(a.toString());
-      }
-      for (var v : variables) {
-        sb.append(String.format("    %s\n", v.toString()));
-      }
+      sb.append(String.format("%s}", indent));
       return sb.toString();
     }
   }
@@ -229,22 +271,42 @@ public class AST {
       this.reaches = reaches;
     }
 
-    @Override
-    public String toString() {
+    public String toString(int spaces) {
+      var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
-      sb.append(String.format("    <%s:%d:%d>AttackStep(%s, %s)\n", filename, line, col, type.name(), name.toString()));
-      if (!ttc.isEmpty()) {
-        sb.append(String.format("      [%s]\n", ttc.get().toString()));
+      sb.append(String.format("%sAttackStep(%s, %s, %s,\n", indent, posString(), type.name(), name.toString()));
+      if (ttc.isEmpty()) {
+        sb.append(String.format("%s  ttc = [],\n", indent));
+      } else {
+        sb.append(String.format("%s  ttc = [%s],\n", indent, ttc.get().toString()));
       }
-      for (var m : meta) {
-        sb.append(String.format("      %s\n", m.toString()));
+      sb.append(String.format("%s,\n", Meta.listToString(meta, spaces + 2)));
+      if (requires.isEmpty()) {
+        sb.append(String.format("%s  NO_REQUIRES,\n", indent));
+      } else {
+        sb.append(String.format("%s,\n", requires.get().toString(spaces + 2)));
       }
-      if (!requires.isEmpty()) {
-        sb.append(requires.get().toString());
+      if (reaches.isEmpty()) {
+        sb.append(String.format("%s  NO_REACHES\n", indent));
+      } else {
+        sb.append(String.format("%s\n", reaches.get().toString(spaces + 2)));
       }
-      if (!reaches.isEmpty()) {
-        sb.append(reaches.get().toString());
+      sb.append(String.format("%s)", indent));
+      return sb.toString();
+    }
+
+    public static String listToString(List<AttackStep> attackSteps, int spaces) {
+      var indent = " ".repeat(spaces);
+      var sb = new StringBuilder();
+      sb.append(String.format("%sattacksteps = {\n", indent));
+      for (int i = 0; i < attackSteps.size(); i++) {
+        sb.append(String.format("%s", attackSteps.get(i).toString(spaces + 2)));
+        if (i < attackSteps.size() - 1) {
+          sb.append(',');
+        }
+        sb.append('\n');
       }
+      sb.append(String.format("%s}", indent));
       return sb.toString();
     }
   }
@@ -273,7 +335,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("(%s) + (%s)", lhs.toString(), rhs.toString());
+      return String.format("TTCAddExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -284,7 +346,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("(%s) - (%s)", lhs.toString(), rhs.toString());
+      return String.format("TTCSubExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -295,7 +357,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("(%s) * (%s)", lhs.toString(), rhs.toString());
+      return String.format("TTCMulExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -306,7 +368,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("(%s) / (%s)", lhs.toString(), rhs.toString());
+      return String.format("TTCDivExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -317,7 +379,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("(%s) ^ (%s)", lhs.toString(), rhs.toString());
+      return String.format("TTCPowExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -334,13 +396,9 @@ public class AST {
     @Override
     public String toString() {
       var sb = new StringBuilder();
-      sb.append(String.format("%s(", name.toString()));
-      for (int i = 0; i < params.size(); ++i) {
-        if (i == 0) {
-          sb.append(params.get(i));
-        } else {
-          sb.append(String.format(", %f", params.get(i)));
-        }
+      sb.append(String.format("TTCFuncExpr(%s, %s", posString(), name.toString()));
+      for (var p : params) {
+        sb.append(String.format(", %f", p));
       }
       sb.append(')');
       return sb.toString();
@@ -348,65 +406,50 @@ public class AST {
   }
 
   public static class Requires extends Position {
-    public final List<Statement> requires;
+    public final List<Variable> variables;
+    public final List<Expr> requires;
 
-    public Requires(Position pos, List<Statement> requires) {
+    public Requires(Position pos, List<Variable> variables, List<Expr> requires) {
       super(pos);
+      this.variables = variables;
       this.requires = requires;
     }
 
-    @Override
-    public String toString() {
+    public String toString(int spaces) {
+      var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
-      sb.append("      <- ");
-      for (int i = 0; i < requires.size(); ++i) {
-        if (i == 0) {
-          sb.append(requires.get(i).toString());
-        } else {
-          sb.append(String.format(", %s", requires.get(i).toString()));
-        }
-      }
-      sb.append('\n');
+      sb.append(String.format("%sRequires(%s,\n", indent, posString()));
+      sb.append(String.format("%s,\n", Variable.listToString(variables, spaces + 2)));
+      sb.append(String.format("%s\n", Expr.listToString(requires, "requires", spaces + 2)));
+      sb.append(String.format("%s)", indent));
       return sb.toString();
     }
   }
 
   public static class Reaches extends Position {
     public final boolean inherits;
-    public final List<Statement> statements;
+    public final List<Variable> variables;
+    public final List<Expr> reaches;
 
-    public Reaches(Position pos, boolean inherits, List<Statement> statements) {
+    public Reaches(Position pos, boolean inherits, List<Variable> variables, List<Expr> reaches) {
       super(pos);
       this.inherits = inherits;
-      this.statements = statements;
+      this.variables = variables;
+      this.reaches = reaches;
     }
 
-    @Override
-    public String toString() {
+    public String toString(int spaces) {
+      var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
-      if (inherits) {
-        sb.append("      +>\n");
-      } else {
-        sb.append("      ->\n");
-      }
-      for (int i = 0; i < statements.size(); ++i) {
-        if (i + 1 < statements.size()) {
-          sb.append(String.format("        %s,\n", statements.get(i).toString()));
-        } else {
-          sb.append(String.format("        %s\n", statements.get(i).toString()));
-        }
-      }
+      sb.append(String.format("%sReaches(%s, %s,\n", indent, posString(), inherits ? "INHERITS" : "OVERRIDES"));
+      sb.append(String.format("%s,\n", Variable.listToString(variables, spaces + 2)));
+      sb.append(String.format("%s\n", Expr.listToString(reaches, "reaches", spaces + 2)));
+      sb.append(String.format("%s)", indent));
       return sb.toString();
     }
   }
 
-  public static abstract class Statement extends Position {
-    public Statement(Position pos) {
-      super(pos);
-    }
-  }
-
-  public static class Variable extends Statement {
+  public static class Variable extends Position {
     public final ID name;
     public final Expr expr;
 
@@ -418,13 +461,43 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("<%s:%d:%d>Variable(%s, %s)", filename, line, col, name.toString(), expr.toString());
+      return String.format("Variable(%s, %s, %s)", posString(), name.toString(), expr.toString());
+    }
+
+    public static String listToString(List<Variable> variables, int spaces) {
+      var indent = " ".repeat(spaces);
+      var sb = new StringBuilder();
+      sb.append(String.format("%svariables = {\n", indent));
+      for (int i = 0; i < variables.size(); i++) {
+        sb.append(String.format("%s  %s", indent, variables.get(i).toString()));
+        if (i < variables.size() - 1) {
+          sb.append(',');
+        }
+        sb.append('\n');
+      }
+      sb.append(String.format("%s}", indent));
+      return sb.toString();
     }
   }
 
-  public static abstract class Expr extends Statement {
+  public static abstract class Expr extends Position {
     public Expr(Position pos) {
       super(pos);
+    }
+
+    public static String listToString(List<Expr> exprs, String name, int spaces) {
+      var indent = " ".repeat(spaces);
+      var sb = new StringBuilder();
+      sb.append(String.format("%s%s = {\n", indent, name));
+      for (int i = 0; i < exprs.size(); i++) {
+        sb.append(String.format("%s  %s", indent, exprs.get(i).toString()));
+        if (i < exprs.size() - 1) {
+          sb.append(',');
+        }
+        sb.append('\n');
+      }
+      sb.append(String.format("%s}", indent));
+      return sb.toString();
     }
   }
 
@@ -446,7 +519,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("(%s) \\/ (%s)", lhs.toString(), rhs.toString());
+      return String.format("UnionExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -457,7 +530,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("(%s) /\\ (%s)", lhs.toString(), rhs.toString());
+      return String.format("IntersectionExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -468,7 +541,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("(%s).(%s)", lhs.toString(), rhs.toString());
+      return String.format("StepExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -488,7 +561,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("(%s)*", e.toString());
+      return String.format("TransitiveExpr(%s, %s)", posString(), e.toString());
     }
   }
 
@@ -502,7 +575,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("(%s)[%s]", e.toString(), subType.toString());
+      return String.format("SubTypeExpr(%s, %s, %s)", posString(), e.toString(), subType.toString());
     }
   }
 
@@ -516,7 +589,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return id.toString();
+      return String.format("IDExpr(%s, %s)", posString(), id.toString());
     }
   }
 
@@ -542,13 +615,27 @@ public class AST {
       this.meta = meta;
     }
 
-    @Override
-    public String toString() {
+    public String toString(int spaces) {
+      var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
-      sb.append(String.format("  <%s:%d:%d>Association(%s, %s, %s, %s, %s, %s, %s)\n", filename, line, col, leftAsset.toString(), leftField.toString(), leftMult.toString(), linkName.toString(), rightMult.toString(), rightField.toString(), rightAsset.toString()));
-      for (var m : meta) {
-        sb.append(String.format("    %s\n", m.toString()));
+      sb.append(String.format("%sAssociation(%s, %s, %s, %s, %s, %s, %s, %s,\n", indent, posString(), leftAsset.toString(), leftField.toString(), leftMult.name(), linkName.toString(), rightMult.name(), rightField.toString(), rightAsset.toString()));
+      sb.append(String.format("%s\n", Meta.listToString(meta, spaces + 2)));
+      sb.append(String.format("%s)", indent));
+      return sb.toString();
+    }
+
+    public static String listToString(List<Association> associations, int spaces) {
+      var indent = " ".repeat(spaces);
+      var sb = new StringBuilder();
+      sb.append(String.format("%sassociations = {\n", indent));
+      for (int i = 0; i < associations.size(); i++) {
+        sb.append(String.format("%s", associations.get(i).toString(spaces + 2)));
+        if (i < associations.size() - 1) {
+          sb.append(',');
+        }
+        sb.append('\n');
       }
+      sb.append(String.format("%s}", indent));
       return sb.toString();
     }
   }
