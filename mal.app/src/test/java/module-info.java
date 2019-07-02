@@ -17,6 +17,7 @@ module mal.app {
   // copied from main module descriptor
   exports com.foreseeti.mal;
   requires info.picocli;
+  requires java.logging;
   opens com.foreseeti.mal to info.picocli;
 
   // additional test requirement
