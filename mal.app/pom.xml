@@ -28,10 +28,13 @@ limitations under the License.
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.foreseeti.mal</groupId>
   <artifactId>mal.app</artifactId>
   <packaging>jar</packaging>
   <name>MAL Compiler</name>
+
+  <properties>
+    <project.mainClass>com.foreseeti.mal.Main</project.mainClass>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -39,28 +42,44 @@ limitations under the License.
       <artifactId>picocli</artifactId>
       <version>4.0.0-beta-1b</version>
     </dependency>
+    <dependency>
+      <scope>test</scope>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.4.2</version>
+    </dependency>
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
     <testResources>
+      <testResource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
       <testResource>
         <directory>src/test/resources</directory>
       </testResource>
     </testResources>
     <plugins>
       <plugin>
+        <groupId>de.sormuras.junit</groupId>
+        <artifactId>junit-platform-maven-plugin</artifactId>
+        <version>1.0.0-M5</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.1.2</version>
         <configuration>
           <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <addDefaultEntries>false</addDefaultEntries>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-              <mainClass>com.foreseeti.mal.Main</mainClass>
-              <packageName>com.foreseeti.mal</packageName>
-            </manifest>
+            <manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
           </archive>
         </configuration>
       </plugin>
@@ -73,11 +92,7 @@ limitations under the License.
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
           <archive>
-            <manifest>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-              <mainClass>com.foreseeti.mal.Main</mainClass>
-              <packageName>com.foreseeti.mal</packageName>
-            </manifest>
+            <manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
           </archive>
         </configuration>
         <executions>

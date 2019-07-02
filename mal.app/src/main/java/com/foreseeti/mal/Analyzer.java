@@ -15,6 +15,7 @@
  */
 package com.foreseeti.mal;
 
+import com.foreseeti.mal.AST.Variable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -23,8 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import com.foreseeti.mal.AST.Variable;
-
 
 public class Analyzer {
   private MalLogger LOGGER;
@@ -37,11 +36,7 @@ public class Analyzer {
   private boolean failed;
   private Map<String, AST.Variable> currentVariables;
 
-  public Analyzer(AST ast) {
-    this(ast, false, false);
-  }
-
-  public Analyzer(AST ast, boolean verbose, boolean debug) {
+  private Analyzer(AST ast, boolean verbose, boolean debug) {
     this.ast = ast;
     LOGGER = new MalLogger("ANALYZER", verbose, debug);
     assets = new LinkedHashMap<>();
@@ -51,7 +46,15 @@ public class Analyzer {
     currentVariables = new LinkedHashMap<>();
   }
 
-  public void analyze() throws CompilerException {
+  public static void analyze(AST ast) throws CompilerException {
+    analyze(ast, false, false);
+  }
+
+  public static void analyze(AST ast, boolean verbose, boolean debug) throws CompilerException {
+    new Analyzer(ast, verbose, debug)._analyze();
+  }
+
+  private void _analyze() throws CompilerException {
     checkDefines();
     checkCategories();
     checkAssets();
@@ -67,13 +70,15 @@ public class Analyzer {
     // TTC distributions are implementation specific and must be checked in the generated code
   }
 
-  public void checkDefines() {
+  private void checkDefines() {
     Map<String, AST.Define> defines = new HashMap<>();
     for (AST.Define define : ast.getDefines()) {
       AST.Define prevDef = defines.put(define.key.id, define);
       if (prevDef != null) {
-        error(define, String.format("Define '%s' previously defined at %s", define.key.id,
-            prevDef.posString()));
+        error(
+            define,
+            String.format(
+                "Define '%s' previously defined at %s", define.key.id, prevDef.posString()));
       }
     }
     AST.Define id = defines.get("id");
@@ -87,7 +92,8 @@ public class Analyzer {
     AST.Define version = defines.get("version");
     if (version != null) {
       if (!version.value.matches("\\d+\\.\\d+\\.\\d+")) {
-        error(version,
+        error(
+            version,
             "Define 'version' must be valid semantic versioning without pre-release identifier and build metadata");
       }
     } else {
@@ -95,16 +101,17 @@ public class Analyzer {
     }
   }
 
-  public void checkCategories() {
+  private void checkCategories() {
     for (AST.Category category : ast.getCategories()) {
       if (category.assets.isEmpty() && category.meta.isEmpty()) {
-        LOGGER.warning(category.name,
+        LOGGER.warning(
+            category.name,
             String.format("Category '%s' contains no assets or metadata", category.name.id));
       }
     }
   }
 
-  public void checkMetas() {
+  private void checkMetas() {
     Map<String, List<AST.Meta>> catMetas = new HashMap<>();
     for (AST.Category category : ast.getCategories()) {
       List<AST.Meta> meta = category.meta;
@@ -125,26 +132,29 @@ public class Analyzer {
     }
   }
 
-  public void checkMeta(List<AST.Meta> lst) {
+  private void checkMeta(List<AST.Meta> lst) {
     Map<AST.MetaType, AST.Meta> metas = new HashMap<>();
     for (AST.Meta meta : lst) {
       if (!metas.containsKey(meta.type)) {
         metas.put(meta.type, meta);
       } else {
         AST.Meta prevDef = metas.get(meta.type);
-        error(meta,
+        error(
+            meta,
             String.format("Metadata %s previously defined at %s", meta.type, prevDef.posString()));
       }
     }
   }
 
-  public void checkAssets() {
+  private void checkAssets() {
     for (AST.Category category : ast.getCategories()) {
       for (AST.Asset asset : category.assets) {
         if (assets.containsKey(asset.name.id)) {
           AST.Asset prevDef = assets.get(asset.name.id);
-          error(asset.name, String.format("Asset '%s' previously defined at %s", asset.name.id,
-              prevDef.name.posString()));
+          error(
+              asset.name,
+              String.format(
+                  "Asset '%s' previously defined at %s", asset.name.id, prevDef.name.posString()));
         } else {
           assets.put(asset.name.id, asset);
         }
@@ -152,7 +162,7 @@ public class Analyzer {
     }
   }
 
-  public void checkExtends() throws CompilerException {
+  private void checkExtends() throws CompilerException {
     boolean err = false;
     for (AST.Asset asset : assets.values()) {
       if (asset.parent.isPresent()) {
@@ -166,7 +176,7 @@ public class Analyzer {
     }
   }
 
-  public void checkParents() throws CompilerException {
+  private void checkParents() throws CompilerException {
     boolean err = false;
     for (AST.Asset asset : assets.values()) {
       if (asset.parent.isPresent()) {
@@ -180,7 +190,8 @@ public class Analyzer {
               sb.append(" -> ");
             }
             sb.append(parent.name.id);
-            error(asset.name,
+            error(
+                asset.name,
                 String.format("Asset '%s' extends in loop '%s'", asset.name.id, sb.toString()));
             err = true;
             break;
@@ -194,7 +205,7 @@ public class Analyzer {
     }
   }
 
-  public void checkAbstract() {
+  private void checkAbstract() {
     for (AST.Asset parent : assets.values()) {
       if (parent.isAbstract) {
         boolean found = false;
@@ -205,14 +216,15 @@ public class Analyzer {
           }
         }
         if (!found) {
-          LOGGER.warning(parent.name,
+          LOGGER.warning(
+              parent.name,
               String.format("Asset '%s' is abstract but never extended to", parent.name.id));
         }
       }
     }
   }
 
-  public void checkSteps() {
+  private void checkSteps() {
     for (AST.Asset asset : assets.values()) {
       Scope<AST.AttackStep> scope = new Scope<>();
       steps.put(asset.name.id, scope);
@@ -228,7 +240,7 @@ public class Analyzer {
    * @param asset Child asset
    * @return List of parents, oldest parent first in list
    */
-  public LinkedList<AST.Asset> getParents(AST.Asset asset) {
+  private LinkedList<AST.Asset> getParents(AST.Asset asset) {
     LinkedList<AST.Asset> lst = new LinkedList<>();
     lst.addFirst(asset);
     while (asset.parent.isPresent()) {
@@ -245,7 +257,7 @@ public class Analyzer {
    * @param scope Scope to populate
    * @param asset Child asset
    */
-  public void readSteps(Scope<AST.AttackStep> scope, AST.Asset asset) {
+  private void readSteps(Scope<AST.AttackStep> scope, AST.Asset asset) {
     List<AST.Asset> parents = getParents(asset);
     for (AST.Asset parent : parents) {
       scope.enterScope();
@@ -261,8 +273,10 @@ public class Analyzer {
               scope.add(attackStep.name.id, attackStep);
             } else {
               // Attack step reaches something with +> but doesn't exist previously, NOK
-              error(attackStep.reaches.get(),
-                  String.format("Cannot inherit attack step '%s' without previous definition",
+              error(
+                  attackStep.reaches.get(),
+                  String.format(
+                      "Cannot inherit attack step '%s' without previous definition",
                       attackStep.name.id));
             }
           } else {
@@ -272,21 +286,26 @@ public class Analyzer {
               scope.add(attackStep.name.id, attackStep);
             } else {
               // Step is NOT of same type as previous, NOK
-              error(attackStep.name, String.format(
-                  "Cannot override attack step '%s' previously defined at %s with different type '%s' =/= '%s'",
-                  attackStep.name.id, prevDef.name.posString(), attackStep.type, prevDef.type));
+              error(
+                  attackStep.name,
+                  String.format(
+                      "Cannot override attack step '%s' previously defined at %s with different type '%s' =/= '%s'",
+                      attackStep.name.id, prevDef.name.posString(), attackStep.type, prevDef.type));
             }
           }
         } else {
           // Attack step is defined in this scope, NOK
-          error(attackStep.name, String.format("Attack step '%s' previously defined at %s",
-              attackStep.name.id, prevDef.name.posString()));
+          error(
+              attackStep.name,
+              String.format(
+                  "Attack step '%s' previously defined at %s",
+                  attackStep.name.id, prevDef.name.posString()));
         }
       }
     }
   }
 
-  public void checkFields() {
+  private void checkFields() {
     for (AST.Asset asset : assets.values()) {
       Scope<AST.Association> scope = new Scope<>();
       fields.put(asset.name.id, scope);
@@ -300,7 +319,7 @@ public class Analyzer {
    * @param scope Scope to populate
    * @param asset Child asset
    */
-  public void readFields(Scope<AST.Association> scope, AST.Asset asset) {
+  private void readFields(Scope<AST.Association> scope, AST.Asset asset) {
     List<AST.Asset> parents = getParents(asset);
     for (AST.Asset parent : parents) {
       scope.enterScope();
@@ -316,8 +335,8 @@ public class Analyzer {
     }
   }
 
-  public void addField(Scope<AST.Association> scope, AST.Asset asset, AST.ID field,
-      AST.Association assoc) {
+  private void addField(
+      Scope<AST.Association> scope, AST.Asset asset, AST.ID field, AST.Association assoc) {
     AST.Association prevDef = scope.lookdown(field.id);
     if (prevDef == null) {
       // Field not previously defined
@@ -326,8 +345,11 @@ public class Analyzer {
         scope.add(field.id, assoc);
       } else {
         // Field previously defined as attack step
-        error(field, String.format("Field '%s' previously defined as attack step at %s", field.id,
-            prevStep.posString()));
+        error(
+            field,
+            String.format(
+                "Field '%s' previously defined as attack step at %s",
+                field.id, prevStep.posString()));
       }
     } else {
       // Field previously defined
@@ -338,24 +360,26 @@ public class Analyzer {
         prevField = prevDef.rightField;
       }
       // prevField and field are switched since we are traveling from child->parent
-      error(prevField,
+      error(
+          prevField,
           String.format("Field '%s' previously defined at %s", field.id, field.posString()));
     }
   }
 
-  public void addVariable(AST.Variable variable) {
+  private void addVariable(AST.Variable variable) {
     AST.Variable prevDef = variables.look(variable.name.id);
     if (prevDef == null) {
       variables.add(variable.name.id, variable);
     } else {
-      error(variable.name, String.format("Variable '%s' previously defined at %s", variable.name.id,
-          prevDef.name.posString()));
+      error(
+          variable.name,
+          String.format(
+              "Variable '%s' previously defined at %s",
+              variable.name.id, prevDef.name.posString()));
     }
   }
 
-  /**
-   * Evaluates each expression reached by an attack step.
-   */
+  /** Evaluates each expression reached by an attack step. */
   private void checkReaches() throws CompilerException {
     for (AST.Asset asset : assets.values()) {
       variables = new Scope<>();
@@ -380,12 +404,14 @@ public class Analyzer {
             }
             variables.exitScope();
           } else {
-            error(attackStep,
+            error(
+                attackStep,
                 String.format("Attack step of type '%s' must have require '<-'", attackStep.type));
             continue;
           }
         } else if (attackStep.requires.isPresent()) {
-          error(attackStep.requires.get(),
+          error(
+              attackStep.requires.get(),
               "Require '<-' may only be defined for attack step type exist 'E' or not-exist '!E'");
           continue;
         }
@@ -407,7 +433,7 @@ public class Analyzer {
     }
   }
 
-  public AST.AttackStep variableToStep(AST.Asset asset, AST.Variable variable) {
+  private AST.AttackStep variableToStep(AST.Asset asset, AST.Variable variable) {
     if (evalVariableBegin(variable)) {
       AST.AttackStep res = checkToStep(asset, variable.expr);
       evalVariableEnd(variable);
@@ -417,7 +443,7 @@ public class Analyzer {
     }
   }
 
-  public AST.AttackStep checkToStep(AST.Asset asset, AST.Expr expr) {
+  private AST.AttackStep checkToStep(AST.Asset asset, AST.Expr expr) {
     if (expr instanceof AST.IDExpr) {
       AST.IDExpr step = (AST.IDExpr) expr;
       AST.Asset target = asset;
@@ -426,9 +452,11 @@ public class Analyzer {
       if (variable != null && attackStep != null) {
         // ID is both variable and attack step. We assume the variable is desired but print a
         // warning.
-        LOGGER.warning(step.id,
-            String.format("Step '%s' defined as variable at %s and attack step at %s", step.id.id,
-                variable.name.posString(), attackStep.name.posString()));
+        LOGGER.warning(
+            step.id,
+            String.format(
+                "Step '%s' defined as variable at %s and attack step at %s",
+                step.id.id, variable.name.posString(), attackStep.name.posString()));
         return variableToStep(target, variable);
       } else if (variable != null) {
         // Only defined as a variable
@@ -437,8 +465,10 @@ public class Analyzer {
         // Only defined as an attack step
         return attackStep;
       } else {
-        error(step.id, String.format("Attack step '%s' not defined for asset '%s'", step.id.id,
-            target.name.id));
+        error(
+            step.id,
+            String.format(
+                "Attack step '%s' not defined for asset '%s'", step.id.id, target.name.id));
         return null;
       }
     } else if (expr instanceof AST.StepExpr) {
@@ -455,7 +485,7 @@ public class Analyzer {
     }
   }
 
-  public AST.Asset checkToAsset(AST.Asset asset, AST.Expr expr) {
+  private AST.Asset checkToAsset(AST.Asset asset, AST.Expr expr) {
     if (expr instanceof AST.StepExpr) {
       return checkStepExpr(asset, (AST.StepExpr) expr);
     } else if (expr instanceof AST.IDExpr) {
@@ -490,7 +520,7 @@ public class Analyzer {
    * @param variable Variable evaluated
    * @return True if variable is not being evaluated, false otherwise
    */
-  public boolean evalVariableBegin(AST.Variable variable) {
+  private boolean evalVariableBegin(AST.Variable variable) {
     AST.Variable prev = currentVariables.put(variable.name.id, variable);
     if (prev == null) {
       return true;
@@ -502,17 +532,18 @@ public class Analyzer {
       }
       sb.append(variable.name.id);
       AST.Variable first = (Variable) currentVariables.values().toArray()[0];
-      error(first.name,
+      error(
+          first.name,
           String.format("Variable '%s' contains cycle '%s'", first.name.id, sb.toString()));
       return false;
     }
   }
 
-  public void evalVariableEnd(AST.Variable variable) {
+  private void evalVariableEnd(AST.Variable variable) {
     currentVariables.remove(variable.name.id);
   }
 
-  public AST.Asset variableToAsset(AST.Asset asset, AST.Variable variable) {
+  private AST.Asset variableToAsset(AST.Asset asset, AST.Variable variable) {
     if (evalVariableBegin(variable)) {
       AST.Asset res = checkToAsset(asset, variable.expr);
       evalVariableEnd(variable);
@@ -522,13 +553,16 @@ public class Analyzer {
     }
   }
 
-  public AST.Asset checkIDExpr(AST.Asset asset, AST.IDExpr expr) {
+  private AST.Asset checkIDExpr(AST.Asset asset, AST.IDExpr expr) {
     AST.Variable variable = variables.lookup(expr.id.id);
     AST.ID target = hasTarget(asset, expr.id.id);
     if (variable != null && target != null) {
       // ID found as both variable and field
-      LOGGER.warning(expr.id, String.format("Step '%s' defined as variable at %s and field at %s",
-          expr.id.id, variable.name.posString(), target.posString()));
+      LOGGER.warning(
+          expr.id,
+          String.format(
+              "Step '%s' defined as variable at %s and field at %s",
+              expr.id.id, variable.name.posString(), target.posString()));
       return variableToAsset(asset, variable);
     } else if (variable != null) {
       // ID defined as variable only
@@ -549,8 +583,11 @@ public class Analyzer {
     if (target != null) {
       return target;
     } else {
-      error(expr, String.format("Types '%s' and '%s' have no common ancestor", leftTarget.name.id,
-          rightTarget.name.id));
+      error(
+          expr,
+          String.format(
+              "Types '%s' and '%s' have no common ancestor",
+              leftTarget.name.id, rightTarget.name.id));
       return null;
     }
   }
@@ -560,7 +597,8 @@ public class Analyzer {
     if (isChild(res, asset)) {
       return res;
     } else {
-      error(expr,
+      error(
+          expr,
           String.format("Previous asset '%s' is not of type '%s'", asset.name.id, res.name.id));
       return null;
     }
@@ -583,7 +621,7 @@ public class Analyzer {
     }
   }
 
-  public AST.Asset getAsset(AST.ID name) {
+  private AST.Asset getAsset(AST.ID name) {
     if (assets.containsKey(name.id)) {
       return assets.get(name.id);
     } else {
@@ -592,7 +630,7 @@ public class Analyzer {
     }
   }
 
-  public AST.ID hasStep(AST.Asset asset, String name) {
+  private AST.ID hasStep(AST.Asset asset, String name) {
     Scope<AST.AttackStep> scope = steps.get(asset.name.id);
     AST.AttackStep attackStep = scope.lookdown(name);
     if (attackStep != null) {
@@ -602,7 +640,7 @@ public class Analyzer {
     }
   }
 
-  public AST.ID hasTarget(AST.Asset asset, String field) {
+  private AST.ID hasTarget(AST.Asset asset, String field) {
     Scope<AST.Association> scope = fields.get(asset.name.id);
     AST.Association assoc = scope.lookdown(field);
     if (assoc != null) {
@@ -616,7 +654,7 @@ public class Analyzer {
     }
   }
 
-  public AST.Asset getTarget(AST.Asset asset, AST.ID name) {
+  private AST.Asset getTarget(AST.Asset asset, AST.ID name) {
     Scope<AST.Association> scope = fields.get(asset.name.id);
     AST.Association assoc = scope.lookdown(name.id);
     if (assoc != null) {
@@ -656,18 +694,18 @@ public class Analyzer {
     }
   }
 
-  public CompilerException exception() {
+  private CompilerException exception() {
     return new CompilerException("There were semantic errors");
   }
 
-  public void error(String msg) {
+  private void error(String msg) {
     failed = true;
     if (errors.add(msg)) {
       LOGGER.error(msg);
     }
   }
 
-  public void error(Position pos, String msg) {
+  private void error(Position pos, String msg) {
     failed = true;
     if (errors.add(msg)) {
       LOGGER.error(pos, msg);

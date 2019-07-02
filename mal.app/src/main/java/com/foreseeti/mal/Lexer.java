@@ -31,6 +31,7 @@ public class Lexer {
   private String lexeme;
 
   private static Map<String, TokenType> keywords;
+
   static {
     keywords = new HashMap<>();
     keywords.put("include", TokenType.INCLUDE);
@@ -47,6 +48,7 @@ public class Lexer {
   }
 
   private static Map<String, Character> escapeSequences;
+
   static {
     escapeSequences = new HashMap<>();
     escapeSequences.put("\\b", '\b');
@@ -176,7 +178,9 @@ public class Lexer {
             consume();
             if (peek() == '\0') {
               throw exception(
-                  String.format("Unterminated comment starting at %s", new Position(filename, startline, startcol)));
+                  String.format(
+                      "Unterminated comment starting at %s",
+                      new Position(filename, startline, startcol)));
             }
           }
           consume(2);
@@ -208,7 +212,9 @@ public class Lexer {
             index += 2;
           } else if (peek() == '\0' || peek() == '\n') {
             throw exception(
-                String.format("Unterminated string starting at %s", new Position(filename, startline, startcol)));
+                String.format(
+                    "Unterminated string starting at %s",
+                    new Position(filename, startline, startcol)));
           } else {
             consume();
           }
@@ -315,5 +321,4 @@ public class Lexer {
   private static boolean isAlphaNumeric(char c) {
     return isDigit(c) || isAlpha(c);
   }
-
 }

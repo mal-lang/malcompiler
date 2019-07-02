@@ -59,7 +59,7 @@ public class Token extends Position {
     sb.append(type);
     sb.append(", ");
     sb.append(posString());
-    switch(type) {
+    switch (type) {
       case FLOAT:
         sb.append(", ");
         sb.append(doubleValue);

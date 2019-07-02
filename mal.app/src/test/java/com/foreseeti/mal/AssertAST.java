@@ -18,15 +18,17 @@ package com.foreseeti.mal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 public class AssertAST {
   // Prevent instantiation
   private AssertAST() {}
 
-  private static File openFile(String filename) throws IOException {
+  private static File getFileClassPath(String filename) throws IOException {
     var resource = AssertAST.class.getClassLoader().getResource(filename);
     if (resource == null) {
       throw new IOException(String.format("%s: No such file or directory", filename));
@@ -34,27 +36,31 @@ public class AssertAST {
     return new File(resource.getFile());
   }
 
-  public static Parser assertGetParser(String filename) {
+  public static String readFileClassPath(String filename) throws IOException {
+    return Files.readString(getFileClassPath(filename).toPath());
+  }
+
+  public static String assertReadFileClassPath(String filename) {
     try {
-      var file = openFile(filename);
-      var parser = new Parser(file);
-      return parser;
+      return readFileClassPath(filename);
     } catch (IOException e) {
       fail(e.getMessage());
     }
-    assertTrue(false, "This should be unreachable");
+    fail("This should be unreachable");
     return null;
   }
 
-  public static AST assertGetAST(String filename) {
+  public static AST getASTClassPath(String filename) throws IOException, CompilerException {
+    return Parser.parse(getFileClassPath(filename));
+  }
+
+  public static AST assertGetASTClassPath(String filename) {
     try {
-      var parser = assertGetParser(filename);
-      var ast = parser.parse();
-      return ast;
-    } catch (CompilerException e) {
+      return getASTClassPath(filename);
+    } catch (IOException | CompilerException e) {
       fail(e.getMessage());
     }
-    assertTrue(false, "This should be unreachable");
+    fail("This should be unreachable");
     return null;
   }
 
@@ -164,8 +170,8 @@ public class AssertAST {
     }
   }
 
-  private static void assertAttackStepList(List<AST.AttackStep> expected,
-      List<AST.AttackStep> actual) {
+  private static void assertAttackStepList(
+      List<AST.AttackStep> expected, List<AST.AttackStep> actual) {
     assertEquals(expected.size(), actual.size());
     for (int i = 0; i < expected.size(); i++) {
       assertAttackStep(expected.get(i), actual.get(i));

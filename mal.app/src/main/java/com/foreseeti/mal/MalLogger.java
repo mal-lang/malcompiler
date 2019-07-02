@@ -50,7 +50,7 @@ public class MalLogger extends Logger {
       String colorClear = "";
 
       if (System.console() != null) {
-        switch(level.getName()) {
+        switch (level.getName()) {
           case "ERROR":
             colorInit = "\u001B[31m";
             break;
@@ -71,12 +71,17 @@ public class MalLogger extends Logger {
     }
   }
 
+  private boolean verbose;
+  private boolean debug;
+
   public MalLogger(String name) {
     this(name, false, false);
   }
 
   public MalLogger(String name, boolean verbose, boolean debug) {
     this(name, null);
+    this.verbose = verbose;
+    this.debug = debug;
     if (debug) {
       setLevel(MalLevel.DEBUG);
     } else if (verbose) {
@@ -92,6 +97,14 @@ public class MalLogger extends Logger {
     ConsoleHandler handler = new ConsoleHandler();
     handler.setFormatter(new MalFormatter());
     addHandler(handler);
+  }
+
+  public boolean isVerbose() {
+    return this.verbose;
+  }
+
+  public boolean isDebug() {
+    return this.debug;
   }
 
   public void debug(Position pos, String msg) {

@@ -16,46 +16,229 @@
 package com.foreseeti.mal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.AfterAll;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
-import com.foreseeti.mal.Main;
-
 public class TestMain {
-  private static ByteArrayOutputStream out = new ByteArrayOutputStream();
-  private static ByteArrayOutputStream err = new ByteArrayOutputStream();
-  private static PrintStream outStream = null;
-  private static PrintStream errStream = null;
-  private static PrintStream oldOut = System.out;
-  private static PrintStream oldErr = System.err;
-
   @BeforeEach
   public void init() {
-    outStream = new PrintStream(out);
-    errStream = new PrintStream(err);
-    System.setOut(outStream);
-    System.setErr(errStream);
+    TestUtils.initTestSystem();
   }
 
   @AfterEach
   public void tearDown() {
-    outStream.close();
-    errStream.close();
-    outStream = null;
-    errStream = null;
-    System.setOut(oldOut);
-    System.setErr(oldErr);
+    TestUtils.clearTestSystem();
+  }
+
+  private static final String helpMsg = "Usage: com.foreseeti.mal.Main";
+  private static final String versionMsg = "%s %s";
+  private static final String unknownArgMsg = "Unknown option: %s";
+  private static final String missingArgMsg = "Missing required parameter for option '%s' (%s)";
+  private static final String missingFileMsg = "A file must be specified";
+  private static final String multipleFilesMsg = "Only one file can be specified";
+
+  private static void assertFails(String test, String args[], String startMsg) {
+    try {
+      TestUtils.resetTestSystem();
+      Main.main(args);
+      fail(String.format("%s should exit with status code 1", test));
+    } catch (ExitSecurityException e) {
+      assertEquals(1, e.getStatus());
+      assertTrue(TestUtils.getOut().isEmpty());
+      assertTrue(TestUtils.getPlainErr().startsWith(startMsg));
+    }
+  }
+
+  private static void assertHelp(String[] args) {
+    assertFails("Help", args, helpMsg);
+  }
+
+  private static void assertVersion(String[] args) {
+    // Fetch "Implementation-Title" from manifest
+    var title = Main.getTitle();
+    assertNotNull(title);
+    assertEquals("MAL Compiler", title);
+
+    // Fetch "Implementation-Version" from manifest
+    var version = Main.getVersion();
+    assertNotNull(version);
+    assertTrue(version.matches("\\d+\\.\\d+\\.\\d+(-SNAPSHOT)?"));
+
+    assertFails("Version", args, String.format(versionMsg, title, version));
+  }
+
+  private static void assertUnknownArg(String[] args, String arg) {
+    assertFails("Unknown argument", args, String.format(unknownArgMsg, arg));
+  }
+
+  private static void assertMissingArg(String[] args, String arg, String param) {
+    assertFails("Missing argument", args, String.format(missingArgMsg, arg, param));
+  }
+
+  private static void assertMissingFile(String[] args) {
+    assertFails("Missing file", args, missingFileMsg);
+  }
+
+  private static void assertMultipleFiles(String[] args) {
+    assertFails("Multiple files", args, multipleFilesMsg);
   }
 
   @Test
-  public void testMainMethod() {
-    assertEquals(true, true);
+  public void testHelp() {
+    // Help should be printed if requested
+    assertHelp(new String[] {"-h", "-v", "file"});
+    assertHelp(new String[] {"--help", "-v", "file"});
+    // Help takes precedence over version
+    assertHelp(new String[] {"-h", "-V", "-v", "file"});
+    assertHelp(new String[] {"--help", "-V", "-v", "file"});
+    // Help takes precedence over unknown argument
+    assertHelp(new String[] {"-h", "-u", "-v", "file"});
+    assertHelp(new String[] {"--help", "-u", "-v", "file"});
+    // Help takes precedence over missing argument
+    assertHelp(new String[] {"-h", "-v", "file", "-t"});
+    assertHelp(new String[] {"--help", "-v", "file", "-t"});
+    // Help takes precedence over missing file
+    assertHelp(new String[] {"-h", "-v"});
+    assertHelp(new String[] {"--help", "-v"});
+    // Help takes precedence over multiple files
+    assertHelp(new String[] {"-h", "-v", "file1", "file2"});
+    assertHelp(new String[] {"--help", "-v", "file1", "file2"});
+  }
+
+  @Test
+  public void testVersion() {
+    // Version should be printed if requested
+    assertVersion(new String[] {"-V", "-v", "file"});
+    assertVersion(new String[] {"--version", "-v", "file"});
+    // Version takes precedence over unknown argument
+    assertVersion(new String[] {"-V", "-u", "-v", "file"});
+    assertVersion(new String[] {"--version", "-u", "-v", "file"});
+    // Version takes precedence over missing argument
+    assertVersion(new String[] {"-V", "-v", "file", "-t"});
+    assertVersion(new String[] {"--version", "-v", "file", "-t"});
+    // Version takes precedence over missing file
+    assertVersion(new String[] {"-V", "-v"});
+    assertVersion(new String[] {"--version", "-v"});
+    // Version takes precedence over multiple files
+    assertVersion(new String[] {"-V", "-v", "file1", "file2"});
+    assertVersion(new String[] {"--version", "-v", "file1", "file2"});
+  }
+
+  @Test
+  public void testUnknownArg() {
+    // Unknown argument should be printed if present
+    assertUnknownArg(new String[] {"-u", "-v", "file"}, "-u");
+    assertUnknownArg(new String[] {"--unknown", "-v", "file"}, "--unknown");
+    // Unknown argument takes precedence over missing file
+    assertUnknownArg(new String[] {"-u", "-v"}, "-u");
+    assertUnknownArg(new String[] {"--unknown", "-v"}, "--unknown");
+    // Unknown argument takes precedence over multiple files
+    assertUnknownArg(new String[] {"-u", "-v", "file1", "file2"}, "-u");
+    assertUnknownArg(new String[] {"--unknown", "-v", "file1", "file2"}, "--unknown");
+  }
+
+  @Test
+  public void testMissingArg() {
+    // Missing argument should be printed if present
+    assertMissingArg(new String[] {"-v", "file", "-t"}, "--target", "TARGET");
+    assertMissingArg(new String[] {"-v", "file", "--target"}, "--target", "TARGET");
+    // Missing argument takes precedence over missing file
+    assertMissingArg(new String[] {"-v", "-t"}, "--target", "TARGET");
+    assertMissingArg(new String[] {"-v", "--target"}, "--target", "TARGET");
+    // Missing argument takes precedence over multiple files
+    assertMissingArg(new String[] {"-v", "file1", "file2", "-t"}, "--target", "TARGET");
+    assertMissingArg(new String[] {"-v", "file1", "file2", "--target"}, "--target", "TARGET");
+  }
+
+  @Test
+  public void testMissingFile() {
+    assertMissingFile(new String[] {});
+    assertMissingFile(new String[] {"-v"});
+  }
+
+  @Test
+  public void testMultipleFiles() {
+    assertMultipleFiles(new String[] {"file1", "file2"});
+    assertMultipleFiles(new String[] {"-v", "file1", "file2"});
+  }
+
+  private static void assertPhase(String phase, String[] args, String outFile, String errFile) {
+    var resourcePath = "src/test/resources";
+    var cwd = System.getProperty("user.dir");
+    if (!cwd.endsWith("mal.app")) {
+      resourcePath = "mal.app/" + resourcePath;
+    }
+    try {
+      TestUtils.resetTestSystem();
+      Main.main(args);
+      var outString = outFile == null ? "" : Files.readString(Path.of(resourcePath, outFile));
+      var errString = errFile == null ? "" : Files.readString(Path.of(resourcePath, errFile));
+      assertEquals(outString, TestUtils.getPlainOut());
+      assertEquals(errString, TestUtils.getPlainErr());
+    } catch (IOException e) {
+      fail(e.getMessage());
+    } catch (ExitSecurityException e) {
+      fail(String.format("Phase '%s' exited with status code %d", phase, e.getStatus()));
+    }
+  }
+
+  @Test
+  public void testPhases() {
+    var inputFile = "src/test/resources/analyzer/complex.mal";
+    var cwd = System.getProperty("user.dir");
+    if (!cwd.endsWith("mal.app")) {
+      inputFile = "mal.app/" + inputFile;
+    }
+    // Test lexer
+    assertPhase("lexer", new String[] {"--lexer", inputFile}, "analyzer/complex-lexer.txt", null);
+    // Test lexer with verbose
+    assertPhase(
+        "lexer",
+        new String[] {"--lexer", "--verbose", inputFile},
+        "analyzer/complex-lexer.txt",
+        "analyzer/complex-lexer-verbose.txt");
+    // Test lexer with debug
+    assertPhase(
+        "lexer",
+        new String[] {"--lexer", "--debug", inputFile},
+        "analyzer/complex-lexer.txt",
+        "analyzer/complex-lexer-debug.txt");
+    // Test parser
+    assertPhase(
+        "parser", new String[] {"--parser", inputFile}, "analyzer/complex-parser.txt", null);
+    // Test parser with verbose
+    assertPhase(
+        "parser",
+        new String[] {"--parser", "--verbose", inputFile},
+        "analyzer/complex-parser.txt",
+        "analyzer/complex-parser-verbose.txt");
+    // Test parser with debug
+    assertPhase(
+        "parser",
+        new String[] {"--parser", "--debug", inputFile},
+        "analyzer/complex-parser.txt",
+        "analyzer/complex-parser-debug.txt");
+    // Test analyzer
+    assertPhase("analyzer", new String[] {"--analyzer", inputFile}, null, null);
+    // Test analyzer with verbose
+    assertPhase(
+        "analyzer",
+        new String[] {"--analyzer", "--verbose", inputFile},
+        null,
+        "analyzer/complex-analyzer-verbose.txt");
+    // Test analyzer with debug
+    assertPhase(
+        "analyzer",
+        new String[] {"--analyzer", "--debug", inputFile},
+        null,
+        "analyzer/complex-analyzer-debug.txt");
   }
 }

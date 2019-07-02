@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Created-By: ${java.version} (${java.vendor})
+Main-Class: ${project.mainClass}
+Implementation-Title: ${project.name}
+Implementation-Version: ${project.version}

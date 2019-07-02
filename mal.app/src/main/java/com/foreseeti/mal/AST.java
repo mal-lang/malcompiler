@@ -115,7 +115,9 @@ public class AST {
   }
 
   public enum MetaType {
-    INFO("'info'"), ASSUMPTIONS("'assumptions'"), RATIONALE("'rationale'");
+    INFO("'info'"),
+    ASSUMPTIONS("'assumptions'"),
+    RATIONALE("'rationale'");
 
     String string;
 
@@ -206,8 +208,14 @@ public class AST {
     public final List<AttackStep> attackSteps;
     public final List<Variable> variables;
 
-    public Asset(Position pos, boolean isAbstract, ID name, Optional<ID> parent, List<Meta> meta,
-        List<AttackStep> attackSteps, List<Variable> variables) {
+    public Asset(
+        Position pos,
+        boolean isAbstract,
+        ID name,
+        Optional<ID> parent,
+        List<Meta> meta,
+        List<AttackStep> attackSteps,
+        List<Variable> variables) {
       super(pos);
       this.isAbstract = isAbstract;
       this.name = name;
@@ -220,9 +228,16 @@ public class AST {
     public String toString(int spaces) {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
-      sb.append(String.format("%sAsset(%s, %s, %s, %s,\n", indent, posString(),
-          isAbstract ? "ABSTRACT" : "NOT_ABSTRACT", name.toString(),
-              parent.isEmpty() ? "NO_PARENT" : String.format("PARENT(%s)", parent.get().toString())));
+      sb.append(
+          String.format(
+              "%sAsset(%s, %s, %s, %s,\n",
+              indent,
+              posString(),
+              isAbstract ? "ABSTRACT" : "NOT_ABSTRACT",
+              name.toString(),
+              parent.isEmpty()
+                  ? "NO_PARENT"
+                  : String.format("PARENT(%s)", parent.get().toString())));
       sb.append(String.format("%s,\n", Meta.listToString(meta, spaces + 2)));
       sb.append(String.format("%s,\n", AttackStep.listToString(attackSteps, spaces + 2)));
       sb.append(String.format("%s\n", Variable.listToString(variables, spaces + 2)));
@@ -247,7 +262,11 @@ public class AST {
   }
 
   public enum AttackStepType {
-    ALL, ANY, DEFENSE, EXIST, NOTEXIST
+    ALL,
+    ANY,
+    DEFENSE,
+    EXIST,
+    NOTEXIST
   }
 
   public static class AttackStep extends Position {
@@ -258,8 +277,14 @@ public class AST {
     public final Optional<Requires> requires;
     public final Optional<Reaches> reaches;
 
-    public AttackStep(Position pos, AttackStepType type, ID name, Optional<TTCExpr> ttc,
-        List<Meta> meta, Optional<Requires> requires, Optional<Reaches> reaches) {
+    public AttackStep(
+        Position pos,
+        AttackStepType type,
+        ID name,
+        Optional<TTCExpr> ttc,
+        List<Meta> meta,
+        Optional<Requires> requires,
+        Optional<Reaches> reaches) {
       super(pos);
       this.type = type;
       this.name = name;
@@ -272,8 +297,9 @@ public class AST {
     public String toString(int spaces) {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
-      sb.append(String.format("%sAttackStep(%s, %s, %s,\n", indent, posString(), type.name(),
-          name.toString()));
+      sb.append(
+          String.format(
+              "%sAttackStep(%s, %s, %s,\n", indent, posString(), type.name(), name.toString()));
       if (ttc.isEmpty()) {
         sb.append(String.format("%s  ttc = [],\n", indent));
       } else {
@@ -310,13 +336,13 @@ public class AST {
     }
   }
 
-  public static abstract class TTCExpr extends Position {
+  public abstract static class TTCExpr extends Position {
     public TTCExpr(Position pos) {
       super(pos);
     }
   }
 
-  public static abstract class TTCBinaryExpr extends TTCExpr {
+  public abstract static class TTCBinaryExpr extends TTCExpr {
     public final TTCExpr lhs;
     public final TTCExpr rhs;
 
@@ -440,8 +466,9 @@ public class AST {
     public String toString(int spaces) {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
-      sb.append(String.format("%sReaches(%s, %s,\n", indent, posString(),
-          inherits ? "INHERITS" : "OVERRIDES"));
+      sb.append(
+          String.format(
+              "%sReaches(%s, %s,\n", indent, posString(), inherits ? "INHERITS" : "OVERRIDES"));
       sb.append(String.format("%s,\n", Variable.listToString(variables, spaces + 2)));
       sb.append(String.format("%s\n", Expr.listToString(reaches, "reaches", spaces + 2)));
       sb.append(String.format("%s)", indent));
@@ -480,7 +507,7 @@ public class AST {
     }
   }
 
-  public static abstract class Expr extends Position {
+  public abstract static class Expr extends Position {
     public Expr(Position pos) {
       super(pos);
     }
@@ -501,7 +528,7 @@ public class AST {
     }
   }
 
-  public static abstract class BinaryExpr extends Expr {
+  public abstract static class BinaryExpr extends Expr {
     public final Expr lhs;
     public final Expr rhs;
 
@@ -530,8 +557,8 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("IntersectionExpr(%s, %s, %s)", posString(), lhs.toString(),
-          rhs.toString());
+      return String.format(
+          "IntersectionExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -546,7 +573,7 @@ public class AST {
     }
   }
 
-  public static abstract class UnaryExpr extends Expr {
+  public abstract static class UnaryExpr extends Expr {
     public final Expr e;
 
     public UnaryExpr(Position pos, Expr e) {
@@ -576,8 +603,8 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("SubTypeExpr(%s, %s, %s)", posString(), e.toString(),
-          subType.toString());
+      return String.format(
+          "SubTypeExpr(%s, %s, %s)", posString(), e.toString(), subType.toString());
     }
   }
 
@@ -605,8 +632,16 @@ public class AST {
     public final ID rightAsset;
     public final List<Meta> meta;
 
-    public Association(Position pos, ID leftAsset, ID leftField, Multiplicity leftMult, ID linkName,
-        Multiplicity rightMult, ID rightField, ID rightAsset, List<Meta> meta) {
+    public Association(
+        Position pos,
+        ID leftAsset,
+        ID leftField,
+        Multiplicity leftMult,
+        ID linkName,
+        Multiplicity rightMult,
+        ID rightField,
+        ID rightAsset,
+        List<Meta> meta) {
       super(pos);
       this.leftAsset = leftAsset;
       this.leftField = leftField;
@@ -621,9 +656,18 @@ public class AST {
     public String toString(int spaces) {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
-      sb.append(String.format("%sAssociation(%s, %s, %s, %s, %s, %s, %s, %s,\n", indent,
-          posString(), leftAsset.toString(), leftField.toString(), leftMult.name(),
-          linkName.toString(), rightMult.name(), rightField.toString(), rightAsset.toString()));
+      sb.append(
+          String.format(
+              "%sAssociation(%s, %s, %s, %s, %s, %s, %s, %s,\n",
+              indent,
+              posString(),
+              leftAsset.toString(),
+              leftField.toString(),
+              leftMult.name(),
+              linkName.toString(),
+              rightMult.name(),
+              rightField.toString(),
+              rightAsset.toString()));
       sb.append(String.format("%s\n", Meta.listToString(meta, spaces + 2)));
       sb.append(String.format("%s)", indent));
       return sb.toString();
@@ -646,7 +690,10 @@ public class AST {
   }
 
   public enum Multiplicity {
-    ZERO_OR_ONE("0..1"), ZERO_OR_MORE("*"), ONE("1"), ONE_OR_MORE("1..*");
+    ZERO_OR_ONE("0..1"),
+    ZERO_OR_MORE("*"),
+    ONE("1"),
+    ONE_OR_MORE("1..*");
 
     private String string;
 

@@ -1,0 +1,82 @@
+defines = {
+  Define(<to-string.mal:1:1>, ID(<to-string.mal:1:2>, "hej"), "hej"),
+  Define(<to-string.mal:19:3>, ID(<to-string.mal:19:5>, "hej"), "hej")
+},
+categories = {
+  Category(<to-string.mal:3:10>, ID(<to-string.mal:3:19>, "CAT"),
+    meta = {
+      Meta(<to-string.mal:4:12>, INFO, "meta")
+    },
+    assets = {
+      Asset(<to-string.mal:5:13>, NOT_ABSTRACT, ID(<to-string.mal:5:19>, "A"), PARENT(ID(<to-string.mal:5:29>, "A")),
+        meta = {
+        },
+        attacksteps = {
+        },
+        variables = {
+        }
+      ),
+      Asset(<to-string.mal:7:13>, ABSTRACT, ID(<to-string.mal:7:28>, "B"), NO_PARENT,
+        meta = {
+          Meta(<to-string.mal:8:15>, INFO, "info")
+        },
+        attacksteps = {
+          AttackStep(<to-string.mal:9:15>, ALL, ID(<to-string.mal:9:17>, "at"),
+            ttc = [],
+            meta = {
+            },
+            Requires(<to-string.mal:10:17>,
+              variables = {
+              },
+              requires = {
+                IDExpr(<to-string.mal:10:20>, ID(<to-string.mal:10:20>, "a"))
+              }
+            ),
+            Reaches(<to-string.mal:11:17>, OVERRIDES,
+              variables = {
+              },
+              reaches = {
+                IDExpr(<to-string.mal:11:20>, ID(<to-string.mal:11:20>, "a"))
+              }
+            )
+          ),
+          AttackStep(<to-string.mal:12:15>, ANY, ID(<to-string.mal:12:17>, "at2"),
+            ttc = [TTCFuncExpr(<to-string.mal:12:22>, ID(<to-string.mal:12:22>, "a"))],
+            meta = {
+              Meta(<to-string.mal:13:17>, INFO, "at2")
+            },
+            NO_REQUIRES,
+            Reaches(<to-string.mal:14:17>, INHERITS,
+              variables = {
+              },
+              reaches = {
+                IDExpr(<to-string.mal:14:20>, ID(<to-string.mal:14:20>, "a")),
+                IDExpr(<to-string.mal:14:23>, ID(<to-string.mal:14:23>, "b"))
+              }
+            )
+          )
+        },
+        variables = {
+          Variable(<to-string.mal:15:15>, ID(<to-string.mal:15:19>, "b"), IDExpr(<to-string.mal:15:23>, ID(<to-string.mal:15:23>, "a")))
+        }
+      )
+    }
+  )
+},
+associations = {
+  Association(<to-string.mal:22:5>, ID(<to-string.mal:22:5>, "A"), ID(<to-string.mal:22:8>, "a"), ZERO_OR_ONE, ID(<to-string.mal:22:20>, "L"), ONE_OR_MORE, ID(<to-string.mal:22:32>, "b"), ID(<to-string.mal:22:35>, "B"),
+    meta = {
+      Meta(<to-string.mal:23:7>, INFO, "Info")
+    }
+  ),
+  Association(<to-string.mal:24:5>, ID(<to-string.mal:24:5>, "B"), ID(<to-string.mal:24:8>, "b"), ZERO_OR_MORE, ID(<to-string.mal:24:20>, "L"), ZERO_OR_MORE, ID(<to-string.mal:24:32>, "a"), ID(<to-string.mal:24:35>, "A"),
+    meta = {
+      Meta(<to-string.mal:25:7>, INFO, "info"),
+      Meta(<to-string.mal:26:7>, INFO, "info2")
+    }
+  ),
+  Association(<to-string.mal:27:5>, ID(<to-string.mal:27:5>, "A"), ID(<to-string.mal:27:8>, "a"), ONE, ID(<to-string.mal:27:20>, "L"), ONE, ID(<to-string.mal:27:32>, "b"), ID(<to-string.mal:27:35>, "B"),
+    meta = {
+    }
+  )
+}

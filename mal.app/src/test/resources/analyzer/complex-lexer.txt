@@ -1,0 +1,307 @@
+'#', <complex.mal:6:1>
+identifier, <complex.mal:6:2>, id
+':', <complex.mal:6:4>
+string literal, <complex.mal:6:6>, complex
+'#', <complex.mal:7:1>
+identifier, <complex.mal:7:2>, version
+':', <complex.mal:7:9>
+string literal, <complex.mal:7:11>, 1.0.0
+'category', <complex.mal:8:1>
+identifier, <complex.mal:8:10>, Person
+'{', <complex.mal:8:17>
+'abstract', <complex.mal:9:3>
+'asset', <complex.mal:9:12>
+identifier, <complex.mal:9:18>, User
+'{', <complex.mal:9:23>
+'|', <complex.mal:10:5>
+identifier, <complex.mal:10:7>, impersonate
+'->', <complex.mal:11:7>
+identifier, <complex.mal:11:10>, compromise
+',', <complex.mal:11:20>
+identifier, <complex.mal:12:7>, stealInformation
+'|', <complex.mal:13:5>
+identifier, <complex.mal:13:7>, compromise
+'->', <complex.mal:14:7>
+identifier, <complex.mal:14:10>, computer
+'.', <complex.mal:14:18>
+identifier, <complex.mal:14:19>, stealSecret
+'|', <complex.mal:15:5>
+identifier, <complex.mal:15:7>, stealInformation
+'->', <complex.mal:17:7>
+identifier, <complex.mal:17:10>, computer
+'.', <complex.mal:17:18>
+identifier, <complex.mal:17:19>, internalHD
+'.', <complex.mal:17:29>
+identifier, <complex.mal:17:30>, stealHDSecrets
+'|', <complex.mal:18:5>
+identifier, <complex.mal:18:7>, stealFolder
+'->', <complex.mal:20:7>
+'let', <complex.mal:20:10>
+identifier, <complex.mal:20:14>, MYVAR
+'=', <complex.mal:20:20>
+identifier, <complex.mal:20:22>, externalHD
+'.', <complex.mal:20:32>
+identifier, <complex.mal:20:33>, stealFolder
+',', <complex.mal:20:44>
+identifier, <complex.mal:21:7>, computer
+'.', <complex.mal:21:15>
+identifier, <complex.mal:21:16>, MYVAR
+'}', <complex.mal:22:3>
+'asset', <complex.mal:23:3>
+identifier, <complex.mal:23:9>, Student
+'extends', <complex.mal:23:17>
+identifier, <complex.mal:23:25>, User
+'{', <complex.mal:23:30>
+'}', <complex.mal:23:31>
+'asset', <complex.mal:24:3>
+identifier, <complex.mal:24:9>, Teacher
+'extends', <complex.mal:24:17>
+identifier, <complex.mal:24:25>, User
+'{', <complex.mal:24:30>
+'|', <complex.mal:25:5>
+identifier, <complex.mal:25:7>, accessSchoolComputer
+'info', <complex.mal:26:7>
+':', <complex.mal:26:11>
+string literal, <complex.mal:26:13>, An extra level of protection, their school computer must be used to impersonate them.
+'->', <complex.mal:27:7>
+identifier, <complex.mal:27:10>, compromise
+'}', <complex.mal:28:3>
+'}', <complex.mal:29:1>
+'category', <complex.mal:30:1>
+identifier, <complex.mal:30:10>, Hardware
+'{', <complex.mal:30:19>
+'asset', <complex.mal:31:3>
+identifier, <complex.mal:31:9>, Computer
+'{', <complex.mal:31:18>
+'let', <complex.mal:32:5>
+identifier, <complex.mal:32:9>, HDDs
+'=', <complex.mal:32:14>
+identifier, <complex.mal:32:16>, externalHD
+'\/', <complex.mal:32:27>
+identifier, <complex.mal:32:30>, internalHD
+'|', <complex.mal:33:5>
+identifier, <complex.mal:33:7>, malwareInfection
+'->', <complex.mal:34:7>
+identifier, <complex.mal:34:10>, interceptTraffic
+'|', <complex.mal:35:5>
+identifier, <complex.mal:35:7>, interceptTraffic
+'->', <complex.mal:36:7>
+identifier, <complex.mal:36:10>, retrievePassword
+'&', <complex.mal:37:5>
+identifier, <complex.mal:37:7>, retrievePassword
+'info', <complex.mal:38:7>
+':', <complex.mal:38:11>
+string literal, <complex.mal:38:13>, Retrieval of password is only possible if password is unencrypted
+'->', <complex.mal:39:7>
+identifier, <complex.mal:39:10>, user
+'.', <complex.mal:39:14>
+identifier, <complex.mal:39:15>, impersonate
+'|', <complex.mal:40:5>
+identifier, <complex.mal:40:7>, bypassFirewall
+'[', <complex.mal:40:22>
+identifier, <complex.mal:40:23>, ExponentialDistribution
+'(', <complex.mal:40:46>
+floating point literal, <complex.mal:40:47>, 0.05
+')', <complex.mal:40:51>
+'*', <complex.mal:40:53>
+identifier, <complex.mal:40:55>, GammaDistribution
+'(', <complex.mal:40:72>
+floating point literal, <complex.mal:40:73>, 1.2
+',', <complex.mal:40:76>
+floating point literal, <complex.mal:40:78>, 1.7
+')', <complex.mal:40:81>
+']', <complex.mal:40:82>
+'->', <complex.mal:41:7>
+identifier, <complex.mal:41:10>, firewall
+'.', <complex.mal:41:18>
+identifier, <complex.mal:41:19>, bypassFirewall
+'|', <complex.mal:42:5>
+identifier, <complex.mal:42:7>, stealSecret
+'->', <complex.mal:44:7>
+identifier, <complex.mal:44:10>, HDDs
+'.', <complex.mal:44:14>
+identifier, <complex.mal:44:15>, stealHDSecrets
+'#', <complex.mal:45:5>
+identifier, <complex.mal:45:7>, passwordEncrypted
+'->', <complex.mal:46:7>
+identifier, <complex.mal:46:10>, retrievePassword
+'E', <complex.mal:47:5>
+identifier, <complex.mal:47:7>, firewallProtected
+'<-', <complex.mal:48:7>
+identifier, <complex.mal:48:10>, firewall
+'->', <complex.mal:49:7>
+identifier, <complex.mal:49:10>, firewall
+'.', <complex.mal:49:18>
+identifier, <complex.mal:49:19>, bypassFirewall
+'}', <complex.mal:50:3>
+'asset', <complex.mal:51:3>
+identifier, <complex.mal:51:9>, Firewall
+'{', <complex.mal:51:18>
+'&', <complex.mal:52:5>
+identifier, <complex.mal:52:7>, bypassFirewall
+'->', <complex.mal:53:7>
+identifier, <complex.mal:53:10>, computer
+'.', <complex.mal:53:18>
+identifier, <complex.mal:53:19>, retrievePassword
+',', <complex.mal:53:35>
+identifier, <complex.mal:54:7>, computer
+'.', <complex.mal:54:15>
+identifier, <complex.mal:54:16>, interceptTraffic
+',', <complex.mal:54:32>
+identifier, <complex.mal:56:7>, user
+'[', <complex.mal:56:11>
+identifier, <complex.mal:56:12>, Teacher
+']', <complex.mal:56:19>
+'.', <complex.mal:56:20>
+identifier, <complex.mal:56:21>, impersonate
+'}', <complex.mal:57:3>
+'asset', <complex.mal:58:3>
+identifier, <complex.mal:58:9>, Harddrive
+'{', <complex.mal:58:19>
+'|', <complex.mal:59:5>
+identifier, <complex.mal:59:7>, stealHDSecrets
+'|', <complex.mal:60:5>
+identifier, <complex.mal:60:7>, stealFolder
+'->', <complex.mal:62:7>
+'(', <complex.mal:62:10>
+'(', <complex.mal:62:11>
+identifier, <complex.mal:62:12>, folder
+'.', <complex.mal:62:18>
+'(', <complex.mal:62:19>
+identifier, <complex.mal:62:20>, subFolder
+')', <complex.mal:62:29>
+'*', <complex.mal:62:30>
+')', <complex.mal:62:31>
+'.', <complex.mal:62:32>
+identifier, <complex.mal:62:33>, accessFolder
+')', <complex.mal:62:45>
+'}', <complex.mal:63:3>
+'asset', <complex.mal:64:3>
+identifier, <complex.mal:64:9>, SecretFolder
+'{', <complex.mal:64:22>
+'|', <complex.mal:65:5>
+identifier, <complex.mal:65:7>, accessFolder
+'}', <complex.mal:66:3>
+'}', <complex.mal:67:1>
+'associations', <complex.mal:68:1>
+'{', <complex.mal:68:14>
+identifier, <complex.mal:69:3>, Computer
+'[', <complex.mal:69:12>
+identifier, <complex.mal:69:13>, studentComputer
+']', <complex.mal:69:28>
+integer literal, <complex.mal:69:30>, 1
+'..', <complex.mal:69:31>
+'*', <complex.mal:69:33>
+'<--', <complex.mal:69:35>
+identifier, <complex.mal:69:39>, Use
+'-->', <complex.mal:69:43>
+integer literal, <complex.mal:69:47>, 1
+'[', <complex.mal:69:49>
+identifier, <complex.mal:69:50>, student
+']', <complex.mal:69:57>
+identifier, <complex.mal:69:59>, Student
+identifier, <complex.mal:70:3>, Computer
+'[', <complex.mal:70:12>
+identifier, <complex.mal:70:13>, teacherComputer
+']', <complex.mal:70:28>
+integer literal, <complex.mal:70:30>, 1
+'<--', <complex.mal:70:32>
+identifier, <complex.mal:70:36>, Use
+'-->', <complex.mal:70:40>
+integer literal, <complex.mal:70:44>, 1
+'[', <complex.mal:70:46>
+identifier, <complex.mal:70:47>, teacher
+']', <complex.mal:70:54>
+identifier, <complex.mal:70:56>, Teacher
+identifier, <complex.mal:71:3>, Computer
+'[', <complex.mal:71:12>
+identifier, <complex.mal:71:13>, computer
+']', <complex.mal:71:21>
+'*', <complex.mal:71:23>
+'<--', <complex.mal:71:25>
+identifier, <complex.mal:71:29>, Protect
+'-->', <complex.mal:71:37>
+integer literal, <complex.mal:71:41>, 1
+'[', <complex.mal:71:43>
+identifier, <complex.mal:71:44>, firewall
+']', <complex.mal:71:52>
+identifier, <complex.mal:71:54>, Firewall
+identifier, <complex.mal:72:3>, Firewall
+'[', <complex.mal:72:12>
+identifier, <complex.mal:72:13>, firewall
+']', <complex.mal:72:21>
+integer literal, <complex.mal:72:23>, 1
+'<--', <complex.mal:72:25>
+identifier, <complex.mal:72:29>, Protect
+'-->', <complex.mal:72:37>
+'*', <complex.mal:72:41>
+'[', <complex.mal:72:43>
+identifier, <complex.mal:72:44>, user
+']', <complex.mal:72:48>
+identifier, <complex.mal:72:50>, User
+identifier, <complex.mal:73:3>, Computer
+'[', <complex.mal:73:12>
+identifier, <complex.mal:73:13>, computer
+']', <complex.mal:73:21>
+integer literal, <complex.mal:73:23>, 1
+'<--', <complex.mal:73:25>
+identifier, <complex.mal:73:29>, Storage
+'-->', <complex.mal:73:37>
+integer literal, <complex.mal:73:41>, 1
+'[', <complex.mal:73:43>
+identifier, <complex.mal:73:44>, user
+']', <complex.mal:73:48>
+identifier, <complex.mal:73:50>, User
+identifier, <complex.mal:74:3>, Computer
+'[', <complex.mal:74:12>
+identifier, <complex.mal:74:13>, extHDComputer
+']', <complex.mal:74:26>
+integer literal, <complex.mal:74:28>, 1
+'<--', <complex.mal:74:30>
+identifier, <complex.mal:74:34>, Use
+'-->', <complex.mal:74:38>
+integer literal, <complex.mal:74:42>, 1
+'[', <complex.mal:74:44>
+identifier, <complex.mal:74:45>, externalHD
+']', <complex.mal:74:55>
+identifier, <complex.mal:74:57>, Harddrive
+identifier, <complex.mal:75:3>, Computer
+'[', <complex.mal:75:12>
+identifier, <complex.mal:75:13>, intHDComputer
+']', <complex.mal:75:26>
+integer literal, <complex.mal:75:28>, 1
+'<--', <complex.mal:75:30>
+identifier, <complex.mal:75:34>, Contain
+'-->', <complex.mal:75:42>
+integer literal, <complex.mal:75:46>, 1
+'[', <complex.mal:75:48>
+identifier, <complex.mal:75:49>, internalHD
+']', <complex.mal:75:59>
+identifier, <complex.mal:75:61>, Harddrive
+identifier, <complex.mal:76:3>, Harddrive
+'[', <complex.mal:76:13>
+identifier, <complex.mal:76:14>, internalHD
+']', <complex.mal:76:24>
+integer literal, <complex.mal:76:26>, 1
+'<--', <complex.mal:76:28>
+identifier, <complex.mal:76:32>, Contain
+'-->', <complex.mal:76:40>
+'*', <complex.mal:76:44>
+'[', <complex.mal:76:46>
+identifier, <complex.mal:76:47>, folder
+']', <complex.mal:76:53>
+identifier, <complex.mal:76:55>, SecretFolder
+identifier, <complex.mal:77:3>, SecretFolder
+'[', <complex.mal:77:16>
+identifier, <complex.mal:77:17>, folder
+']', <complex.mal:77:23>
+integer literal, <complex.mal:77:25>, 1
+'<--', <complex.mal:77:27>
+identifier, <complex.mal:77:31>, Contain
+'-->', <complex.mal:77:39>
+'*', <complex.mal:77:43>
+'[', <complex.mal:77:45>
+identifier, <complex.mal:77:46>, subFolder
+']', <complex.mal:77:55>
+identifier, <complex.mal:77:57>, SecretFolder
+'}', <complex.mal:78:1>
