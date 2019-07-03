@@ -18,7 +18,6 @@ package com.foreseeti.mal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -52,7 +51,7 @@ public class AssertAST {
       var parser = assertGetParser(filename);
       var ast = parser.parse();
       return ast;
-    } catch (SyntaxError e) {
+    } catch (CompilerException e) {
       fail(e.getMessage());
     }
     assertTrue(false, "This should be unreachable");
@@ -165,7 +164,8 @@ public class AssertAST {
     }
   }
 
-  private static void assertAttackStepList(List<AST.AttackStep> expected, List<AST.AttackStep> actual) {
+  private static void assertAttackStepList(List<AST.AttackStep> expected,
+      List<AST.AttackStep> actual) {
     assertEquals(expected.size(), actual.size());
     for (int i = 0; i < expected.size(); i++) {
       assertAttackStep(expected.get(i), actual.get(i));

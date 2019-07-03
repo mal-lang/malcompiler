@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class Parser {
+  private MalLogger LOGGER;
   private Lexer lex;
   private Token tok;
   private Set<File> included;
@@ -32,6 +33,11 @@ public class Parser {
   private Path originPath;
 
   public Parser(File file) throws IOException {
+    this(file, false, false);
+  }
+
+  public Parser(File file, boolean verbose, boolean debug) throws IOException {
+    LOGGER = new MalLogger("PARSER", verbose, debug);
     var canonicalFile = file.getCanonicalFile();
     this.lex = new Lexer(canonicalFile);
     this.included = new HashSet<File>();
@@ -40,7 +46,8 @@ public class Parser {
     this.originPath = Path.of(canonicalFile.getParent());
   }
 
-  private Parser(File file, Path originPath, Set<File> included) throws IOException {
+  private Parser(File file, Path originPath, Set<File> included, MalLogger LOGGER) throws IOException {
+    this.LOGGER = LOGGER;
     this.lex = new Lexer(file, originPath.relativize(Path.of(file.getPath())).toString());
     this.included = included;
     this.included.add(file);
@@ -48,13 +55,13 @@ public class Parser {
     this.originPath = originPath;
   }
 
-  private void next() throws SyntaxError {
+  private void next() throws CompilerException {
     tok = lex.next();
   }
 
-  private void expect(TokenType type) throws SyntaxError {
+  private void expect(TokenType type) throws CompilerException {
     if (tok.type != type) {
-      throw syntaxErrorExpectedTok(type);
+      throw exception(type);
     }
     next();
   }
@@ -95,7 +102,7 @@ public class Parser {
   }
 
   // <mal> ::= (<category> | <associations> | <include> | <define>)* EOF
-  public AST parse() throws SyntaxError {
+  public AST parse() throws CompilerException {
     var ast = new AST();
     next();
 
@@ -120,15 +127,15 @@ public class Parser {
         case EOF:
           return ast;
         default:
-          throw syntaxErrorExpectedTok(malFirst.toArray(new TokenType[malFirst.size()]));
+          throw exception(malFirst.toArray(new TokenType[malFirst.size()]));
       }
     }
   }
 
   // ID
-  private AST.ID parseID() throws SyntaxError {
+  private AST.ID parseID() throws CompilerException {
     if (tok.type != TokenType.ID) {
-      throw syntaxErrorExpectedTok(TokenType.ID);
+      throw exception(TokenType.ID);
     }
 
     var id = new AST.ID(tok, tok.stringValue);
@@ -138,9 +145,9 @@ public class Parser {
   }
 
   // STRING
-  private String parseString() throws SyntaxError {
+  private String parseString() throws CompilerException {
     if (tok.type != TokenType.STRING) {
-      throw syntaxErrorExpectedTok(TokenType.STRING);
+      throw exception(TokenType.STRING);
     }
 
     var str = tok.stringValue;
@@ -150,7 +157,7 @@ public class Parser {
   }
 
   // <define> ::= HASH ID COLON STRING
-  private AST.Define parseDefine() throws SyntaxError {
+  private AST.Define parseDefine() throws CompilerException {
     var firstToken = tok;
 
     expect(TokenType.HASH);
@@ -161,7 +168,7 @@ public class Parser {
   }
 
   // <meta> ::= <meta-type> COLON STRING
-  private AST.Meta parseMeta() throws SyntaxError {
+  private AST.Meta parseMeta() throws CompilerException {
     var firstToken = tok;
 
     var type = parseMetaType();
@@ -171,7 +178,7 @@ public class Parser {
   }
 
   // <meta-type> ::= INFO | ASSUMPTIONS | RATIONALE
-  private AST.MetaType parseMetaType() throws SyntaxError {
+  private AST.MetaType parseMetaType() throws CompilerException {
     switch (tok.type) {
       case INFO:
         next();
@@ -183,12 +190,12 @@ public class Parser {
         next();
         return AST.MetaType.RATIONALE;
       default:
-        throw syntaxErrorExpectedTok(metaFirst.toArray(new TokenType[metaFirst.size()]));
+        throw exception(metaFirst.toArray(new TokenType[metaFirst.size()]));
     }
   }
 
   // <meta>*
-  private List<AST.Meta> parseMetaList() throws SyntaxError {
+  private List<AST.Meta> parseMetaList() throws CompilerException {
     var meta = new ArrayList<AST.Meta>();
     while (metaFirst.contains(tok.type)) {
       meta.add(parseMeta());
@@ -197,10 +204,9 @@ public class Parser {
   }
 
   // <include> ::= INCLUDE STRING
-  private AST parseInclude() throws SyntaxError {
+  private AST parseInclude() throws CompilerException {
     expect(TokenType.INCLUDE);
-    var line = tok.line;
-    var col = tok.col;
+    var firstTok = tok;
     var filename = parseString();
     var file = new File(filename);
 
@@ -213,18 +219,18 @@ public class Parser {
       return new AST();
     } else {
       try {
-        var parser = new Parser(file.getCanonicalFile(), originPath, included);
+        var parser = new Parser(file.getCanonicalFile(), originPath, included, LOGGER);
         return parser.parse();
       } catch (IOException e) {
-        throw syntaxError(line, col, e.getMessage());
+        throw exception(firstTok, e.getMessage());
       }
     }
   }
 
   // <number> ::= INT | FLOAT
-  private double parseNumber() throws SyntaxError {
+  private double parseNumber() throws CompilerException {
     if (tok.type != TokenType.INT && tok.type != TokenType.FLOAT) {
-      throw syntaxErrorExpectedTok(TokenType.INT, TokenType.FLOAT);
+      throw exception(TokenType.INT, TokenType.FLOAT);
     }
 
     if (tok.type == TokenType.INT) {
@@ -239,7 +245,7 @@ public class Parser {
   }
 
   // <category> ::= CATEGORY ID <meta>* LCURLY <asset>* RCURLY
-  private AST.Category parseCategory() throws SyntaxError {
+  private AST.Category parseCategory() throws CompilerException {
     var firstToken = tok;
 
     expect(TokenType.CATEGORY);
@@ -252,7 +258,7 @@ public class Parser {
   }
 
   // <asset> ::= ABSTRACT? ASSET ID (EXTENDS ID)? <meta>* LCURLY (<attackstep> | <variable>)* RCURLY
-  private AST.Asset parseAsset() throws SyntaxError {
+  private AST.Asset parseAsset() throws CompilerException {
     var firstToken = tok;
 
     var isAbstract = false;
@@ -283,7 +289,7 @@ public class Parser {
   }
 
   // <asset>*
-  private List<AST.Asset> parseAssetList() throws SyntaxError {
+  private List<AST.Asset> parseAssetList() throws CompilerException {
     var assets = new ArrayList<AST.Asset>();
     while (assetFirst.contains(tok.type)) {
       assets.add(parseAsset());
@@ -292,7 +298,7 @@ public class Parser {
   }
 
   // <attackstep> ::= <astype> ID <ttc>? <meta>* <existence>? <reaches>?
-  private AST.AttackStep parseAttackStep() throws SyntaxError {
+  private AST.AttackStep parseAttackStep() throws CompilerException {
     var firstToken = tok;
 
     var asType = parseAttackStepType();
@@ -314,7 +320,7 @@ public class Parser {
   }
 
   // <astype> ::= ALL | ANY | HASH | EXIST | NOTEXIST
-  private AST.AttackStepType parseAttackStepType() throws SyntaxError {
+  private AST.AttackStepType parseAttackStepType() throws CompilerException {
     switch (tok.type) {
       case ALL:
         next();
@@ -332,12 +338,12 @@ public class Parser {
         next();
         return AST.AttackStepType.NOTEXIST;
       default:
-        throw syntaxErrorExpectedTok(attackStepFirst.toArray(new TokenType[attackStepFirst.size()]));
+        throw exception(attackStepFirst.toArray(new TokenType[attackStepFirst.size()]));
     }
   }
 
   // <ttc> ::= LBRACKET <ttc-expr>? RBRACKET
-  private Optional<AST.TTCExpr> parseTTC() throws SyntaxError {
+  private Optional<AST.TTCExpr> parseTTC() throws CompilerException {
     expect(TokenType.LBRACKET);
     Optional<AST.TTCExpr> expr = Optional.empty();
     if (tok.type != TokenType.RBRACKET) {
@@ -348,7 +354,7 @@ public class Parser {
   }
 
   // <ttc-expr> ::= <ttc-term> ((PLUS | MINUS) <ttc-term>)*
-  private AST.TTCExpr parseTTCExpr() throws SyntaxError {
+  private AST.TTCExpr parseTTCExpr() throws CompilerException {
     var firstToken = tok;
 
     var lhs = parseTTCTerm();
@@ -366,7 +372,7 @@ public class Parser {
   }
 
   // <ttc-term> ::= <ttc-fact> ((STAR | DIVIDE) <ttc-fact>)*
-  private AST.TTCExpr parseTTCTerm() throws SyntaxError {
+  private AST.TTCExpr parseTTCTerm() throws CompilerException {
     var firstToken = tok;
 
     var lhs = parseTTCFact();
@@ -384,7 +390,7 @@ public class Parser {
   }
 
   // <ttc-fact> ::= <ttc-prim> (POWER <ttc-fact>)?
-  private AST.TTCExpr parseTTCFact() throws SyntaxError {
+  private AST.TTCExpr parseTTCFact() throws CompilerException {
     var firstToken = tok;
 
     var e = parseTTCPrim();
@@ -396,8 +402,8 @@ public class Parser {
   }
 
   // <ttc-prim> ::= ID (LPAREN (<number> (COMMA <number>)*)? RPAREN)?
-  //              | LPAREN <ttc-expr> RPAREN
-  private AST.TTCExpr parseTTCPrim() throws SyntaxError {
+  // | LPAREN <ttc-expr> RPAREN
+  private AST.TTCExpr parseTTCPrim() throws CompilerException {
     if (tok.type == TokenType.ID) {
       var firstToken = tok;
 
@@ -421,12 +427,12 @@ public class Parser {
       expect(TokenType.RPAREN);
       return e;
     } else {
-      throw syntaxErrorExpectedTok(TokenType.ID, TokenType.LPAREN);
+      throw exception(TokenType.ID, TokenType.LPAREN);
     }
   }
 
   // <existence> ::= REQUIRE (<variable> | <expr>) (COMMA (<variable> | <expr>))*
-  private AST.Requires parseExistence() throws SyntaxError {
+  private AST.Requires parseExistence() throws CompilerException {
     var firstToken = tok;
 
     expect(TokenType.REQUIRE);
@@ -449,7 +455,7 @@ public class Parser {
   }
 
   // <reaches> ::= (INHERIT | OVERRIDE) (<variable> | <expr>) (COMMA (<variable> | <expr>))*
-  private AST.Reaches parseReaches() throws SyntaxError {
+  private AST.Reaches parseReaches() throws CompilerException {
     var firstToken = tok;
 
     var inherits = false;
@@ -458,7 +464,7 @@ public class Parser {
     } else if (tok.type == TokenType.OVERRIDE) {
       inherits = false;
     } else {
-      throw syntaxErrorExpectedTok(TokenType.INHERIT, TokenType.OVERRIDE);
+      throw exception(TokenType.INHERIT, TokenType.OVERRIDE);
     }
     next();
     var variables = new ArrayList<AST.Variable>();
@@ -480,7 +486,7 @@ public class Parser {
   }
 
   // <variable> ::= LET ID ASSIGN <expr>
-  private AST.Variable parseVariable() throws SyntaxError {
+  private AST.Variable parseVariable() throws CompilerException {
     var firstToken = tok;
 
     expect(TokenType.LET);
@@ -491,7 +497,7 @@ public class Parser {
   }
 
   // <expr> ::= <step> ((UNION | INTERSECT) <step>)*
-  private AST.Expr parseExpr() throws SyntaxError {
+  private AST.Expr parseExpr() throws CompilerException {
     var firstToken = tok;
 
     var lhs = parseStep();
@@ -509,7 +515,7 @@ public class Parser {
   }
 
   // <step> ::= <transitive> (DOT <transitive>)*
-  private AST.Expr parseStep() throws SyntaxError {
+  private AST.Expr parseStep() throws CompilerException {
     var firstToken = tok;
 
     var lhs = parseTransitive();
@@ -522,7 +528,7 @@ public class Parser {
   }
 
   // <transitive> ::= <subtype> STAR?
-  private AST.Expr parseTransitive() throws SyntaxError {
+  private AST.Expr parseTransitive() throws CompilerException {
     var firstToken = tok;
 
     var e = parseSubType();
@@ -534,7 +540,7 @@ public class Parser {
   }
 
   // <subtype> ::= <prim> <type>?
-  private AST.Expr parseSubType() throws SyntaxError {
+  private AST.Expr parseSubType() throws CompilerException {
     var firstToken = tok;
 
     var e = parsePrim();
@@ -546,7 +552,7 @@ public class Parser {
   }
 
   // <prim> ::= ID | LPAREN <expr> RPAREN
-  private AST.Expr parsePrim() throws SyntaxError {
+  private AST.Expr parsePrim() throws CompilerException {
     var firstToken = tok;
 
     if (tok.type == TokenType.ID) {
@@ -558,12 +564,12 @@ public class Parser {
       expect(TokenType.RPAREN);
       return e;
     } else {
-      throw syntaxErrorExpectedTok(TokenType.ID, TokenType.LPAREN);
+      throw exception(TokenType.ID, TokenType.LPAREN);
     }
   }
 
   // <associations> ::= ASSOCIATIONS LCURLY <association>* RCURLY
-  private List<AST.Association> parseAssociations() throws SyntaxError {
+  private List<AST.Association> parseAssociations() throws CompilerException {
     expect(TokenType.ASSOCIATIONS);
     expect(TokenType.LCURLY);
     var assocs = parseAssociationList();
@@ -572,7 +578,7 @@ public class Parser {
   }
 
   // <association> ::= ID <type> <mult> LARROW ID RARROW <mult> <type> ID <meta>*
-  private AST.Association parseAssociation() throws SyntaxError {
+  private AST.Association parseAssociation() throws CompilerException {
     var firstToken = tok;
 
     var leftAsset = parseID();
@@ -585,11 +591,12 @@ public class Parser {
     var rightField = parseType();
     var rightAsset = parseID();
     var meta = parseMetaList();
-    return new AST.Association(firstToken, leftAsset, leftField, leftMult, linkName, rightMult, rightField, rightAsset, meta);
+    return new AST.Association(firstToken, leftAsset, leftField, leftMult, linkName, rightMult,
+        rightField, rightAsset, meta);
   }
 
   // <association>*
-  private List<AST.Association> parseAssociationList() throws SyntaxError {
+  private List<AST.Association> parseAssociationList() throws CompilerException {
     var assocs = new ArrayList<AST.Association>();
     while (tok.type == TokenType.ID) {
       assocs.add(parseAssociation());
@@ -598,9 +605,8 @@ public class Parser {
   }
 
   // <mult> ::= <mult-unit> (RANGE <mult-unit>)?
-  private AST.Multiplicity parseMultiplicity() throws SyntaxError {
-    var line = tok.line;
-    var col = tok.col;
+  private AST.Multiplicity parseMultiplicity() throws CompilerException {
+    var firstTok = tok;
 
     var min = parseMultiplicityUnit();
     if (tok.type == TokenType.RANGE) {
@@ -615,11 +621,12 @@ public class Parser {
       } else if (min == 1 && max == 2) {
         return AST.Multiplicity.ONE_OR_MORE;
       } else {
-        throw syntaxError(line, col, String.format("Invalid multiplicity '%c..%c'", intToMult(min), intToMult(max)));
+        throw exception(firstTok,
+            String.format("Invalid multiplicity '%c..%c'", intToMult(min), intToMult(max)));
       }
     } else {
       if (min == 0) {
-        throw syntaxError(line, col, "Invalid multiplicity '0'");
+        throw exception(firstTok, "Invalid multiplicity '0'");
       } else if (min == 1) {
         return AST.Multiplicity.ONE;
       } else {
@@ -641,7 +648,7 @@ public class Parser {
 
   // <mult-unit> ::= INT | STAR
   // 0 | 1 | *
-  private int parseMultiplicityUnit() throws SyntaxError {
+  private int parseMultiplicityUnit() throws CompilerException {
     if (tok.type == TokenType.INT) {
       var n = tok.intValue;
       if (n == 0 || n == 1) {
@@ -652,11 +659,11 @@ public class Parser {
       next();
       return 2;
     }
-    throw syntaxErrorExpected("'0', '1', or '*'");
+    throw expectedException("'0', '1', or '*'");
   }
 
   // <type> ::= LBRACKET ID RBRACKET
-  private AST.ID parseType() throws SyntaxError {
+  private AST.ID parseType() throws CompilerException {
     expect(TokenType.LBRACKET);
     var id = parseID();
     expect(TokenType.RBRACKET);
@@ -664,24 +671,25 @@ public class Parser {
   }
 
   /*
-   * SyntaxError helper functions
+   * CompilerException helper functions
    */
 
-  private SyntaxError syntaxError(int line, int col, String message) {
-    return new SyntaxError(tok.filename, line, col, message);
+  private CompilerException expectedException(String expected) {
+    return exception(String.format("expected %s, found %s", expected, tok.type.toString()));
   }
 
-  private SyntaxError syntaxError(String message) {
-    return syntaxError(tok.line, tok.col, message);
+  private CompilerException exception(String msg) {
+    return exception(tok, msg);
   }
 
-  private SyntaxError syntaxErrorExpected(String expected) {
-    return syntaxError(String.format("expected %s, found %s", expected, tok.type.toString()));
+  private CompilerException exception(Position pos, String msg) {
+    LOGGER.error(pos, msg);
+    return new CompilerException("There were syntax errors");
   }
 
-  private SyntaxError syntaxErrorExpectedTok(TokenType... types) {
+  private CompilerException exception(TokenType... types) {
     if (types.length == 0) {
-      return syntaxErrorExpected("(null)");
+      return expectedException("(null)");
     } else {
       var sb = new StringBuilder();
       for (int i = 0; i < types.length; ++i) {
@@ -697,7 +705,7 @@ public class Parser {
           sb.append(String.format(", %s", types[i].toString()));
         }
       }
-      return syntaxErrorExpected(sb.toString());
+      return expectedException(sb.toString());
     }
   }
 }

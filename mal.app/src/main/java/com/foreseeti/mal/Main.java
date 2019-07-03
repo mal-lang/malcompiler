@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
-import java.util.logging.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -28,38 +27,25 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 
 public class Main {
-  private static final Logger LOGGER = Logger.getGlobal();
-
   @Command(name = "com.foreseeti.mal.Main")
   private static class Options {
-    @Parameters(paramLabel = "FILE",
-        description = "MAL specification to compile")
+    @Parameters(paramLabel = "FILE", description = "MAL specification to compile")
     public File file;
-    @Option(names = {"-l", "--lexer"},
-        description = "Run the lexer and print the tokens")
+    @Option(names = {"-l", "--lexer"}, description = "Run the lexer and print the tokens")
     public boolean lexer = false;
-    @Option(names = {"-p", "--parser"},
-        description = "Run the parser and print the AST")
+    @Option(names = {"-p", "--parser"}, description = "Run the parser and print the AST")
     public boolean parser = false;
-    @Option(names = {"-a", "--analyzer"},
-        description = "Run the analyzer and print the results")
+    @Option(names = {"-a", "--analyzer"}, description = "Run the analyzer and print the results")
     public boolean analyzer = false;
-    @Option(names = {"-t", "--target"},
-        paramLabel = "TARGET",
-        description = "Compilation target")
+    @Option(names = {"-t", "--target"}, paramLabel = "TARGET", description = "Compilation target")
     public String target = "reference";
-    @Option(names = {"-v", "--verbose"},
-        description = "Print verbose output")
+    @Option(names = {"-v", "--verbose"}, description = "Print verbose output")
     public boolean verbose = false;
-    @Option(names = {"-d", "--debug"},
-        description = "Print debug output")
+    @Option(names = {"-d", "--debug"}, description = "Print debug output")
     public boolean debug = false;
-    @Option(names = {"-h", "--help"},
-        usageHelp = true,
-        description = "Print this help and exit")
+    @Option(names = {"-h", "--help"}, usageHelp = true, description = "Print this help and exit")
     public boolean help = false;
-    @Option(names = {"-V", "--version"},
-        versionHelp = true,
+    @Option(names = {"-V", "--version"}, versionHelp = true,
         description = "Print version information and exit")
     public boolean version = false;
   }
@@ -132,49 +118,39 @@ public class Main {
       System.exit(1);
     }
 
-    if (opts.lexer) {
-      try {
+    MalLogger LOGGER = new MalLogger("MAIN", opts.verbose, opts.debug);
+
+    try {
+      if (opts.lexer) {
         Lexer lexer = new Lexer(opts.file);
-        Token t = lexer.next();
-        while (t.type != TokenType.EOF) {
-          System.out.printf("%s:%d:%d %s\n", t.type.toString(), t.line, t.col, t.stringValue);
-          t = lexer.next();
+        Token token = lexer.next();
+        while (token.type != TokenType.EOF) {
+          System.out.println(token.toString());
+          token = lexer.next();
         }
-      } catch (Exception e) {
-        System.err.println(e.getMessage());
-        System.exit(1);
-      }
-    } else if (opts.parser) {
-      try {
-        var parser = new Parser(opts.file);
-        var ast = parser.parse();
+      } else if (opts.parser) {
+        Parser parser = new Parser(opts.file);
+        AST ast = parser.parse();
         System.out.print(ast.toString());
-      } catch (IOException | SyntaxError e) {
-        System.err.println(e.getMessage());
-        System.exit(1);
+      } else if (opts.analyzer) {
+        Parser parser = new Parser(opts.file);
+        AST ast = parser.parse();
+        Analyzer analyzer = new Analyzer(ast, opts.verbose, opts.debug);
+        analyzer.analyze();
+      } else if (opts.target.equals("reference")) {
+        throw new CompilerException("Target 'reference' not yet implemented");
+      } else if (opts.target.equals("securicad")) {
+        throw new CompilerException("Target 'securicad' not yet implemented");
+      } else if (opts.target.equals("d3")) {
+        throw new CompilerException("Target 'd3' not yet implemented");
+      } else {
+        throw new CompilerException(String.format("Invalid compilation target %s", opts.target));
       }
-    } else if (opts.analyzer) {
-      try {
-        var parser = new Parser(opts.file);
-        var ast = parser.parse();
-        var a = new Analyzer(ast, opts.verbose, opts.debug);
-        a.analyze();
-        System.out.println("done");
-      } catch (IOException | SyntaxError | SemanticError e) {
-        System.err.println(e.getMessage());
-        System.exit(1);
+    } catch (IOException | CompilerException e) {
+      msg = e.getMessage();
+      if(msg != null && !msg.isBlank()) {
+        LOGGER.error(e.getMessage());
       }
-    } else if (opts.target.equals("reference")) {
-      System.err.println("Not yet implemented");
-      System.exit(1);
-    } else if (opts.target.equals("securicad")) {
-      System.err.println("Not yet implemented");
-      System.exit(1);
-    } else if (opts.target.equals("d3")) {
-      System.err.println("Not yet implemented");
-      System.exit(1);
-    } else {
-      System.err.println(String.format("Error: Invalid compilation target %s", opts.target));
       System.exit(1);
     }
   }

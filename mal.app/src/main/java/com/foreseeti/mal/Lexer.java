@@ -20,11 +20,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
-import com.foreseeti.mal.TokenType;
 
 public class Lexer {
-  private static final Logger LOGGER = Logger.getGlobal();
+  private MalLogger LOGGER;
   private String filename;
   private byte[] input;
   private int index;
@@ -61,11 +59,20 @@ public class Lexer {
   }
 
   public Lexer(File file) throws IOException {
-    this(file, file.getName());
+    this(file, file.getName(), false, false);
+  }
+
+  public Lexer(File file, boolean verbose, boolean debug) throws IOException {
+    this(file, file.getName(), verbose, debug);
   }
 
   public Lexer(File file, String relativeName) throws IOException {
-    LOGGER.fine(String.format("Creating lexer with file '%s'", relativeName));
+    this(file, relativeName, false, false);
+  }
+
+  public Lexer(File file, String relativeName, boolean verbose, boolean debug) throws IOException {
+    LOGGER = new MalLogger("LEXER", verbose, debug);
+    LOGGER.debug(String.format("Creating lexer with file '%s'", relativeName));
     if (!file.exists()) {
       throw new IOException(String.format("%s: No such file or directory", relativeName));
     }
@@ -76,7 +83,7 @@ public class Lexer {
     index = 0;
   }
 
-  public Token next() throws SyntaxError {
+  public Token next() throws CompilerException {
     lexeme = "";
     char c = consume();
     switch (c) {
@@ -96,7 +103,7 @@ public class Lexer {
       case '}':
         return createToken(TokenType.RCURLY);
       case '+':
-        if(peek() == '>') {
+        if (peek() == '>') {
           consume();
           return createToken(TokenType.INHERIT);
         } else {
@@ -106,7 +113,7 @@ public class Lexer {
         if (peek() == '>') {
           consume();
           return createToken(TokenType.OVERRIDE);
-        } else if(peek(2).equals("->")) {
+        } else if (peek(2).equals("->")) {
           consume(2);
           return createToken(TokenType.RARROW);
         } else {
@@ -117,7 +124,7 @@ public class Lexer {
       case '|':
         return createToken(TokenType.ANY);
       case '!':
-        if(peek() == 'E') {
+        if (peek() == 'E') {
           consume();
           return createToken(TokenType.NOTEXIST);
         } else {
@@ -134,10 +141,10 @@ public class Lexer {
       case ',':
         return createToken(TokenType.COMMA);
       case '<':
-        if(peek(2).equals("--")) {
+        if (peek(2).equals("--")) {
           consume(2);
           return createToken(TokenType.LARROW);
-        } else if(peek() == '-') {
+        } else if (peek() == '-') {
           consume();
           return createToken(TokenType.REQUIRE);
         } else {
@@ -146,18 +153,18 @@ public class Lexer {
       case '=':
         return createToken(TokenType.ASSIGN);
       case '\\':
-        if(peek() == '/') {
+        if (peek() == '/') {
           consume();
           return createToken(TokenType.UNION);
         } else {
           throw exception("Expected '/'");
         }
       case '/':
-        if(peek() == '\\') {
+        if (peek() == '\\') {
           consume();
           return createToken(TokenType.INTERSECT);
         } else if (peek() == '/') {
-          while(peek() != '\n' && peek() != '\0') {
+          while (peek() != '\n' && peek() != '\0') {
             consume();
           }
           return next();
@@ -165,10 +172,11 @@ public class Lexer {
           int startline = line;
           int startcol = col;
           consume();
-          while(!peek(2).equals("*/")) {
+          while (!peek(2).equals("*/")) {
             consume();
-            if(peek() == '\0') {
-              throw exception(String.format("Unterminated comment starting at %s:%s", startline, startcol));
+            if (peek() == '\0') {
+              throw exception(
+                  String.format("Unterminated comment starting at %s", new Position(filename, startline, startcol)));
             }
           }
           consume(2);
@@ -177,7 +185,7 @@ public class Lexer {
           return createToken(TokenType.DIVIDE);
         }
       case '.':
-        if(peek() == '.') {
+        if (peek() == '.') {
           consume();
           return createToken(TokenType.RANGE);
         } else {
@@ -190,16 +198,17 @@ public class Lexer {
       case '"':
         int startline = line;
         int startcol = col;
-        while(peek() != '"') {
-          if(peek() == '\\') {
+        while (peek() != '"') {
+          if (peek() == '\\') {
             String escapeSequence = peek(2);
-            if(!escapeSequences.containsKey(escapeSequence)) {
-              throw exception(String.format("Invalid escape sequence %s", escapeSequence));
+            if (!escapeSequences.containsKey(escapeSequence)) {
+              throw exception(String.format("Invalid escape sequence '%s'", escapeSequence));
             }
             lexeme += escapeSequences.get(escapeSequence);
             index += 2;
-          } else if(peek() == '\0' || peek() == '\n') {
-            throw exception(String.format("Unterminated string starting at %s:%s", startline, startcol));
+          } else if (peek() == '\0' || peek() == '\n') {
+            throw exception(
+                String.format("Unterminated string starting at %s", new Position(filename, startline, startcol)));
           } else {
             consume();
           }
@@ -208,23 +217,23 @@ public class Lexer {
         return new Token(TokenType.STRING, filename, startline, startcol, lexeme.substring(1));
       default:
         if (isAlpha(c)) {
-          while(isAlphaNumeric(peek())) {
+          while (isAlphaNumeric(peek())) {
             consume();
           }
-          if(keywords.containsKey(lexeme)) {
+          if (keywords.containsKey(lexeme)) {
             return createToken(keywords.get(lexeme));
           } else {
             return createToken(TokenType.ID);
           }
-        } else if(isDigit(c)) {
-          while(isDigit(peek())) {
+        } else if (isDigit(c)) {
+          while (isDigit(peek())) {
             consume();
           }
-          if(peek(2).equals("..") || peek() != '.') {
+          if (peek(2).equals("..") || peek() != '.') {
             return createToken(TokenType.INT);
           } else if (peek() == '.') {
             consume();
-            while(isDigit(peek())) {
+            while (isDigit(peek())) {
               consume();
             }
             return createToken(TokenType.FLOAT);
@@ -236,14 +245,14 @@ public class Lexer {
 
   private String consume(int n) {
     String s = "";
-    while(n-- > 0) {
+    while (n-- > 0) {
       s += consume();
     }
     return s;
   }
 
   private char consume() {
-    if(index > 0 && index - 1 < input.length) {
+    if (index > 0 && index - 1 < input.length) {
       if ((char) input[index - 1] == '\n') {
         line++;
         col = 1;
@@ -262,7 +271,7 @@ public class Lexer {
 
   private String peek(int n) {
     String s = "";
-    for(int i = 0; i < n && index + i < input.length; i++) {
+    for (int i = 0; i < n && index + i < input.length; i++) {
       s += (char) input[index + i];
     }
     return s;
@@ -278,7 +287,7 @@ public class Lexer {
 
   private Token createToken(TokenType type) {
     int startcol = col - (lexeme.length() - 1);
-    switch(type) {
+    switch (type) {
       case INT:
         return new Token(type, filename, line, startcol, Integer.parseInt(lexeme));
       case FLOAT:
@@ -290,8 +299,9 @@ public class Lexer {
     }
   }
 
-  private SyntaxError exception(String msg) {
-    return new SyntaxError(filename, line, col, msg);
+  private CompilerException exception(String msg) {
+    LOGGER.error(new Position(filename, line, col), msg);
+    return new CompilerException("There were syntax errors");
   }
 
   private static boolean isDigit(char c) {

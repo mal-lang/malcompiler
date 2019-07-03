@@ -38,21 +38,45 @@ public class MalLogger extends Logger {
     @Override
     public String format(LogRecord record) {
       StringBuffer sb = new StringBuffer();
-      sb.append("[");
-      sb.append(record.getLevel());
-      sb.append("] ");
+      sb.append(printLevel(record.getLoggerName(), record.getLevel()));
+      sb.append(" ");
       sb.append(record.getMessage());
       sb.append("\n");
       return sb.toString();
     }
+
+    private String printLevel(String loggerName, Level level) {
+      String colorInit = "";
+      String colorClear = "";
+
+      if (System.console() != null) {
+        switch(level.getName()) {
+          case "ERROR":
+            colorInit = "\u001B[31m";
+            break;
+          case "WARNING":
+            colorInit = "\u001B[33m";
+            break;
+          case "INFO":
+            colorInit = "\u001B[34m";
+            break;
+          case "DEBUG":
+            colorInit = "\u001B[36m";
+            break;
+          default:
+        }
+        colorClear = "\u001B[m";
+      }
+      return String.format("[%s%s %s%s]", colorInit, loggerName, level.getName(), colorClear);
+    }
   }
 
-  public MalLogger() {
-    this(false, false);
+  public MalLogger(String name) {
+    this(name, false, false);
   }
 
-  public MalLogger(boolean verbose, boolean debug) {
-    this(null, null);
+  public MalLogger(String name, boolean verbose, boolean debug) {
+    this(name, null);
     if (debug) {
       setLevel(MalLevel.DEBUG);
     } else if (verbose) {
@@ -71,7 +95,7 @@ public class MalLogger extends Logger {
   }
 
   public void debug(Position pos, String msg) {
-    debug(String.format("%s %s", pos.posString(), msg));
+    debug(msgFormat(pos, msg));
   }
 
   public void debug(String msg) {
@@ -79,7 +103,7 @@ public class MalLogger extends Logger {
   }
 
   public void info(Position pos, String msg) {
-    info(String.format("%s %s", pos.posString(), msg));
+    info(msgFormat(pos, msg));
   }
 
   @Override
@@ -88,7 +112,7 @@ public class MalLogger extends Logger {
   }
 
   public void warning(Position pos, String msg) {
-    warning(String.format("%s %s", pos.posString(), msg));
+    warning(msgFormat(pos, msg));
   }
 
   @Override
@@ -97,10 +121,14 @@ public class MalLogger extends Logger {
   }
 
   public void error(Position pos, String msg) {
-    error(String.format("%s %s", pos.posString(), msg));
+    error(msgFormat(pos, msg));
   }
 
   public void error(String msg) {
     log(MalLevel.ERROR, msg);
+  }
+
+  public String msgFormat(Position pos, String msg) {
+    return String.format("%s %s", pos.posString(), msg);
   }
 }

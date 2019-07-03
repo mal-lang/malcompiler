@@ -33,7 +33,7 @@ public class Position {
   }
 
   public String posString() {
-    return String.format("%s:%d:%d", filename, line, col);
+    return String.format("<%s:%d:%d>", filename, line, col);
   }
 
   @Override

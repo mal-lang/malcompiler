@@ -16,11 +16,12 @@
 package com.foreseeti.mal;
 
 @SuppressWarnings("serial")
-public class SyntaxError extends Exception {
-  public SyntaxError(String message) {
-    super(String.format("syntax error: %s", message));
+public class CompilerException extends Exception {
+  public CompilerException() {
+    super("");
   }
-  public SyntaxError(String filename, int line, int col, String message) {
-    super(String.format("%s:%d:%d:syntax error: %s", filename, line, col, message));
+
+  public CompilerException(String msg) {
+    super(msg);
   }
 }

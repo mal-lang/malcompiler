@@ -52,4 +52,30 @@ public class Token extends Position {
     this.doubleValue = 0.0;
     this.intValue = intValue;
   }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(type);
+    sb.append(", ");
+    sb.append(posString());
+    switch(type) {
+      case FLOAT:
+        sb.append(", ");
+        sb.append(doubleValue);
+        break;
+      case INT:
+        sb.append(", ");
+        sb.append(intValue);
+        break;
+      case ID:
+      case STRING:
+        sb.append(", ");
+        sb.append(stringValue);
+        break;
+      default:
+        break;
+    }
+    return sb.toString();
+  }
 }

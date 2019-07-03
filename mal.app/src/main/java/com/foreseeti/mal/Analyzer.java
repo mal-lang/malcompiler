@@ -43,7 +43,7 @@ public class Analyzer {
 
   public Analyzer(AST ast, boolean verbose, boolean debug) {
     this.ast = ast;
-    LOGGER = new MalLogger(verbose, debug);
+    LOGGER = new MalLogger("ANALYZER", verbose, debug);
     assets = new LinkedHashMap<>();
     fields = new LinkedHashMap<>();
     steps = new LinkedHashMap<>();
@@ -51,7 +51,7 @@ public class Analyzer {
     currentVariables = new LinkedHashMap<>();
   }
 
-  public void analyze() throws SemanticError {
+  public void analyze() throws CompilerException {
     checkDefines();
     checkCategories();
     checkAssets();
@@ -72,14 +72,14 @@ public class Analyzer {
     for (AST.Define define : ast.getDefines()) {
       AST.Define prevDef = defines.put(define.key.id, define);
       if (prevDef != null) {
-        error(String.format("%s Define '%s' previously defined at %s", define.posString(),
-            define.key.id, prevDef.posString()));
+        error(define, String.format("Define '%s' previously defined at %s", define.key.id,
+            prevDef.posString()));
       }
     }
     AST.Define id = defines.get("id");
     if (id != null) {
       if (id.value.isBlank()) {
-        error(String.format("%s Define 'id' cannot be empty", id.posString()));
+        error(id, "Define 'id' cannot be empty");
       }
     } else {
       error("Missing required define '#id: \"\"'");
@@ -87,9 +87,8 @@ public class Analyzer {
     AST.Define version = defines.get("version");
     if (version != null) {
       if (!version.value.matches("\\d+\\.\\d+\\.\\d+")) {
-        error(String.format(
-            "%s Define 'version' must be valid semantic versioning without pre-release identifier and build metadata",
-            version.posString()));
+        error(version,
+            "Define 'version' must be valid semantic versioning without pre-release identifier and build metadata");
       }
     } else {
       error("Missing required define '#version: \"\"'");
@@ -133,8 +132,8 @@ public class Analyzer {
         metas.put(meta.type, meta);
       } else {
         AST.Meta prevDef = metas.get(meta.type);
-        error(String.format("%s Metadata %s previously defined at %s", meta.posString(), meta.type,
-            prevDef.posString()));
+        error(meta,
+            String.format("Metadata %s previously defined at %s", meta.type, prevDef.posString()));
       }
     }
   }
@@ -144,8 +143,8 @@ public class Analyzer {
       for (AST.Asset asset : category.assets) {
         if (assets.containsKey(asset.name.id)) {
           AST.Asset prevDef = assets.get(asset.name.id);
-          error(String.format("%s Asset '%s' previously defined at %s", asset.name.posString(),
-              asset.name.id, prevDef.name.posString()));
+          error(asset.name, String.format("Asset '%s' previously defined at %s", asset.name.id,
+              prevDef.name.posString()));
         } else {
           assets.put(asset.name.id, asset);
         }
@@ -153,7 +152,7 @@ public class Analyzer {
     }
   }
 
-  public void checkExtends() throws SemanticError {
+  public void checkExtends() throws CompilerException {
     boolean err = false;
     for (AST.Asset asset : assets.values()) {
       if (asset.parent.isPresent()) {
@@ -163,11 +162,11 @@ public class Analyzer {
       }
     }
     if (err) {
-      throw new SemanticError("There were semantic errors");
+      throw exception();
     }
   }
 
-  public void checkParents() throws SemanticError {
+  public void checkParents() throws CompilerException {
     boolean err = false;
     for (AST.Asset asset : assets.values()) {
       if (asset.parent.isPresent()) {
@@ -181,8 +180,8 @@ public class Analyzer {
               sb.append(" -> ");
             }
             sb.append(parent.name.id);
-            error(String.format("%s Asset '%s' extends in loop '%s'", asset.name.posString(),
-                asset.name.id, sb.toString()));
+            error(asset.name,
+                String.format("Asset '%s' extends in loop '%s'", asset.name.id, sb.toString()));
             err = true;
             break;
           }
@@ -191,7 +190,7 @@ public class Analyzer {
       }
     }
     if (err) {
-      throw new SemanticError("There were semantic errors");
+      throw exception();
     }
   }
 
@@ -262,8 +261,9 @@ public class Analyzer {
               scope.add(attackStep.name.id, attackStep);
             } else {
               // Attack step reaches something with +> but doesn't exist previously, NOK
-              error(String.format("%s Cannot inherit attack step '%s' without previous definition",
-                  attackStep.reaches.get().posString(), attackStep.name.id));
+              error(attackStep.reaches.get(),
+                  String.format("Cannot inherit attack step '%s' without previous definition",
+                      attackStep.name.id));
             }
           } else {
             // Attack step is previously defined in another scope
@@ -272,16 +272,15 @@ public class Analyzer {
               scope.add(attackStep.name.id, attackStep);
             } else {
               // Step is NOT of same type as previous, NOK
-              error(String.format(
-                  "%s Cannot override attack step '%s' previously defined at %s with different type '%s' =/= '%s'",
-                  attackStep.name.posString(), attackStep.name.id, prevDef.name.posString(),
-                  attackStep.type, prevDef.type));
+              error(attackStep.name, String.format(
+                  "Cannot override attack step '%s' previously defined at %s with different type '%s' =/= '%s'",
+                  attackStep.name.id, prevDef.name.posString(), attackStep.type, prevDef.type));
             }
           }
         } else {
           // Attack step is defined in this scope, NOK
-          error(String.format("%s Attack step '%s' previously defined at %s",
-              attackStep.name.posString(), attackStep.name.id, prevDef.name.posString()));
+          error(attackStep.name, String.format("Attack step '%s' previously defined at %s",
+              attackStep.name.id, prevDef.name.posString()));
         }
       }
     }
@@ -327,8 +326,8 @@ public class Analyzer {
         scope.add(field.id, assoc);
       } else {
         // Field previously defined as attack step
-        error(String.format("%s Field '%s' previously defined as attack step at %s",
-            field.posString(), field.id, prevStep.posString()));
+        error(field, String.format("Field '%s' previously defined as attack step at %s", field.id,
+            prevStep.posString()));
       }
     } else {
       // Field previously defined
@@ -339,8 +338,8 @@ public class Analyzer {
         prevField = prevDef.rightField;
       }
       // prevField and field are switched since we are traveling from child->parent
-      error(String.format("%s Field '%s' previously defined at %s", prevField.posString(), field.id,
-          field.posString()));
+      error(prevField,
+          String.format("Field '%s' previously defined at %s", field.id, field.posString()));
     }
   }
 
@@ -349,15 +348,15 @@ public class Analyzer {
     if (prevDef == null) {
       variables.add(variable.name.id, variable);
     } else {
-      error(String.format("%s Variable '%s' previously defined at %s", variable.name.posString(),
-          variable.name.id, prevDef.name.posString()));
+      error(variable.name, String.format("Variable '%s' previously defined at %s", variable.name.id,
+          prevDef.name.posString()));
     }
   }
 
   /**
    * Evaluates each expression reached by an attack step.
    */
-  private void checkReaches() throws SemanticError {
+  private void checkReaches() throws CompilerException {
     for (AST.Asset asset : assets.values()) {
       variables = new Scope<>();
       variables.enterScope();
@@ -381,14 +380,13 @@ public class Analyzer {
             }
             variables.exitScope();
           } else {
-            error(String.format("%s Attack step of type '%s' must have require '<-'",
-                attackStep.posString(), attackStep.type));
+            error(attackStep,
+                String.format("Attack step of type '%s' must have require '<-'", attackStep.type));
             continue;
           }
         } else if (attackStep.requires.isPresent()) {
-          error(String.format(
-              "%s Require '<-' may only be defined for attack step type exist 'E' or not-exist '!E'",
-              attackStep.requires.get().posString()));
+          error(attackStep.requires.get(),
+              "Require '<-' may only be defined for attack step type exist 'E' or not-exist '!E'");
           continue;
         }
 
@@ -405,7 +403,7 @@ public class Analyzer {
       }
     }
     if (failed) {
-      throw new SemanticError("There were semantic errors");
+      throw exception();
     }
   }
 
@@ -439,8 +437,8 @@ public class Analyzer {
         // Only defined as an attack step
         return attackStep;
       } else {
-        error(String.format("%s Attack step '%s' not defined for asset '%s'", step.id.posString(),
-            step.id.id, target.name.id));
+        error(step.id, String.format("Attack step '%s' not defined for asset '%s'", step.id.id,
+            target.name.id));
         return null;
       }
     } else if (expr instanceof AST.StepExpr) {
@@ -452,7 +450,7 @@ public class Analyzer {
         return null;
       }
     } else {
-      error(String.format("%s Last step is not attack step", expr.posString()));
+      error(expr, "Last step is not attack step");
       return null;
     }
   }
@@ -469,7 +467,7 @@ public class Analyzer {
     } else if (expr instanceof AST.SubTypeExpr) {
       return checkSubTypeExpr(asset, (AST.SubTypeExpr) expr);
     } else {
-      error(String.format("%s Unexpected expression '%s'", expr.posString(), expr.toString()));
+      error(expr, String.format("Unexpected expression '%s'", expr.toString()));
       System.exit(1);
       return null;
     }
@@ -504,8 +502,8 @@ public class Analyzer {
       }
       sb.append(variable.name.id);
       AST.Variable first = (Variable) currentVariables.values().toArray()[0];
-      error(String.format("%s Variable '%s' contains cycle '%s'", first.name.posString(),
-          first.name.id, sb.toString()));
+      error(first.name,
+          String.format("Variable '%s' contains cycle '%s'", first.name.id, sb.toString()));
       return false;
     }
   }
@@ -551,8 +549,8 @@ public class Analyzer {
     if (target != null) {
       return target;
     } else {
-      error(String.format("%s Types '%s' and '%s' have no common ancestor", expr.posString(),
-          leftTarget.name.id, rightTarget.name.id));
+      error(expr, String.format("Types '%s' and '%s' have no common ancestor", leftTarget.name.id,
+          rightTarget.name.id));
       return null;
     }
   }
@@ -562,8 +560,8 @@ public class Analyzer {
     if (isChild(res, asset)) {
       return res;
     } else {
-      error(String.format("%s Previous asset '%s' is not of type '%s'", expr.posString(),
-          asset.name.id, res.name.id));
+      error(expr,
+          String.format("Previous asset '%s' is not of type '%s'", asset.name.id, res.name.id));
       return null;
     }
   }
@@ -580,8 +578,7 @@ public class Analyzer {
     if (isChild(target, type)) {
       return type;
     } else {
-      error(String.format("%s Asset '%s' cannot be of type '%s'", expr.posString(), target.name.id,
-          type.name.id));
+      error(expr, String.format("Asset '%s' cannot be of type '%s'", target.name.id, type.name.id));
       return null;
     }
   }
@@ -590,7 +587,7 @@ public class Analyzer {
     if (assets.containsKey(name.id)) {
       return assets.get(name.id);
     } else {
-      error(String.format("%s Asset '%s' not defined", name.posString(), name.id));
+      error(name, String.format("Asset '%s' not defined", name.id));
       return null;
     }
   }
@@ -629,8 +626,7 @@ public class Analyzer {
         return getAsset(assoc.rightAsset);
       }
     } else {
-      error(String.format("%s Field '%s' not defined for asset '%s'", name.posString(), name.id,
-          asset.name.id));
+      error(name, String.format("Field '%s' not defined for asset '%s'", name.id, asset.name.id));
       return null;
     }
   }
@@ -660,10 +656,21 @@ public class Analyzer {
     }
   }
 
+  public CompilerException exception() {
+    return new CompilerException("There were semantic errors");
+  }
+
   public void error(String msg) {
     failed = true;
     if (errors.add(msg)) {
       LOGGER.error(msg);
+    }
+  }
+
+  public void error(Position pos, String msg) {
+    failed = true;
+    if (errors.add(msg)) {
+      LOGGER.error(pos, msg);
     }
   }
 }
