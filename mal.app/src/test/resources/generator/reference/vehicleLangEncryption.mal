@@ -1,0 +1,49 @@
+category Communication {
+
+	asset CoreEncryptedData extends Data
+ 		info: "Data is a concrete, syntactic representation of Information at rest."
+   {
+
+	   & authenticatedRead
+	      info: "Access and authentication will allow reading of data."
+	      -> readEncrypted
+
+	   & authenticatedWrite
+	      info: "Access and authentication will allow writing of data."
+	      -> writeEncrypted
+
+		& readEncrypted
+			->	read
+
+		& writeEncrypted
+			-> write
+
+        E decryptionKeysExist
+      		info: "If any decryption keys exist, this defense step is compromised, but if not, this will prevent readEncrypted from being reached."
+      		rationale: "Without this step, readEncrypted will, in the case of no modelled keys, be compromised, which is counterintuitive."
+         	<- decryptionKeys
+         	-> readEncrypted
+
+	   E encryptionKeysExist
+	      info: "If any encryption keys exist, this defense step is compromised, but if not, this will prevent witeEncrypted from being reached."
+	      rationale: "Without this step, writeEncrypted will, in the case of no modelled keys, be compromised, which is counterintuitive."
+          <- encryptionKeys
+		  -> writeEncrypted
+		}
+}
+
+category Security{
+
+	asset CryptographicKey extends Data {
+		| read
+		 -> decryptedData.readEncrypted,
+			encryptedData.writeEncrypted
+
+	}
+
+}
+
+associations {
+	CoreEncryptedData	[decryptedData]				*	<-- Decryption						-->	*	[decryptionKeys]				CryptographicKey
+   	CoreEncryptedData	[encryptedData]				*	<-- Encryption						-->	*	[encryptionKeys]				CryptographicKey
+}

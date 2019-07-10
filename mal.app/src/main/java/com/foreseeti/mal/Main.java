@@ -15,6 +15,7 @@
  */
 package com.foreseeti.mal;
 
+import com.foreseeti.mal.generator.ReferenceGenerator;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -245,6 +246,11 @@ public class Main {
       System.exit(1);
     }
 
+    Map<String, String> argmap = new HashMap<>();
+    if (!opts.args.isBlank()) {
+      argmap = argsToMap(opts.args);
+    }
+
     var file = opts.files.get(0);
     var LOGGER = new MalLogger("MAIN", opts.verbose, opts.debug);
 
@@ -263,7 +269,10 @@ public class Main {
       } else if (opts.analyzer) {
         Analyzer.analyze(Parser.parse(file), opts.verbose, opts.debug);
       } else if (opts.target.equals("reference")) {
-        throw new CompilerException("Target 'reference' not yet implemented");
+        AST ast = Parser.parse(file);
+        Analyzer.analyze(ast);
+        Lang lang = LangConverter.convert(ast);
+        ReferenceGenerator.generate(lang, argmap, opts.verbose, opts.debug);
       } else if (opts.target.equals("securicad")) {
         throw new CompilerException("Target 'securicad' not yet implemented");
       } else if (opts.target.equals("d3")) {

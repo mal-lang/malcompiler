@@ -18,6 +18,8 @@ module mal.app {
 
   requires info.picocli;
   requires java.logging;
+  requires com.squareup.javapoet;
+  requires java.compiler;
 
   opens com.foreseeti.mal to
       info.picocli;

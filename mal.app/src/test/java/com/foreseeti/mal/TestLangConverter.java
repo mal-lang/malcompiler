@@ -138,6 +138,7 @@ public class TestLangConverter {
       Lang.AttackStepType type,
       boolean inheritsReaches,
       boolean isDefense,
+      boolean isConditionalDefense,
       boolean hasParent) {
     var attackSteps = asset.getAttackSteps();
     assertTrue(attackSteps.containsKey(name));
@@ -148,6 +149,7 @@ public class TestLangConverter {
     assertSame(asset, attackStep.getAsset());
     assertEquals(inheritsReaches, attackStep.inheritsReaches());
     assertEquals(isDefense, attackStep.isDefense());
+    assertEquals(isConditionalDefense, attackStep.isConditionalDefense());
     assertEquals(hasParent, attackStep.hasParent());
     return attackStep;
   }
@@ -164,7 +166,7 @@ public class TestLangConverter {
 
     // Check attack step "impersonate"
     var attackStep =
-        assertAttackStep(asset, "impersonate", Lang.AttackStepType.ANY, false, false, false);
+        assertAttackStep(asset, "impersonate", Lang.AttackStepType.ANY, false, false, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());
@@ -220,7 +222,7 @@ public class TestLangConverter {
 
     // Check attack step "compromise"
     attackStep =
-        assertAttackStep(asset, "compromise", Lang.AttackStepType.ANY, false, false, false);
+        assertAttackStep(asset, "compromise", Lang.AttackStepType.ANY, false, false, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());
@@ -262,7 +264,8 @@ public class TestLangConverter {
 
     // Check attack step "stealInformation"
     attackStep =
-        assertAttackStep(asset, "stealInformation", Lang.AttackStepType.ANY, false, false, false);
+        assertAttackStep(
+            asset, "stealInformation", Lang.AttackStepType.ANY, false, false, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());
@@ -308,7 +311,7 @@ public class TestLangConverter {
 
     // Check attack step "stealFolder"
     attackStep =
-        assertAttackStep(asset, "stealFolder", Lang.AttackStepType.ANY, false, false, false);
+        assertAttackStep(asset, "stealFolder", Lang.AttackStepType.ANY, false, false, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());
@@ -370,7 +373,7 @@ public class TestLangConverter {
     // Check attack step "accessSchoolComputer"
     var attackStep =
         assertAttackStep(
-            asset, "accessSchoolComputer", Lang.AttackStepType.ANY, false, false, false);
+            asset, "accessSchoolComputer", Lang.AttackStepType.ANY, false, false, false, false);
     assertMeta(
         attackStep.getMeta(),
         "An extra level of protection, their school computer must be used to impersonate them.",
@@ -406,7 +409,8 @@ public class TestLangConverter {
 
     // Check attack step "malwareInfection"
     var attackStep =
-        assertAttackStep(asset, "malwareInfection", Lang.AttackStepType.ANY, false, false, false);
+        assertAttackStep(
+            asset, "malwareInfection", Lang.AttackStepType.ANY, false, false, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());
@@ -423,7 +427,8 @@ public class TestLangConverter {
 
     // Check attack step "interceptTraffic"
     attackStep =
-        assertAttackStep(asset, "interceptTraffic", Lang.AttackStepType.ANY, false, false, false);
+        assertAttackStep(
+            asset, "interceptTraffic", Lang.AttackStepType.ANY, false, false, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());
@@ -461,7 +466,8 @@ public class TestLangConverter {
 
     // Check attack step "retrievePassword"
     attackStep =
-        assertAttackStep(asset, "retrievePassword", Lang.AttackStepType.ALL, false, false, false);
+        assertAttackStep(
+            asset, "retrievePassword", Lang.AttackStepType.ALL, false, false, false, false);
     assertMeta(
         attackStep.getMeta(),
         "Retrieval of password is only possible if password is unencrypted",
@@ -517,7 +523,8 @@ public class TestLangConverter {
 
     // Check attack step "bypassFirewall"
     attackStep =
-        assertAttackStep(asset, "bypassFirewall", Lang.AttackStepType.ANY, false, false, false);
+        assertAttackStep(
+            asset, "bypassFirewall", Lang.AttackStepType.ANY, false, false, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertTrue(attackStep.hasTTC());
     // ExponentialDistribution(0.05) * GammaDistribution(1.2, 1.7)
@@ -565,7 +572,7 @@ public class TestLangConverter {
 
     // Check attack step "stealSecret"
     attackStep =
-        assertAttackStep(asset, "stealSecret", Lang.AttackStepType.ANY, false, false, false);
+        assertAttackStep(asset, "stealSecret", Lang.AttackStepType.ANY, false, false, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());
@@ -623,7 +630,7 @@ public class TestLangConverter {
     // Check attack step "passwordEncrypted"
     attackStep =
         assertAttackStep(
-            asset, "passwordEncrypted", Lang.AttackStepType.DEFENSE, false, true, false);
+            asset, "passwordEncrypted", Lang.AttackStepType.DEFENSE, false, true, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());
@@ -639,7 +646,8 @@ public class TestLangConverter {
 
     // Check attack step "firewallProtected"
     attackStep =
-        assertAttackStep(asset, "firewallProtected", Lang.AttackStepType.EXIST, false, true, false);
+        assertAttackStep(
+            asset, "firewallProtected", Lang.AttackStepType.EXIST, false, false, true, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());
@@ -691,7 +699,8 @@ public class TestLangConverter {
 
     // Check attack step "bypassFirewall"
     var attackStep =
-        assertAttackStep(asset, "bypassFirewall", Lang.AttackStepType.ALL, false, false, false);
+        assertAttackStep(
+            asset, "bypassFirewall", Lang.AttackStepType.ALL, false, false, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());
@@ -807,7 +816,8 @@ public class TestLangConverter {
 
     // Check attack step "stealHDSecrets"
     var attackStep =
-        assertAttackStep(asset, "stealHDSecrets", Lang.AttackStepType.ANY, false, false, false);
+        assertAttackStep(
+            asset, "stealHDSecrets", Lang.AttackStepType.ANY, false, false, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());
@@ -878,7 +888,7 @@ public class TestLangConverter {
 
     // Check attack step "stealFolder"
     attackStep =
-        assertAttackStep(asset, "stealFolder", Lang.AttackStepType.ANY, false, false, false);
+        assertAttackStep(asset, "stealFolder", Lang.AttackStepType.ANY, false, false, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());
@@ -967,7 +977,8 @@ public class TestLangConverter {
 
     // Check attack step "accessFolder"
     var attackStep =
-        assertAttackStep(asset, "accessFolder", Lang.AttackStepType.ANY, false, false, false);
+        assertAttackStep(
+            asset, "accessFolder", Lang.AttackStepType.ANY, false, false, false, false);
     assertMeta(attackStep.getMeta(), null, null, null);
     assertFalse(attackStep.hasTTC());
     assertNull(attackStep.getTTC());

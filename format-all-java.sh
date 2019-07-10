@@ -16,13 +16,17 @@ then
   wget -q "$URL"
 fi
 
+SRCPATH="$BASEPATH/mal.app/src"
+JARPATH="$BASEPATH/$JAR"
+cd "$SRCPATH"
+
 PIDS=()
 
 echo "Formatting $(find . -name "*.java" | wc -l) files..."
 
 for f in `find . -name "*.java"`
 do
-  java -jar "$JAR" -i "$f" &
+  java -jar "$JARPATH" -i "$f" &
   PIDS+=($!)
 done
 

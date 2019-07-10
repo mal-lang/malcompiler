@@ -392,6 +392,12 @@ public class Analyzer {
       for (AST.AttackStep attackStep : asset.attackSteps) {
         if (attackStep.type == AST.AttackStepType.EXIST
             || attackStep.type == AST.AttackStepType.NOTEXIST) {
+          if (attackStep.ttc.isPresent()) {
+            error(
+                attackStep,
+                String.format("Attack step of type '%s' must not have TTC", attackStep.type));
+            continue;
+          }
           if (attackStep.requires.isPresent()) {
             // Requires (<-)
             variables.enterScope();

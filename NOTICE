@@ -9,3 +9,7 @@ MAL contributors: Foreseeti AB, Sotirios Katsikeas
 This product includes/uses software, picocli 4.0.0-beta-1b (https://github.com/remkop/picocli),
 developed by Remko Popma  (https://github.com/remkop)
 License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+This product includes/uses software, javapoet 1.12.0-SNAPSHOT (https://github.com/square/javapoet),
+developed by Square  (https://square.github.io/)
+License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)

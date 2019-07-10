@@ -408,14 +408,11 @@ public class Lang {
     }
 
     public boolean isDefense() {
-      switch (this.type) {
-        case DEFENSE:
-        case EXIST:
-        case NOTEXIST:
-          return true;
-        default:
-          return false;
-      }
+      return this.type == AttackStepType.DEFENSE;
+    }
+
+    public boolean isConditionalDefense() {
+      return this.type == AttackStepType.EXIST || this.type == AttackStepType.NOTEXIST;
     }
 
     public boolean hasParent() {

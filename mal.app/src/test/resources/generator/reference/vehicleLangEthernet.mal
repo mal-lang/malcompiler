@@ -1,0 +1,117 @@
+category System {
+
+    asset EthernetGatewayECU extends GatewayECU
+        info: "Specifies a Gateway ECU that has additionaly Ethernet network capabilities."
+        {
+        | access
+                rationale: "Overriding from GatewayECU"
+                +>	trafficVNetworks.manInTheMiddle, // This will act as Firewall and IDPS are disabled on vehicle networks
+                    trafficNetworks.manInTheMiddle, // This will act as above but on the ethernet network
+                    forwarding
+
+        | forwarding
+                rationale: "Forwarding is the lightest interaction with the gateway, where the gateway simply retransmits received messages. Vulnerabilities may, however, lead to compromise of the gateway as well as of the associated firewall. Therefore, Forwarding leads to Connect."
+                -> 	connect,
+                    bypassFirewall  // If firewall is not enabled then bypass it.
+
+        & bypassFirewall
+                info: "If firewall is disabled, then attacker can bypass it."
+                ->	gatewayBypassIDPS, // Added here to stop those attacks when firewall is enabled.
+                    gatewayNoIDPS,
+                    trafficNetworks.accessNetworkLayer
+
+        # firewallProtection // Firewall is just a defense on gateway ECU.
+                info: "Firewall protection comes from the existence of a correctly configured firewall."
+                -> bypassFirewall
+
+        | denialOfService
+                info: "Perform denial of service attack on all the connected networks."
+                -> 	trafficVNetworks.denialOfService,
+                    trafficNetworks.denialOfService
+        }
+
+    }
+
+category Networking {
+
+    asset Router extends Service {
+
+        | access
+                +> 	trafficNetworks.manInTheMiddle,
+                    forwarding
+
+        # correctlyConfiguredFirewallExists
+                ->	noFirewallProtection
+
+        | noFirewallProtection
+                info: "Firewall protection comes from (i) the existence of a (ii) correctly configured firewall."
+                -> bypassFirewall
+
+        | forwarding
+                rationale: "Forwarding is the lightest interaction with the router, where the router simply retransmits received messages. Vulnerabilities may, however, lead to compromise of the router as well as of the associated firewall. Therefore, Forwarding leads to Connect."
+                -> 	connect,
+                    bypassFirewall
+
+        & bypassFirewall
+                ->	trafficNetworks.accessNetworkLayer
+
+        | denialOfService
+                -> 	trafficNetworks.denialOfService
+        }
+
+    asset EthernetNetwork extends Network
+        info: "This represents the homonym network when using IPv4."
+        { 	
+        | physicalAccess
+                info: "Physical access currently includes close-enough-to-touch."
+                -> 	bypassPortSecurity
+        
+         & bypassPortSecurity
+                 -> 	bypassAccessControl
+  
+        | bypassAccessControl
+                -> 	accessDataLinkLayer
+
+        | accessDataLinkLayer
+                info: "Hosts with a MAC address on the network have Layer 2 access."
+                rationale: "Access to data link layer (OSI layer 2) may enable eavesdropping, depending on the kind of network, as well as ARP cache poisoning either on the router side or any of the hosts on the network. (Router side ARP cache poisoning is modelled as a property on the network.)"
+                -> 	accessNetworkLayer, 
+                    aRPCachePoisoning
+  
+        | accessNetworkLayer
+                info: "Network layer (OSI layer 3) access implies the possibility to submit IP packets over the network. It does not imply the possibility to listen to others' trafic on the network. You are outside the router but with a possibility to communicate in to the network."
+                -> 	networkMachines[NetworkService].connect,
+                    trafficRouters.forwarding,
+                    trafficEthGatewayECU.forwarding,
+                    denialOfService, 
+                    networkMachines.connect
+  
+        & aRPCachePoisoning
+            info: "ARP spoofing works on all common IPv4 networks, both wirebound and wireless. For WPA2Enterprise, it can be exploited due to Hole196 (cf. https://www.cwnp.com/forums/posts?postNum=300580)."
+                -> 	manInTheMiddle
+ 
+        # portSecurity
+                info: "You can use port security to restrict a port's ingress traffic by limiting the MAC addresses that are allowed to send traffic into the port."
+                rationale: "http://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst6500/ios/12-2SX/configuration/guide/book/port_sec.html"
+                -> 	bypassPortSecurity
+
+        # staticARPTables 
+                -> 	aRPCachePoisoning
+
+        | manInTheMiddle
+                    info: "Attackers can sometimes intercept and tamper with communications on the IP layer. Higher-layer encryption and authentication, such as HTTPS, may still prevent the compromise of information in dataflows."
+                -> 	accessDataLinkLayer,
+                    eavesdrop,
+                    dataflows.manInTheMiddle,
+                    trafficRouters.denialOfService,
+                    trafficEthGatewayECU.denialOfService
+        }
+
+}
+
+associations {
+
+    Dataflow		[realizingDataflow]				* 	<-- NetworkVirtualization 			--> 0..1[virtualNetwork] 				EthernetNetwork
+    EthernetNetwork [trafficNetworks] 				* 	<-- Connection 						--> * 	[trafficRouters] 				Router
+    EthernetNetwork [trafficNetworks] 				* 	<-- Connection 						--> * 	[trafficEthGatewayECU] 			EthernetGatewayECU
+}
