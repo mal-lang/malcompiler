@@ -1,0 +1,10 @@
+/**
+ * Copyright notice
+ */
+
+// These are required
+#id: "all-features"
+#version: "0.0.1"
+
+include "core.mal"
+include "subdir/subincluded.mal"

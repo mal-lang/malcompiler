@@ -1,15 +1,11 @@
 package com.foreseeti.mal.vehiclelang;
 
-import static com.foreseeti.mal.TestUtils.clearTestSystem;
-import static com.foreseeti.mal.TestUtils.initTestSystem;
-
+import com.foreseeti.mal.MalTest;
 import core.Asset;
 import core.AttackStep;
 import core.Attacker;
 import core.Defense;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import vehicle.AftermarketDongle;
 import vehicle.CANNetwork;
@@ -19,17 +15,7 @@ import vehicle.ECU;
 import vehicle.OBD2Connector;
 import vehicle.TransmitterService;
 
-public class PublicInterfacesTest {
-
-  @BeforeAll
-  public static void init() {
-    initTestSystem();
-  }
-
-  @AfterAll
-  public static void exit() {
-    clearTestSystem();
-  }
+public class PublicInterfacesTest extends MalTest {
 
   @Test
   public void OBD2PhysicalAccessTest() {

@@ -1,6 +1,6 @@
 category Cat {
   // Testing TTC
-  asset A {
+  asset A1 {
     &  a [a+b]
     |  b [a-b]
     #  c [a*b]
@@ -20,8 +20,19 @@ category Cat {
     |  b [a(1, 2.3, 3) + b]
   }
 
+  // Testing CIA
+  asset A2 {
+    | a1
+    | a2 {}
+    | a3 {C}
+    | a4 {C, C}
+    | a5 {C, I, A}
+    | a6 {A, C, I}
+    | a7 {C, C, I, I, A, A}
+  }
+
   // Testing meta
-  asset B {
+  asset A3 {
     & a
       info: "Info"
     | b
@@ -32,32 +43,32 @@ category Cat {
   }
 
   // Testing existence
-  asset C {
+  asset A4 {
     E a
       <- let x = y,
          a.y,
          let a = b,
          b,
          c \/ d,
-         a.(b[C])*
+         a.(b[D])*
   }
 
   // Testing reaches
-  asset D {
-    & a
+  asset A5 {
+    & a {I}
       -> let x = y,
          a.y,
          let a = b,
          b,
          c \/ d,
-         a.(b[C])*
+         a.(b[D])*
     | b
       <- x
       -> y
     # c [t]
       <- x
       +> y
-    E d [t]
+    E d {C} [t]
       info: "Info"
       <- x
       -> y

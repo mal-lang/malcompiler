@@ -29,6 +29,9 @@ public enum TokenType {
   ASSOCIATIONS("'associations'"),
   LET("'let'"),
   EXIST("'E'"),
+  C("'C'"),
+  I("'I'"),
+  A("'A'"),
 
   STRING("string literal"),
   ID("identifier"),

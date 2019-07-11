@@ -8,8 +8,11 @@
 
 <category>      ::= CATEGORY ID <meta>* LCURLY <asset>* RCURLY
 <asset>         ::= ABSTRACT? ASSET ID (EXTENDS ID)? <meta>* LCURLY (<attackstep> | <variable>)* RCURLY
-<attackstep>    ::= <astype> ID <ttc>? <meta>* <existence>? <reaches>?
+<attackstep>    ::= <astype> ID <cia>? <ttc>? <meta>* <existence>? <reaches>?
 <astype>        ::= ALL | ANY | HASH | EXIST | NOTEXIST
+<cia>           ::= LCURLY <cia-list>? RCURLY
+<cia-list>      ::= <cia-class> (COMMA <cia-class>)*
+<cia-class>     ::= C | I | A
 <ttc>           ::= LBRACKET <ttc-expr>? RBRACKET
 <ttc-expr>      ::= <ttc-term> ((PLUS | MINUS) <ttc-term>)*
 <ttc-term>      ::= <ttc-fact> ((STAR | DIVIDE) <ttc-fact>)*
@@ -44,6 +47,9 @@ EXTENDS         ::= "extends"
 ASSOCIATIONS    ::= "associations"
 LET             ::= "let"
 EXIST           ::= "E"
+C               ::= "C"
+I               ::= "I"
+A               ::= "A"
 
 
 ; tokens

@@ -1,12 +1,12 @@
 category Cat {
-  asset A
+  asset A1
     info: "Info1"
     rationale: "Reason1"
     assumptions: "None1"
   {
   }
 
-  abstract asset B
+  abstract asset A2
     info: "Info2"
     rationale: "Reason2"
     assumptions: "None2"
@@ -14,7 +14,7 @@ category Cat {
     let x = y
   }
 
-  asset C extends A
+  asset A3 extends A1
     info: "Info3"
     rationale: "Reason3"
     assumptions: "None3"
@@ -23,7 +23,7 @@ category Cat {
     | a
   }
 
-  abstract asset D extends B
+  abstract asset A4 extends A2
     info: "Info4"
     rationale: "Reason4"
     assumptions: "None4"

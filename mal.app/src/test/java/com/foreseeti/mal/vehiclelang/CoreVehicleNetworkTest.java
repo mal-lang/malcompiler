@@ -1,15 +1,11 @@
 package com.foreseeti.mal.vehiclelang;
 
-import static com.foreseeti.mal.TestUtils.clearTestSystem;
-import static com.foreseeti.mal.TestUtils.initTestSystem;
-
+import com.foreseeti.mal.MalTest;
 import core.Asset;
 import core.AttackStep;
 import core.Attacker;
 import core.Defense;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import vehicle.CANNetwork;
 import vehicle.ConnectionlessDataflow;
@@ -20,17 +16,7 @@ import vehicle.LINNetwork;
 import vehicle.TransmitterService;
 import vehicle.VehicleNetwork;
 
-public class CoreVehicleNetworkTest {
-
-  @BeforeAll
-  public static void init() {
-    initTestSystem();
-  }
-
-  @AfterAll
-  public static void exit() {
-    clearTestSystem();
-  }
+public class CoreVehicleNetworkTest extends MalTest {
 
   @Test // To make it work I added forwarding on GatewayECU
   public void testGatewayECUAccess() {

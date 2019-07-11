@@ -1,0 +1,8 @@
+
+ # // single line comment
+   empty /* C-style single line comment */
+         : /* multi line
+comment*/  ""
+
+ include
+         "../included.mal"

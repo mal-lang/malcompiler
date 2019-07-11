@@ -15,167 +15,168 @@
  */
 package com.foreseeti.mal;
 
+import static com.foreseeti.mal.AssertToken.assertGetLexerClassPath;
+import static com.foreseeti.mal.AssertToken.assertTokenTypes;
+import static com.foreseeti.mal.AssertToken.assertTokens;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TestLexer {
-  @BeforeEach
-  public void init() {
-    TestUtils.initTestSystem();
-  }
-
-  @AfterEach
-  public void tearDown() {
-    TestUtils.clearTestSystem();
-  }
-
+public class TestLexer extends MalTest {
   @Test
   public void testLexerFileNotExist() {
     try {
       new Lexer(new File("nothing"));
-      fail("File should have syntax errors");
-    } catch (IOException e) {
-      return;
+      fail("File \"nothing\" should cause an IOException");
+    } catch (Exception e) {
+      assertTrue(e instanceof IOException);
+      assertEquals("nothing: No such file or directory", e.getMessage());
     }
   }
 
   @Test
   public void testLexerFileExist() throws IOException {
-    File input = new File(getClass().getClassLoader().getResource("lexer/tokens.txt").getFile());
-    new Lexer(input);
+    assertGetLexerClassPath("lexer/tokens.txt");
   }
 
   @Test
   public void testLexerTokens() throws IOException, CompilerException {
-    File input = new File(getClass().getClassLoader().getResource("lexer/tokens.txt").getFile());
-    Lexer lexer = new Lexer(input);
-    List<TokenType> tokenTypes =
-        Arrays.asList(
-            TokenType.HASH,
-            TokenType.COLON,
-            TokenType.LCURLY,
-            TokenType.RCURLY,
-            TokenType.INHERIT,
-            TokenType.OVERRIDE,
-            TokenType.ALL,
-            TokenType.ANY,
-            TokenType.NOTEXIST,
-            TokenType.LBRACKET,
-            TokenType.RBRACKET,
-            TokenType.LPAREN,
-            TokenType.RPAREN,
-            TokenType.COMMA,
-            TokenType.REQUIRE,
-            TokenType.ASSIGN,
-            TokenType.UNION,
-            TokenType.INTERSECT,
-            TokenType.DOT,
-            TokenType.RANGE,
-            TokenType.STAR,
-            TokenType.PLUS,
-            TokenType.MINUS,
-            TokenType.DIVIDE,
-            TokenType.POWER,
-            TokenType.LARROW,
-            TokenType.RARROW,
-            TokenType.EOF);
-    for (TokenType tokenType : tokenTypes) {
-      assertEquals(tokenType, lexer.next().type);
-    }
+    TokenType[] tokenTypes = {
+      TokenType.HASH,
+      TokenType.COLON,
+      TokenType.LCURLY,
+      TokenType.RCURLY,
+      TokenType.INHERIT,
+      TokenType.OVERRIDE,
+      TokenType.ALL,
+      TokenType.ANY,
+      TokenType.NOTEXIST,
+      TokenType.LBRACKET,
+      TokenType.RBRACKET,
+      TokenType.LPAREN,
+      TokenType.RPAREN,
+      TokenType.COMMA,
+      TokenType.REQUIRE,
+      TokenType.ASSIGN,
+      TokenType.UNION,
+      TokenType.INTERSECT,
+      TokenType.DOT,
+      TokenType.RANGE,
+      TokenType.STAR,
+      TokenType.PLUS,
+      TokenType.MINUS,
+      TokenType.DIVIDE,
+      TokenType.POWER,
+      TokenType.LARROW,
+      TokenType.RARROW,
+      TokenType.EOF
+    };
+    assertTokenTypes(tokenTypes, "lexer/tokens.txt");
   }
 
   @Test
-  public void testLexerKeywords() throws IOException, CompilerException {
-    File input = new File(getClass().getClassLoader().getResource("lexer/keywords.txt").getFile());
-    Lexer lexer = new Lexer(input);
-    List<TokenType> tokenTypes =
-        Arrays.asList(
-            TokenType.INCLUDE,
-            TokenType.INFO,
-            TokenType.ASSUMPTIONS,
-            TokenType.RATIONALE,
-            TokenType.CATEGORY,
-            TokenType.ABSTRACT,
-            TokenType.ASSET,
-            TokenType.EXTENDS,
-            TokenType.ASSOCIATIONS,
-            TokenType.LET,
-            TokenType.EXIST,
-            TokenType.EOF);
-    for (TokenType tokenType : tokenTypes) {
-      assertEquals(tokenType, lexer.next().type);
-    }
+  public void testLexerKeywords() throws CompilerException {
+    TokenType[] tokenTypes = {
+      TokenType.INCLUDE,
+      TokenType.INFO,
+      TokenType.ASSUMPTIONS,
+      TokenType.RATIONALE,
+      TokenType.CATEGORY,
+      TokenType.ABSTRACT,
+      TokenType.ASSET,
+      TokenType.EXTENDS,
+      TokenType.ASSOCIATIONS,
+      TokenType.LET,
+      TokenType.EXIST,
+      TokenType.C,
+      TokenType.I,
+      TokenType.A,
+      TokenType.EOF
+    };
+    assertTokenTypes(tokenTypes, "lexer/keywords.txt");
   }
 
   @Test
-  public void testLexerLexemes() throws IOException, CompilerException {
-    File input = new File(getClass().getClassLoader().getResource("lexer/lexemes.txt").getFile());
-    Lexer lexer = new Lexer(input);
-    List<TokenType> tokenTypes =
-        Arrays.asList(
-            TokenType.STRING,
-            TokenType.STRING,
-            TokenType.INT,
-            TokenType.FLOAT,
-            TokenType.ID,
-            TokenType.EOF);
-    for (TokenType tokenType : tokenTypes) {
-      assertEquals(tokenType, lexer.next().type);
-    }
+  public void testLexerLexemes() throws CompilerException {
+    TokenType[] tokenTypes = {
+      TokenType.STRING,
+      TokenType.STRING,
+      TokenType.INT,
+      TokenType.FLOAT,
+      TokenType.ID,
+      TokenType.EOF
+    };
+    assertTokenTypes(tokenTypes, "lexer/lexemes.txt");
   }
 
-  private static void assertSyntaxError(String filename, Position pos, String error)
-      throws IOException {
-    File input = new File(TestLexer.class.getClassLoader().getResource(filename).getFile());
-    Lexer lexer = new Lexer(input);
+  private void assertSyntaxError(String filename, Position pos, String error) {
     try {
-      lexer.next();
+      assertGetLexerClassPath(filename).next();
       fail(String.format("File \"%s\" should have syntax errors", filename));
     } catch (Exception e) {
       assertTrue(e instanceof CompilerException);
       assertEquals("There were syntax errors", e.getMessage());
-      assertTrue(TestUtils.getOut().isEmpty());
-      assertEquals(
-          String.format("[LEXER ERROR] %s %s\n", pos.posString(), error), TestUtils.getPlainErr());
+      assertEmptyOut();
+      assertEquals(String.format("[LEXER ERROR] %s %s\n", pos.posString(), error), getPlainErr());
     }
   }
 
   @Test
-  public void testLexerInvalid() throws IOException {
+  public void testLexerInvalid() {
     assertSyntaxError(
         "lexer/invalid.txt", new Position("invalid.txt", 1, 1), "Expected '-' or '--'");
   }
 
   @Test
-  public void testLexerUnterminatedString() throws IOException {
+  public void testLexerUnterminatedString() {
     assertSyntaxError(
         "lexer/unterminated_string.txt",
-        new Position("unterminated_string.txt", 1, 4),
+        new Position("unterminated_string.txt", 1, 1),
         "Unterminated string starting at <unterminated_string.txt:1:1>");
   }
 
   @Test
-  public void testLexerUnterminatedComment() throws IOException {
+  public void testLexerUnterminatedComment() {
     assertSyntaxError(
         "lexer/unterminated_comment.txt",
-        new Position("unterminated_comment.txt", 1, 3),
+        new Position("unterminated_comment.txt", 2, 1),
         "Unterminated comment starting at <unterminated_comment.txt:1:1>");
   }
 
   @Test
-  public void testLexerInvalidEscapeSequence() throws IOException {
+  public void testLexerInvalidEscapeSequence() {
     assertSyntaxError(
         "lexer/invalid_escape_sequence.txt",
         new Position("invalid_escape_sequence.txt", 1, 1),
         "Invalid escape sequence '\\a'");
+  }
+
+  @Test
+  public void testLexerUnicode() {
+    Token[] tokens = {
+      new Token(TokenType.STRING, "unicode.txt", 1, 1, "Unicode character: ä"),
+      new Token(TokenType.EOF, "unicode.txt", 2, 1)
+    };
+    assertTokens(tokens, "lexer/unicode.txt");
+  }
+
+  @Test
+  public void testLexerBadUnicode1() {
+    assertSyntaxError(
+        "lexer/bad-unicode-1.txt",
+        new Position("bad-unicode-1.txt", 1, 1),
+        "Invalid escape byte 0xC3");
+  }
+
+  @Test
+  public void testLexerBadUnicode2() {
+    assertSyntaxError(
+        "lexer/bad-unicode-2.txt",
+        new Position("bad-unicode-2.txt", 1, 1),
+        "Unexpected token 0xC3");
   }
 }

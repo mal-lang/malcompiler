@@ -1,5 +1,5 @@
 category Cat {
-  asset A {
+  asset A1 {
     & a [(t]
   }
 }

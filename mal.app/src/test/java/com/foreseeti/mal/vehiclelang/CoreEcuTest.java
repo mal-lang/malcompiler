@@ -1,29 +1,15 @@
 package com.foreseeti.mal.vehiclelang;
 
-import static com.foreseeti.mal.TestUtils.clearTestSystem;
-import static com.foreseeti.mal.TestUtils.initTestSystem;
-
+import com.foreseeti.mal.MalTest;
 import core.Asset;
 import core.AttackStep;
 import core.Attacker;
 import core.Defense;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import vehicle.ECU;
 
-public class CoreEcuTest {
-
-  @BeforeAll
-  public static void init() {
-    initTestSystem();
-  }
-
-  @AfterAll
-  public static void exit() {
-    clearTestSystem();
-  }
+public class CoreEcuTest extends MalTest {
 
   @Test
   public void testConnectEcuAttacks() {

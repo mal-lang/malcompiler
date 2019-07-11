@@ -15,175 +15,98 @@
  */
 package com.foreseeti.mal;
 
-import static com.foreseeti.mal.AssertAST.assertGetASTClassPath;
+import static com.foreseeti.mal.AssertLang.assertGetLangAsset;
+import static com.foreseeti.mal.AssertLang.assertGetLangAttackStep;
+import static com.foreseeti.mal.AssertLang.assertGetLangClassPath;
+import static com.foreseeti.mal.AssertLang.assertLangCIA;
+import static com.foreseeti.mal.AssertLang.assertLangCategory;
+import static com.foreseeti.mal.AssertLang.assertLangDefines;
+import static com.foreseeti.mal.AssertLang.assertLangField;
+import static com.foreseeti.mal.AssertLang.assertLangLink;
 import static com.foreseeti.mal.AssertLang.assertLangStepExpr;
+import static com.foreseeti.mal.AssertLang.assertLangTTC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.Arrays;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class TestLangConverter {
-  @BeforeEach
-  public void init() {
-    TestUtils.initTestSystem();
-  }
-
-  @AfterEach
-  public void tearDown() {
-    TestUtils.clearTestSystem();
-  }
-
+public class TestLangConverter extends MalTest {
   @Test
   public void testComplexModel() {
-    try {
-      var ast = assertGetASTClassPath("analyzer/complex.mal");
-      Analyzer.analyze(ast);
-      var lang = LangConverter.convert(ast);
-      assertLangComplex(lang);
-    } catch (CompilerException e) {
-      fail(e.getMessage());
-    }
-  }
-
-  private static void assertMeta(
-      Lang.Meta meta, String info, String assumptions, String rationale) {
-    assertEquals(info, meta.getInfo());
-    assertEquals(assumptions, meta.getAssumptions());
-    assertEquals(rationale, meta.getRationale());
+    var lang = assertGetLangClassPath("analyzer/complex.mal");
+    assertDefines(lang);
+    assertCategories(lang);
+    assertAssets(lang);
+    assertLinks(lang);
   }
 
   private static void assertDefines(Lang lang) {
-    var defines = lang.getDefines();
-    assertEquals(2, defines.size());
-    assertTrue(defines.containsKey("id"));
-    assertEquals("complex", defines.get("id"));
-    assertEquals("complex", lang.getDefine("id"));
-    assertTrue(defines.containsKey("version"));
-    assertEquals("1.0.0", defines.get("version"));
-    assertEquals("1.0.0", lang.getDefine("version"));
-  }
-
-  private static void assertCategory(Lang lang, String categoryName, String[] expectedAssets) {
-    var categories = lang.getCategories();
-    assertTrue(categories.containsKey(categoryName));
-    var category = categories.get(categoryName);
-    assertSame(category, lang.getCategory(categoryName));
-    assertEquals(categoryName, category.getName());
-    assertMeta(category.getMeta(), null, null, null);
-    var assets = category.getAssets();
-    assertEquals(expectedAssets.length, assets.size());
-    for (var asset : expectedAssets) {
-      assertTrue(assets.containsKey(asset));
-      assertSame(assets.get(asset), category.getAsset(asset));
-    }
-  }
-
-  private static void assertCategoryPerson(Lang lang) {
-    String categoryName = "Person";
-    String[] expectedAssets = {"User", "Student", "Teacher"};
-    assertCategory(lang, categoryName, expectedAssets);
-  }
-
-  private static void assertCategoryHardware(Lang lang) {
-    String categoryName = "Hardware";
-    String[] expectedAssets = {"Computer", "Firewall", "Harddrive", "SecretFolder"};
-    assertCategory(lang, categoryName, expectedAssets);
+    assertLangDefines(
+        Map.ofEntries(Map.entry("id", "complex"), Map.entry("version", "1.0.0")),
+        lang.getDefines());
   }
 
   private static void assertCategories(Lang lang) {
     assertEquals(2, lang.getCategories().size());
-    assertCategoryPerson(lang);
-    assertCategoryHardware(lang);
+    assertLangCategory(
+        lang, "Person", new String[] {"User", "Student", "Teacher"}, new Lang.Meta());
+    assertLangCategory(
+        lang,
+        "Hardware",
+        new String[] {"Computer", "Firewall", "Harddrive", "SecretFolder"},
+        new Lang.Meta());
   }
 
-  private static Lang.Asset assertAsset(
-      Lang lang, String name, boolean isAbstract, String category, String superAsset) {
-    var assets = lang.getAssets();
-    assertTrue(assets.containsKey(name));
-    var asset = assets.get(name);
-    assertSame(asset, lang.getAsset(name));
-    assertEquals(name, asset.getName());
-    assertEquals(isAbstract, asset.isAbstract());
-    assertSame(lang.getCategory(category), asset.getCategory());
-    if (superAsset == null) {
-      assertFalse(asset.hasSuperAsset());
-      assertNull(asset.getSuperAsset());
-    } else {
-      assertTrue(asset.hasSuperAsset());
-      assertSame(lang.getAsset(superAsset), asset.getSuperAsset());
-    }
-    return asset;
-  }
-
-  private static void assertField(Lang.Asset asset, String name, int min, int max) {
-    var fields = asset.getFields();
-    assertTrue(fields.containsKey(name));
-    var field = fields.get(name);
-    assertSame(field, asset.getField(name));
-    assertEquals(name, field.getName());
-    assertSame(asset, field.getAsset());
-    assertEquals(min, field.getMin());
-    assertEquals(max, field.getMax());
-  }
-
-  private static Lang.AttackStep assertAttackStep(
-      Lang.Asset asset,
-      String name,
-      Lang.AttackStepType type,
-      boolean inheritsReaches,
-      boolean isDefense,
-      boolean isConditionalDefense,
-      boolean hasParent) {
-    var attackSteps = asset.getAttackSteps();
-    assertTrue(attackSteps.containsKey(name));
-    var attackStep = attackSteps.get(name);
-    assertSame(attackStep, asset.getAttackStep(name));
-    assertEquals(name, attackStep.getName());
-    assertEquals(type, attackStep.getType());
-    assertSame(asset, attackStep.getAsset());
-    assertEquals(inheritsReaches, attackStep.inheritsReaches());
-    assertEquals(isDefense, attackStep.isDefense());
-    assertEquals(isConditionalDefense, attackStep.isConditionalDefense());
-    assertEquals(hasParent, attackStep.hasParent());
-    return attackStep;
+  private static void assertAssets(Lang lang) {
+    assertEquals(7, lang.getAssets().size());
+    assertAssetUser(lang);
+    assertAssetStudent(lang);
+    assertAssetTeacher(lang);
+    assertAssetComputer(lang);
+    assertAssetFirewall(lang);
+    assertAssetHarddrive(lang);
+    assertAssetSecretFolder(lang);
   }
 
   private static void assertAssetUser(Lang lang) {
-    var asset = assertAsset(lang, "User", true, "Person", null);
-    assertMeta(asset.getMeta(), null, null, null);
+    var asset = assertGetLangAsset(lang, "User", true, "Person", null, new Lang.Meta());
     // Check fields
     assertEquals(2, asset.getFields().size());
-    assertField(asset, "firewall", 1, 1);
-    assertField(asset, "computer", 1, 1);
+    assertLangField(asset, "firewall", 1, 1);
+    assertLangField(asset, "computer", 1, 1);
     // Check attack steps
     assertEquals(4, asset.getAttackSteps().size());
 
     // Check attack step "impersonate"
     var attackStep =
-        assertAttackStep(asset, "impersonate", Lang.AttackStepType.ANY, false, false, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
+        assertGetLangAttackStep(
+            asset,
+            "impersonate",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    var requires = attackStep.getRequires();
     var reaches = attackStep.getReaches();
+    var parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(2, reaches.size());
-    // -> compromise
+    assertEquals(2, parentSteps.size());
+
+    // (Reaches) -> compromise
     Lang.StepExpr step = new Lang.StepAttackStep(asset, asset, asset.getAttackStep("compromise"));
     assertLangStepExpr(step, reaches.get(0));
-    // -> stealInformation
+
+    // (Reaches) -> stealInformation
     step = new Lang.StepAttackStep(asset, asset, asset.getAttackStep("stealInformation"));
     assertLangStepExpr(step, reaches.get(1));
 
-    // Check parent steps for attack step "impersonate"
-    var parentSteps = attackStep.getParentSteps();
-    assertEquals(2, parentSteps.size());
-    // -> computer.retrievePassword
+    // (Parent) -> computer.retrievePassword
     step =
         new Lang.StepCollect(
             asset,
@@ -201,7 +124,8 @@ public class TestLangConverter {
                 lang.getAsset("Computer"),
                 lang.getAsset("Computer").getAttackStep("retrievePassword")));
     assertLangStepExpr(step, parentSteps.get(0));
-    // -> [Teacher]firewall.bypassFirewall
+
+    // (Parent) -> [Teacher]firewall.bypassFirewall
     step =
         new Lang.StepCollect(
             lang.getAsset("Teacher"),
@@ -222,14 +146,25 @@ public class TestLangConverter {
 
     // Check attack step "compromise"
     attackStep =
-        assertAttackStep(asset, "compromise", Lang.AttackStepType.ANY, false, false, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
+        assertGetLangAttackStep(
+            asset,
+            "compromise",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
+    parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(1, reaches.size());
-    // -> computer.stealSecret
+    assertEquals(2, parentSteps.size());
+
+    // (Reaches) -> computer.stealSecret
     step =
         new Lang.StepCollect(
             asset,
@@ -248,13 +183,11 @@ public class TestLangConverter {
                 lang.getAsset("Computer").getAttackStep("stealSecret")));
     assertLangStepExpr(step, reaches.get(0));
 
-    // Check parent steps for attack step "compromise"
-    parentSteps = attackStep.getParentSteps();
-    assertEquals(2, parentSteps.size());
-    // -> impersonate
+    // (Parent) -> impersonate
     step = new Lang.StepAttackStep(asset, asset, asset.getAttackStep("impersonate"));
     assertLangStepExpr(step, parentSteps.get(0));
-    // -> [Teacher]accessSchoolComputer
+
+    // (Parent) -> [Teacher]accessSchoolComputer
     step =
         new Lang.StepAttackStep(
             lang.getAsset("Teacher"),
@@ -264,15 +197,25 @@ public class TestLangConverter {
 
     // Check attack step "stealInformation"
     attackStep =
-        assertAttackStep(
-            asset, "stealInformation", Lang.AttackStepType.ANY, false, false, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
+        assertGetLangAttackStep(
+            asset,
+            "stealInformation",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
+    parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(1, reaches.size());
-    // -> computer.internalHD.stealHDSecrets
+    assertEquals(1, parentSteps.size());
+
+    // (Reaches) -> computer.internalHD.stealHDSecrets
     step =
         new Lang.StepCollect(
             asset,
@@ -302,23 +245,31 @@ public class TestLangConverter {
                 lang.getAsset("Harddrive").getAttackStep("stealHDSecrets")));
     assertLangStepExpr(step, reaches.get(0));
 
-    // Check parent steps for attack step "stealInformation"
-    parentSteps = attackStep.getParentSteps();
-    assertEquals(1, parentSteps.size());
-    // -> impersonate
+    // (Parent) -> impersonate
     step = new Lang.StepAttackStep(asset, asset, asset.getAttackStep("impersonate"));
     assertLangStepExpr(step, parentSteps.get(0));
 
     // Check attack step "stealFolder"
     attackStep =
-        assertAttackStep(asset, "stealFolder", Lang.AttackStepType.ANY, false, false, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
+        assertGetLangAttackStep(
+            asset,
+            "stealFolder",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
+    parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(1, reaches.size());
-    // -> computer.(externalHD.stealFolder)
+    assertEquals(0, parentSteps.size());
+
+    // (Reaches) -> computer.(externalHD.stealFolder)
     step =
         new Lang.StepCollect(
             asset,
@@ -346,106 +297,120 @@ public class TestLangConverter {
                     lang.getAsset("Harddrive"),
                     lang.getAsset("Harddrive"),
                     lang.getAsset("Harddrive").getAttackStep("stealFolder"))));
-
-    // Check parent steps for attack step "stealFolder"
-    assertEquals(0, attackStep.getParentSteps().size());
   }
 
   private static void assertAssetStudent(Lang lang) {
-    var asset = assertAsset(lang, "Student", false, "Person", "User");
-    assertMeta(asset.getMeta(), null, null, null);
+    var asset = assertGetLangAsset(lang, "Student", false, "Person", "User", new Lang.Meta());
     // Check fields
     assertEquals(1, asset.getFields().size());
-    assertField(asset, "studentComputer", 1, Integer.MAX_VALUE);
+    assertLangField(asset, "studentComputer", 1, Integer.MAX_VALUE);
     // Check attack steps
     assertEquals(0, asset.getAttackSteps().size());
   }
 
   private static void assertAssetTeacher(Lang lang) {
-    var asset = assertAsset(lang, "Teacher", false, "Person", "User");
-    assertMeta(asset.getMeta(), null, null, null);
+    var asset = assertGetLangAsset(lang, "Teacher", false, "Person", "User", new Lang.Meta());
     // Check fields
     assertEquals(1, asset.getFields().size());
-    assertField(asset, "teacherComputer", 1, 1);
+    assertLangField(asset, "teacherComputer", 1, 1);
     // Check attack steps
     assertEquals(1, asset.getAttackSteps().size());
 
     // Check attack step "accessSchoolComputer"
     var attackStep =
-        assertAttackStep(
-            asset, "accessSchoolComputer", Lang.AttackStepType.ANY, false, false, false, false);
-    assertMeta(
-        attackStep.getMeta(),
-        "An extra level of protection, their school computer must be used to impersonate them.",
-        null,
-        null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
+        assertGetLangAttackStep(
+            asset,
+            "accessSchoolComputer",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta()
+                .setInfo(
+                    "An extra level of protection, their school computer must be used to impersonate them."));
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    var requires = attackStep.getRequires();
     var reaches = attackStep.getReaches();
+    var parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(1, reaches.size());
-    // -> compromise
+    assertEquals(0, parentSteps.size());
+
+    // (Reaches) -> compromise
     Lang.StepExpr step =
         new Lang.StepAttackStep(asset, lang.getAsset("User"), asset.getAttackStep("compromise"));
     assertLangStepExpr(step, reaches.get(0));
-
-    // Check parent steps for attack step "accessSchoolComputer"
-    assertEquals(0, attackStep.getParentSteps().size());
   }
 
   private static void assertAssetComputer(Lang lang) {
-    var asset = assertAsset(lang, "Computer", false, "Hardware", null);
-    assertMeta(asset.getMeta(), null, null, null);
+    var asset = assertGetLangAsset(lang, "Computer", false, "Hardware", null, new Lang.Meta());
     // Check fields
     assertEquals(6, asset.getFields().size());
-    assertField(asset, "student", 1, 1);
-    assertField(asset, "teacher", 1, 1);
-    assertField(asset, "firewall", 1, 1);
-    assertField(asset, "user", 1, 1);
-    assertField(asset, "externalHD", 1, 1);
-    assertField(asset, "internalHD", 1, 1);
+    assertLangField(asset, "student", 1, 1);
+    assertLangField(asset, "teacher", 1, 1);
+    assertLangField(asset, "firewall", 1, 1);
+    assertLangField(asset, "user", 1, 1);
+    assertLangField(asset, "externalHD", 1, 1);
+    assertLangField(asset, "internalHD", 1, 1);
     // Check attack steps
     assertEquals(7, asset.getAttackSteps().size());
 
     // Check attack step "malwareInfection"
     var attackStep =
-        assertAttackStep(
-            asset, "malwareInfection", Lang.AttackStepType.ANY, false, false, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
+        assertGetLangAttackStep(
+            asset,
+            "malwareInfection",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    var requires = attackStep.getRequires();
     var reaches = attackStep.getReaches();
+    var parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(1, reaches.size());
-    // -> interceptTraffic
+    assertEquals(0, parentSteps.size());
+
+    // (Reaches) -> interceptTraffic
     Lang.StepExpr step =
         new Lang.StepAttackStep(asset, asset, asset.getAttackStep("interceptTraffic"));
     assertLangStepExpr(step, reaches.get(0));
 
-    // Check parent steps for attack step "malwareInfection"
-    assertEquals(0, attackStep.getParentSteps().size());
-
     // Check attack step "interceptTraffic"
     attackStep =
-        assertAttackStep(
-            asset, "interceptTraffic", Lang.AttackStepType.ANY, false, false, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
+        assertGetLangAttackStep(
+            asset,
+            "interceptTraffic",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
+    parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(1, reaches.size());
-    // -> retrievePassword
+    assertEquals(2, parentSteps.size());
+
+    // (Reaches) -> retrievePassword
     step = new Lang.StepAttackStep(asset, asset, asset.getAttackStep("retrievePassword"));
     assertLangStepExpr(step, reaches.get(0));
 
-    // Check parent steps for attack step "interceptTraffic"
-    var parentSteps = attackStep.getParentSteps();
-    assertEquals(2, parentSteps.size());
-    // -> malwareInfection
+    // (Parent) -> malwareInfection
     step = new Lang.StepAttackStep(asset, asset, asset.getAttackStep("malwareInfection"));
     assertLangStepExpr(step, parentSteps.get(0));
-    // -> firewall.bypassFirewall
+
+    // (Parent) -> firewall.bypassFirewall
     step =
         new Lang.StepCollect(
             asset,
@@ -466,19 +431,26 @@ public class TestLangConverter {
 
     // Check attack step "retrievePassword"
     attackStep =
-        assertAttackStep(
-            asset, "retrievePassword", Lang.AttackStepType.ALL, false, false, false, false);
-    assertMeta(
-        attackStep.getMeta(),
-        "Retrieval of password is only possible if password is unencrypted",
-        null,
-        null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
+        assertGetLangAttackStep(
+            asset,
+            "retrievePassword",
+            Lang.AttackStepType.ALL,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta()
+                .setInfo("Retrieval of password is only possible if password is unencrypted"));
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
+    parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(1, reaches.size());
-    // -> user.impersonate
+    assertEquals(3, parentSteps.size());
+
+    // (Reaches) -> user.impersonate
     step =
         new Lang.StepCollect(
             asset,
@@ -493,16 +465,15 @@ public class TestLangConverter {
                 lang.getAsset("User").getAttackStep("impersonate")));
     assertLangStepExpr(step, reaches.get(0));
 
-    // Check parent steps for attack step "retrievePassword"
-    parentSteps = attackStep.getParentSteps();
-    assertEquals(3, parentSteps.size());
-    // -> interceptTraffic
+    // (Parent) -> interceptTraffic
     step = new Lang.StepAttackStep(asset, asset, asset.getAttackStep("interceptTraffic"));
     assertLangStepExpr(step, parentSteps.get(0));
-    // -> passwordEncrypted
+
+    // (Parent) -> passwordEncrypted
     step = new Lang.StepAttackStep(asset, asset, asset.getAttackStep("passwordEncrypted"));
     assertLangStepExpr(step, parentSteps.get(1));
-    // -> firewall.bypassFirewall
+
+    // (Parent) -> firewall.bypassFirewall
     step =
         new Lang.StepCollect(
             asset,
@@ -523,32 +494,30 @@ public class TestLangConverter {
 
     // Check attack step "bypassFirewall"
     attackStep =
-        assertAttackStep(
-            asset, "bypassFirewall", Lang.AttackStepType.ANY, false, false, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertTrue(attackStep.hasTTC());
-    // ExponentialDistribution(0.05) * GammaDistribution(1.2, 1.7)
-    var ttc = attackStep.getTTC();
-    assertTrue(ttc instanceof Lang.TTCMul);
-    // ExponentialDistribution(0.05)
-    var subTTC = ((Lang.TTCMul) ttc).lhs;
-    assertTrue(subTTC instanceof Lang.TTCFunc);
-    var ttcFunc = (Lang.TTCFunc) subTTC;
-    assertEquals("ExponentialDistribution", ttcFunc.name);
-    assertEquals(1, ttcFunc.params.size());
-    assertEquals(0.05, ttcFunc.params.get(0));
-    // GammaDistribution(1.2, 1.7)
-    subTTC = ((Lang.TTCMul) ttc).rhs;
-    assertTrue(subTTC instanceof Lang.TTCFunc);
-    ttcFunc = (Lang.TTCFunc) subTTC;
-    assertEquals("GammaDistribution", ttcFunc.name);
-    assertEquals(2, ttcFunc.params.size());
-    assertEquals(1.2, ttcFunc.params.get(0));
-    assertEquals(1.7, ttcFunc.params.get(1));
-    assertEquals(0, attackStep.getRequires().size());
+        assertGetLangAttackStep(
+            asset,
+            "bypassFirewall",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(
+        attackStep,
+        new Lang.TTCMul(
+            new Lang.TTCFunc("ExponentialDistribution", Arrays.asList(Double.valueOf(0.05))),
+            new Lang.TTCFunc(
+                "GammaDistribution", Arrays.asList(Double.valueOf(1.2), Double.valueOf(1.7)))));
+    requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
+    parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(1, reaches.size());
-    // -> firewall.bypassFirewall
+    assertEquals(0, parentSteps.size());
+
+    // (Reaches) -> firewall.bypassFirewall
     step =
         new Lang.StepCollect(
             asset,
@@ -567,19 +536,27 @@ public class TestLangConverter {
                 lang.getAsset("Firewall").getAttackStep("bypassFirewall")));
     assertLangStepExpr(step, reaches.get(0));
 
-    // Check parent steps for attack step "bypassFirewall"
-    assertEquals(0, attackStep.getParentSteps().size());
-
     // Check attack step "stealSecret"
     attackStep =
-        assertAttackStep(asset, "stealSecret", Lang.AttackStepType.ANY, false, false, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
+        assertGetLangAttackStep(
+            asset,
+            "stealSecret",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
+    parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(1, reaches.size());
-    // -> (externalHD \/ internalHD).stealHDSecrets
+    assertEquals(1, parentSteps.size());
+
+    // (Reaches) -> (externalHD \/ internalHD).stealHDSecrets
     step =
         new Lang.StepCollect(
             asset,
@@ -609,10 +586,7 @@ public class TestLangConverter {
                 lang.getAsset("Harddrive").getAttackStep("stealHDSecrets")));
     assertLangStepExpr(step, reaches.get(0));
 
-    // Check parent steps for attack step "stealSecret"
-    parentSteps = attackStep.getParentSteps();
-    assertEquals(1, parentSteps.size());
-    // -> user.compromise
+    // (Parent) -> user.compromise
     step =
         new Lang.StepCollect(
             asset,
@@ -629,33 +603,49 @@ public class TestLangConverter {
 
     // Check attack step "passwordEncrypted"
     attackStep =
-        assertAttackStep(
-            asset, "passwordEncrypted", Lang.AttackStepType.DEFENSE, false, true, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
+        assertGetLangAttackStep(
+            asset,
+            "passwordEncrypted",
+            Lang.AttackStepType.DEFENSE,
+            false,
+            true,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
+    parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(1, reaches.size());
-    // -> retrievePassword
+    assertEquals(0, parentSteps.size());
+
+    // (Reaches) -> retrievePassword
     step = new Lang.StepAttackStep(asset, asset, asset.getAttackStep("retrievePassword"));
     assertLangStepExpr(step, reaches.get(0));
 
-    // Check parent steps for attack step "passwordEncrypted"
-    assertEquals(0, attackStep.getParentSteps().size());
-
     // Check attack step "firewallProtected"
     attackStep =
-        assertAttackStep(
-            asset, "firewallProtected", Lang.AttackStepType.EXIST, false, false, true, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    var requires = attackStep.getRequires();
-    assertEquals(1, requires.size());
+        assertGetLangAttackStep(
+            asset,
+            "firewallProtected",
+            Lang.AttackStepType.EXIST,
+            false,
+            false,
+            true,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
+    parentSteps = attackStep.getParentSteps();
+    assertEquals(1, requires.size());
     assertEquals(1, reaches.size());
-    // <- firewall
+    assertEquals(0, parentSteps.size());
+
+    // (Requires) <- firewall
     step =
         new Lang.StepField(
             asset,
@@ -664,7 +654,8 @@ public class TestLangConverter {
             lang.getAsset("Firewall"),
             asset.getField("firewall"));
     assertLangStepExpr(step, requires.get(0));
-    // -> firewall.bypassFirewall
+
+    // (Reaches) -> firewall.bypassFirewall
     step =
         new Lang.StepCollect(
             asset,
@@ -682,32 +673,38 @@ public class TestLangConverter {
                 lang.getAsset("Firewall"),
                 lang.getAsset("Firewall").getAttackStep("bypassFirewall")));
     assertLangStepExpr(step, reaches.get(0));
-
-    // Check parent steps for attack step "firewallProtected"
-    assertEquals(0, attackStep.getParentSteps().size());
   }
 
   private static void assertAssetFirewall(Lang lang) {
-    var asset = assertAsset(lang, "Firewall", false, "Hardware", null);
-    assertMeta(asset.getMeta(), null, null, null);
+    var asset = assertGetLangAsset(lang, "Firewall", false, "Hardware", null, new Lang.Meta());
     // Check fields
     assertEquals(2, asset.getFields().size());
-    assertField(asset, "computer", 0, Integer.MAX_VALUE);
-    assertField(asset, "user", 0, Integer.MAX_VALUE);
+    assertLangField(asset, "computer", 0, Integer.MAX_VALUE);
+    assertLangField(asset, "user", 0, Integer.MAX_VALUE);
     // Check attack steps
     assertEquals(1, asset.getAttackSteps().size());
 
     // Check attack step "bypassFirewall"
     var attackStep =
-        assertAttackStep(
-            asset, "bypassFirewall", Lang.AttackStepType.ALL, false, false, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
+        assertGetLangAttackStep(
+            asset,
+            "bypassFirewall",
+            Lang.AttackStepType.ALL,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    var requires = attackStep.getRequires();
     var reaches = attackStep.getReaches();
+    var parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(3, reaches.size());
-    // -> computer.retrievePassword
+    assertEquals(2, parentSteps.size());
+
+    // (Reaches) -> computer.retrievePassword
     Lang.StepExpr step =
         new Lang.StepCollect(
             asset,
@@ -725,7 +722,8 @@ public class TestLangConverter {
                 lang.getAsset("Computer"),
                 lang.getAsset("Computer").getAttackStep("retrievePassword")));
     assertLangStepExpr(step, reaches.get(0));
-    // -> computer.interceptTraffic
+
+    // (Reaches) -> computer.interceptTraffic
     step =
         new Lang.StepCollect(
             asset,
@@ -743,7 +741,8 @@ public class TestLangConverter {
                 lang.getAsset("Computer"),
                 lang.getAsset("Computer").getAttackStep("interceptTraffic")));
     assertLangStepExpr(step, reaches.get(1));
-    // -> user[Teacher].impersonate
+
+    // (Reaches) -> user[Teacher].impersonate
     step =
         new Lang.StepCollect(
             asset,
@@ -762,10 +761,7 @@ public class TestLangConverter {
                 lang.getAsset("User").getAttackStep("impersonate")));
     assertLangStepExpr(step, reaches.get(2));
 
-    // Check parent steps for attack step "bypassFirewall"
-    var parentSteps = attackStep.getParentSteps();
-    assertEquals(2, parentSteps.size());
-    // -> computer.bypassFirewall
+    // (Parent) -> computer.bypassFirewall
     step =
         new Lang.StepCollect(
             asset,
@@ -783,7 +779,8 @@ public class TestLangConverter {
                 lang.getAsset("Computer"),
                 lang.getAsset("Computer").getAttackStep("bypassFirewall")));
     assertLangStepExpr(step, parentSteps.get(0));
-    // -> computer.firewallProtected
+
+    // (Parent) -> computer.firewallProtected
     step =
         new Lang.StepCollect(
             asset,
@@ -804,30 +801,36 @@ public class TestLangConverter {
   }
 
   private static void assertAssetHarddrive(Lang lang) {
-    var asset = assertAsset(lang, "Harddrive", false, "Hardware", null);
-    assertMeta(asset.getMeta(), null, null, null);
+    var asset = assertGetLangAsset(lang, "Harddrive", false, "Hardware", null, new Lang.Meta());
     // Check fields
     assertEquals(3, asset.getFields().size());
-    assertField(asset, "extHDComputer", 1, 1);
-    assertField(asset, "intHDComputer", 1, 1);
-    assertField(asset, "folder", 0, Integer.MAX_VALUE);
+    assertLangField(asset, "extHDComputer", 1, 1);
+    assertLangField(asset, "intHDComputer", 1, 1);
+    assertLangField(asset, "folder", 0, Integer.MAX_VALUE);
     // Check attack steps
     assertEquals(2, asset.getAttackSteps().size());
 
     // Check attack step "stealHDSecrets"
     var attackStep =
-        assertAttackStep(
-            asset, "stealHDSecrets", Lang.AttackStepType.ANY, false, false, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
-    assertEquals(0, attackStep.getReaches().size());
-
-    // Check parent steps for attack step "stealHDSecrets"
+        assertGetLangAttackStep(
+            asset,
+            "stealHDSecrets",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    var requires = attackStep.getRequires();
+    var reaches = attackStep.getReaches();
     var parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
+    assertEquals(0, reaches.size());
     assertEquals(2, parentSteps.size());
-    // -> intHDComputer.user.stealInformation
+
+    // (Parent) -> intHDComputer.user.stealInformation
     Lang.StepExpr step =
         new Lang.StepCollect(
             asset,
@@ -856,7 +859,8 @@ public class TestLangConverter {
                 lang.getAsset("User"),
                 lang.getAsset("User").getAttackStep("stealInformation")));
     assertLangStepExpr(step, parentSteps.get(0));
-    // -> (intHDComputer \/ extHDComputer).stealSecret
+
+    // (Parent) -> (intHDComputer \/ extHDComputer).stealSecret
     step =
         new Lang.StepCollect(
             asset,
@@ -888,14 +892,25 @@ public class TestLangConverter {
 
     // Check attack step "stealFolder"
     attackStep =
-        assertAttackStep(asset, "stealFolder", Lang.AttackStepType.ANY, false, false, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
-    var reaches = attackStep.getReaches();
+        assertGetLangAttackStep(
+            asset,
+            "stealFolder",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    requires = attackStep.getRequires();
+    reaches = attackStep.getReaches();
+    parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
     assertEquals(1, reaches.size());
-    // -> ((folder.(subFolder)*).accessFolder)
+    assertEquals(1, parentSteps.size());
+
+    // (Reaches) -> ((folder.(subFolder)*).accessFolder)
     step =
         new Lang.StepCollect(
             asset,
@@ -930,10 +945,7 @@ public class TestLangConverter {
                 lang.getAsset("SecretFolder").getAttackStep("accessFolder")));
     assertLangStepExpr(step, reaches.get(0));
 
-    // Check parent steps for attack step "stealFolder"
-    parentSteps = attackStep.getParentSteps();
-    assertEquals(1, parentSteps.size());
-    // -> extHDComputer.user.stealFolder
+    // (Parent) -> extHDComputer.user.stealFolder
     step =
         new Lang.StepCollect(
             asset,
@@ -965,30 +977,36 @@ public class TestLangConverter {
   }
 
   private static void assertAssetSecretFolder(Lang lang) {
-    var asset = assertAsset(lang, "SecretFolder", false, "Hardware", null);
-    assertMeta(asset.getMeta(), null, null, null);
+    var asset = assertGetLangAsset(lang, "SecretFolder", false, "Hardware", null, new Lang.Meta());
     // Check fields
     assertEquals(3, asset.getFields().size());
-    assertField(asset, "internalHD", 1, 1);
-    assertField(asset, "subFolder", 0, Integer.MAX_VALUE);
-    assertField(asset, "folder", 1, 1);
+    assertLangField(asset, "internalHD", 1, 1);
+    assertLangField(asset, "subFolder", 0, Integer.MAX_VALUE);
+    assertLangField(asset, "folder", 1, 1);
     // Check attack steps
     assertEquals(1, asset.getAttackSteps().size());
 
     // Check attack step "accessFolder"
     var attackStep =
-        assertAttackStep(
-            asset, "accessFolder", Lang.AttackStepType.ANY, false, false, false, false);
-    assertMeta(attackStep.getMeta(), null, null, null);
-    assertFalse(attackStep.hasTTC());
-    assertNull(attackStep.getTTC());
-    assertEquals(0, attackStep.getRequires().size());
-    assertEquals(0, attackStep.getReaches().size());
-
-    // Check parent steps for attack step "accessFolder"
+        assertGetLangAttackStep(
+            asset,
+            "accessFolder",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    assertLangCIA(attackStep, null);
+    assertLangTTC(attackStep, null);
+    var requires = attackStep.getRequires();
+    var reaches = attackStep.getReaches();
     var parentSteps = attackStep.getParentSteps();
+    assertEquals(0, requires.size());
+    assertEquals(0, reaches.size());
     assertEquals(1, parentSteps.size());
-    // -> folder*.internalHD.stealFolder
+
+    // (Parent) -> folder*.internalHD.stealFolder
     var step =
         new Lang.StepCollect(
             asset,
@@ -1019,49 +1037,30 @@ public class TestLangConverter {
     assertLangStepExpr(step, parentSteps.get(0));
   }
 
-  private static void assertAssets(Lang lang) {
-    assertEquals(7, lang.getAssets().size());
-    assertAssetUser(lang);
-    assertAssetStudent(lang);
-    assertAssetTeacher(lang);
-    assertAssetComputer(lang);
-    assertAssetFirewall(lang);
-    assertAssetHarddrive(lang);
-    assertAssetSecretFolder(lang);
-  }
-
-  private static void assertLink(
-      Lang lang, String a1, String a1Field, String a2, String a2Field, int linkIdx, String name) {
-    var link = lang.getLinks().get(linkIdx);
-    var leftField = lang.getAsset(a1).getField(a1Field);
-    var rightField = lang.getAsset(a2).getField(a2Field);
-    assertEquals(name, link.getName());
-    assertMeta(link.getMeta(), null, null, null);
-    assertSame(leftField, link.getLeftField());
-    assertSame(rightField, link.getRightField());
-    assertSame(link, leftField.getLink());
-    assertSame(link, rightField.getLink());
-    assertSame(rightField, leftField.getTarget());
-    assertSame(leftField, rightField.getTarget());
-  }
-
   private static void assertLinks(Lang lang) {
     assertEquals(9, lang.getLinks().size());
-    assertLink(lang, "Computer", "student", "Student", "studentComputer", 0, "Use");
-    assertLink(lang, "Computer", "teacher", "Teacher", "teacherComputer", 1, "Use");
-    assertLink(lang, "Computer", "firewall", "Firewall", "computer", 2, "Protect");
-    assertLink(lang, "Firewall", "user", "User", "firewall", 3, "Protect");
-    assertLink(lang, "Computer", "user", "User", "computer", 4, "Storage");
-    assertLink(lang, "Computer", "externalHD", "Harddrive", "extHDComputer", 5, "Use");
-    assertLink(lang, "Computer", "internalHD", "Harddrive", "intHDComputer", 6, "Contain");
-    assertLink(lang, "Harddrive", "folder", "SecretFolder", "internalHD", 7, "Contain");
-    assertLink(lang, "SecretFolder", "subFolder", "SecretFolder", "folder", 8, "Contain");
-  }
-
-  private static void assertLangComplex(Lang lang) {
-    assertDefines(lang);
-    assertCategories(lang);
-    assertAssets(lang);
-    assertLinks(lang);
+    assertLangLink(
+        lang, "Computer", "student", "Student", "studentComputer", 0, "Use", new Lang.Meta());
+    assertLangLink(
+        lang, "Computer", "teacher", "Teacher", "teacherComputer", 1, "Use", new Lang.Meta());
+    assertLangLink(
+        lang, "Computer", "firewall", "Firewall", "computer", 2, "Protect", new Lang.Meta());
+    assertLangLink(lang, "Firewall", "user", "User", "firewall", 3, "Protect", new Lang.Meta());
+    assertLangLink(lang, "Computer", "user", "User", "computer", 4, "Storage", new Lang.Meta());
+    assertLangLink(
+        lang, "Computer", "externalHD", "Harddrive", "extHDComputer", 5, "Use", new Lang.Meta());
+    assertLangLink(
+        lang,
+        "Computer",
+        "internalHD",
+        "Harddrive",
+        "intHDComputer",
+        6,
+        "Contain",
+        new Lang.Meta());
+    assertLangLink(
+        lang, "Harddrive", "folder", "SecretFolder", "internalHD", 7, "Contain", new Lang.Meta());
+    assertLangLink(
+        lang, "SecretFolder", "subFolder", "SecretFolder", "folder", 8, "Contain", new Lang.Meta());
   }
 }

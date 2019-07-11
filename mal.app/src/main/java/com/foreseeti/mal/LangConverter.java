@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class LangConverter {
   private MalLogger LOGGER;
@@ -133,7 +134,11 @@ public class LangConverter {
             var inheritsReaches = _convertInheritsReaches(astAttackStep);
             var langAttackStep =
                 new Lang.AttackStep(
-                    astAttackStep.name.id, langAttackStepType, langAsset, inheritsReaches);
+                    astAttackStep.name.id,
+                    langAttackStepType,
+                    langAsset,
+                    inheritsReaches,
+                    _convertCIA(astAttackStep.cia));
             _convertMetaList(langAttackStep.getMeta(), astAttackStep.meta);
             if (astAttackStep.ttc.isPresent()) {
               langAttackStep.setTTC(_convertTTC(astAttackStep.ttc.get()));
@@ -242,6 +247,30 @@ public class LangConverter {
       return astAttackStep.reaches.get().inherits;
     } else {
       return false;
+    }
+  }
+
+  private Lang.CIA _convertCIA(Optional<List<AST.CIA>> astCIA) {
+    if (astCIA.isEmpty()) {
+      return null;
+    } else {
+      boolean C = false;
+      boolean I = false;
+      boolean A = false;
+      for (var cia : astCIA.get()) {
+        switch (cia) {
+          case C:
+            C = true;
+            break;
+          case I:
+            I = true;
+            break;
+          case A:
+            A = true;
+            break;
+        }
+      }
+      return new Lang.CIA(C, I, A);
     }
   }
 

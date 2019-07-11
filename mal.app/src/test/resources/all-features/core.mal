@@ -1,0 +1,155 @@
+category C1
+  info: "This is C1"
+  assumptions: "None for C1"
+  rationale: "Reasoning for C1"
+{
+  // This category only contains meta information
+}
+
+category C1 {
+  asset A1
+  {
+    | a1Attack1 {C}
+      info: "This is a1Attack1"
+      assumptions: "None for a1Attack1"
+      rationale: "Reasoning for a1Attack1"
+      // No reaches
+    & a1Attack2 {I, C} []
+      info: "This is a1Attack2"
+      -> a1Sub[A1]*.a1Attack1
+    # a1Defense1 [Bernoulli(0.5)]
+      rationale: "Reasoning for a1Defense"
+      // No reaches
+    # a1Defense2 [Bernoulli(0.5)*Infinity]
+      -> a1Attack2
+    E a1Exist1 [] // No expression in brackets equals no ttc
+      <- a1Sub
+      /* No reaches */
+    E a1Exist2
+      assumptions: "None for a1Exist2"
+      <- a7, a1Super.a1Super.a7
+      -> (a1Super*)[A2].(a8.destroy)
+    !E a1NotExist1
+      <- a8.a8Sub*.a1[A7]
+      // No reaches
+    !E a1NotExist2
+      <- a8.a4 /\ a4
+      -> a4.a
+  }
+
+  asset A2 extends A1 {
+    // Extend A1.a1Attack1, override cia, override ttc, override reaches
+    | a1Attack1 {}
+      -> a1Super.a1Attack1
+    // Extend A1.a1Attack1, override cia, inherit ttc, inherit reaches
+    & a1Attack2 {C, I, A}
+      +> a1Super.a1Attack1
+    // Extend A1.a1Defense1, override ttc, override reaches
+    # a1Defense1 [(Infinity+Bernoulli(1.0))^Zero]
+      -> a1Sub.a1Sub.a1Attack2
+    // Extend A1.a1Defense2, inherit ttc, inherit reaches
+    # a1Defense2
+      +> a1Attack2
+    // Extend A1.a1Exist2, override requires, override reaches
+    E a1Exist2
+      <- a8
+      -> a1Defense2
+    // Extend A1.a1NotExist2, override requires, inherit reaches
+    !E a1NotExist1
+       <- a8
+       +> a1Defense1
+  }
+
+  abstract asset A3 extends A1
+    info: "This is A3"
+  {
+    let unused = a1Sub
+    | a3Attack {A, I, C}
+    let used = a1Sub[A2]
+    // False cycle
+    let V1 = used
+    let V2 = V1
+    & AT
+      -> let V1 = V2,
+         V1.a1Attack1
+  }
+}
+
+category C2 { /* This category is empty */ }
+
+category C2
+  assumptions: "None for C2"
+{
+  abstract asset A4
+    assumptions: "None for A4"
+    rationale: "Reasoning for A4"
+    info: "This is A4"
+  {
+    let var = a1.a1Sub*
+    | a
+      -> (var \/ var2).a1Attack1,
+         /* This variable shadows an asset variable */
+         let var = a1[A2]
+    // This variable escapes the attack step scope for variable 'var'
+    let var2 = var[A3]
+  }
+}
+
+category C2
+  rationale: "Reasoning for C2"
+{
+  asset A5 extends A4
+    assumptions: "None for A5"
+  { /* This asset is empty */ }
+
+  abstract asset A6 extends A4
+    rationale: "Reasoning for A6"
+  {
+    // Nothing extends this abstract asset
+  }
+}
+
+category C3 {
+  asset A7 extends A3 {
+    | a7Attack
+      -> a3Attack,
+         otherAttack,
+         a1.destroy
+    | otherAttack
+    // Shadows attack step in parent
+    let a3Attack = a1Attack1
+    // Shadows attack step in this asset
+    let otherAttack = a7Attack
+    // Shadows field in parent
+    let a6 = a1Super.a8
+    // Shadows field in this asset
+    let a1 = a6.a8Super
+  }
+
+  asset A8 {
+    & destroy {C, I, A} [Exponential(5)]
+  }
+
+  asset A9 {
+    // This asset has no fields or inherited fields
+    // There are no attack steps or inherited attack steps either
+  }
+}
+
+associations { /* No associations here */ }
+
+associations {
+  // Some associations here
+  A1 [a1]      1    <-- L1 --> 1..* [a4]    A4
+  A5 [a5]      1..1 <-- L2 --> 0..* [a6]    A6
+}
+
+associations {
+  // And some here
+  A1 [a1Super] 0..1 <-- L3 --> *    [a1Sub]   A1
+  A3 [a3]      *    <-- L3 --> *    [a6]      A6
+  A7 [a7]      0..1 <-- L3 --> 1    [a1]      A1
+  A8 [a8]      *    <-- L4 --> *    [a1]      A1
+  A8 [a8]      *    <-- L4 --> *    [a4]      A4
+  A8 [a8Sub]   *    <-- L4 --> *    [a8Super] A8
+}

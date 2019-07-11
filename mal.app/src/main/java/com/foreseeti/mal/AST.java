@@ -272,6 +272,7 @@ public class AST {
   public static class AttackStep extends Position {
     public final AttackStepType type;
     public final ID name;
+    public final Optional<List<CIA>> cia;
     public final Optional<TTCExpr> ttc;
     public final List<Meta> meta;
     public final Optional<Requires> requires;
@@ -281,6 +282,7 @@ public class AST {
         Position pos,
         AttackStepType type,
         ID name,
+        Optional<List<CIA>> cia,
         Optional<TTCExpr> ttc,
         List<Meta> meta,
         Optional<Requires> requires,
@@ -288,6 +290,7 @@ public class AST {
       super(pos);
       this.type = type;
       this.name = name;
+      this.cia = cia;
       this.ttc = ttc;
       this.meta = meta;
       this.requires = requires;
@@ -300,6 +303,11 @@ public class AST {
       sb.append(
           String.format(
               "%sAttackStep(%s, %s, %s,\n", indent, posString(), type.name(), name.toString()));
+      if (cia.isEmpty()) {
+        sb.append(String.format("%s  cia = {},\n", indent));
+      } else {
+        sb.append(String.format("%s  cia = {%s},\n", indent, CIA.listToString(cia.get())));
+      }
       if (ttc.isEmpty()) {
         sb.append(String.format("%s  ttc = [],\n", indent));
       } else {
@@ -332,6 +340,23 @@ public class AST {
         sb.append('\n');
       }
       sb.append(String.format("%s}", indent));
+      return sb.toString();
+    }
+  }
+
+  public enum CIA {
+    C,
+    I,
+    A;
+
+    public static String listToString(List<CIA> cia) {
+      var sb = new StringBuilder();
+      for (int i = 0; i < cia.size(); i++) {
+        if (i > 0) {
+          sb.append(", ");
+        }
+        sb.append(cia.get(i));
+      }
       return sb.toString();
     }
   }

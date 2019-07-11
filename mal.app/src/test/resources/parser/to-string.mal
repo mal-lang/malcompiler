@@ -2,9 +2,9 @@
 
          category CAT
            info: "meta" {
-            asset A extends A {
+            asset A1 extends A1 {
             }
-            abstract asset B
+            abstract asset A2
               info: "info" {
               & at
                 <- a
@@ -19,10 +19,10 @@
   # hej : "hej"
 
   associations {
-    A [a] 0..1 <-- L --> 1..* [b] B
-      info: "Info"
-    B [b] 0..* <-- L --> *    [a] A
-      info: "info"
-      info: "info2"
-    A [a] 1    <-- L --> 1..1 [b] B
+    A1 [a] 0..1 <-- L --> 1..* [b] A2
+       info: "Info"
+    A2 [b] 0..* <-- L --> *    [a] A1
+       info: "info"
+       info: "info2"
+    A1 [a] 1    <-- L --> 1..1 [b] A2
   }

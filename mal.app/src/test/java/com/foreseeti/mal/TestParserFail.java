@@ -22,21 +22,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TestParserFail {
-  @BeforeEach
-  public void init() {
-    TestUtils.initTestSystem();
-  }
-
-  @AfterEach
-  public void tearDown() {
-    TestUtils.clearTestSystem();
-  }
-
+public class TestParserFail extends MalTest {
   private static void assertIOException(String filename, String error) {
     try {
       Parser.parse(new File(filename));
@@ -53,17 +41,16 @@ public class TestParserFail {
     assertIOException("parser/\u0000non-existant.mal", "Invalid file path");
   }
 
-  private static void assertSyntaxError(String filename, Position pos, String error) {
+  private void assertSyntaxError(String filename, Position pos, String error) {
     try {
-      TestUtils.resetTestSystem();
+      resetTestSystem();
       getASTClassPath(filename);
       fail(String.format("File \"%s\" should have syntax errors", filename));
     } catch (Exception e) {
       assertTrue(e instanceof CompilerException);
       assertEquals("There were syntax errors", e.getMessage());
-      assertTrue(TestUtils.getOut().isEmpty());
-      assertEquals(
-          String.format("[PARSER ERROR] %s %s\n", pos.posString(), error), TestUtils.getPlainErr());
+      assertEmptyOut();
+      assertEquals(String.format("[PARSER ERROR] %s %s\n", pos.posString(), error), getPlainErr());
     }
   }
 
@@ -127,7 +114,7 @@ public class TestParserFail {
         "expected 'asset', found identifier");
     assertSyntaxError(
         "parser/bad-asset3.mal",
-        new Position("bad-asset3.mal", 2, 19),
+        new Position("bad-asset3.mal", 2, 20),
         "expected identifier, found '{'");
     assertSyntaxError(
         "parser/bad-asset4.mal",
@@ -139,7 +126,7 @@ public class TestParserFail {
   public void testBadAttackStep() {
     assertSyntaxError(
         "parser/bad-attackstep1.mal",
-        new Position("bad-attackstep1.mal", 3, 9),
+        new Position("bad-attackstep1.mal", 3, 12),
         "expected '&', '|', '#', 'E', '!E', 'let', or '}', found '{'");
     assertSyntaxError(
         "parser/bad-attackstep2.mal",
@@ -157,29 +144,37 @@ public class TestParserFail {
         "parser/bad-attackstep5.mal",
         new Position("bad-attackstep5.mal", 5, 9),
         "expected identifier or '(', found 'info'");
+    assertSyntaxError(
+        "parser/bad-attackstep6.mal",
+        new Position("bad-attackstep6.mal", 3, 11),
+        "expected 'C', 'I', 'A', or '}', found identifier");
+    assertSyntaxError(
+        "parser/bad-attackstep7.mal",
+        new Position("bad-attackstep7.mal", 3, 14),
+        "expected '&', '|', '#', 'E', '!E', 'let', or '}', found '{'");
   }
 
   @Test
   public void testBadAssociation() {
     assertSyntaxError(
         "parser/bad-association1.mal",
-        new Position("bad-association1.mal", 2, 11),
+        new Position("bad-association1.mal", 2, 12),
         "expected '<--', found '<-'");
     assertSyntaxError(
         "parser/bad-association2.mal",
-        new Position("bad-association2.mal", 2, 6),
+        new Position("bad-association2.mal", 2, 7),
         "expected identifier, found integer literal");
     assertSyntaxError(
         "parser/bad-association3.mal",
-        new Position("bad-association3.mal", 2, 9),
+        new Position("bad-association3.mal", 2, 10),
         "expected '0', '1', or '*', found integer literal");
     assertSyntaxError(
         "parser/bad-association4.mal",
-        new Position("bad-association4.mal", 2, 21),
+        new Position("bad-association4.mal", 2, 22),
         "Invalid multiplicity '0'");
     assertSyntaxError(
         "parser/bad-association5.mal",
-        new Position("bad-association5.mal", 2, 21),
+        new Position("bad-association5.mal", 2, 22),
         "Invalid multiplicity '1..0'");
   }
 }

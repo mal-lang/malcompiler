@@ -1,7 +1,7 @@
 #id: "id"
 #version: "0.0.0"
 category cat {
-  asset A {
+  asset AA {
     // define variable 'var' visible by '& access' and '| compromise'
     let var = compromise
     & access ->
@@ -17,5 +17,5 @@ category cat {
   }
 }
 associations {
-  A [a] * <-- ab --> * [b] B
+  AA [a] * <-- ab --> * [b] B
 }

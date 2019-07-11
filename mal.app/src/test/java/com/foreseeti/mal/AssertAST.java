@@ -15,40 +15,17 @@
  */
 package com.foreseeti.mal;
 
+import static com.foreseeti.mal.MalTest.getFileClassPath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
-public class AssertAST {
+public final class AssertAST {
   // Prevent instantiation
   private AssertAST() {}
-
-  private static File getFileClassPath(String filename) throws IOException {
-    var resource = AssertAST.class.getClassLoader().getResource(filename);
-    if (resource == null) {
-      throw new IOException(String.format("%s: No such file or directory", filename));
-    }
-    return new File(resource.getFile());
-  }
-
-  public static String readFileClassPath(String filename) throws IOException {
-    return Files.readString(getFileClassPath(filename).toPath());
-  }
-
-  public static String assertReadFileClassPath(String filename) {
-    try {
-      return readFileClassPath(filename);
-    } catch (IOException e) {
-      fail(e.getMessage());
-    }
-    fail("This should be unreachable");
-    return null;
-  }
 
   public static AST getASTClassPath(String filename) throws IOException, CompilerException {
     return Parser.parse(getFileClassPath(filename));
@@ -60,8 +37,24 @@ public class AssertAST {
     } catch (IOException | CompilerException e) {
       fail(e.getMessage());
     }
-    fail("This should be unreachable");
-    return null;
+    throw new RuntimeException("This should be unreachable");
+  }
+
+  public static void assertAnalyzeClassPath(String filename) {
+    try {
+      Analyzer.analyze(assertGetASTClassPath(filename));
+    } catch (CompilerException e) {
+      fail(e.getMessage());
+    }
+  }
+
+  public static void assertAnalyzeClassPathError(String filename) {
+    try {
+      Analyzer.analyze(assertGetASTClassPath(filename));
+      fail(String.format("%s should have semantic errors", filename));
+    } catch (CompilerException e) {
+      assertEquals("There were semantic errors", e.getMessage());
+    }
   }
 
   private static void assertEqualsPos(boolean expected, boolean actual, Position pos) {

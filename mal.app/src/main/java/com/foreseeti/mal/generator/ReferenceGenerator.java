@@ -15,18 +15,6 @@
  */
 package com.foreseeti.mal.generator;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import javax.lang.model.element.Modifier;
 import com.foreseeti.mal.CompilerException;
 import com.foreseeti.mal.Lang;
 import com.foreseeti.mal.Lang.Asset;
@@ -51,6 +39,18 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import javax.lang.model.element.Modifier;
 
 public class ReferenceGenerator {
   private final String pkg;

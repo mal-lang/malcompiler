@@ -6,6 +6,7 @@ Install latest maven-jlink-plugin:
 ```
 git clone https://github.com/apache/maven-jlink-plugin.git
 cd maven-jlink-plugin
+git checkout -b tmp d474b2d0c664faee2500fb3cb869898aca281b79
 mvn install
 ```
 
@@ -20,9 +21,9 @@ module com.squareup.javapoet {
   exports com.squareup.javapoet;
 }
 EOF
-sed -i 's#<java.version>1.8</java.version>#<java.version>11</java.version>#g' pom.xml
-sed -i 's#<source>${java.version}</source>#<release>${java.version}</release>#g' pom.xml
-sed -i '99,100d;102d;104,115d;117,142d' pom.xml
+sed -i '' 's#<java.version>1.8</java.version>#<java.version>11</java.version>#g' pom.xml
+sed -i '' 's#<source>${java.version}</source>#<release>${java.version}</release>#g' pom.xml
+sed -i '' '99,100d;102d;104,115d;117,142d' pom.xml
 mvn install -Dmaven.test.skip=true
 ```
 

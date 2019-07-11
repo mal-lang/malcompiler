@@ -86,24 +86,27 @@ public class Lang {
       return this.info;
     }
 
-    public void setInfo(String info) {
+    public Meta setInfo(String info) {
       this.info = info;
+      return this;
     }
 
     public String getAssumptions() {
       return this.assumptions;
     }
 
-    public void setAssumptions(String assumptions) {
+    public Meta setAssumptions(String assumptions) {
       this.assumptions = assumptions;
+      return this;
     }
 
     public String getRationale() {
       return this.rationale;
     }
 
-    public void setRationale(String rationale) {
+    public Meta setRationale(String rationale) {
       this.rationale = rationale;
+      return this;
     }
   }
 
@@ -334,17 +337,20 @@ public class Lang {
     private AttackStepType type;
     private Asset asset;
     private boolean inheritsReaches;
+    private CIA cia;
     private Meta meta;
     private TTCExpr ttc;
     private List<StepExpr> requires;
     private List<StepExpr> reaches;
     private List<StepExpr> parentSteps;
 
-    public AttackStep(String name, AttackStepType type, Asset asset, boolean inheritsReaches) {
+    public AttackStep(
+        String name, AttackStepType type, Asset asset, boolean inheritsReaches, CIA cia) {
       this.name = name;
       this.type = type;
       this.asset = asset;
       this.inheritsReaches = inheritsReaches;
+      this.cia = cia;
       this.meta = new Meta();
       this.requires = new ArrayList<>();
       this.reaches = new ArrayList<>();
@@ -369,6 +375,14 @@ public class Lang {
 
     public Meta getMeta() {
       return this.meta;
+    }
+
+    public boolean hasCIA() {
+      return this.cia != null;
+    }
+
+    public CIA getCIA() {
+      return this.cia;
     }
 
     public boolean hasTTC() {
@@ -418,6 +432,18 @@ public class Lang {
     public boolean hasParent() {
       return this.asset.hasSuperAsset()
           && this.asset.getSuperAsset().getAttackStep(this.name) != null;
+    }
+  }
+
+  public static class CIA {
+    public final boolean C;
+    public final boolean I;
+    public final boolean A;
+
+    public CIA(boolean C, boolean I, boolean A) {
+      this.C = C;
+      this.I = I;
+      this.A = A;
     }
   }
 

@@ -12,6 +12,7 @@ categories = {
         },
         attacksteps = {
           AttackStep(<complex.mal:10:5>, ANY, ID(<complex.mal:10:7>, "impersonate"),
+            cia = {},
             ttc = [],
             meta = {
             },
@@ -26,6 +27,7 @@ categories = {
             )
           ),
           AttackStep(<complex.mal:13:5>, ANY, ID(<complex.mal:13:7>, "compromise"),
+            cia = {},
             ttc = [],
             meta = {
             },
@@ -39,6 +41,7 @@ categories = {
             )
           ),
           AttackStep(<complex.mal:15:5>, ANY, ID(<complex.mal:15:7>, "stealInformation"),
+            cia = {},
             ttc = [],
             meta = {
             },
@@ -52,6 +55,7 @@ categories = {
             )
           ),
           AttackStep(<complex.mal:18:5>, ANY, ID(<complex.mal:18:7>, "stealFolder"),
+            cia = {},
             ttc = [],
             meta = {
             },
@@ -82,6 +86,7 @@ categories = {
         },
         attacksteps = {
           AttackStep(<complex.mal:25:5>, ANY, ID(<complex.mal:25:7>, "accessSchoolComputer"),
+            cia = {},
             ttc = [],
             meta = {
               Meta(<complex.mal:26:7>, INFO, "An extra level of protection, their school computer must be used to impersonate them.")
@@ -110,6 +115,7 @@ categories = {
         },
         attacksteps = {
           AttackStep(<complex.mal:33:5>, ANY, ID(<complex.mal:33:7>, "malwareInfection"),
+            cia = {},
             ttc = [],
             meta = {
             },
@@ -123,6 +129,7 @@ categories = {
             )
           ),
           AttackStep(<complex.mal:35:5>, ANY, ID(<complex.mal:35:7>, "interceptTraffic"),
+            cia = {},
             ttc = [],
             meta = {
             },
@@ -136,6 +143,7 @@ categories = {
             )
           ),
           AttackStep(<complex.mal:37:5>, ALL, ID(<complex.mal:37:7>, "retrievePassword"),
+            cia = {},
             ttc = [],
             meta = {
               Meta(<complex.mal:38:7>, INFO, "Retrieval of password is only possible if password is unencrypted")
@@ -150,6 +158,7 @@ categories = {
             )
           ),
           AttackStep(<complex.mal:40:5>, ANY, ID(<complex.mal:40:7>, "bypassFirewall"),
+            cia = {},
             ttc = [TTCMulExpr(<complex.mal:40:23>, TTCFuncExpr(<complex.mal:40:23>, ID(<complex.mal:40:23>, "ExponentialDistribution"), 0.050000), TTCFuncExpr(<complex.mal:40:55>, ID(<complex.mal:40:55>, "GammaDistribution"), 1.200000, 1.700000))],
             meta = {
             },
@@ -163,6 +172,7 @@ categories = {
             )
           ),
           AttackStep(<complex.mal:42:5>, ANY, ID(<complex.mal:42:7>, "stealSecret"),
+            cia = {},
             ttc = [],
             meta = {
             },
@@ -176,6 +186,7 @@ categories = {
             )
           ),
           AttackStep(<complex.mal:45:5>, DEFENSE, ID(<complex.mal:45:7>, "passwordEncrypted"),
+            cia = {},
             ttc = [],
             meta = {
             },
@@ -189,6 +200,7 @@ categories = {
             )
           ),
           AttackStep(<complex.mal:47:5>, EXIST, ID(<complex.mal:47:7>, "firewallProtected"),
+            cia = {},
             ttc = [],
             meta = {
             },
@@ -217,6 +229,7 @@ categories = {
         },
         attacksteps = {
           AttackStep(<complex.mal:52:5>, ALL, ID(<complex.mal:52:7>, "bypassFirewall"),
+            cia = {},
             ttc = [],
             meta = {
             },
@@ -240,6 +253,7 @@ categories = {
         },
         attacksteps = {
           AttackStep(<complex.mal:59:5>, ANY, ID(<complex.mal:59:7>, "stealHDSecrets"),
+            cia = {},
             ttc = [],
             meta = {
             },
@@ -247,6 +261,7 @@ categories = {
             NO_REACHES
           ),
           AttackStep(<complex.mal:60:5>, ANY, ID(<complex.mal:60:7>, "stealFolder"),
+            cia = {},
             ttc = [],
             meta = {
             },
@@ -268,6 +283,7 @@ categories = {
         },
         attacksteps = {
           AttackStep(<complex.mal:65:5>, ANY, ID(<complex.mal:65:7>, "accessFolder"),
+            cia = {},
             ttc = [],
             meta = {
             },

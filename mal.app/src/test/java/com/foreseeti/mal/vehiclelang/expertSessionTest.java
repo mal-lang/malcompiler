@@ -1,15 +1,11 @@
 package com.foreseeti.mal.vehiclelang;
 
-import static com.foreseeti.mal.TestUtils.clearTestSystem;
-import static com.foreseeti.mal.TestUtils.initTestSystem;
-
+import com.foreseeti.mal.MalTest;
 import core.Asset;
 import core.AttackStep;
 import core.Attacker;
 import core.Defense;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import vehicle.CANNetwork;
 import vehicle.ECU;
@@ -18,17 +14,7 @@ import vehicle.GatewayECU;
 import vehicle.InfotainmentSystem;
 import vehicle.Machine;
 
-public class expertSessionTest {
-
-  @BeforeAll
-  public static void init() {
-    initTestSystem();
-  }
-
-  @AfterAll
-  public static void exit() {
-    clearTestSystem();
-  }
+public class expertSessionTest extends MalTest {
 
   @Test
   public void Test1() {

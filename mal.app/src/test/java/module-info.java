@@ -28,9 +28,4 @@ module mal.app {
 
   // additional test requirement
   requires transitive org.junit.jupiter.api;
-
-  // test resources
-  opens lexer;
-  opens parser;
-  opens analyzer;
 }

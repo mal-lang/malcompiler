@@ -52,16 +52,16 @@ public class MalLogger extends Logger {
       if (System.console() != null) {
         switch (level.getName()) {
           case "ERROR":
-            colorInit = "\u001B[31m";
+            colorInit = "\u001B[1;31m";
             break;
           case "WARNING":
-            colorInit = "\u001B[33m";
+            colorInit = "\u001B[1;33m";
             break;
           case "INFO":
-            colorInit = "\u001B[34m";
+            colorInit = "\u001B[1;34m";
             break;
           case "DEBUG":
-            colorInit = "\u001B[36m";
+            colorInit = "\u001B[1;36m";
             break;
           default:
         }

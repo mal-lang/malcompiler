@@ -20,27 +20,14 @@ import static com.foreseeti.mal.AssertAST.assertCategory;
 import static com.foreseeti.mal.AssertAST.assertDefine;
 import static com.foreseeti.mal.AssertAST.assertEmptyAST;
 import static com.foreseeti.mal.AssertAST.assertGetASTClassPath;
-import static com.foreseeti.mal.AssertAST.assertReadFileClassPath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TestParser {
-  @BeforeEach
-  public void init() {
-    TestUtils.initTestSystem();
-  }
-
-  @AfterEach
-  public void tearDown() {
-    TestUtils.clearTestSystem();
-  }
-
+public class TestParser extends MalTest {
   @Test
   public void testEmpty() {
     var ast = assertGetASTClassPath("parser/empty.mal");
@@ -88,13 +75,13 @@ public class TestParser {
     assertCategory(
         new AST.Category(
             new Position("categories.mal", 1, 1),
-            new AST.ID(new Position("categories.mal", 1, 10), "A"),
+            new AST.ID(new Position("categories.mal", 1, 10), "C1"),
             new ArrayList<AST.Meta>(),
             Arrays.asList(
                 new AST.Asset(
                     new Position("categories.mal", 2, 3),
                     false,
-                    new AST.ID(new Position("categories.mal", 2, 9), "A_1"),
+                    new AST.ID(new Position("categories.mal", 2, 9), "A1"),
                     Optional.empty(),
                     new ArrayList<AST.Meta>(),
                     new ArrayList<AST.AttackStep>(),
@@ -102,7 +89,7 @@ public class TestParser {
                 new AST.Asset(
                     new Position("categories.mal", 3, 3),
                     true,
-                    new AST.ID(new Position("categories.mal", 3, 18), "A_2"),
+                    new AST.ID(new Position("categories.mal", 3, 18), "A2"),
                     Optional.empty(),
                     new ArrayList<AST.Meta>(),
                     new ArrayList<AST.AttackStep>(),
@@ -111,7 +98,7 @@ public class TestParser {
     assertCategory(
         new AST.Category(
             new Position("categories.mal", 6, 1),
-            new AST.ID(new Position("categories.mal", 6, 10), "A"),
+            new AST.ID(new Position("categories.mal", 6, 10), "C2"),
             Arrays.asList(
                 new AST.Meta(
                     new Position("categories.mal", 7, 3), AST.MetaType.ASSUMPTIONS, "none")),
@@ -119,16 +106,16 @@ public class TestParser {
                 new AST.Asset(
                     new Position("categories.mal", 9, 3),
                     false,
-                    new AST.ID(new Position("categories.mal", 9, 9), "A_3"),
-                    Optional.of(new AST.ID(new Position("categories.mal", 9, 21), "A_1")),
+                    new AST.ID(new Position("categories.mal", 9, 9), "A3"),
+                    Optional.of(new AST.ID(new Position("categories.mal", 9, 20), "A1")),
                     new ArrayList<AST.Meta>(),
                     new ArrayList<AST.AttackStep>(),
                     new ArrayList<AST.Variable>()),
                 new AST.Asset(
                     new Position("categories.mal", 10, 3),
                     true,
-                    new AST.ID(new Position("categories.mal", 10, 18), "A_4"),
-                    Optional.of(new AST.ID(new Position("categories.mal", 10, 30), "A_2")),
+                    new AST.ID(new Position("categories.mal", 10, 18), "A4"),
+                    Optional.of(new AST.ID(new Position("categories.mal", 10, 29), "A2")),
                     new ArrayList<AST.Meta>(),
                     new ArrayList<AST.AttackStep>(),
                     new ArrayList<AST.Variable>()))),
@@ -136,10 +123,10 @@ public class TestParser {
     assertCategory(
         new AST.Category(
             new Position("categories.mal", 13, 1),
-            new AST.ID(new Position("categories.mal", 13, 10), "B"),
+            new AST.ID(new Position("categories.mal", 13, 10), "C3"),
             Arrays.asList(
                 new AST.Meta(
-                    new Position("categories.mal", 14, 3), AST.MetaType.INFO, "this is first B"),
+                    new Position("categories.mal", 14, 3), AST.MetaType.INFO, "this is first C3"),
                 new AST.Meta(
                     new Position("categories.mal", 15, 3), AST.MetaType.INFO, "another info"),
                 new AST.Meta(
@@ -153,14 +140,14 @@ public class TestParser {
     assertCategory(
         new AST.Category(
             new Position("categories.mal", 21, 1),
-            new AST.ID(new Position("categories.mal", 21, 10), "B"),
+            new AST.ID(new Position("categories.mal", 21, 10), "C2"),
             new ArrayList<AST.Meta>(),
             new ArrayList<AST.Asset>()),
         categories.get(3));
     assertCategory(
         new AST.Category(
             new Position("categories.mal", 25, 1),
-            new AST.ID(new Position("categories.mal", 25, 10), "C"),
+            new AST.ID(new Position("categories.mal", 25, 10), "C3"),
             new ArrayList<AST.Meta>(),
             new ArrayList<AST.Asset>()),
         categories.get(4));
@@ -188,13 +175,13 @@ public class TestParser {
         assertAssociation(
             new AST.Association(
                 new Position("associations.mal", 3 + idx, 3),
-                new AST.ID(new Position("associations.mal", 3 + idx, 3), "A"),
-                new AST.ID(new Position("associations.mal", 3 + idx, 6), "b"),
+                new AST.ID(new Position("associations.mal", 3 + idx, 3), "A1"),
+                new AST.ID(new Position("associations.mal", 3 + idx, 7), "b"),
                 mults[i],
-                new AST.ID(new Position("associations.mal", 3 + idx, 18), "L"),
+                new AST.ID(new Position("associations.mal", 3 + idx, 19), "L"),
                 mults[j],
-                new AST.ID(new Position("associations.mal", 3 + idx, 30), "a"),
-                new AST.ID(new Position("associations.mal", 3 + idx, 33), "B"),
+                new AST.ID(new Position("associations.mal", 3 + idx, 31), "a"),
+                new AST.ID(new Position("associations.mal", 3 + idx, 34), "A2"),
                 new ArrayList<AST.Meta>()),
             associations.get(idx++));
       }
@@ -202,19 +189,19 @@ public class TestParser {
     assertAssociation(
         new AST.Association(
             new Position("associations.mal", 47, 3),
-            new AST.ID(new Position("associations.mal", 47, 3), "A"),
-            new AST.ID(new Position("associations.mal", 47, 6), "b"),
+            new AST.ID(new Position("associations.mal", 47, 3), "A1"),
+            new AST.ID(new Position("associations.mal", 47, 7), "b"),
             AST.Multiplicity.ONE,
-            new AST.ID(new Position("associations.mal", 47, 18), "L"),
+            new AST.ID(new Position("associations.mal", 47, 19), "L"),
             AST.Multiplicity.ONE,
-            new AST.ID(new Position("associations.mal", 47, 30), "a"),
-            new AST.ID(new Position("associations.mal", 47, 33), "B"),
+            new AST.ID(new Position("associations.mal", 47, 31), "a"),
+            new AST.ID(new Position("associations.mal", 47, 34), "A2"),
             Arrays.asList(
-                new AST.Meta(new Position("associations.mal", 48, 5), AST.MetaType.INFO, "testing"),
+                new AST.Meta(new Position("associations.mal", 48, 6), AST.MetaType.INFO, "testing"),
                 new AST.Meta(
-                    new Position("associations.mal", 49, 5), AST.MetaType.RATIONALE, "hej"),
+                    new Position("associations.mal", 49, 6), AST.MetaType.RATIONALE, "hej"),
                 new AST.Meta(
-                    new Position("associations.mal", 50, 5),
+                    new Position("associations.mal", 50, 6),
                     AST.MetaType.ASSUMPTIONS,
                     "\"!\"!\"!\""))),
         associations.get(36));
@@ -274,7 +261,7 @@ public class TestParser {
                 new AST.Asset(
                     new Position("assets.mal", 2, 3),
                     false,
-                    new AST.ID(new Position("assets.mal", 2, 9), "A"),
+                    new AST.ID(new Position("assets.mal", 2, 9), "A1"),
                     Optional.empty(),
                     Arrays.asList(
                         new AST.Meta(new Position("assets.mal", 3, 5), AST.MetaType.INFO, "Info1"),
@@ -287,7 +274,7 @@ public class TestParser {
                 new AST.Asset(
                     new Position("assets.mal", 9, 3),
                     true,
-                    new AST.ID(new Position("assets.mal", 9, 18), "B"),
+                    new AST.ID(new Position("assets.mal", 9, 18), "A2"),
                     Optional.empty(),
                     Arrays.asList(
                         new AST.Meta(new Position("assets.mal", 10, 5), AST.MetaType.INFO, "Info2"),
@@ -306,8 +293,8 @@ public class TestParser {
                 new AST.Asset(
                     new Position("assets.mal", 17, 3),
                     false,
-                    new AST.ID(new Position("assets.mal", 17, 9), "C"),
-                    Optional.of(new AST.ID(new Position("assets.mal", 17, 19), "A")),
+                    new AST.ID(new Position("assets.mal", 17, 9), "A3"),
+                    Optional.of(new AST.ID(new Position("assets.mal", 17, 20), "A1")),
                     Arrays.asList(
                         new AST.Meta(new Position("assets.mal", 18, 5), AST.MetaType.INFO, "Info3"),
                         new AST.Meta(
@@ -320,6 +307,7 @@ public class TestParser {
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position("assets.mal", 22, 7), "a"),
                             Optional.empty(),
+                            Optional.empty(),
                             new ArrayList<AST.Meta>(),
                             Optional.empty(),
                             Optional.empty()),
@@ -328,6 +316,7 @@ public class TestParser {
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position("assets.mal", 23, 7), "a"),
                             Optional.empty(),
+                            Optional.empty(),
                             new ArrayList<AST.Meta>(),
                             Optional.empty(),
                             Optional.empty())),
@@ -335,8 +324,8 @@ public class TestParser {
                 new AST.Asset(
                     new Position("assets.mal", 26, 3),
                     true,
-                    new AST.ID(new Position("assets.mal", 26, 18), "D"),
-                    Optional.of(new AST.ID(new Position("assets.mal", 26, 28), "B")),
+                    new AST.ID(new Position("assets.mal", 26, 18), "A4"),
+                    Optional.of(new AST.ID(new Position("assets.mal", 26, 29), "A2")),
                     Arrays.asList(
                         new AST.Meta(new Position("assets.mal", 27, 5), AST.MetaType.INFO, "Info4"),
                         new AST.Meta(
@@ -349,6 +338,7 @@ public class TestParser {
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position("assets.mal", 31, 7), "a"),
                             Optional.empty(),
+                            Optional.empty(),
                             new ArrayList<AST.Meta>(),
                             Optional.empty(),
                             Optional.empty()),
@@ -357,6 +347,7 @@ public class TestParser {
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position("assets.mal", 33, 7), "b"),
                             Optional.empty(),
+                            Optional.empty(),
                             new ArrayList<AST.Meta>(),
                             Optional.empty(),
                             Optional.empty()),
@@ -364,6 +355,7 @@ public class TestParser {
                             new Position("assets.mal", 34, 5),
                             AST.AttackStepType.NOTEXIST,
                             new AST.ID(new Position("assets.mal", 34, 8), "c"),
+                            Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
                             Optional.empty(),
@@ -394,7 +386,7 @@ public class TestParser {
                 new AST.Asset(
                     new Position("attacksteps.mal", 3, 3),
                     false,
-                    new AST.ID(new Position("attacksteps.mal", 3, 9), "A"),
+                    new AST.ID(new Position("attacksteps.mal", 3, 9), "A1"),
                     Optional.empty(),
                     new ArrayList<AST.Meta>(),
                     Arrays.asList(
@@ -402,6 +394,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 4, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position("attacksteps.mal", 4, 8), "a"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCAddExpr(
                                     new Position("attacksteps.mal", 4, 11),
@@ -420,6 +413,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 5, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position("attacksteps.mal", 5, 8), "b"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCSubExpr(
                                     new Position("attacksteps.mal", 5, 11),
@@ -438,6 +432,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 6, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position("attacksteps.mal", 6, 8), "c"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCMulExpr(
                                     new Position("attacksteps.mal", 6, 11),
@@ -456,6 +451,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 7, 5),
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position("attacksteps.mal", 7, 8), "d"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCDivExpr(
                                     new Position("attacksteps.mal", 7, 11),
@@ -474,6 +470,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 8, 5),
                             AST.AttackStepType.NOTEXIST,
                             new AST.ID(new Position("attacksteps.mal", 8, 8), "e"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCPowExpr(
                                     new Position("attacksteps.mal", 8, 11),
@@ -492,6 +489,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 9, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position("attacksteps.mal", 9, 8), "a"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCAddExpr(
                                     new Position("attacksteps.mal", 9, 11),
@@ -516,6 +514,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 10, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position("attacksteps.mal", 10, 8), "b"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCAddExpr(
                                     new Position("attacksteps.mal", 10, 11),
@@ -549,6 +548,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 11, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position("attacksteps.mal", 11, 8), "c"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCMulExpr(
                                     new Position("attacksteps.mal", 11, 11),
@@ -575,6 +575,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 12, 5),
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position("attacksteps.mal", 12, 8), "d"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCAddExpr(
                                     new Position("attacksteps.mal", 12, 11),
@@ -601,6 +602,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 13, 5),
                             AST.AttackStepType.NOTEXIST,
                             new AST.ID(new Position("attacksteps.mal", 13, 8), "e"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCAddExpr(
                                     new Position("attacksteps.mal", 13, 11),
@@ -627,6 +629,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 14, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position("attacksteps.mal", 14, 8), "a"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCMulExpr(
                                     new Position("attacksteps.mal", 14, 11),
@@ -653,6 +656,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 15, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position("attacksteps.mal", 15, 8), "b"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
                                     new Position("attacksteps.mal", 15, 11),
@@ -665,6 +669,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 16, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position("attacksteps.mal", 16, 8), "c"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
                                     new Position("attacksteps.mal", 16, 11),
@@ -677,6 +682,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 17, 5),
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position("attacksteps.mal", 17, 8), "d"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
                                     new Position("attacksteps.mal", 17, 11),
@@ -689,6 +695,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 18, 5),
                             AST.AttackStepType.NOTEXIST,
                             new AST.ID(new Position("attacksteps.mal", 18, 8), "e"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
                                     new Position("attacksteps.mal", 18, 11),
@@ -701,6 +708,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 19, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position("attacksteps.mal", 19, 8), "a"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
                                     new Position("attacksteps.mal", 19, 11),
@@ -713,6 +721,7 @@ public class TestParser {
                             new Position("attacksteps.mal", 20, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position("attacksteps.mal", 20, 8), "b"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCAddExpr(
                                     new Position("attacksteps.mal", 20, 11),
@@ -734,152 +743,149 @@ public class TestParser {
                 new AST.Asset(
                     new Position("attacksteps.mal", 24, 3),
                     false,
-                    new AST.ID(new Position("attacksteps.mal", 24, 9), "B"),
+                    new AST.ID(new Position("attacksteps.mal", 24, 9), "A2"),
                     Optional.empty(),
                     new ArrayList<AST.Meta>(),
                     Arrays.asList(
                         new AST.AttackStep(
                             new Position("attacksteps.mal", 25, 5),
-                            AST.AttackStepType.ALL,
-                            new AST.ID(new Position("attacksteps.mal", 25, 7), "a"),
+                            AST.AttackStepType.ANY,
+                            new AST.ID(new Position("attacksteps.mal", 25, 7), "a1"),
                             Optional.empty(),
-                            Arrays.asList(
-                                new AST.Meta(
-                                    new Position("attacksteps.mal", 26, 7),
-                                    AST.MetaType.INFO,
-                                    "Info")),
+                            Optional.empty(),
+                            new ArrayList<AST.Meta>(),
+                            Optional.empty(),
+                            Optional.empty()),
+                        new AST.AttackStep(
+                            new Position("attacksteps.mal", 26, 5),
+                            AST.AttackStepType.ANY,
+                            new AST.ID(new Position("attacksteps.mal", 26, 7), "a2"),
+                            Optional.of(new ArrayList<AST.CIA>()),
+                            Optional.empty(),
+                            new ArrayList<AST.Meta>(),
                             Optional.empty(),
                             Optional.empty()),
                         new AST.AttackStep(
                             new Position("attacksteps.mal", 27, 5),
                             AST.AttackStepType.ANY,
-                            new AST.ID(new Position("attacksteps.mal", 27, 7), "b"),
+                            new AST.ID(new Position("attacksteps.mal", 27, 7), "a3"),
+                            Optional.of(Arrays.asList(AST.CIA.C)),
                             Optional.empty(),
-                            Arrays.asList(
-                                new AST.Meta(
-                                    new Position("attacksteps.mal", 28, 7),
-                                    AST.MetaType.INFO,
-                                    "Info"),
-                                new AST.Meta(
-                                    new Position("attacksteps.mal", 29, 7),
-                                    AST.MetaType.RATIONALE,
-                                    "Reason")),
+                            new ArrayList<AST.Meta>(),
+                            Optional.empty(),
+                            Optional.empty()),
+                        new AST.AttackStep(
+                            new Position("attacksteps.mal", 28, 5),
+                            AST.AttackStepType.ANY,
+                            new AST.ID(new Position("attacksteps.mal", 28, 7), "a4"),
+                            Optional.of(Arrays.asList(AST.CIA.C, AST.CIA.C)),
+                            Optional.empty(),
+                            new ArrayList<AST.Meta>(),
+                            Optional.empty(),
+                            Optional.empty()),
+                        new AST.AttackStep(
+                            new Position("attacksteps.mal", 29, 5),
+                            AST.AttackStepType.ANY,
+                            new AST.ID(new Position("attacksteps.mal", 29, 7), "a5"),
+                            Optional.of(Arrays.asList(AST.CIA.C, AST.CIA.I, AST.CIA.A)),
+                            Optional.empty(),
+                            new ArrayList<AST.Meta>(),
                             Optional.empty(),
                             Optional.empty()),
                         new AST.AttackStep(
                             new Position("attacksteps.mal", 30, 5),
-                            AST.AttackStepType.DEFENSE,
-                            new AST.ID(new Position("attacksteps.mal", 30, 7), "c"),
+                            AST.AttackStepType.ANY,
+                            new AST.ID(new Position("attacksteps.mal", 30, 7), "a6"),
+                            Optional.of(Arrays.asList(AST.CIA.A, AST.CIA.C, AST.CIA.I)),
+                            Optional.empty(),
+                            new ArrayList<AST.Meta>(),
+                            Optional.empty(),
+                            Optional.empty()),
+                        new AST.AttackStep(
+                            new Position("attacksteps.mal", 31, 5),
+                            AST.AttackStepType.ANY,
+                            new AST.ID(new Position("attacksteps.mal", 31, 7), "a7"),
                             Optional.of(
-                                new AST.TTCFuncExpr(
-                                    new Position("attacksteps.mal", 30, 10),
-                                    new AST.ID(new Position("attacksteps.mal", 30, 10), "TTC"),
-                                    new ArrayList<Double>())),
-                            Arrays.asList(
-                                new AST.Meta(
-                                    new Position("attacksteps.mal", 31, 7),
-                                    AST.MetaType.INFO,
-                                    "Info")),
+                                Arrays.asList(
+                                    AST.CIA.C, AST.CIA.C, AST.CIA.I, AST.CIA.I, AST.CIA.A,
+                                    AST.CIA.A)),
+                            Optional.empty(),
+                            new ArrayList<AST.Meta>(),
                             Optional.empty(),
                             Optional.empty())),
                     new ArrayList<AST.Variable>()),
                 new AST.Asset(
                     new Position("attacksteps.mal", 35, 3),
                     false,
-                    new AST.ID(new Position("attacksteps.mal", 35, 9), "C"),
+                    new AST.ID(new Position("attacksteps.mal", 35, 9), "A3"),
                     Optional.empty(),
                     new ArrayList<AST.Meta>(),
                     Arrays.asList(
                         new AST.AttackStep(
                             new Position("attacksteps.mal", 36, 5),
-                            AST.AttackStepType.EXIST,
+                            AST.AttackStepType.ALL,
                             new AST.ID(new Position("attacksteps.mal", 36, 7), "a"),
                             Optional.empty(),
-                            new ArrayList<AST.Meta>(),
-                            Optional.of(
-                                new AST.Requires(
+                            Optional.empty(),
+                            Arrays.asList(
+                                new AST.Meta(
                                     new Position("attacksteps.mal", 37, 7),
-                                    Arrays.asList(
-                                        new AST.Variable(
-                                            new Position("attacksteps.mal", 37, 10),
-                                            new AST.ID(
-                                                new Position("attacksteps.mal", 37, 14), "x"),
-                                            new AST.IDExpr(
-                                                new Position("attacksteps.mal", 37, 18),
-                                                new AST.ID(
-                                                    new Position("attacksteps.mal", 37, 18), "y"))),
-                                        new AST.Variable(
-                                            new Position("attacksteps.mal", 39, 10),
-                                            new AST.ID(
-                                                new Position("attacksteps.mal", 39, 14), "a"),
-                                            new AST.IDExpr(
-                                                new Position("attacksteps.mal", 39, 18),
-                                                new AST.ID(
-                                                    new Position("attacksteps.mal", 39, 18),
-                                                    "b")))),
-                                    Arrays.asList(
-                                        new AST.StepExpr(
-                                            new Position("attacksteps.mal", 38, 10),
-                                            new AST.IDExpr(
-                                                new Position("attacksteps.mal", 38, 10),
-                                                new AST.ID(
-                                                    new Position("attacksteps.mal", 38, 10), "a")),
-                                            new AST.IDExpr(
-                                                new Position("attacksteps.mal", 38, 12),
-                                                new AST.ID(
-                                                    new Position("attacksteps.mal", 38, 12), "y"))),
-                                        new AST.IDExpr(
-                                            new Position("attacksteps.mal", 40, 10),
-                                            new AST.ID(
-                                                new Position("attacksteps.mal", 40, 10), "b")),
-                                        new AST.UnionExpr(
-                                            new Position("attacksteps.mal", 41, 10),
-                                            new AST.IDExpr(
-                                                new Position("attacksteps.mal", 41, 10),
-                                                new AST.ID(
-                                                    new Position("attacksteps.mal", 41, 10), "c")),
-                                            new AST.IDExpr(
-                                                new Position("attacksteps.mal", 41, 15),
-                                                new AST.ID(
-                                                    new Position("attacksteps.mal", 41, 15), "d"))),
-                                        new AST.StepExpr(
-                                            new Position("attacksteps.mal", 42, 10),
-                                            new AST.IDExpr(
-                                                new Position("attacksteps.mal", 42, 10),
-                                                new AST.ID(
-                                                    new Position("attacksteps.mal", 42, 10), "a")),
-                                            new AST.TransitiveExpr(
-                                                new Position("attacksteps.mal", 42, 12),
-                                                new AST.SubTypeExpr(
-                                                    new Position("attacksteps.mal", 42, 13),
-                                                    new AST.IDExpr(
-                                                        new Position("attacksteps.mal", 42, 13),
-                                                        new AST.ID(
-                                                            new Position("attacksteps.mal", 42, 13),
-                                                            "b")),
-                                                    new AST.ID(
-                                                        new Position("attacksteps.mal", 42, 15),
-                                                        "C"))))))),
+                                    AST.MetaType.INFO,
+                                    "Info")),
+                            Optional.empty(),
+                            Optional.empty()),
+                        new AST.AttackStep(
+                            new Position("attacksteps.mal", 38, 5),
+                            AST.AttackStepType.ANY,
+                            new AST.ID(new Position("attacksteps.mal", 38, 7), "b"),
+                            Optional.empty(),
+                            Optional.empty(),
+                            Arrays.asList(
+                                new AST.Meta(
+                                    new Position("attacksteps.mal", 39, 7),
+                                    AST.MetaType.INFO,
+                                    "Info"),
+                                new AST.Meta(
+                                    new Position("attacksteps.mal", 40, 7),
+                                    AST.MetaType.RATIONALE,
+                                    "Reason")),
+                            Optional.empty(),
+                            Optional.empty()),
+                        new AST.AttackStep(
+                            new Position("attacksteps.mal", 41, 5),
+                            AST.AttackStepType.DEFENSE,
+                            new AST.ID(new Position("attacksteps.mal", 41, 7), "c"),
+                            Optional.empty(),
+                            Optional.of(
+                                new AST.TTCFuncExpr(
+                                    new Position("attacksteps.mal", 41, 10),
+                                    new AST.ID(new Position("attacksteps.mal", 41, 10), "TTC"),
+                                    new ArrayList<Double>())),
+                            Arrays.asList(
+                                new AST.Meta(
+                                    new Position("attacksteps.mal", 42, 7),
+                                    AST.MetaType.INFO,
+                                    "Info")),
+                            Optional.empty(),
                             Optional.empty())),
                     new ArrayList<AST.Variable>()),
                 new AST.Asset(
                     new Position("attacksteps.mal", 46, 3),
                     false,
-                    new AST.ID(new Position("attacksteps.mal", 46, 9), "D"),
+                    new AST.ID(new Position("attacksteps.mal", 46, 9), "A4"),
                     Optional.empty(),
                     new ArrayList<AST.Meta>(),
                     Arrays.asList(
                         new AST.AttackStep(
                             new Position("attacksteps.mal", 47, 5),
-                            AST.AttackStepType.ALL,
+                            AST.AttackStepType.EXIST,
                             new AST.ID(new Position("attacksteps.mal", 47, 7), "a"),
                             Optional.empty(),
-                            new ArrayList<AST.Meta>(),
                             Optional.empty(),
+                            new ArrayList<AST.Meta>(),
                             Optional.of(
-                                new AST.Reaches(
+                                new AST.Requires(
                                     new Position("attacksteps.mal", 48, 7),
-                                    false,
                                     Arrays.asList(
                                         new AST.Variable(
                                             new Position("attacksteps.mal", 48, 10),
@@ -940,94 +946,179 @@ public class TestParser {
                                                             "b")),
                                                     new AST.ID(
                                                         new Position("attacksteps.mal", 53, 15),
-                                                        "C")))))))),
+                                                        "D"))))))),
+                            Optional.empty())),
+                    new ArrayList<AST.Variable>()),
+                new AST.Asset(
+                    new Position("attacksteps.mal", 57, 3),
+                    false,
+                    new AST.ID(new Position("attacksteps.mal", 57, 9), "A5"),
+                    Optional.empty(),
+                    new ArrayList<AST.Meta>(),
+                    Arrays.asList(
                         new AST.AttackStep(
-                            new Position("attacksteps.mal", 54, 5),
+                            new Position("attacksteps.mal", 58, 5),
+                            AST.AttackStepType.ALL,
+                            new AST.ID(new Position("attacksteps.mal", 58, 7), "a"),
+                            Optional.of(Arrays.asList(AST.CIA.I)),
+                            Optional.empty(),
+                            new ArrayList<AST.Meta>(),
+                            Optional.empty(),
+                            Optional.of(
+                                new AST.Reaches(
+                                    new Position("attacksteps.mal", 59, 7),
+                                    false,
+                                    Arrays.asList(
+                                        new AST.Variable(
+                                            new Position("attacksteps.mal", 59, 10),
+                                            new AST.ID(
+                                                new Position("attacksteps.mal", 59, 14), "x"),
+                                            new AST.IDExpr(
+                                                new Position("attacksteps.mal", 59, 18),
+                                                new AST.ID(
+                                                    new Position("attacksteps.mal", 59, 18), "y"))),
+                                        new AST.Variable(
+                                            new Position("attacksteps.mal", 61, 10),
+                                            new AST.ID(
+                                                new Position("attacksteps.mal", 61, 14), "a"),
+                                            new AST.IDExpr(
+                                                new Position("attacksteps.mal", 61, 18),
+                                                new AST.ID(
+                                                    new Position("attacksteps.mal", 61, 18),
+                                                    "b")))),
+                                    Arrays.asList(
+                                        new AST.StepExpr(
+                                            new Position("attacksteps.mal", 60, 10),
+                                            new AST.IDExpr(
+                                                new Position("attacksteps.mal", 60, 10),
+                                                new AST.ID(
+                                                    new Position("attacksteps.mal", 60, 10), "a")),
+                                            new AST.IDExpr(
+                                                new Position("attacksteps.mal", 60, 12),
+                                                new AST.ID(
+                                                    new Position("attacksteps.mal", 60, 12), "y"))),
+                                        new AST.IDExpr(
+                                            new Position("attacksteps.mal", 62, 10),
+                                            new AST.ID(
+                                                new Position("attacksteps.mal", 62, 10), "b")),
+                                        new AST.UnionExpr(
+                                            new Position("attacksteps.mal", 63, 10),
+                                            new AST.IDExpr(
+                                                new Position("attacksteps.mal", 63, 10),
+                                                new AST.ID(
+                                                    new Position("attacksteps.mal", 63, 10), "c")),
+                                            new AST.IDExpr(
+                                                new Position("attacksteps.mal", 63, 15),
+                                                new AST.ID(
+                                                    new Position("attacksteps.mal", 63, 15), "d"))),
+                                        new AST.StepExpr(
+                                            new Position("attacksteps.mal", 64, 10),
+                                            new AST.IDExpr(
+                                                new Position("attacksteps.mal", 64, 10),
+                                                new AST.ID(
+                                                    new Position("attacksteps.mal", 64, 10), "a")),
+                                            new AST.TransitiveExpr(
+                                                new Position("attacksteps.mal", 64, 12),
+                                                new AST.SubTypeExpr(
+                                                    new Position("attacksteps.mal", 64, 13),
+                                                    new AST.IDExpr(
+                                                        new Position("attacksteps.mal", 64, 13),
+                                                        new AST.ID(
+                                                            new Position("attacksteps.mal", 64, 13),
+                                                            "b")),
+                                                    new AST.ID(
+                                                        new Position("attacksteps.mal", 64, 15),
+                                                        "D")))))))),
+                        new AST.AttackStep(
+                            new Position("attacksteps.mal", 65, 5),
                             AST.AttackStepType.ANY,
-                            new AST.ID(new Position("attacksteps.mal", 54, 7), "b"),
+                            new AST.ID(new Position("attacksteps.mal", 65, 7), "b"),
+                            Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
                             Optional.of(
                                 new AST.Requires(
-                                    new Position("attacksteps.mal", 55, 7),
+                                    new Position("attacksteps.mal", 66, 7),
                                     new ArrayList<AST.Variable>(),
                                     Arrays.asList(
                                         new AST.IDExpr(
-                                            new Position("attacksteps.mal", 55, 10),
+                                            new Position("attacksteps.mal", 66, 10),
                                             new AST.ID(
-                                                new Position("attacksteps.mal", 55, 10), "x"))))),
+                                                new Position("attacksteps.mal", 66, 10), "x"))))),
                             Optional.of(
                                 new AST.Reaches(
-                                    new Position("attacksteps.mal", 56, 7),
+                                    new Position("attacksteps.mal", 67, 7),
                                     false,
                                     new ArrayList<AST.Variable>(),
                                     Arrays.asList(
                                         new AST.IDExpr(
-                                            new Position("attacksteps.mal", 56, 10),
+                                            new Position("attacksteps.mal", 67, 10),
                                             new AST.ID(
-                                                new Position("attacksteps.mal", 56, 10), "y")))))),
+                                                new Position("attacksteps.mal", 67, 10), "y")))))),
                         new AST.AttackStep(
-                            new Position("attacksteps.mal", 57, 5),
+                            new Position("attacksteps.mal", 68, 5),
                             AST.AttackStepType.DEFENSE,
-                            new AST.ID(new Position("attacksteps.mal", 57, 7), "c"),
+                            new AST.ID(new Position("attacksteps.mal", 68, 7), "c"),
+                            Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
-                                    new Position("attacksteps.mal", 57, 10),
-                                    new AST.ID(new Position("attacksteps.mal", 57, 10), "t"),
+                                    new Position("attacksteps.mal", 68, 10),
+                                    new AST.ID(new Position("attacksteps.mal", 68, 10), "t"),
                                     new ArrayList<Double>())),
                             new ArrayList<AST.Meta>(),
                             Optional.of(
                                 new AST.Requires(
-                                    new Position("attacksteps.mal", 58, 7),
+                                    new Position("attacksteps.mal", 69, 7),
                                     new ArrayList<AST.Variable>(),
                                     Arrays.asList(
                                         new AST.IDExpr(
-                                            new Position("attacksteps.mal", 58, 10),
+                                            new Position("attacksteps.mal", 69, 10),
                                             new AST.ID(
-                                                new Position("attacksteps.mal", 58, 10), "x"))))),
+                                                new Position("attacksteps.mal", 69, 10), "x"))))),
                             Optional.of(
                                 new AST.Reaches(
-                                    new Position("attacksteps.mal", 59, 7),
+                                    new Position("attacksteps.mal", 70, 7),
                                     true,
                                     new ArrayList<AST.Variable>(),
                                     Arrays.asList(
                                         new AST.IDExpr(
-                                            new Position("attacksteps.mal", 59, 10),
+                                            new Position("attacksteps.mal", 70, 10),
                                             new AST.ID(
-                                                new Position("attacksteps.mal", 59, 10), "y")))))),
+                                                new Position("attacksteps.mal", 70, 10), "y")))))),
                         new AST.AttackStep(
-                            new Position("attacksteps.mal", 60, 5),
+                            new Position("attacksteps.mal", 71, 5),
                             AST.AttackStepType.EXIST,
-                            new AST.ID(new Position("attacksteps.mal", 60, 7), "d"),
+                            new AST.ID(new Position("attacksteps.mal", 71, 7), "d"),
+                            Optional.of(Arrays.asList(AST.CIA.C)),
                             Optional.of(
                                 new AST.TTCFuncExpr(
-                                    new Position("attacksteps.mal", 60, 10),
-                                    new AST.ID(new Position("attacksteps.mal", 60, 10), "t"),
+                                    new Position("attacksteps.mal", 71, 14),
+                                    new AST.ID(new Position("attacksteps.mal", 71, 14), "t"),
                                     new ArrayList<Double>())),
                             Arrays.asList(
                                 new AST.Meta(
-                                    new Position("attacksteps.mal", 61, 7),
+                                    new Position("attacksteps.mal", 72, 7),
                                     AST.MetaType.INFO,
                                     "Info")),
                             Optional.of(
                                 new AST.Requires(
-                                    new Position("attacksteps.mal", 62, 7),
+                                    new Position("attacksteps.mal", 73, 7),
                                     new ArrayList<AST.Variable>(),
                                     Arrays.asList(
                                         new AST.IDExpr(
-                                            new Position("attacksteps.mal", 62, 10),
+                                            new Position("attacksteps.mal", 73, 10),
                                             new AST.ID(
-                                                new Position("attacksteps.mal", 62, 10), "x"))))),
+                                                new Position("attacksteps.mal", 73, 10), "x"))))),
                             Optional.of(
                                 new AST.Reaches(
-                                    new Position("attacksteps.mal", 63, 7),
+                                    new Position("attacksteps.mal", 74, 7),
                                     false,
                                     new ArrayList<AST.Variable>(),
                                     Arrays.asList(
                                         new AST.IDExpr(
-                                            new Position("attacksteps.mal", 63, 10),
+                                            new Position("attacksteps.mal", 74, 10),
                                             new AST.ID(
-                                                new Position("attacksteps.mal", 63, 10), "y"))))))),
+                                                new Position("attacksteps.mal", 74, 10), "y"))))))),
                     new ArrayList<AST.Variable>()))),
         categories.get(0));
     assertEquals(0, ast.getAssociations().size());

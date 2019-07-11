@@ -20,24 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TestMain {
-  @BeforeEach
-  public void init() {
-    TestUtils.initTestSystem();
-  }
-
-  @AfterEach
-  public void tearDown() {
-    TestUtils.clearTestSystem();
-  }
-
+public class TestMain extends MalTest {
   private static final String helpMsg = "Usage: com.foreseeti.mal.Main";
   private static final String versionMsg = "%s %s";
   private static final String unknownArgMsg = "Unknown option: %s";
@@ -45,23 +30,23 @@ public class TestMain {
   private static final String missingFileMsg = "A file must be specified";
   private static final String multipleFilesMsg = "Only one file can be specified";
 
-  private static void assertFails(String test, String args[], String startMsg) {
+  private void assertFails(String test, String args[], String startMsg) {
     try {
-      TestUtils.resetTestSystem();
+      resetTestSystem();
       Main.main(args);
       fail(String.format("%s should exit with status code 1", test));
     } catch (ExitSecurityException e) {
       assertEquals(1, e.getStatus());
-      assertTrue(TestUtils.getOut().isEmpty());
-      assertTrue(TestUtils.getPlainErr().startsWith(startMsg));
+      assertEmptyOut();
+      assertTrue(getPlainErr().startsWith(startMsg));
     }
   }
 
-  private static void assertHelp(String[] args) {
+  private void assertHelp(String[] args) {
     assertFails("Help", args, helpMsg);
   }
 
-  private static void assertVersion(String[] args) {
+  private void assertVersion(String[] args) {
     // Fetch "Implementation-Title" from manifest
     var title = Main.getTitle();
     assertNotNull(title);
@@ -75,19 +60,19 @@ public class TestMain {
     assertFails("Version", args, String.format(versionMsg, title, version));
   }
 
-  private static void assertUnknownArg(String[] args, String arg) {
+  private void assertUnknownArg(String[] args, String arg) {
     assertFails("Unknown argument", args, String.format(unknownArgMsg, arg));
   }
 
-  private static void assertMissingArg(String[] args, String arg, String param) {
+  private void assertMissingArg(String[] args, String arg, String param) {
     assertFails("Missing argument", args, String.format(missingArgMsg, arg, param));
   }
 
-  private static void assertMissingFile(String[] args) {
+  private void assertMissingFile(String[] args) {
     assertFails("Missing file", args, missingFileMsg);
   }
 
-  private static void assertMultipleFiles(String[] args) {
+  private void assertMultipleFiles(String[] args) {
     assertFails("Multiple files", args, multipleFilesMsg);
   }
 
@@ -170,33 +155,24 @@ public class TestMain {
     assertMultipleFiles(new String[] {"-v", "file1", "file2"});
   }
 
-  private static void assertPhase(String phase, String[] args, String outFile, String errFile) {
-    var resourcePath = "src/test/resources";
-    var cwd = System.getProperty("user.dir");
-    if (!cwd.endsWith("mal.app")) {
-      resourcePath = "mal.app/" + resourcePath;
-    }
+  private void assertPhase(String phase, String[] args, String outFile, String errFile) {
     try {
-      TestUtils.resetTestSystem();
+      resetTestSystem();
       Main.main(args);
-      var outString = outFile == null ? "" : Files.readString(Path.of(resourcePath, outFile));
-      var errString = errFile == null ? "" : Files.readString(Path.of(resourcePath, errFile));
-      assertEquals(outString, TestUtils.getPlainOut());
-      assertEquals(errString, TestUtils.getPlainErr());
-    } catch (IOException e) {
-      fail(e.getMessage());
+      assertOutLinesFile(
+          outFile == null ? null : assertGetFileClassPath(outFile).getAbsolutePath());
+      assertErrLinesFile(
+          errFile == null ? null : assertGetFileClassPath(errFile).getAbsolutePath());
     } catch (ExitSecurityException e) {
-      fail(String.format("Phase '%s' exited with status code %d", phase, e.getStatus()));
+      fail(
+          String.format(
+              "Phase '%s' exited with status code %d\n%s", phase, e.getStatus(), getErr()));
     }
   }
 
   @Test
   public void testPhases() {
-    var inputFile = "src/test/resources/analyzer/complex.mal";
-    var cwd = System.getProperty("user.dir");
-    if (!cwd.endsWith("mal.app")) {
-      inputFile = "mal.app/" + inputFile;
-    }
+    var inputFile = assertGetFileClassPath("analyzer/complex.mal").getAbsolutePath();
     // Test lexer
     assertPhase("lexer", new String[] {"--lexer", inputFile}, "analyzer/complex-lexer.txt", null);
     // Test lexer with verbose

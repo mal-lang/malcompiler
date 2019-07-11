@@ -336,12 +336,16 @@ public class Parser {
     }
   }
 
-  // <attackstep> ::= <astype> ID <ttc>? <meta>* <existence>? <reaches>?
+  // <attackstep> ::= <astype> ID <cia>? <ttc>? <meta>* <existence>? <reaches>?
   private AST.AttackStep _parseAttackStep() throws CompilerException {
     var firstToken = tok;
 
     var asType = _parseAttackStepType();
     var name = _parseID();
+    Optional<List<AST.CIA>> cia = Optional.empty();
+    if (tok.type == TokenType.LCURLY) {
+      cia = Optional.of(_parseCIA());
+    }
     Optional<AST.TTCExpr> ttc = Optional.empty();
     if (tok.type == TokenType.LBRACKET) {
       ttc = _parseTTC();
@@ -355,7 +359,7 @@ public class Parser {
     if (tok.type == TokenType.INHERIT || tok.type == TokenType.OVERRIDE) {
       reaches = Optional.of(_parseReaches());
     }
-    return new AST.AttackStep(firstToken, asType, name, ttc, meta, requires, reaches);
+    return new AST.AttackStep(firstToken, asType, name, cia, ttc, meta, requires, reaches);
   }
 
   // <astype> ::= ALL | ANY | HASH | EXIST | NOTEXIST
@@ -378,6 +382,43 @@ public class Parser {
         return AST.AttackStepType.NOTEXIST;
       default:
         throw exception(attackStepFirst);
+    }
+  }
+
+  // <cia> ::= LCURLY <cia-list>? RCURLY
+  private List<AST.CIA> _parseCIA() throws CompilerException {
+    _expect(TokenType.LCURLY);
+    List<AST.CIA> cia = new ArrayList<AST.CIA>();
+    if (tok.type != TokenType.RCURLY) {
+      _parseCIAList(cia);
+    }
+    _expect(TokenType.RCURLY);
+    return cia;
+  }
+
+  // <cia-list> ::= <cia-class> (COMMA <cia-class>)*
+  private void _parseCIAList(List<AST.CIA> cia) throws CompilerException {
+    cia.add(_parseCIAClass());
+    while (tok.type == TokenType.COMMA) {
+      _next();
+      cia.add(_parseCIAClass());
+    }
+  }
+
+  // <cia-class> ::= C | I | A
+  private AST.CIA _parseCIAClass() throws CompilerException {
+    switch (tok.type) {
+      case C:
+        _next();
+        return AST.CIA.C;
+      case I:
+        _next();
+        return AST.CIA.I;
+      case A:
+        _next();
+        return AST.CIA.A;
+      default:
+        throw exception(TokenType.C, TokenType.I, TokenType.A, TokenType.RCURLY);
     }
   }
 

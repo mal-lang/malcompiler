@@ -1,27 +1,27 @@
-category A {
-  asset A_1 { }
-  abstract asset A_2 { }
+category C1 {
+  asset A1 { }
+  abstract asset A2 { }
 }
 
-category A
+category C2
   assumptions: "none"
 {
-  asset A_3 extends A_1 { }
-  abstract asset A_4 extends A_2 { }
+  asset A3 extends A1 { }
+  abstract asset A4 extends A2 { }
 }
 
-category B
-  info: "this is first B"
+category C3
+  info: "this is first C3"
   info: "another info"
   rationale: "just to test"
   assumptions: "will not run through the analyzer"
 {
 }
 
-category B
+category C2
 {
 }
 
-category C
+category C3
 {
 }

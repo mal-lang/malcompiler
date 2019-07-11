@@ -18,7 +18,9 @@ package com.foreseeti.mal;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Lexer {
@@ -26,9 +28,12 @@ public class Lexer {
   private String filename;
   private byte[] input;
   private int index;
-  private int col;
   private int line;
-  private String lexeme;
+  private int col;
+  private int startLine;
+  private int startCol;
+  private List<Byte> lexeme;
+  private boolean eof;
 
   private static Map<String, TokenType> keywords;
 
@@ -45,19 +50,22 @@ public class Lexer {
     keywords.put("associations", TokenType.ASSOCIATIONS);
     keywords.put("let", TokenType.LET);
     keywords.put("E", TokenType.EXIST);
+    keywords.put("C", TokenType.C);
+    keywords.put("I", TokenType.I);
+    keywords.put("A", TokenType.A);
   }
 
-  private static Map<String, Character> escapeSequences;
+  private static Map<String, Byte> escapeSequences;
 
   static {
     escapeSequences = new HashMap<>();
-    escapeSequences.put("\\b", '\b');
-    escapeSequences.put("\\n", '\n');
-    escapeSequences.put("\\t", '\t');
-    escapeSequences.put("\\r", '\r');
-    escapeSequences.put("\\f", '\f');
-    escapeSequences.put("\\\"", '"');
-    escapeSequences.put("\\\\", '\\');
+    escapeSequences.put("\\b", (byte) '\b');
+    escapeSequences.put("\\n", (byte) '\n');
+    escapeSequences.put("\\t", (byte) '\t');
+    escapeSequences.put("\\r", (byte) '\r');
+    escapeSequences.put("\\f", (byte) '\f');
+    escapeSequences.put("\\\"", (byte) '"');
+    escapeSequences.put("\\\\", (byte) '\\');
   }
 
   public Lexer(File file) throws IOException {
@@ -80,17 +88,29 @@ public class Lexer {
     }
     filename = relativeName;
     input = Files.readAllBytes(file.toPath());
+    index = 0;
     line = 1;
     col = 1;
-    index = 0;
+    eof = input.length == 0;
+  }
+
+  private String getLexemeString() {
+    byte[] byteArray = new byte[lexeme.size()];
+    for (int i = 0; i < lexeme.size(); i++) {
+      byteArray[i] = lexeme.get(i).byteValue();
+    }
+    return new String(byteArray);
   }
 
   public Token next() throws CompilerException {
-    lexeme = "";
-    char c = consume();
+    startLine = line;
+    startCol = col;
+    lexeme = new ArrayList<>();
+    if (eof) {
+      return createToken(TokenType.EOF);
+    }
+    byte c = consume();
     switch (c) {
-      case '\0':
-        return createToken(TokenType.EOF);
       case ' ':
       case '\t':
       case '\r':
@@ -105,17 +125,17 @@ public class Lexer {
       case '}':
         return createToken(TokenType.RCURLY);
       case '+':
-        if (peek() == '>') {
+        if (peek('>')) {
           consume();
           return createToken(TokenType.INHERIT);
         } else {
           return createToken(TokenType.PLUS);
         }
       case '-':
-        if (peek() == '>') {
+        if (peek('>')) {
           consume();
           return createToken(TokenType.OVERRIDE);
-        } else if (peek(2).equals("->")) {
+        } else if (peek("->")) {
           consume(2);
           return createToken(TokenType.RARROW);
         } else {
@@ -126,7 +146,7 @@ public class Lexer {
       case '|':
         return createToken(TokenType.ANY);
       case '!':
-        if (peek() == 'E') {
+        if (peek('E')) {
           consume();
           return createToken(TokenType.NOTEXIST);
         } else {
@@ -143,10 +163,10 @@ public class Lexer {
       case ',':
         return createToken(TokenType.COMMA);
       case '<':
-        if (peek(2).equals("--")) {
+        if (peek("--")) {
           consume(2);
           return createToken(TokenType.LARROW);
-        } else if (peek() == '-') {
+        } else if (peek('-')) {
           consume();
           return createToken(TokenType.REQUIRE);
         } else {
@@ -155,33 +175,34 @@ public class Lexer {
       case '=':
         return createToken(TokenType.ASSIGN);
       case '\\':
-        if (peek() == '/') {
+        if (peek('/')) {
           consume();
           return createToken(TokenType.UNION);
         } else {
           throw exception("Expected '/'");
         }
       case '/':
-        if (peek() == '\\') {
+        if (peek('\\')) {
           consume();
           return createToken(TokenType.INTERSECT);
-        } else if (peek() == '/') {
-          while (peek() != '\n' && peek() != '\0') {
+        } else if (peek('/')) {
+          while (!eof && !peek('\n')) {
+            consume();
+          }
+          if (!eof) {
             consume();
           }
           return next();
-        } else if (peek() == '*') {
-          int startline = line;
-          int startcol = col;
+        } else if (peek('*')) {
           consume();
-          while (!peek(2).equals("*/")) {
-            consume();
-            if (peek() == '\0') {
+          while (!peek("*/")) {
+            if (eof) {
               throw exception(
                   String.format(
                       "Unterminated comment starting at %s",
-                      new Position(filename, startline, startcol)));
+                      new Position(filename, startLine, startCol)));
             }
+            consume();
           }
           consume(2);
           return next();
@@ -189,7 +210,7 @@ public class Lexer {
           return createToken(TokenType.DIVIDE);
         }
       case '.':
-        if (peek() == '.') {
+        if (peek('.')) {
           consume();
           return createToken(TokenType.RANGE);
         } else {
@@ -200,125 +221,182 @@ public class Lexer {
       case '^':
         return createToken(TokenType.POWER);
       case '"':
-        int startline = line;
-        int startcol = col;
-        while (peek() != '"') {
-          if (peek() == '\\') {
-            String escapeSequence = peek(2);
+        while (!peek('"')) {
+          if (peek('\\')) {
+            consume();
+            if (eof || peek('\n')) {
+              throw exception(
+                  String.format(
+                      "Unterminated string starting at %s",
+                      new Position(filename, startLine, startCol)));
+            }
+            if (input[index] < 32 || input[index] > 126) {
+              throw exception(String.format("Invalid escape byte 0x%02X", input[index]));
+            }
+            consume();
+            var lexemeString = getLexemeString();
+            String escapeSequence = lexemeString.substring(lexemeString.length() - 2);
+            lexeme = lexeme.subList(0, lexeme.size() - 2);
             if (!escapeSequences.containsKey(escapeSequence)) {
               throw exception(String.format("Invalid escape sequence '%s'", escapeSequence));
             }
-            lexeme += escapeSequences.get(escapeSequence);
-            index += 2;
-          } else if (peek() == '\0' || peek() == '\n') {
+            lexeme.add(escapeSequences.get(escapeSequence));
+          } else if (eof || peek('\n')) {
             throw exception(
                 String.format(
                     "Unterminated string starting at %s",
-                    new Position(filename, startline, startcol)));
+                    new Position(filename, startLine, startCol)));
           } else {
             consume();
           }
         }
-        index++;
-        return new Token(TokenType.STRING, filename, startline, startcol, lexeme.substring(1));
+        consume();
+        return createToken(TokenType.STRING);
       default:
         if (isAlpha(c)) {
-          while (isAlphaNumeric(peek())) {
+          while (isAlphaNumeric()) {
             consume();
           }
-          if (keywords.containsKey(lexeme)) {
-            return createToken(keywords.get(lexeme));
+          var lexemeString = getLexemeString();
+          if (keywords.containsKey(lexemeString)) {
+            return createToken(keywords.get(lexemeString));
           } else {
             return createToken(TokenType.ID);
           }
         } else if (isDigit(c)) {
-          while (isDigit(peek())) {
+          while (isDigit()) {
             consume();
           }
-          if (peek(2).equals("..") || peek() != '.') {
+          if (peek("..") || !peek('.')) {
             return createToken(TokenType.INT);
-          } else if (peek() == '.') {
+          } else if (peek('.')) {
             consume();
-            while (isDigit(peek())) {
+            while (isDigit()) {
               consume();
             }
             return createToken(TokenType.FLOAT);
           }
         }
-        throw exception(String.format("Unexpected token '%s'", lexeme));
+        if (c < 0) {
+          throw exception(String.format("Unexpected token 0x%02X", c));
+        } else {
+          throw exception(String.format("Unexpected token '%c'", (char) c));
+        }
     }
   }
 
-  private String consume(int n) {
-    String s = "";
-    while (n-- > 0) {
-      s += consume();
+  private void consume(int n) {
+    for (int i = 0; i < n; i++) {
+      consume();
     }
-    return s;
   }
 
-  private char consume() {
-    if (index > 0 && index - 1 < input.length) {
-      if ((char) input[index - 1] == '\n') {
-        line++;
-        col = 1;
-      } else {
-        col++;
+  private byte consume() {
+    if (eof) {
+      throw new RuntimeException("Consuming past end-of-file");
+    }
+    if (input[index] == (byte) '\n') {
+      line++;
+      col = 1;
+    } else {
+      col++;
+    }
+    var c = input[index++];
+    lexeme.add(c);
+    if (index == input.length) {
+      eof = true;
+    }
+    return c;
+  }
+
+  private boolean peek(String s) {
+    var bytes = s.getBytes();
+    if (input.length - index < bytes.length) {
+      return false;
+    }
+    for (int i = 0; i < bytes.length; i++) {
+      if (bytes[i] != input[index + i]) {
+        return false;
       }
     }
-    if (index < input.length) {
-      char c = (char) input[index++];
-      lexeme += c;
-      return c;
-    } else {
-      return '\0';
-    }
+    return true;
   }
 
-  private String peek(int n) {
-    String s = "";
-    for (int i = 0; i < n && index + i < input.length; i++) {
-      s += (char) input[index + i];
-    }
-    return s;
+  private boolean peek(char c) {
+    return peek((byte) c);
   }
 
-  private char peek() {
-    if (index < input.length) {
-      return (char) input[index];
+  private boolean peek(byte c) {
+    if (eof) {
+      return false;
     } else {
-      return '\0';
+      return c == input[index];
     }
   }
 
   private Token createToken(TokenType type) {
-    int startcol = col - (lexeme.length() - 1);
     switch (type) {
       case INT:
-        return new Token(type, filename, line, startcol, Integer.parseInt(lexeme));
+        return new Token(type, filename, startLine, startCol, Integer.parseInt(getLexemeString()));
       case FLOAT:
-        return new Token(type, filename, line, startcol, Double.parseDouble(lexeme));
+        return new Token(
+            type, filename, startLine, startCol, Double.parseDouble(getLexemeString()));
       case ID:
-        return new Token(type, filename, line, startcol, lexeme);
+        return new Token(type, filename, startLine, startCol, getLexemeString());
+      case STRING:
+        var lexemeString = getLexemeString();
+        return new Token(
+            type,
+            filename,
+            startLine,
+            startCol,
+            lexemeString.substring(1, lexemeString.length() - 1));
       default:
-        return new Token(type, filename, line, startcol);
+        return new Token(type, filename, startLine, startCol);
     }
   }
 
   private CompilerException exception(String msg) {
-    LOGGER.error(new Position(filename, line, col), msg);
+    Position pos = null;
+    if (eof) {
+      pos = new Position(filename, line, col);
+    } else {
+      pos = new Position(filename, startLine, startCol);
+    }
+    LOGGER.error(pos, msg);
     return new CompilerException("There were syntax errors");
   }
 
-  private static boolean isDigit(char c) {
+  private boolean isDigit() {
+    if (eof) {
+      return false;
+    }
+    return isDigit(input[index]);
+  }
+
+  private boolean isDigit(byte c) {
     return '0' <= c && c <= '9';
   }
 
-  private static boolean isAlpha(char c) {
+  private boolean isAlpha() {
+    if (eof) {
+      return false;
+    }
+    return isAlpha(input[index]);
+  }
+
+  private boolean isAlpha(byte c) {
     return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || c == '_';
   }
 
-  private static boolean isAlphaNumeric(char c) {
+  private boolean isAlphaNumeric() {
+    if (eof) {
+      return false;
+    }
+    return isAlphaNumeric(input[index]);
+  }
+
+  private boolean isAlphaNumeric(byte c) {
     return isDigit(c) || isAlpha(c);
   }
 }

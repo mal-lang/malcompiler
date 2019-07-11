@@ -1,8 +1,8 @@
 #id: "" // invalid id
 #version: "" // invalid version
 category cat {
-  asset A extends B {} // cyclic #1
-  asset B extends C {} // cyclic #2
-  asset C extends D {} // cyclic #3
-  asset D extends A {} // cyclic #4
+  asset _A extends _B {} // cyclic #1
+  asset _B extends _C {} // cyclic #2
+  asset _C extends _D {} // cyclic #3
+  asset _D extends _A {} // cyclic #4
 }

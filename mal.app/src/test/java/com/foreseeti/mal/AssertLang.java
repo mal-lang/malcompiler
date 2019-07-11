@@ -15,47 +15,286 @@
  */
 package com.foreseeti.mal;
 
+import static com.foreseeti.mal.AssertAST.assertGetASTClassPath;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class AssertLang {
+import java.util.Map;
+
+public final class AssertLang {
   // Prevent instantiation
   private AssertLang() {}
 
-  private static String classToString(Class c) {
-    if (c == null) {
-      return "(null)";
-    } else {
-      return String.format("\"%s\"", c.getSimpleName());
+  public static Lang assertGetLangClassPath(String filename) {
+    var ast = assertGetASTClassPath(filename);
+    try {
+      Analyzer.analyze(ast);
+    } catch (CompilerException e) {
+      fail(e.getMessage());
+    }
+    return LangConverter.convert(ast);
+  }
+
+  public static void assertLangMeta(Lang.Meta expected, Lang.Meta actual, String location) {
+    assertEquals(
+        expected.getInfo(), actual.getInfo(), String.format("Wrong info string at %s", location));
+    assertEquals(
+        expected.getAssumptions(),
+        actual.getAssumptions(),
+        String.format("Wrong assumptions string at %s", location));
+    assertEquals(
+        expected.getRationale(),
+        actual.getRationale(),
+        String.format("Wrong rationale string at %s", location));
+  }
+
+  public static void assertLangDefines(Map<String, String> expected, Map<String, String> actual) {
+    assertEquals(expected.size(), actual.size(), "Wrong number of defines");
+    for (var define : expected.entrySet()) {
+      assertTrue(
+          actual.containsKey(define.getKey()),
+          String.format("Expected define #%s", define.getKey()));
+      assertEquals(
+          define.getValue(),
+          actual.get(define.getKey()),
+          String.format("Wrong value for define #%s", define.getKey()));
     }
   }
 
-  private static String assetToString(Lang.Asset asset) {
-    if (asset == null) {
-      return "(null)";
-    } else {
-      return String.format("\"%s\"", asset.getName());
+  public static void assertLangCategory(
+      Lang lang, String name, String[] expectedAssets, Lang.Meta meta) {
+    var categories = lang.getCategories();
+    assertTrue(categories.containsKey(name), String.format("Expected category %s", name));
+    var category = categories.get(name);
+    assertSame(
+        category,
+        lang.getCategory(name),
+        String.format("Different references for category %s", name));
+    assertEquals(
+        name,
+        category.getName(),
+        String.format("Wrong category name, should be %s but was %s", name, category.getName()));
+    assertLangMeta(meta, category.getMeta(), String.format("category %s", name));
+    var actualAssets = category.getAssets();
+    assertEquals(
+        expectedAssets.length,
+        actualAssets.size(),
+        String.format("Wrong number of assets in category %s", name));
+    for (var expectedAsset : expectedAssets) {
+      assertTrue(
+          actualAssets.containsKey(expectedAsset),
+          String.format("Expected asset %s in category %s", expectedAsset, name));
+      assertSame(
+          actualAssets.get(expectedAsset),
+          category.getAsset(expectedAsset),
+          String.format("Different references for asset %s is category %s", expectedAsset, name));
     }
   }
 
-  private static String fieldToString(Lang.Field field) {
-    if (field == null) {
-      return "(null)";
+  public static Lang.Asset assertGetLangAsset(
+      Lang lang,
+      String name,
+      boolean isAbstract,
+      String category,
+      String superAsset,
+      Lang.Meta meta) {
+    var assets = lang.getAssets();
+    assertTrue(assets.containsKey(name), String.format("Expected asset %s", name));
+    var asset = assets.get(name);
+    assertSame(asset, lang.getAsset(name), String.format("Different references to asset %s", name));
+    assertEquals(name, asset.getName(), "Wrong asset name");
+    assertEquals(
+        isAbstract,
+        asset.isAbstract(),
+        String.format("Asset %s should%s be abstract", name, isAbstract ? "" : " not"));
+    assertSame(
+        lang.getCategory(category),
+        asset.getCategory(),
+        String.format(
+            "Wrong category for asset %s, should be %s but was %s",
+            name, category, asset.getCategory().getName()));
+    if (superAsset == null) {
+      assertFalse(
+          asset.hasSuperAsset(), String.format("Asset %s shouldn't extend any other asset", name));
+      assertNull(
+          asset.getSuperAsset(),
+          "Asset.hasSuperAsset() returned false but Asset.getSuperAsset() didn't return null");
     } else {
-      return String.format("\"%s\"", field.getName());
+      assertTrue(
+          asset.hasSuperAsset(),
+          String.format("Asset %s should extend asset %s", name, superAsset));
+      assertSame(
+          lang.getAsset(superAsset),
+          asset.getSuperAsset(),
+          String.format(
+              "Wrong super asset for asset %s, should be %s but was %s",
+              name, superAsset, asset.getSuperAsset().getName()));
+    }
+    assertLangMeta(meta, asset.getMeta(), String.format("asset %s", name));
+    return asset;
+  }
+
+  public static void assertLangField(Lang.Asset asset, String name, int min, int max) {
+    var fields = asset.getFields();
+    assertTrue(
+        fields.containsKey(name),
+        String.format("Expected field %s in asset %s", name, asset.getName()));
+    var field = fields.get(name);
+    assertSame(
+        field,
+        asset.getField(name),
+        String.format("Different references to field %s in asset %s", name, asset.getName()));
+    assertEquals(
+        name, field.getName(), String.format("Wrong field name in asset %s", asset.getName()));
+    assertSame(
+        asset,
+        field.getAsset(),
+        String.format(
+            "Wrong asset for field %s, should be %s but was %s",
+            name, asset.getName(), field.getAsset().getName()));
+    assertEquals(
+        min, field.getMin(), String.format("Wrong min for field %s", assetFieldToString(field)));
+    assertEquals(
+        max, field.getMax(), String.format("Wrong max for field %s", assetFieldToString(field)));
+  }
+
+  public static Lang.AttackStep assertGetLangAttackStep(
+      Lang.Asset asset,
+      String name,
+      Lang.AttackStepType type,
+      boolean inheritsReaches,
+      boolean isDefense,
+      boolean isConditionalDefense,
+      boolean hasParent,
+      Lang.Meta meta) {
+    var attackSteps = asset.getAttackSteps();
+    assertTrue(
+        attackSteps.containsKey(name),
+        String.format("Expected attack step %s in asset %s", name, asset.getName()));
+    var attackStep = attackSteps.get(name);
+    assertSame(
+        attackStep,
+        asset.getAttackStep(name),
+        String.format("Different references to attack step %s in asset %s", name, asset.getName()));
+    assertEquals(
+        name,
+        attackStep.getName(),
+        String.format("Wrong attack step name in asset %s", asset.getName()));
+    assertEquals(
+        type,
+        attackStep.getType(),
+        String.format("Wrong type for attack step %s in asset %s", name, asset.getName()));
+    assertSame(
+        asset,
+        attackStep.getAsset(),
+        String.format(
+            "Wrong asset for attack step %s, should be %s but was %s",
+            name, asset.getName(), attackStep.getAsset().getName()));
+    assertEquals(
+        inheritsReaches,
+        attackStep.inheritsReaches(),
+        String.format(
+            "Attack step %s should%s inherit reaches steps", name, inheritsReaches ? "" : " not"));
+    assertEquals(
+        isDefense,
+        attackStep.isDefense(),
+        String.format("Attack step %s should%s be a defense", name, isDefense ? "" : " not"));
+    assertEquals(
+        isConditionalDefense,
+        attackStep.isConditionalDefense(),
+        String.format(
+            "Attack step %s should%s be a conditional defense",
+            name, isConditionalDefense ? "" : " not"));
+    assertEquals(
+        hasParent,
+        attackStep.hasParent(),
+        String.format("Attack step %s should%s have a parent", name, hasParent ? "" : " not"));
+    assertLangMeta(
+        meta, attackStep.getMeta(), String.format("attack step %s.%s", asset.getName(), name));
+    return attackStep;
+  }
+
+  public static void assertLangCIA(Lang.AttackStep attackStep, Lang.CIA cia) {
+    if (cia == null) {
+      assertFalse(
+          attackStep.hasCIA(),
+          String.format("Attack step %s should not have CIA", assetAttackStepToString(attackStep)));
+      assertNull(
+          attackStep.getCIA(),
+          "AttackStep.hasCIA() returned false but AttackStep.getCIA() didn't return null");
+    } else {
+      assertTrue(
+          attackStep.hasCIA(),
+          String.format("Attack step %s should have CIA", assetAttackStepToString(attackStep)));
+      assertEquals(
+          cia.C,
+          attackStep.getCIA().C,
+          String.format(
+              "Attack step %s should%s have {C}",
+              assetAttackStepToString(attackStep), cia.C ? "" : " not"));
+      assertEquals(
+          cia.I,
+          attackStep.getCIA().I,
+          String.format(
+              "Attack step %s should%s have {I}",
+              assetAttackStepToString(attackStep), cia.I ? "" : " not"));
+      assertEquals(
+          cia.A,
+          attackStep.getCIA().A,
+          String.format(
+              "Attack step %s should%s have {A}",
+              assetAttackStepToString(attackStep), cia.A ? "" : " not"));
     }
   }
 
-  private static String attackStepToString(Lang.AttackStep attackStep) {
-    if (attackStep == null) {
-      return "(null)";
+  public static void assertLangTTC(Lang.AttackStep attackStep, Lang.TTCExpr ttc) {
+    if (ttc == null) {
+      assertFalse(
+          attackStep.hasTTC(),
+          String.format("Attack step %s should not have TTC", assetAttackStepToString(attackStep)));
+      assertNull(
+          attackStep.getTTC(),
+          "AttackStep.hasTTC() returned false but AttackStep.getTTC() didn't return null");
     } else {
-      return String.format("\"%s\"", attackStep.getName());
+      assertTrue(
+          attackStep.hasTTC(),
+          String.format("Attack step %s should have TTC", assetAttackStepToString(attackStep)));
+      assertTTCExpr(ttc, attackStep.getTTC());
     }
   }
 
-  private static void assertLangStepClass(Lang.StepExpr expected, Lang.StepExpr actual) {
+  private static void assertTTCExpr(Lang.TTCExpr expected, Lang.TTCExpr actual) {
+    assertSameClass(expected, actual);
+    if (expected instanceof Lang.TTCAdd) {
+      assertTTCExpr(((Lang.TTCAdd) expected).lhs, ((Lang.TTCAdd) actual).lhs);
+      assertTTCExpr(((Lang.TTCAdd) expected).rhs, ((Lang.TTCAdd) actual).rhs);
+    } else if (expected instanceof Lang.TTCSub) {
+      assertTTCExpr(((Lang.TTCSub) expected).lhs, ((Lang.TTCSub) actual).lhs);
+      assertTTCExpr(((Lang.TTCSub) expected).rhs, ((Lang.TTCSub) actual).rhs);
+    } else if (expected instanceof Lang.TTCMul) {
+      assertTTCExpr(((Lang.TTCMul) expected).lhs, ((Lang.TTCMul) actual).lhs);
+      assertTTCExpr(((Lang.TTCMul) expected).rhs, ((Lang.TTCMul) actual).rhs);
+    } else if (expected instanceof Lang.TTCDiv) {
+      assertTTCExpr(((Lang.TTCDiv) expected).lhs, ((Lang.TTCDiv) actual).lhs);
+      assertTTCExpr(((Lang.TTCDiv) expected).rhs, ((Lang.TTCDiv) actual).rhs);
+    } else if (expected instanceof Lang.TTCPow) {
+      assertTTCExpr(((Lang.TTCPow) expected).lhs, ((Lang.TTCPow) actual).lhs);
+      assertTTCExpr(((Lang.TTCPow) expected).rhs, ((Lang.TTCPow) actual).rhs);
+    } else if (expected instanceof Lang.TTCFunc) {
+      assertEquals(((Lang.TTCFunc) expected).name, ((Lang.TTCFunc) actual).name);
+      assertEquals(((Lang.TTCFunc) expected).params.size(), ((Lang.TTCFunc) actual).params.size());
+      for (int i = 0; i < ((Lang.TTCFunc) expected).params.size(); i++) {
+        assertEquals(
+            ((Lang.TTCFunc) expected).params.get(i), ((Lang.TTCFunc) actual).params.get(i));
+      }
+    }
+  }
+
+  private static void assertSameClass(Object expected, Object actual) {
     assertSame(
         expected.getClass(),
         actual.getClass(),
@@ -133,7 +372,7 @@ public class AssertLang {
   }
 
   public static void assertLangStepExpr(Lang.StepExpr expected, Lang.StepExpr actual) {
-    assertLangStepClass(expected, actual);
+    assertSameClass(expected, actual);
     assertLangStepSrcTarget(expected, actual);
     if (expected instanceof Lang.StepUnion) {
       assertLangStepExpr(((Lang.StepUnion) expected).lhs, ((Lang.StepUnion) actual).lhs);
@@ -158,5 +397,119 @@ public class AssertLang {
               "Invalid expected subtype \"%s\" of \"StepExpr\"",
               expected.getClass().getSimpleName()));
     }
+  }
+
+  public static void assertLangLink(
+      Lang lang,
+      String asset1,
+      String asset1Field,
+      String asset2,
+      String asset2Field,
+      int idx,
+      String name,
+      Lang.Meta meta) {
+    var link = lang.getLinks().get(idx);
+    var leftField = lang.getAsset(asset1).getField(asset1Field);
+    var rightField = lang.getAsset(asset2).getField(asset2Field);
+    assertEquals(name, link.getName(), String.format("Wrong name for association %d", idx));
+    assertLangMeta(meta, link.getMeta(), linkToString(idx, name));
+    assertSame(
+        leftField,
+        link.getLeftField(),
+        String.format(
+            "Wrong left field for %s, should be %s but was %s",
+            linkToString(idx, name),
+            assetFieldToString(leftField),
+            assetFieldToString(link.getLeftField())));
+    assertSame(
+        rightField,
+        link.getRightField(),
+        String.format(
+            "Wrong right field for %s, should be %s but was %s",
+            linkToString(idx, name),
+            assetFieldToString(rightField),
+            assetFieldToString(link.getRightField())));
+    assertSame(
+        link,
+        leftField.getLink(),
+        String.format(
+            "Wrong link for field %s, should be %s but was %s",
+            assetFieldToString(leftField), linkToString(idx, name), leftField.getLink().getName()));
+    assertSame(
+        link,
+        rightField.getLink(),
+        String.format(
+            "Wrong link for field %s, should be %s but was %s",
+            assetFieldToString(rightField),
+            linkToString(idx, name),
+            rightField.getLink().getName()));
+    assertSame(
+        rightField,
+        leftField.getTarget(),
+        String.format(
+            "Wrong target for field %s, should be %s but was %s",
+            assetFieldToString(leftField),
+            assetFieldToString(rightField),
+            assetFieldToString(leftField.getTarget())));
+    assertSame(
+        leftField,
+        rightField.getTarget(),
+        String.format(
+            "Wrong target for field %s, should be %s but was %s",
+            assetFieldToString(rightField),
+            assetFieldToString(leftField),
+            assetFieldToString(rightField.getTarget())));
+  }
+
+  private static String classToString(Class<?> c) {
+    if (c == null) {
+      return "(null)";
+    } else {
+      return String.format("\"%s\"", c.getSimpleName());
+    }
+  }
+
+  private static String assetToString(Lang.Asset asset) {
+    if (asset == null) {
+      return "(null)";
+    } else {
+      return String.format("\"%s\"", asset.getName());
+    }
+  }
+
+  private static String fieldToString(Lang.Field field) {
+    if (field == null) {
+      return "(null)";
+    } else {
+      return String.format("\"%s\"", field.getName());
+    }
+  }
+
+  private static String assetFieldToString(Lang.Field field) {
+    if (field == null) {
+      return "(null)";
+    } else {
+      return String.format("\"%s.%s\"", field.getAsset().getName(), field.getName());
+    }
+  }
+
+  private static String attackStepToString(Lang.AttackStep attackStep) {
+    if (attackStep == null) {
+      return "(null)";
+    } else {
+      return String.format("\"%s\"", attackStep.getName());
+    }
+  }
+
+  private static String assetAttackStepToString(Lang.AttackStep attackStep) {
+    if (attackStep == null) {
+      return "(null)";
+    } else {
+      return String.format("\"%s.%s\"", attackStep.getAsset().getName(), attackStep.getName());
+    }
+  }
+
+  private static String linkToString(int idx, String name) {
+    return String.format("association %d, %s", idx, name);
   }
 }

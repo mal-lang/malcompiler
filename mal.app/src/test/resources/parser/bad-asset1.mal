@@ -1,3 +1,3 @@
 category Cat {
-  abstractAsset A { }
+  abstractAsset A1 { }
 }

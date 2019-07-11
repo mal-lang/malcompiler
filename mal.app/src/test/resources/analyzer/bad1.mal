@@ -11,7 +11,7 @@ category cat
   info: "category" // duplicate info
   rationale: "rat" // duplicate rationale from different definition
   {
-  asset A
+  asset _A
     rationale: "asset"
     rationale: "asset" // duplicate rationale
     {
@@ -23,29 +23,31 @@ category cat
     & invalidate ->
       let invalidate = a.compromise, // variable as step (warning)
       (c \/ a).compromise, // invalid types
-      c[A].compromise, // invalid typeof
+      c[_A].compromise, // invalid typeof
       invalidate
   }
-  abstract asset AA extends A { // abstract but never used (warning)
+  abstract asset AA extends _A { // abstract but never used (warning)
     & compromise // types differ from parent
     | access +> // parent doesn't have attack step
       authorize, // invalid attack step
       b.authorize // invalid field
   }
   asset AA {} // duplicate asset
-  asset C {
+  asset _C {
     let var1 = var1
     let var1 = a // duplicate variable
-    | compromise ->
+    | compromise {C, C} -> // duplicate CIA
       let aaa = a,
       let aaa = c, // duplicate variable
       var1, // cyclic variable
       aaa*.compromise // invalid previous type
+    E e {C} // defense with CIA
+      <- a
   }
 }
 associations {
-  A [a] * <-- ac --> * [c] C
-  A [a] * <-- aa --> * [a] A // duplicate fields
-    assumptions: "association"
-    assumptions: "association" // duplicate association
+  _A [a] * <-- ac --> * [c] _C
+  _A [a] * <-- aa --> * [a] _A // duplicate fields
+     assumptions: "association"
+     assumptions: "association" // duplicate association
 }

@@ -43,10 +43,10 @@ limitations under the License.
       <version>4.0.0-beta-1b</version>
     </dependency>
     <dependency>
-      <scope>test</scope>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.4.2</version>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.5.0</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.squareup</groupId>
@@ -79,21 +79,73 @@ limitations under the License.
     </testResources>
     <plugins>
       <plugin>
-        <groupId>de.sormuras.junit</groupId>
-        <artifactId>junit-platform-maven-plugin</artifactId>
-        <extensions>true</extensions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <release>11</release>
+          <compilerArgument>-Xlint:all</compilerArgument>
+          <compilerArgument>-Xlint:-requires-transitive-automatic</compilerArgument>
+          <showWarnings>true</showWarnings>
+          <showDeprecation>true</showDeprecation>
+        </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkCount>0</forkCount>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>com.foreseeti.mal.Main</mainClass>
+              <arguments>
+                <argument>${project.basedir}/src/test/resources/generator/reference/vehicleLang.mal</argument>
+                <argument>--args</argument>
+                <argument>path=${project.basedir}/target/generated-test-sources,package=vehicle</argument>
+              </arguments>
+              <sourceRoot>${project.basedir}/target/generated-test-sources</sourceRoot>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
     <pluginManagement>
@@ -121,66 +173,6 @@ limitations under the License.
               </pluginExecutions>
             </lifecycleMappingMetadata>
           </configuration>
-        </plugin>
-        <plugin>
-          <groupId>de.sormuras.junit</groupId>
-          <artifactId>junit-platform-maven-plugin</artifactId>
-          <version>1.0.0-M5</version>
-          <extensions>true</extensions>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>1.6.0</version>
-          <executions>
-            <execution>
-              <phase>generate-test-sources</phase>
-              <goals>
-                <goal>java</goal>
-              </goals>
-              <configuration>
-                <mainClass>com.foreseeti.mal.Main</mainClass>
-                <arguments>
-                  <argument>${project.basedir}/src/test/resources/generator/reference/vehicleLang.mal</argument>
-                  <argument>--args</argument>
-                  <argument>path=${project.basedir}/target/generated-test-sources,package=vehicle</argument>
-                </arguments>
-                <sourceRoot>${project.basedir}/target/generated-test-sources</sourceRoot>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.1.2</version>
-          <configuration>
-            <archive>
-              <manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
-            </archive>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <version>3.1.1</version>
-          <configuration>
-            <descriptorRefs>
-              <descriptorRef>jar-with-dependencies</descriptorRef>
-            </descriptorRefs>
-            <archive>
-              <manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
-            </archive>
-          </configuration>
-          <executions>
-            <execution>
-              <id>make-assembly</id>
-              <phase>package</phase>
-              <goals>
-                <goal>single</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

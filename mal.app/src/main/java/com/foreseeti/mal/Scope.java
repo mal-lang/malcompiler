@@ -17,27 +17,23 @@ package com.foreseeti.mal;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * Scope stores maps on a stack. Each map is a 'scope' of values uniquely identified by their map
  * keys. Values from previous scopes may be retrieved with the lookup() and lookdown() methods.
  */
 public class Scope<T> {
-  public Stack<Map<String, T>> stack;
+  private Map<String, T> symbols;
+  public final Scope<T> parent;
 
   public Scope() {
-    stack = new Stack<>();
+    this.symbols = new HashMap<>();
+    this.parent = null;
   }
 
-  /** Creates a new scope (map) and puts it on the top of the stack. */
-  public void enterScope() {
-    stack.push(new HashMap<>());
-  }
-
-  /** Destroys the current scope. */
-  public void exitScope() {
-    stack.pop();
+  public Scope(Scope<T> parent) {
+    this.symbols = new HashMap<>();
+    this.parent = parent;
   }
 
   /**
@@ -48,12 +44,13 @@ public class Scope<T> {
    * @return Object associated with the first match of key, or null if not found
    */
   public T lookup(String key) {
-    for (int i = stack.size() - 1; i >= 0; i--) {
-      if (stack.get(i).containsKey(key)) {
-        return stack.get(i).get(key);
-      }
+    if (symbols.containsKey(key)) {
+      return symbols.get(key);
+    } else if (parent != null) {
+      return parent.lookup(key);
+    } else {
+      return null;
     }
-    return null;
   }
 
   /**
@@ -64,12 +61,13 @@ public class Scope<T> {
    * @return Object associated with the first match of key, or null if not found
    */
   public T lookdown(String key) {
-    for (int i = 0; i < stack.size(); i++) {
-      if (stack.get(i).containsKey(key)) {
-        return stack.get(i).get(key);
+    if (parent != null) {
+      var parentValue = parent.lookdown(key);
+      if (parentValue != null) {
+        return parentValue;
       }
     }
-    return null;
+    return symbols.get(key);
   }
 
   /**
@@ -79,8 +77,14 @@ public class Scope<T> {
    * @return Object associated with the match of key, or null if not found
    */
   public T look(String key) {
-    if (stack.peek().containsKey(key)) {
-      return stack.peek().get(key);
+    return symbols.get(key);
+  }
+
+  public Scope<T> getScopeFor(String key) {
+    if (symbols.containsKey(key)) {
+      return this;
+    } else if (parent != null) {
+      return parent.getScopeFor(key);
     } else {
       return null;
     }
@@ -93,6 +97,15 @@ public class Scope<T> {
    * @param value Value associated with the key
    */
   public void add(String key, T value) {
-    stack.peek().put(key, value);
+    symbols.put(key, value);
+  }
+
+  @Override
+  public String toString() {
+    if (parent != null) {
+      return String.format("{%s, %s}", parent.toString(), String.join(", ", symbols.keySet()));
+    } else {
+      return String.format("{%s}", String.join(", ", symbols.keySet()));
+    }
   }
 }
