@@ -455,6 +455,20 @@ public class AST {
     }
   }
 
+  public static class TTCNumExpr extends TTCExpr {
+    public final double value;
+
+    public TTCNumExpr(Position pos, double value) {
+      super(pos);
+      this.value = value;
+    }
+
+    @Override
+    public String toString() {
+      return String.format("TTCNumExpr(%s, %f)", posString(), value);
+    }
+  }
+
   public static class Requires extends Position {
     public final List<Variable> variables;
     public final List<Expr> requires;

@@ -37,7 +37,7 @@ category Hardware {
     & retrievePassword
       info: "Retrieval of password is only possible if password is unencrypted"
       -> user.impersonate
-    | bypassFirewall [ExponentialDistribution(0.05) * GammaDistribution(1.2, 1.7)]
+    | bypassFirewall [Exponential(0.05) * Gamma(1.2, 1.7)]
       -> firewall.bypassFirewall
     | stealSecret
       //Set example, only when the external and internal HD have their secrets stolen do we have stolen secrets.

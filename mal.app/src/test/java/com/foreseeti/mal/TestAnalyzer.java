@@ -88,4 +88,70 @@ public class TestAnalyzer extends MalTest {
     assertEmptyOut();
     assertEmptyErr();
   }
+
+  @Test
+  public void testDistributions() {
+    assertAnalyzeClassPathError("analyzer/distributions.mal");
+    assertEmptyOut();
+    String[] expected = {
+      "[ANALYZER ERROR] <distributions.mal:6:7> Expected exactly one parameter (probability), for Bernoulli distribution",
+      "[ANALYZER ERROR] <distributions.mal:7:7> Expected exactly one parameter (probability), for Bernoulli distribution",
+      "[ANALYZER ERROR] <distributions.mal:8:7> Expected exactly one parameter (probability), for Bernoulli distribution",
+      "[ANALYZER ERROR] <distributions.mal:9:7> 1.1 is not in valid range '0 <= probability <= 1', for Bernoulli distribution",
+      "[ANALYZER ERROR] <distributions.mal:13:7> Expected exactly two parameters (trials, probability), for Binomial distribution",
+      "[ANALYZER ERROR] <distributions.mal:14:7> Expected exactly two parameters (trials, probability), for Binomial distribution",
+      "[ANALYZER ERROR] <distributions.mal:15:7> Expected exactly two parameters (trials, probability), for Binomial distribution",
+      "[ANALYZER ERROR] <distributions.mal:16:7> Expected exactly two parameters (trials, probability), for Binomial distribution",
+      "[ANALYZER ERROR] <distributions.mal:17:7> 1.1 is not in valid range '0 <= probability <= 1', for Binomial distribution",
+      "[ANALYZER ERROR] <distributions.mal:21:7> Expected exactly one parameter (lambda), for Exponential distribution",
+      "[ANALYZER ERROR] <distributions.mal:22:7> Expected exactly one parameter (lambda), for Exponential distribution",
+      "[ANALYZER ERROR] <distributions.mal:23:7> Expected exactly one parameter (lambda), for Exponential distribution",
+      "[ANALYZER ERROR] <distributions.mal:24:7> 0.0 is not in valid range 'lambda > 0', for Exponential distribution",
+      "[ANALYZER ERROR] <distributions.mal:28:7> Expected exactly two parameters (shape, scale), for Gamma distribution",
+      "[ANALYZER ERROR] <distributions.mal:29:7> Expected exactly two parameters (shape, scale), for Gamma distribution",
+      "[ANALYZER ERROR] <distributions.mal:30:7> Expected exactly two parameters (shape, scale), for Gamma distribution",
+      "[ANALYZER ERROR] <distributions.mal:31:7> Expected exactly two parameters (shape, scale), for Gamma distribution",
+      "[ANALYZER ERROR] <distributions.mal:32:7> 0.0 is not in valid range 'shape > 0', for Gamma distribution",
+      "[ANALYZER ERROR] <distributions.mal:33:7> 0.0 is not in valid range 'scale > 0', for Gamma distribution",
+      "[ANALYZER ERROR] <distributions.mal:37:7> Expected exactly two parameters (mean, standardDeviation), for LogNormal distribution",
+      "[ANALYZER ERROR] <distributions.mal:38:7> Expected exactly two parameters (mean, standardDeviation), for LogNormal distribution",
+      "[ANALYZER ERROR] <distributions.mal:39:7> Expected exactly two parameters (mean, standardDeviation), for LogNormal distribution",
+      "[ANALYZER ERROR] <distributions.mal:40:7> Expected exactly two parameters (mean, standardDeviation), for LogNormal distribution",
+      "[ANALYZER ERROR] <distributions.mal:41:7> 0.0 is not in valid range 'standardDeviation > 0', for LogNormal distribution",
+      "[ANALYZER ERROR] <distributions.mal:45:7> Expected exactly two parameters (min, shape), for Pareto distribution",
+      "[ANALYZER ERROR] <distributions.mal:46:7> Expected exactly two parameters (min, shape), for Pareto distribution",
+      "[ANALYZER ERROR] <distributions.mal:47:7> Expected exactly two parameters (min, shape), for Pareto distribution",
+      "[ANALYZER ERROR] <distributions.mal:48:7> Expected exactly two parameters (min, shape), for Pareto distribution",
+      "[ANALYZER ERROR] <distributions.mal:49:7> 0.0 is not in valid range 'min > 0', for Pareto distribution",
+      "[ANALYZER ERROR] <distributions.mal:50:7> 0.0 is not in valid range 'shape > 0', for Pareto distribution",
+      "[ANALYZER ERROR] <distributions.mal:54:7> Expected exactly two parameters (mean, standardDeviation), for TruncatedNormal distribution",
+      "[ANALYZER ERROR] <distributions.mal:55:7> Expected exactly two parameters (mean, standardDeviation), for TruncatedNormal distribution",
+      "[ANALYZER ERROR] <distributions.mal:56:7> Expected exactly two parameters (mean, standardDeviation), for TruncatedNormal distribution",
+      "[ANALYZER ERROR] <distributions.mal:57:7> Expected exactly two parameters (mean, standardDeviation), for TruncatedNormal distribution",
+      "[ANALYZER ERROR] <distributions.mal:58:7> 0.0 is not in valid range 'standardDeviation > 0', for TruncatedNormal distribution",
+      "[ANALYZER ERROR] <distributions.mal:62:7> Expected exactly two parameters (min, max), for Uniform distribution",
+      "[ANALYZER ERROR] <distributions.mal:63:7> Expected exactly two parameters (min, max), for Uniform distribution",
+      "[ANALYZER ERROR] <distributions.mal:64:7> Expected exactly two parameters (min, max), for Uniform distribution",
+      "[ANALYZER ERROR] <distributions.mal:65:7> Expected exactly two parameters (min, max), for Uniform distribution",
+      "[ANALYZER ERROR] <distributions.mal:66:7> (1.0, 0.0) does not meet requirement 'min <= max', for Uniform distribution",
+      "[ANALYZER ERROR] <distributions.mal:70:7> Expected exactly zero parameters, for combination distributions",
+      "[ANALYZER ERROR] <distributions.mal:75:7> Expected exactly zero parameters, for combination distributions",
+      "[ANALYZER ERROR] <distributions.mal:80:7> Expected exactly zero parameters, for combination distributions",
+      "[ANALYZER ERROR] <distributions.mal:85:7> Expected exactly zero parameters, for combination distributions",
+      "[ANALYZER ERROR] <distributions.mal:90:7> Expected exactly zero parameters, for combination distributions",
+      "[ANALYZER ERROR] <distributions.mal:95:7> Expected exactly zero parameters, for combination distributions",
+      "[ANALYZER ERROR] <distributions.mal:100:7> Expected exactly zero parameters, for combination distributions",
+      "[ANALYZER ERROR] <distributions.mal:105:7> Expected exactly zero parameters, for combination distributions",
+      "[ANALYZER ERROR] <distributions.mal:109:5> Defense Distribution.enabled1 may not have advanced TTC expressions",
+      "[ANALYZER ERROR] <distributions.mal:110:17> Expected exactly zero parameters, for combination distributions",
+      "[ANALYZER ERROR] <distributions.mal:113:5> Defense Distribution.disabled1 may not have advanced TTC expressions",
+      "[ANALYZER ERROR] <distributions.mal:114:18> Expected exactly zero parameters, for combination distributions",
+      "[ANALYZER ERROR] <distributions.mal:118:5> Defense Distribution.nobern may only have 'Enabled', 'Disabled', or 'Bernoulli(p)' as TTC",
+      "[ANALYZER ERROR] <distributions.mal:119:13> Distributions 'Enabled' or 'Disabled' may not be used as TTC values in '&' and '|' attack steps",
+      "[ANALYZER ERROR] <distributions.mal:120:14> Distributions 'Enabled' or 'Disabled' may not be used as TTC values in '&' and '|' attack steps",
+      "[ANALYZER ERROR] <distributions.mal:121:18> Distribution 'BestTTC' is not supported",
+      ""
+    };
+    assertErrLines(expected);
+  }
 }

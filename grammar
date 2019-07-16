@@ -17,7 +17,7 @@
 <ttc-expr>      ::= <ttc-term> ((PLUS | MINUS) <ttc-term>)*
 <ttc-term>      ::= <ttc-fact> ((STAR | DIVIDE) <ttc-fact>)*
 <ttc-fact>      ::= <ttc-prim> (POWER <ttc-fact>)?
-<ttc-prim>      ::= ID (LPAREN (<number> (COMMA <number>)*)? RPAREN)? | LPAREN <ttc-expr> RPAREN
+<ttc-prim>      ::= ID (LPAREN (<number> (COMMA <number>)*)? RPAREN)? | LPAREN <ttc-expr> RPAREN | <number>
 <existence>     ::= REQUIRE (<variable> | <expr>) (COMMA (<variable> | <expr>))*
 <reaches>       ::= (INHERIT | OVERRIDE) (<variable> | <expr>) (COMMA (<variable> | <expr>))*
 

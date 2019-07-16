@@ -159,7 +159,7 @@ categories = {
           ),
           AttackStep(<complex.mal:40:5>, ANY, ID(<complex.mal:40:7>, "bypassFirewall"),
             cia = {},
-            ttc = [TTCMulExpr(<complex.mal:40:23>, TTCFuncExpr(<complex.mal:40:23>, ID(<complex.mal:40:23>, "ExponentialDistribution"), 0.050000), TTCFuncExpr(<complex.mal:40:55>, ID(<complex.mal:40:55>, "GammaDistribution"), 1.200000, 1.700000))],
+            ttc = [TTCMulExpr(<complex.mal:40:23>, TTCFuncExpr(<complex.mal:40:23>, ID(<complex.mal:40:23>, "Exponential"), 0.050000), TTCFuncExpr(<complex.mal:40:43>, ID(<complex.mal:40:43>, "Gamma"), 1.200000, 1.700000))],
             meta = {
             },
             NO_REQUIRES,

@@ -285,12 +285,49 @@ public final class AssertLang {
       assertTTCExpr(((Lang.TTCPow) expected).lhs, ((Lang.TTCPow) actual).lhs);
       assertTTCExpr(((Lang.TTCPow) expected).rhs, ((Lang.TTCPow) actual).rhs);
     } else if (expected instanceof Lang.TTCFunc) {
-      assertEquals(((Lang.TTCFunc) expected).name, ((Lang.TTCFunc) actual).name);
-      assertEquals(((Lang.TTCFunc) expected).params.size(), ((Lang.TTCFunc) actual).params.size());
-      for (int i = 0; i < ((Lang.TTCFunc) expected).params.size(); i++) {
-        assertEquals(
-            ((Lang.TTCFunc) expected).params.get(i), ((Lang.TTCFunc) actual).params.get(i));
-      }
+      assertDistribution(((Lang.TTCFunc) expected).dist, ((Lang.TTCFunc) actual).dist);
+    }
+  }
+
+  private static void assertDistribution(
+      Distributions.Distribution expected, Distributions.Distribution actual) {
+    assertSameClass(expected, actual);
+    if (expected instanceof Distributions.Bernoulli) {
+      assertEquals(
+          ((Distributions.Bernoulli) expected).probability,
+          ((Distributions.Bernoulli) actual).probability);
+    } else if (expected instanceof Distributions.Binomial) {
+      assertEquals(
+          ((Distributions.Binomial) expected).trials, ((Distributions.Binomial) actual).trials);
+      assertEquals(
+          ((Distributions.Binomial) expected).probability,
+          ((Distributions.Binomial) actual).probability);
+    } else if (expected instanceof Distributions.Exponential) {
+      assertEquals(
+          ((Distributions.Exponential) expected).lambda,
+          ((Distributions.Exponential) actual).lambda);
+    } else if (expected instanceof Distributions.Gamma) {
+      assertEquals(((Distributions.Gamma) expected).shape, ((Distributions.Gamma) actual).shape);
+      assertEquals(((Distributions.Gamma) expected).scale, ((Distributions.Gamma) actual).scale);
+    } else if (expected instanceof Distributions.LogNormal) {
+      assertEquals(
+          ((Distributions.LogNormal) expected).mean, ((Distributions.LogNormal) actual).mean);
+      assertEquals(
+          ((Distributions.LogNormal) expected).standardDeviation,
+          ((Distributions.LogNormal) actual).standardDeviation);
+    } else if (expected instanceof Distributions.Pareto) {
+      assertEquals(((Distributions.Pareto) expected).min, ((Distributions.Pareto) actual).min);
+      assertEquals(((Distributions.Pareto) expected).shape, ((Distributions.Pareto) actual).shape);
+    } else if (expected instanceof Distributions.TruncatedNormal) {
+      assertEquals(
+          ((Distributions.TruncatedNormal) expected).mean,
+          ((Distributions.TruncatedNormal) actual).mean);
+      assertEquals(
+          ((Distributions.TruncatedNormal) expected).standardDeviation,
+          ((Distributions.TruncatedNormal) actual).standardDeviation);
+    } else if (expected instanceof Distributions.Uniform) {
+      assertEquals(((Distributions.Uniform) expected).min, ((Distributions.Uniform) actual).min);
+      assertEquals(((Distributions.Uniform) expected).max, ((Distributions.Uniform) actual).max);
     }
   }
 

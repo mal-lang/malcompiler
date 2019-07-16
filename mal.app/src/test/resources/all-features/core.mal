@@ -20,9 +20,9 @@ category C1 {
     # a1Defense1 [Bernoulli(0.5)]
       rationale: "Reasoning for a1Defense"
       // No reaches
-    # a1Defense2 [Bernoulli(0.5)*Infinity]
+    # a1Defense2 [Disabled]
       -> a1Attack2
-    E a1Exist1 [] // No expression in brackets equals no ttc
+    E a1Exist1
       <- a1Sub
       /* No reaches */
     E a1Exist2
@@ -45,7 +45,7 @@ category C1 {
     & a1Attack2 {C, I, A}
       +> a1Super.a1Attack1
     // Extend A1.a1Defense1, override ttc, override reaches
-    # a1Defense1 [(Infinity+Bernoulli(1.0))^Zero]
+    # a1Defense1 [Enabled]
       -> a1Sub.a1Sub.a1Attack2
     // Extend A1.a1Defense2, inherit ttc, inherit reaches
     # a1Defense2

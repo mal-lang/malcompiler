@@ -79,29 +79,27 @@ public class Attacker {
     } catch (Exception e) {
     }
     switch (matcher.group(1)) {
-      case "BernoulliDistribution":
+      case "Bernoulli":
         if (defense) {
           return a < 0.5 ? 0 : Double.MAX_VALUE;
         } else {
           return a < 0.5 ? Double.MAX_VALUE : 0;
         }
-      case "BinomialDistribution":
+      case "Binomial":
         return a * b;
-      case "ExponentialDistribution":
+      case "Exponential":
         return 1 / a;
-      case "GammaDistribution":
+      case "Gamma":
         return a / b;
       case "Infinity":
         return Double.MAX_VALUE;
-      case "LogNormalDistribution":
+      case "LogNormal":
         return Math.exp(a + b / 2);
-      case "NormalDistribution":
-        return a;
-      case "ParetoDistribution":
+      case "Pareto":
         return a <= 1 ? Double.MAX_VALUE : a * b / (a - 1);
-      case "TruncatedNormalDistribution":
+      case "TruncatedNormal":
         return a;
-      case "UniformDistribution":
+      case "Uniform":
         return (a + b) / 2;
       case "Zero":
         return 0;

@@ -12,7 +12,7 @@ category System {
                 info: "If this attack step is reached then full network layer access is gained by the attacker."
                 ->	connectedNetworks.accessNetworkLayer
 
-        | engineerNetworkAccess [ExponentialDistribution(10.0)]
+        | engineerNetworkAccess [Exponential(10.0)]
                 info: "This attack step is another way to reach full network access if there is no network access service on the infotainment system, but it requires effort!"
                 ->	connectedNetworks.accessNetworkLayer
         }
@@ -38,7 +38,7 @@ category Communication {
                 -> bypassConnectorProtection,
                 _connectNoProtection
 
-        | bypassConnectorProtection [ExponentialDistribution(20.0)]
+        | bypassConnectorProtection [Exponential(20.0)]
                 info: "Remove or bypass objects blocking the OBD connector, for example ripping of protective plate or ganining access to driver cabin. Requires effort"
                 ->	physicalAccess
 

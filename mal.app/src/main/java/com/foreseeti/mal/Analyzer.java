@@ -68,9 +68,9 @@ public class Analyzer {
 
     checkSteps();
     checkCIA();
+    checkTTC();
     checkFields();
     checkReaches(); // might throw
-    // TTC distributions are implementation specific and must be checked in the generated code
   }
 
   private void checkDefines() {
@@ -258,6 +258,72 @@ public class Analyzer {
           }
         }
       }
+    }
+  }
+
+  private void checkTTC() {
+    for (AST.Asset asset : assets.values()) {
+      for (AST.AttackStep attackStep : asset.attackSteps) {
+        if (attackStep.ttc.isPresent()) {
+          AST.TTCExpr ttc = attackStep.ttc.get();
+          if (attackStep.type == AST.AttackStepType.DEFENSE) {
+            if (!(ttc instanceof AST.TTCFuncExpr)) {
+              error(
+                  attackStep,
+                  String.format(
+                      "Defense %s.%s may not have advanced TTC expressions",
+                      asset.name.id, attackStep.name.id));
+            } else {
+              AST.TTCFuncExpr func = (AST.TTCFuncExpr) ttc;
+              switch (func.name.id) {
+                case "Enabled":
+                case "Disabled":
+                case "Bernoulli":
+                  try {
+                    Distributions.validate(func.name.id, func.params);
+                  } catch (CompilerException e) {
+                    errorRegardless(func, e.getMessage());
+                  }
+                  break;
+                default:
+                  error(
+                      attackStep,
+                      String.format(
+                          "Defense %s.%s may only have 'Enabled', 'Disabled', or 'Bernoulli(p)' as TTC",
+                          asset.name.id, attackStep.name.id));
+              }
+            }
+          } else if (attackStep.type == AST.AttackStepType.ALL
+              || attackStep.type == AST.AttackStepType.ANY) {
+            checkTTCExpr(attackStep.ttc.get());
+          }
+        }
+      }
+    }
+  }
+
+  private void checkTTCExpr(AST.TTCExpr expr) {
+    if (expr instanceof AST.TTCBinaryExpr) {
+      checkTTCExpr(((AST.TTCBinaryExpr) expr).lhs);
+      checkTTCExpr(((AST.TTCBinaryExpr) expr).rhs);
+    } else if (expr instanceof AST.TTCFuncExpr) {
+      AST.TTCFuncExpr func = (AST.TTCFuncExpr) expr;
+      if (func.name.id.equals("Enabled") || func.name.id.equals("Disabled")) {
+        errorRegardless(
+            expr,
+            "Distributions 'Enabled' or 'Disabled' may not be used as TTC values in '&' and '|' attack steps");
+      } else {
+        try {
+          Distributions.validate(func.name.id, func.params);
+        } catch (CompilerException e) {
+          errorRegardless(func, e.getMessage());
+        }
+      }
+    } else if (expr instanceof AST.TTCNumExpr) {
+      // always ok
+    } else {
+      error(expr, String.format("Unexpected expression '%s'", expr.toString()));
+      System.exit(1);
     }
   }
 
@@ -751,6 +817,11 @@ public class Analyzer {
 
   private CompilerException exception() {
     return new CompilerException("There were semantic errors");
+  }
+
+  private void errorRegardless(Position pos, String msg) {
+    failed = true;
+    LOGGER.error(pos, msg);
   }
 
   private void error(String msg) {

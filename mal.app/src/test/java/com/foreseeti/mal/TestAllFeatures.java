@@ -35,9 +35,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import com.foreseeti.mal.AST.ID;
+import com.foreseeti.mal.Distributions.Infinity;
+import com.foreseeti.mal.Distributions.Zero;
 
 public class TestAllFeatures extends MalTest {
   @Test
@@ -130,19 +134,12 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.HASH, "core.mal", 23, 5),
       new Token(TokenType.ID, "core.mal", 23, 7, "a1Defense2"),
       new Token(TokenType.LBRACKET, "core.mal", 23, 18),
-      new Token(TokenType.ID, "core.mal", 23, 19, "Bernoulli"),
-      new Token(TokenType.LPAREN, "core.mal", 23, 28),
-      new Token(TokenType.FLOAT, "core.mal", 23, 29, 0.5),
-      new Token(TokenType.RPAREN, "core.mal", 23, 32),
-      new Token(TokenType.STAR, "core.mal", 23, 33),
-      new Token(TokenType.ID, "core.mal", 23, 34, "Infinity"),
-      new Token(TokenType.RBRACKET, "core.mal", 23, 42),
+      new Token(TokenType.ID, "core.mal", 23, 19, "Disabled"),
+      new Token(TokenType.RBRACKET, "core.mal", 23, 27),
       new Token(TokenType.OVERRIDE, "core.mal", 24, 7),
       new Token(TokenType.ID, "core.mal", 24, 10, "a1Attack2"),
       new Token(TokenType.EXIST, "core.mal", 25, 5),
       new Token(TokenType.ID, "core.mal", 25, 7, "a1Exist1"),
-      new Token(TokenType.LBRACKET, "core.mal", 25, 16),
-      new Token(TokenType.RBRACKET, "core.mal", 25, 17),
       new Token(TokenType.REQUIRE, "core.mal", 26, 7),
       new Token(TokenType.ID, "core.mal", 26, 10, "a1Sub"),
       new Token(TokenType.EXIST, "core.mal", 28, 5),
@@ -226,17 +223,8 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.HASH, "core.mal", 48, 5),
       new Token(TokenType.ID, "core.mal", 48, 7, "a1Defense1"),
       new Token(TokenType.LBRACKET, "core.mal", 48, 18),
-      new Token(TokenType.LPAREN, "core.mal", 48, 19),
-      new Token(TokenType.ID, "core.mal", 48, 20, "Infinity"),
-      new Token(TokenType.PLUS, "core.mal", 48, 28),
-      new Token(TokenType.ID, "core.mal", 48, 29, "Bernoulli"),
-      new Token(TokenType.LPAREN, "core.mal", 48, 38),
-      new Token(TokenType.FLOAT, "core.mal", 48, 39, 1.0),
-      new Token(TokenType.RPAREN, "core.mal", 48, 42),
-      new Token(TokenType.RPAREN, "core.mal", 48, 43),
-      new Token(TokenType.POWER, "core.mal", 48, 44),
-      new Token(TokenType.ID, "core.mal", 48, 45, "Zero"),
-      new Token(TokenType.RBRACKET, "core.mal", 48, 49),
+      new Token(TokenType.ID, "core.mal", 48, 19, "Enabled"),
+      new Token(TokenType.RBRACKET, "core.mal", 48, 26),
       new Token(TokenType.OVERRIDE, "core.mal", 49, 7),
       new Token(TokenType.ID, "core.mal", 49, 10, "a1Sub"),
       new Token(TokenType.DOT, "core.mal", 49, 15),
@@ -696,7 +684,11 @@ public class TestAllFeatures extends MalTest {
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position("core.mal", 17, 7), "a1Attack2"),
                             Optional.of(Arrays.asList(AST.CIA.I, AST.CIA.C)),
-                            Optional.empty(),
+                            Optional.of(
+                                new AST.TTCFuncExpr(
+                                    new Position("core.mal", 17, 25),
+                                    new AST.ID(new Position("core.mal", 17, 25), "Zero"),
+                                    new ArrayList<>())),
                             Arrays.asList(
                                 new AST.Meta(
                                     new Position("core.mal", 18, 7),
@@ -750,16 +742,10 @@ public class TestAllFeatures extends MalTest {
                             new AST.ID(new Position("core.mal", 23, 7), "a1Defense2"),
                             Optional.empty(),
                             Optional.of(
-                                new AST.TTCMulExpr(
+                                new AST.TTCFuncExpr(
                                     new Position("core.mal", 23, 19),
-                                    new AST.TTCFuncExpr(
-                                        new Position("core.mal", 23, 19),
-                                        new AST.ID(new Position("core.mal", 23, 19), "Bernoulli"),
-                                        Arrays.asList(Double.valueOf(0.5))),
-                                    new AST.TTCFuncExpr(
-                                        new Position("core.mal", 23, 34),
-                                        new AST.ID(new Position("core.mal", 23, 34), "Infinity"),
-                                        new ArrayList<Double>()))),
+                                    new AST.ID(new Position("core.mal", 23, 19), "Disabled"),
+                                    List.of())),
                             new ArrayList<AST.Meta>(),
                             Optional.empty(),
                             Optional.of(
@@ -998,24 +984,10 @@ public class TestAllFeatures extends MalTest {
                             new AST.ID(new Position("core.mal", 48, 7), "a1Defense1"),
                             Optional.empty(),
                             Optional.of(
-                                new AST.TTCPowExpr(
+                                new AST.TTCFuncExpr(
                                     new Position("core.mal", 48, 19),
-                                    new AST.TTCAddExpr(
-                                        new Position("core.mal", 48, 20),
-                                        new AST.TTCFuncExpr(
-                                            new Position("core.mal", 48, 20),
-                                            new AST.ID(
-                                                new Position("core.mal", 48, 20), "Infinity"),
-                                            new ArrayList<Double>()),
-                                        new AST.TTCFuncExpr(
-                                            new Position("core.mal", 48, 29),
-                                            new AST.ID(
-                                                new Position("core.mal", 48, 29), "Bernoulli"),
-                                            Arrays.asList(Double.valueOf(1.0)))),
-                                    new AST.TTCFuncExpr(
-                                        new Position("core.mal", 48, 45),
-                                        new AST.ID(new Position("core.mal", 48, 45), "Zero"),
-                                        new ArrayList<Double>()))),
+                                    new AST.ID(new Position("core.mal", 48, 19), "Enabled"),
+                                    List.of())),
                             new ArrayList<AST.Meta>(),
                             Optional.empty(),
                             Optional.of(
@@ -1795,7 +1767,7 @@ public class TestAllFeatures extends MalTest {
             false,
             new Lang.Meta().setInfo("This is a1Attack2"));
     assertLangCIA(attackStep, new Lang.CIA(true, true, false));
-    assertLangTTC(attackStep, null);
+    assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Zero()));
     requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
     parentSteps = attackStep.getParentSteps();
@@ -1877,7 +1849,7 @@ public class TestAllFeatures extends MalTest {
             false,
             new Lang.Meta().setRationale("Reasoning for a1Defense"));
     assertLangCIA(attackStep, null);
-    assertLangTTC(attackStep, new Lang.TTCFunc("Bernoulli", Arrays.asList(Double.valueOf(0.5))));
+    assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Bernoulli(0.5)));
     requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
     parentSteps = attackStep.getParentSteps();
@@ -1897,11 +1869,7 @@ public class TestAllFeatures extends MalTest {
             false,
             new Lang.Meta());
     assertLangCIA(attackStep, null);
-    assertLangTTC(
-        attackStep,
-        new Lang.TTCMul(
-            new Lang.TTCFunc("Bernoulli", Arrays.asList(Double.valueOf(0.5))),
-            new Lang.TTCFunc("Infinity", new ArrayList<Double>())));
+    assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Disabled()));
     requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
     parentSteps = attackStep.getParentSteps();
@@ -2286,13 +2254,7 @@ public class TestAllFeatures extends MalTest {
             true,
             new Lang.Meta());
     assertLangCIA(attackStep, null);
-    assertLangTTC(
-        attackStep,
-        new Lang.TTCPow(
-            new Lang.TTCAdd(
-                new Lang.TTCFunc("Infinity", new ArrayList<Double>()),
-                new Lang.TTCFunc("Bernoulli", Arrays.asList(Double.valueOf(1.0)))),
-            new Lang.TTCFunc("Zero", new ArrayList<Double>())));
+    assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Enabled()));
     requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
     parentSteps = attackStep.getParentSteps();
@@ -2764,7 +2726,7 @@ public class TestAllFeatures extends MalTest {
         assertGetLangAttackStep(
             asset, "destroy", Lang.AttackStepType.ALL, false, false, false, false, new Lang.Meta());
     assertLangCIA(attackStep, new Lang.CIA(true, true, true));
-    assertLangTTC(attackStep, new Lang.TTCFunc("Exponential", Arrays.asList(Double.valueOf(5))));
+    assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Exponential(5)));
     var requires = attackStep.getRequires();
     var reaches = attackStep.getReaches();
     var parentSteps = attackStep.getParentSteps();

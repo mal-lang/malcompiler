@@ -430,6 +430,9 @@ public class Parser {
     Optional<AST.TTCExpr> expr = Optional.empty();
     if (tok.type != TokenType.RBRACKET) {
       expr = Optional.of(_parseTTCExpr());
+    } else {
+      // empty brackets [] = 0
+      expr = Optional.of(new AST.TTCFuncExpr(tok, new AST.ID(tok, "Zero"), new ArrayList<>()));
     }
     _expect(TokenType.RBRACKET);
     return expr;
@@ -484,11 +487,10 @@ public class Parser {
   }
 
   // <ttc-prim> ::= ID (LPAREN (<number> (COMMA <number>)*)? RPAREN)?
-  //              | LPAREN <ttc-expr> RPAREN
+  //              | LPAREN <ttc-expr> RPAREN | <number>
   private AST.TTCExpr _parseTTCPrim() throws CompilerException {
+    var firstToken = tok;
     if (tok.type == TokenType.ID) {
-      var firstToken = tok;
-
       var function = _parseID();
       var params = new ArrayList<Double>();
       if (tok.type == TokenType.LPAREN) {
@@ -508,8 +510,11 @@ public class Parser {
       var e = _parseTTCExpr();
       _expect(TokenType.RPAREN);
       return e;
+    } else if (tok.type == TokenType.INT || tok.type == TokenType.FLOAT) {
+      double num = _parseNumber();
+      return new AST.TTCNumExpr(firstToken, num);
     } else {
-      throw exception(TokenType.ID, TokenType.LPAREN);
+      throw exception(TokenType.ID, TokenType.LPAREN, TokenType.INT, TokenType.FLOAT);
     }
   }
 

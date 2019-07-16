@@ -152,15 +152,7 @@ public class ReferenceGenerator {
         if (attackStep.hasTTC()) {
           TTCExpr expr = attackStep.getTTC();
           if (expr instanceof TTCFunc) {
-            TTCFunc func = (TTCFunc) expr;
-            StringBuilder params = new StringBuilder();
-            for (int i = 0; i < func.params.size(); i++) {
-              params.append(func.params.get(i));
-              if (i != func.params.size() - 1) {
-                params.append(", ");
-              }
-            }
-            dist = String.format("%s(%s)", func.name, params.toString());
+            dist = ((TTCFunc) expr).dist.toString();
           } else {
             fw.close();
             LOGGER.error(
@@ -312,12 +304,44 @@ public class ReferenceGenerator {
     builder.addMethod(constructor.build());
 
     if (!params.isEmpty()) {
-      // Constructor for (name) only but with defenses to set
+      // Constructor for (name), we copy the original constructor but for defenses we set depending
+      // on its ttc
       constructor = MethodSpec.constructorBuilder();
       constructor.addModifiers(Modifier.PUBLIC);
       constructor.addParameter(String.class, "name");
-      String thisCall = String.format("name%s", ", false".repeat(params.size()));
-      constructor.addStatement("this($L)", thisCall);
+      constructor.addStatement("super(name)");
+      // ### COPIED from original
+      constructor.addStatement("assetClassName = $S", asset.getName());
+      for (AttackStep attackStep : asset.getAttackSteps().values()) {
+        ClassName type = ClassName.get(pkg, asset.getName(), ucFirst(attackStep.getName()));
+        if (attackStep.isDefense() || attackStep.isConditionalDefense()) {
+          // Is some sort of defense, remove from all defenses
+          constructor.beginControlFlow("if ($N != null)", attackStep.getName());
+          constructor.addStatement(
+              "$T.allAttackSteps.remove($N.disable)", as, attackStep.getName());
+          constructor.endControlFlow();
+          constructor.addStatement("$T.allDefenses.remove($N)", defense, attackStep.getName());
+        } else {
+          // Is normal attack step, remove from all attack steps
+          constructor.addStatement("$T.allAttackSteps.remove($N)", as, attackStep.getName());
+        }
+        if (attackStep.isDefense()) {
+          if (!attackStep.hasTTC()) {
+            constructor.addStatement("$N = new $T(name, false)", attackStep.getName(), type);
+          } else {
+            TTCFunc func = (TTCFunc) attackStep.getTTC();
+            if (func.dist.getMean() < 0.5) {
+              constructor.addStatement("$N = new $T(name, false)", attackStep.getName(), type);
+            } else {
+              constructor.addStatement("$N = new $T(name, true)", attackStep.getName(), type);
+            }
+          }
+        } else {
+          // Create new instance of attack step
+          constructor.addStatement("$N = new $T(name)", attackStep.getName(), type);
+        }
+      }
+      // ### COPIED from original
       builder.addMethod(constructor.build());
 
       // Constructor for only defense booleans (isDef1, isDef2...)
@@ -332,8 +356,7 @@ public class ReferenceGenerator {
       // Empty constructor ()
       constructor = MethodSpec.constructorBuilder();
       constructor.addModifiers(Modifier.PUBLIC);
-      thisCall = String.format("false, ".repeat(params.size()));
-      constructor.addStatement("this($L)", thisCall.substring(0, thisCall.length() - 2));
+      constructor.addStatement("this($S)", "Anonymous");
       builder.addMethod(constructor.build());
     } else {
       // No extra params, empty constructor ()
@@ -456,7 +479,16 @@ public class ReferenceGenerator {
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder();
     constructor.addModifiers(Modifier.PUBLIC);
     constructor.addParameter(String.class, "name");
-    constructor.addStatement("this(name, false)");
+    if (!attackStep.hasTTC()) {
+      constructor.addStatement("this(name, false)");
+    } else {
+      TTCFunc func = (TTCFunc) attackStep.getTTC();
+      if (func.dist.getMean() < 0.5) {
+        constructor.addStatement("this(name, false)");
+      } else {
+        constructor.addStatement("this(name, true)");
+      }
+    }
     builder.addMethod(constructor.build());
 
     // Defense constructor with both name and if it is enabled (name, isEnabled)

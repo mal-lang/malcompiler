@@ -1,0 +1,123 @@
+#id: "distributions"
+#version: "0.0.0"
+category Distributions {
+  asset Distribution {
+    | bernoulli [
+      Bernoulli +
+      Bernoulli() +
+      Bernoulli(0,0) +
+      Bernoulli(1.1) +
+      Bernoulli(1) //ok
+    ]
+    | binomial [
+      Binomial +
+      Binomial() +
+      Binomial(0) +
+      Binomial(0,0,0) +
+      Binomial(1,1.1) +
+      Binomial(1,1) //ok
+    ]
+    | exponential [
+      Exponential +
+      Exponential() +
+      Exponential(0,0) +
+      Exponential(0) +
+      Exponential(1) //ok
+    ]
+    | gamma [
+      Gamma +
+      Gamma() +
+      Gamma(0) +
+      Gamma(0,0,0) +
+      Gamma(0,0) +
+      Gamma(1,0) +
+      Gamma(1,1) //ok
+    ]
+    | lognormal [
+      LogNormal +
+      LogNormal() +
+      LogNormal(0) +
+      LogNormal(0,0,0) +
+      LogNormal(0,0) +
+      LogNormal(0,1) //ok
+    ]
+    | pareto [
+      Pareto +
+      Pareto() +
+      Pareto(0) +
+      Pareto(0,0,0) +
+      Pareto(0,0) +
+      Pareto(1,0) +
+      Pareto(1,1) //ok
+    ]
+    | truncatednormal [
+      TruncatedNormal +
+      TruncatedNormal() +
+      TruncatedNormal(0) +
+      TruncatedNormal(0,0,0) +
+      TruncatedNormal(0,0) +
+      TruncatedNormal(0,1) //ok
+    ]
+    | uniform [
+      Uniform +
+      Uniform() +
+      Uniform(0) +
+      Uniform(0,0,0) +
+      Uniform(1,0) +
+      Uniform(0,0) //ok
+    ]
+    | easyandcertain [
+      EasyAndCertain(0) +
+      EasyAndCertain() + //ok
+      EasyAndCertain //ok
+    ]
+    | easybutuncertain [
+      EasyButUncertain(0) +
+      EasyButUncertain() + //ok
+      EasyButUncertain //ok
+    ]
+    | hardbutcertain [
+      HardButCertain(0) +
+      HardButCertain() + //ok
+      HardButCertain //ok
+    ]
+    | hardanduncertain [
+      HardAndUncertain(0) +
+      HardAndUncertain() + //ok
+      HardAndUncertain //ok
+    ]
+    | veryhardbutcertain [
+      VeryHardButCertain(0) +
+      VeryHardButCertain() + //ok
+      VeryHardButCertain //ok
+    ]
+    | veryhardanduncertain [
+      VeryHardAndUncertain(0) +
+      VeryHardAndUncertain() + //ok
+      VeryHardAndUncertain //ok
+    ]
+    | zero [
+      Zero(0) +
+      Zero() + //ok
+      Zero //ok
+    ]
+    | infinity [
+      Infinity(0) +
+      Infinity() + //ok
+      Infinity //ok
+    ]
+    # enabled1 [Enabled + Disabled]
+    # enabled2 [Enabled(0)]
+    # enabled3 [Enabled()] //ok
+    # enabled4 [Enabled] //ok
+    # disabled1 [Enabled + Disabled]
+    # disabled2 [Disabled(0)]
+    # disabled3 [Disabled()] //ok
+    # disabled4 [Disabled] //ok
+    # bern [Bernoulli(0.5)] //ok
+    # nobern [Exponential(0.5)]
+    & enab [Enabled()]
+    & disab [Disabled()]
+    | undefined [BestTTC(1.2)]
+  }
+}

@@ -99,18 +99,18 @@ identifier, <complex.mal:39:15>, impersonate
 '|', <complex.mal:40:5>
 identifier, <complex.mal:40:7>, bypassFirewall
 '[', <complex.mal:40:22>
-identifier, <complex.mal:40:23>, ExponentialDistribution
-'(', <complex.mal:40:46>
-floating point literal, <complex.mal:40:47>, 0.05
-')', <complex.mal:40:51>
-'*', <complex.mal:40:53>
-identifier, <complex.mal:40:55>, GammaDistribution
-'(', <complex.mal:40:72>
-floating point literal, <complex.mal:40:73>, 1.2
-',', <complex.mal:40:76>
-floating point literal, <complex.mal:40:78>, 1.7
-')', <complex.mal:40:81>
-']', <complex.mal:40:82>
+identifier, <complex.mal:40:23>, Exponential
+'(', <complex.mal:40:34>
+floating point literal, <complex.mal:40:35>, 0.05
+')', <complex.mal:40:39>
+'*', <complex.mal:40:41>
+identifier, <complex.mal:40:43>, Gamma
+'(', <complex.mal:40:48>
+floating point literal, <complex.mal:40:49>, 1.2
+',', <complex.mal:40:52>
+floating point literal, <complex.mal:40:54>, 1.7
+')', <complex.mal:40:57>
+']', <complex.mal:40:58>
 '->', <complex.mal:41:7>
 identifier, <complex.mal:41:10>, firewall
 '.', <complex.mal:41:18>

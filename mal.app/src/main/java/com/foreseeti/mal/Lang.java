@@ -15,6 +15,7 @@
  */
 package com.foreseeti.mal;
 
+import com.foreseeti.mal.Distributions.Distribution;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -489,13 +490,19 @@ public class Lang {
     }
   }
 
-  public static class TTCFunc extends TTCExpr {
-    public final String name;
-    public final List<Double> params;
+  public static class TTCNum extends TTCExpr {
+    public final double value;
 
-    public TTCFunc(String name, List<Double> params) {
-      this.name = name;
-      this.params = params;
+    public TTCNum(double value) {
+      this.value = value;
+    }
+  }
+
+  public static class TTCFunc extends TTCExpr {
+    public final Distributions.Distribution dist;
+
+    public TTCFunc(Distribution dist) {
+      this.dist = dist;
     }
   }
 

@@ -292,9 +292,13 @@ public class LangConverter {
     } else if (astTTC instanceof AST.TTCPowExpr) {
       var astPow = (AST.TTCPowExpr) astTTC;
       return new Lang.TTCPow(_convertTTC(astPow.lhs), _convertTTC(astPow.rhs));
+    } else if (astTTC instanceof AST.TTCNumExpr) {
+      var astNum = (AST.TTCNumExpr) astTTC;
+      return new Lang.TTCNum(astNum.value);
     } else if (astTTC instanceof AST.TTCFuncExpr) {
       var astFunc = (AST.TTCFuncExpr) astTTC;
-      return new Lang.TTCFunc(astFunc.name.id, astFunc.params);
+      var dist = Distributions.getDistribution(astFunc.name.id, astFunc.params);
+      return new Lang.TTCFunc(dist);
     }
     throw new RuntimeException("_convertTTC: Invalid AST.TTCExpr subtype");
   }

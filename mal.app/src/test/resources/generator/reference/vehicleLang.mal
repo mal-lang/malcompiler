@@ -163,7 +163,7 @@ category System {
                     firmware.maliciousFirmwareModification,
                     uploadFirmware
 
-        & attemptChangeOperationMode [ExponentialDistribution(10.0)]
+        & attemptChangeOperationMode [Exponential(10.0)]
                 info: "Put the ECU into diagnostics (if vehicle is moving slowly or is stopped) or even update mode (bootmode) but after some effort. This stops ECU from communicating on its bus -> offline"
                 -> 	offline,
                     bypassMessageConfliction,
@@ -268,7 +268,7 @@ category System {
                 ->  bypassSecureBoot,
                     crackSecureBoot
 
-        & crackFirmwareValidation [ExponentialDistribution(20.0)]
+        & crackFirmwareValidation [Exponential(20.0)]
                 info: "Crack firmware validation if it is enabled."
                 ->  hardware.maliciousFirmwareUpload
 
@@ -286,7 +286,7 @@ category System {
                 ->  bypassFirmwareValidation,
                     crackFirmwareValidation
 
-        | crackSecureBoot [ExponentialDistribution(50.0)]
+        | crackSecureBoot [Exponential(50.0)]
                 info: "Crack Secure Boot if it is enabled is hard"
                 ->  hardware.maliciousFirmwareUpload
 
@@ -481,13 +481,13 @@ category Networking {
                 ->	busOffAttack,
                     exploitArbitration
 
-        | exploitArbitration [ExponentialDistribution(10.0)]
+        | exploitArbitration [Exponential(10.0)]
                 info: "Exploiting the arbitration mechanism for message prioritization in CAN bus can lead to invalidation of legitimate messages/DoS and allow message tampering/injection."
                 rationale: "Charlie Miller and Chris Valasek, 'Jeep Hack' & Pal-Stefan Murvay and Bogdan Groza, Security shortcomings and countermeasures for the SAE J1939 commercial vehicle bus protocol (2017)"
                 ->	dataflows.maliciousTransmit, // This is different from the messageInjection attack because, if successful, allows direct malicious respond and request.
                     denialOfService
 
-        & busOffAttack [ExponentialDistribution(1.0)]
+        & busOffAttack [Exponential(1.0)]
                 info: "Exploits the error-handling scheme of in-vehicle networks to disconnect good/uncompromised ECUs or cause DoS on the entire network. This is an easy to mount attack. This is also applicable on CAN-FD."
                 rationale: "Kyong-Tak Cho and Kang G. Shin, Error Handling of In-vehicle Networks Makes Them Vulnerable (2016)"
                 ->	networkECUs.offline,
@@ -561,17 +561,17 @@ category Networking {
                     exploitBusGuardian,
                     sleepFrameAttack
 
-        | commonTimeBaseAttack [GammaDistribution(2.0,5.0)]
+        | commonTimeBaseAttack [Gamma(2.0,5.0)]
                 info: "Send more than needed (> n/3 where n=# of nodes) SYNC messages within one communication cycle to make the whole network inoperable."
                 rationale: "Marko Wolf, Security Engineering for Vehicular IT Systems, Vieweg+Teubner (2009)"
                 ->	denialOfService
 
-        | exploitBusGuardian [ExponentialDistribution(15.0)]
+        | exploitBusGuardian [Exponential(15.0)]
                 info: "Utilize Bus Guardian for sending well-directed faked error messages to deactivate controllers. BusGuardian is hardened so much effort is needed."
                 rationale: "Marko Wolf, Security Engineering for Vehicular IT Systems, Vieweg+Teubner (2009) & Philipp Mundhenk, Sebastian Steinhorst and Suhaib A. Fahmy, Security Analysis of Automotive Architectures using Probabilistic Model Checking (2015)"
                 ->	networkECUs.offline
 
-        & sleepFrameAttack [ExponentialDistribution(10.0)]
+        & sleepFrameAttack [Exponential(10.0)]
                 info: "Send well-directed forged sleep frames to deactivate power-saving capable FlexRay controller."
                 rationale: "Marko Wolf, Security Engineering for Vehicular IT Systems, Vieweg+Teubner (2009)"
                 ->	networkECUs.offline
@@ -590,7 +590,7 @@ category Networking {
                 ->	injectHeaderOrTimedResponse,
                     injectBogusSyncBytes
 
-        | injectBogusSyncBytes [ExponentialDistribution(10.0)]
+        | injectBogusSyncBytes [Exponential(10.0)]
                 info: "Sending frames with bogus synchronization bytes within the SYNCH field makes the local LIN network inoperative or causes at least serious malfunctions"
                 rationale: "Marko Wolf, Security Engineering for Vehicular IT Systems, Vieweg+Teubner (2009)"
                 -> denialOfService
@@ -601,7 +601,7 @@ category Networking {
                 rationale: "Junko Takahashi et al., Automotive Attacks and Countermeasures on LIN-Bus (2017)"
                 ->	accessNetworkLayer
 
-        & injectHeaderOrTimedResponse [ExponentialDistribution(10.0)]
+        & injectHeaderOrTimedResponse [Exponential(10.0)]
                 info: "This is a specific attack that can happen on LIN bus exploiting the error handling mechanism, but it is not so easy."
                 rationale: "Junko Takahashi et al., Automotive Attacks and Countermeasures on LIN-Bus (2017)"
                 ->	dataflows.maliciousTransmit // This is different from the messageInjection attack because, if successful, allows direct malicious respond and request.
@@ -729,7 +729,7 @@ category Communication {
                 ->	clients.connect//,
                     //executingClients.access
 
-        | maliciousRespond [ExponentialDistribution(6.14)]
+        | maliciousRespond [Exponential(6.14)]
                 info: "Confliction protection mechanism does not prevent malicious responds, but it typically takes time for the attacker to bypass it."
                 -> respond
     }
@@ -756,11 +756,11 @@ category Communication {
                 info: "Perform a malicious transmission when IDPS is disabled on GatewayECU. However even when IDPS is off effort is needed to bypass message confliction mechanism."
                 ->	maliciousTransmitBypassConflitionProtection
 
-        | maliciousTransmitBypassConflitionProtection [ExponentialDistribution(3.14)]
+        | maliciousTransmitBypassConflitionProtection [Exponential(3.14)]
                 info: "Confliction protection mechanism does not prevent malicious transmissions, but it typically takes time for the attacker to bypass it."
                 -> transmit
 
-        | maliciousTransmitBypassIDPS [ExponentialDistribution(6.13)]
+        | maliciousTransmitBypassIDPS [Exponential(6.13)]
                 info: "IDPS's does not prevent all malicious transmissions, and it typically takes time for the attacker to bypass it."
                 rationale: "The time to bypass a tuned and updated IDPS is studied in 'T. Sommestad, H. Holm, M. Ekstedt, Estimates of success rates of remote arbitrary code execution attacks, Information Management & Computer Security (2012)' and 'H.Holm, T.Sommestad, U.Franke, M.Ekstedt, Success rate of remote code execution attacks – expert assessments and observations, Journal of Universal Computer Science 18 (6) (2012)'"
                 ->	transmit
@@ -779,7 +779,7 @@ category Security {
 
     asset Vulnerability 
     {
-        | exploit [ExponentialDistribution(10.0)]
+        | exploit [Exponential(10.0)]
                 info: "An attacker can exploit a known vulnerability."
                   -> privileges.compromise // Compromise account after exploiting vulnerability
     }

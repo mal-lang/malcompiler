@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Arrays;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import com.foreseeti.mal.Lang.TTCFunc;
 
 public class TestLangConverter extends MalTest {
   @Test
@@ -504,12 +505,13 @@ public class TestLangConverter extends MalTest {
             false,
             new Lang.Meta());
     assertLangCIA(attackStep, null);
+    // ExponentialDistribution(0.05) * GammaDistribution(1.2, 1.7)
     assertLangTTC(
         attackStep,
         new Lang.TTCMul(
-            new Lang.TTCFunc("ExponentialDistribution", Arrays.asList(Double.valueOf(0.05))),
-            new Lang.TTCFunc(
-                "GammaDistribution", Arrays.asList(Double.valueOf(1.2), Double.valueOf(1.7)))));
+            new Lang.TTCFunc(new Distributions.Exponential(0.05)),
+            new Lang.TTCFunc(new Distributions.Gamma(1.2, 1.7))));
+
     requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
     parentSteps = attackStep.getParentSteps();

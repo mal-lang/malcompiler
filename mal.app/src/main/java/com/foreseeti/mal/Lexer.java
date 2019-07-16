@@ -17,6 +17,7 @@ package com.foreseeti.mal;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,7 +102,7 @@ public class Lexer {
     for (int i = 0; i < lexeme.size(); i++) {
       byteArray[i] = lexeme.get(i).byteValue();
     }
-    return new String(byteArray);
+    return new String(byteArray, StandardCharsets.UTF_8);
   }
 
   public Token next() throws CompilerException {
