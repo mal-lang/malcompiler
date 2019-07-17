@@ -22,7 +22,7 @@
 <reaches>       ::= (INHERIT | OVERRIDE) (<variable> | <expr>) (COMMA (<variable> | <expr>))*
 
 <variable>      ::= LET ID ASSIGN <expr>
-<expr>          ::= <step> ((UNION | INTERSECT) <step>)*
+<expr>          ::= <step> ((UNION | INTERSECT | MINUS) <step>)*
 <step>          ::= <transitive> (DOT <transitive>)*
 <transitive>    ::= <subtype> STAR?
 <subtype>       ::= <prim> <type>?

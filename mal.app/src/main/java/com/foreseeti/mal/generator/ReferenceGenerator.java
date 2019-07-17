@@ -24,6 +24,7 @@ import com.foreseeti.mal.Lang.Field;
 import com.foreseeti.mal.Lang.StepAttackStep;
 import com.foreseeti.mal.Lang.StepBinOp;
 import com.foreseeti.mal.Lang.StepCollect;
+import com.foreseeti.mal.Lang.StepDifference;
 import com.foreseeti.mal.Lang.StepExpr;
 import com.foreseeti.mal.Lang.StepField;
 import com.foreseeti.mal.Lang.StepIntersection;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.lang.model.element.Modifier;
 
@@ -57,6 +59,7 @@ public class ReferenceGenerator {
   private final MalLogger LOGGER;
   private final File output;
   private final Lang lang;
+  private final boolean core;
 
   public static void generate(Lang lang, Map<String, String> args)
       throws CompilerException, IOException {
@@ -70,6 +73,7 @@ public class ReferenceGenerator {
 
   private ReferenceGenerator(Lang lang, Map<String, String> args, boolean verbose, boolean debug)
       throws CompilerException {
+    Locale.setDefault(Locale.ROOT);
     LOGGER = new MalLogger("GENERATOR", verbose, debug);
     this.lang = lang;
     if (!args.containsKey("path") || args.get("path").isBlank()) {
@@ -94,6 +98,21 @@ public class ReferenceGenerator {
     } else {
       this.pkg = args.get("package");
     }
+    if (!args.containsKey("core")) {
+      this.core = true;
+    } else {
+      switch (args.get("core").toLowerCase().trim()) {
+        case "true":
+          this.core = true;
+          break;
+        case "false":
+          this.core = false;
+          break;
+        default:
+          LOGGER.error("Optional argument 'core' must be either 'true' or 'false'");
+          throw new CompilerException("There were generator errors");
+      }
+    }
   }
 
   private void _generate() throws IOException, CompilerException {
@@ -101,7 +120,9 @@ public class ReferenceGenerator {
       JavaFile javaFile = JavaFile.builder(pkg, createAsset(asset)).build();
       javaFile.writeTo(this.output);
     }
-    _generateCore();
+    if (core) {
+      _generateCore();
+    }
     _generateProfile();
     LOGGER.info(String.format("Created %d classes", lang.getAssets().size()));
   }
@@ -710,8 +731,10 @@ public class ReferenceGenerator {
 
     if (expr instanceof StepUnion) {
       af.addStatement("$N.addAll($N)", name1, name2);
-    } else {
+    } else if (expr instanceof StepIntersection) {
       af.addStatement("$N.retainAll($N)", name1, name2);
+    } else {
+      af.addStatement("$N.removeAll($N)", name1, name2);
     }
     String name3 = Name.get();
     return af.addStatement(new AutoFlow(name3, true, "for ($T $N : $N)", targetType, name3, name1));
@@ -753,7 +776,9 @@ public class ReferenceGenerator {
       af = createStepField(af, (StepField) expr);
     } else if (expr instanceof StepTransitive) {
       af = createStepTransitive(af, (StepTransitive) expr, asset);
-    } else if (expr instanceof StepUnion || expr instanceof StepIntersection) {
+    } else if (expr instanceof StepUnion
+        || expr instanceof StepIntersection
+        || expr instanceof StepDifference) {
       af = createStepSet(af, expr, asset);
     } else if (expr instanceof StepAttackStep) {
       af = createStepAttackStep(af, (StepAttackStep) expr);

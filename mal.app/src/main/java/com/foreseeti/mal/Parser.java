@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ public class Parser {
   private Path originPath;
 
   private Parser(File file, boolean verbose, boolean debug) throws IOException {
+    Locale.setDefault(Locale.ROOT);
     LOGGER = new MalLogger("PARSER", verbose, debug);
     var canonicalFile = file.getCanonicalFile();
     this.lex = new Lexer(canonicalFile);
@@ -576,19 +578,23 @@ public class Parser {
     return new AST.Variable(firstToken, id, e);
   }
 
-  // <expr> ::= <step> ((UNION | INTERSECT) <step>)*
+  // <expr> ::= <step> ((UNION | INTERSECT | MINUS) <step>)*
   private AST.Expr _parseExpr() throws CompilerException {
     var firstToken = tok;
 
     var lhs = _parseStep();
-    while (tok.type == TokenType.UNION || tok.type == TokenType.INTERSECT) {
+    while (tok.type == TokenType.UNION
+        || tok.type == TokenType.INTERSECT
+        || tok.type == TokenType.MINUS) {
       var setType = tok.type;
       _next();
       var rhs = _parseStep();
       if (setType == TokenType.UNION) {
         lhs = new AST.UnionExpr(firstToken, lhs, rhs);
-      } else {
+      } else if (setType == TokenType.INTERSECT) {
         lhs = new AST.IntersectionExpr(firstToken, lhs, rhs);
+      } else {
+        lhs = new AST.DifferenceExpr(firstToken, lhs, rhs);
       }
     }
     return lhs;

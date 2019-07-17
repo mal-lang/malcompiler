@@ -17,6 +17,7 @@ module mal.app {
   // copied from main module descriptor
   exports com.foreseeti.mal;
   exports com.foreseeti.mal.vehiclelang;
+  exports com.foreseeti.mal.bled;
 
   requires info.picocli;
   requires java.logging;

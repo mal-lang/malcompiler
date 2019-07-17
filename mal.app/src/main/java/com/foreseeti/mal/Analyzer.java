@@ -15,6 +15,7 @@
  */
 package com.foreseeti.mal;
 
+import com.foreseeti.mal.AST.DifferenceExpr;
 import com.foreseeti.mal.AST.Variable;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,6 +38,7 @@ public class Analyzer {
   private Set<AST.Variable> currentVariables;
 
   private Analyzer(AST ast, boolean verbose, boolean debug) {
+    Locale.setDefault(Locale.ROOT);
     this.ast = ast;
     LOGGER = new MalLogger("ANALYZER", verbose, debug);
     assets = new LinkedHashMap<>();
@@ -534,7 +537,9 @@ public class Analyzer {
       return checkStepExpr(asset, (AST.StepExpr) expr, scope);
     } else if (expr instanceof AST.IDExpr) {
       return checkIDExpr(asset, (AST.IDExpr) expr, scope);
-    } else if (expr instanceof AST.IntersectionExpr || expr instanceof AST.UnionExpr) {
+    } else if (expr instanceof AST.IntersectionExpr
+        || expr instanceof AST.UnionExpr
+        || expr instanceof DifferenceExpr) {
       return checkSetExpr(asset, (AST.BinaryExpr) expr, scope);
     } else if (expr instanceof AST.TransitiveExpr) {
       return checkTransitiveExpr(asset, (AST.TransitiveExpr) expr, scope);

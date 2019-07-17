@@ -1,0 +1,18 @@
+#id: "BLED" // bleeding edge
+#version: "999.999.999"
+category LatestAndGreatest {
+  asset Firewall {}
+  asset IP {}
+  asset Network {}
+  asset Host {
+    | access ->
+    (networks.hosts.ip /\ (fws.allowedIPs - fws.blockedIPs)).host.access
+  }
+}
+associations {
+  Firewall [fwBlocked] * <-- Rule --> * [blockedIPs] IP
+  Firewall [fwAllowed] * <-- Rule --> * [allowedIPs] IP
+  Host [host] 1 <-- Assigned --> 0..1 [ip] IP
+  Network [networks] 1..* <-- Connected --> * [hosts] Host
+  Host [host] 0..1 <-- Protects --> * [fws] Firewall
+}

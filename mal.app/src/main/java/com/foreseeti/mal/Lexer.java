@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class Lexer {
@@ -81,6 +82,7 @@ public class Lexer {
   }
 
   public Lexer(File file, String relativeName, boolean verbose, boolean debug) throws IOException {
+    Locale.setDefault(Locale.ROOT);
     LOGGER = new MalLogger("LEXER", verbose, debug);
     LOGGER.debug(String.format("Creating lexer with file '%s'", relativeName));
     if (!file.exists()) {

@@ -539,6 +539,13 @@ public class Lang {
     }
   }
 
+  public static class StepDifference extends StepBinOp {
+    public StepDifference(
+        Asset subSrc, Asset src, Asset target, Asset subTarget, StepExpr lhs, StepExpr rhs) {
+      super(subSrc, src, target, subTarget, lhs, rhs);
+    }
+  }
+
   public static class StepCollect extends StepBinOp {
     public StepCollect(
         Asset subSrc, Asset src, Asset target, Asset subTarget, StepExpr lhs, StepExpr rhs) {

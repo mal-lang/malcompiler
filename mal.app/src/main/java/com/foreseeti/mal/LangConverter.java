@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ public class LangConverter {
   private Map<String, String> astDefines = new LinkedHashMap<>();
 
   private LangConverter(AST ast, boolean verbose, boolean debug) {
+    Locale.setDefault(Locale.ROOT);
     LOGGER = new MalLogger("LANG_CONVERTER", verbose, debug);
     // Collect categories
     var allAstCategories = ast.getCategories();
@@ -383,6 +385,13 @@ public class LangConverter {
       var target = leastUpperBound(lhs.subTarget, rhs.subTarget);
       return new Lang.StepIntersection(
           asset, asset, target, subTarget == null ? target : subTarget, lhs, rhs);
+    } else if (expr instanceof AST.DifferenceExpr) {
+      var differenceExpr = (AST.DifferenceExpr) expr;
+      var lhs = _convertExprToAsset(differenceExpr.lhs, asset, assets, assetVars, attackStepVars);
+      var rhs = _convertExprToAsset(differenceExpr.rhs, asset, assets, assetVars, attackStepVars);
+      var target = leastUpperBound(lhs.subTarget, rhs.subTarget);
+      return new Lang.StepDifference(
+          asset, asset, target, subTarget == null ? target : subTarget, lhs, rhs);
     } else if (expr instanceof AST.StepExpr) {
       var stepExpr = (AST.StepExpr) expr;
       var lhs = _convertExprToAsset(stepExpr.lhs, asset, assets, assetVars, attackStepVars);
@@ -504,6 +513,15 @@ public class LangConverter {
           step.subSrc,
           reverseStep(stepIntersection.rhs),
           reverseStep(stepIntersection.lhs));
+    } else if (step instanceof Lang.StepDifference) {
+      var stepDifference = (Lang.StepDifference) step;
+      return new Lang.StepDifference(
+          step.subTarget,
+          step.target,
+          step.src,
+          step.subSrc,
+          reverseStep(stepDifference.rhs),
+          reverseStep(stepDifference.lhs));
     } else if (step instanceof Lang.StepCollect) {
       var stepCollect = (Lang.StepCollect) step;
       return new Lang.StepCollect(

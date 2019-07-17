@@ -76,7 +76,41 @@ limitations under the License.
           <include>attackerProfile.ttc</include>
         </includes>
       </testResource>
+      <testResource>
+        <directory>target/generated-bled-sources</directory>
+        <includes>
+          <include>bled/attackerProfile.ttc</include>
+        </includes>
+      </testResource>
     </testResources>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <versionRange>[1.6.0,)</versionRange>
+                    <goals>
+                      <goal>java</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -94,6 +128,7 @@ limitations under the License.
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <forkCount>0</forkCount>
+          <useSystemClassLoader>false</useSystemClassLoader>
         </configuration>
       </plugin>
       <plugin>
@@ -131,6 +166,7 @@ limitations under the License.
         <artifactId>exec-maven-plugin</artifactId>
         <executions>
           <execution>
+            <id>Generating vehicleLang</id>
             <phase>generate-test-sources</phase>
             <goals>
               <goal>java</goal>
@@ -142,39 +178,27 @@ limitations under the License.
                 <argument>--args</argument>
                 <argument>path=${project.basedir}/target/generated-test-sources,package=vehicle</argument>
               </arguments>
-              <sourceRoot>${project.basedir}/target/generated-test-sources</sourceRoot>
+              <testSourceRoot>${project.basedir}/target/generated-test-sources</testSourceRoot>
+            </configuration>
+          </execution>
+          <execution>
+            <id>Generating Bleeding Edge</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>com.foreseeti.mal.Main</mainClass>
+              <arguments>
+                <argument>${project.basedir}/src/test/resources/generator/reference/bled.mal</argument>
+                <argument>--args</argument>
+                <argument>path=${project.basedir}/target/generated-bled-sources/bled,package=bled,core=false</argument>
+              </arguments>
+              <testSourceRoot>${project.basedir}/target/generated-bled-sources/bled</testSourceRoot>
             </configuration>
           </execution>
         </executions>
       </plugin>
     </plugins>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <versionRange>[1.6.0,)</versionRange>
-                    <goals>
-                      <goal>java</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 </project>

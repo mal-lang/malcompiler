@@ -575,6 +575,18 @@ public class AST {
     }
   }
 
+  public static class DifferenceExpr extends BinaryExpr {
+    public DifferenceExpr(Position pos, Expr lhs, Expr rhs) {
+      super(pos, lhs, rhs);
+    }
+
+    @Override
+    public String toString() {
+      return String.format(
+          "DifferenceExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
+    }
+  }
+
   public static class IntersectionExpr extends BinaryExpr {
     public IntersectionExpr(Position pos, Expr lhs, Expr rhs) {
       super(pos, lhs, rhs);
