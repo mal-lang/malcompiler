@@ -48,10 +48,13 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Modifier;
 
 public class ReferenceGenerator {
@@ -112,6 +115,37 @@ public class ReferenceGenerator {
           LOGGER.error("Optional argument 'core' must be either 'true' or 'false'");
           throw new CompilerException("There were generator errors");
       }
+    }
+    checkRestricted();
+  }
+
+  private void checkRestricted() throws CompilerException {
+    boolean err = false;
+    for (Asset asset : lang.getAssets().values()) {
+      if (SourceVersion.isKeyword(asset.getName())) {
+        LOGGER.error(String.format("Asset '%s' is a java keyword", asset.getName()));
+        err = true;
+      }
+      for (AttackStep attackStep : asset.getAttackSteps().values()) {
+        if (SourceVersion.isKeyword(attackStep.getName())) {
+          LOGGER.error(
+              String.format(
+                  "Attack step '%s' in asset '%s' is a java keyword",
+                  attackStep.getName(), asset.getName()));
+          err = true;
+        }
+      }
+      for (Field field : asset.getFields().values()) {
+        if (SourceVersion.isKeyword(field.getName())) {
+          LOGGER.error(
+              String.format(
+                  "Field '%s' in asset '%s' is a java keyword", field.getName(), asset.getName()));
+          err = true;
+        }
+      }
+    }
+    if (err) {
+      throw new CompilerException("There were generator errors");
     }
   }
 
@@ -367,8 +401,8 @@ public class ReferenceGenerator {
     }
 
     // Instantiating fields to either null or a HashSet of correct type
-    ClassName set = ClassName.get("java.util", "Set");
-    ClassName hashSet = ClassName.get("java.util", "HashSet");
+    ClassName set = ClassName.get(Set.class).forceQualify(true);
+    ClassName hashSet = ClassName.get(HashSet.class).forceQualify(true);
     for (Field field : asset.getFields().values()) {
       TypeName type = ClassName.get(pkg, field.getTarget().getAsset().getName());
       if (field.getMax() > 1) {
@@ -395,7 +429,7 @@ public class ReferenceGenerator {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("updateChildren");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
-    ClassName set = ClassName.get("java.util", "Set");
+    ClassName set = ClassName.get(Set.class).forceQualify(true);
     ClassName as = ClassName.get("core", "AttackStep");
     TypeName asSet = ParameterizedTypeName.get(set, as);
     builder.addParameter(asSet, "attackSteps");
@@ -712,10 +746,10 @@ public class ReferenceGenerator {
 
   private AutoFlow createStepTransitive(AutoFlow af, StepTransitive expr, Asset asset) {
     ClassName targetType = ClassName.get(pkg, expr.target.getName());
-    ClassName list = ClassName.get("java.util", "List");
-    ClassName arrayList = ClassName.get("java.util", "ArrayList");
-    ClassName set = ClassName.get("java.util", "Set");
-    ClassName hashSet = ClassName.get("java.util", "HashSet");
+    ClassName list = ClassName.get(List.class).forceQualify(true);
+    ClassName arrayList = ClassName.get(ArrayList.class).forceQualify(true);
+    ClassName set = ClassName.get(Set.class).forceQualify(true);
+    ClassName hashSet = ClassName.get(HashSet.class).forceQualify(true);
     TypeName targetSet = ParameterizedTypeName.get(set, targetType);
     TypeName targetList = ParameterizedTypeName.get(list, targetType);
     String name1 = Name.get();
@@ -748,8 +782,8 @@ public class ReferenceGenerator {
     StepBinOp binop = (StepBinOp) expr;
     String targetName = binop.target.getName();
     ClassName targetType = ClassName.get(pkg, targetName);
-    ClassName set = ClassName.get("java.util", "Set");
-    ClassName hashSet = ClassName.get("java.util", "HashSet");
+    ClassName set = ClassName.get(Set.class).forceQualify(true);
+    ClassName hashSet = ClassName.get(HashSet.class).forceQualify(true);
     TypeName targetSet = ParameterizedTypeName.get(set, targetType);
     String name1 = Name.get();
     String name2 = Name.get();
@@ -846,8 +880,8 @@ public class ReferenceGenerator {
       builder = MethodSpec.methodBuilder("getAssociatedAssets");
       builder.addAnnotation(Override.class);
       builder.addModifiers(Modifier.PUBLIC);
-      ClassName set = ClassName.get("java.util", "Set");
-      ClassName hashSet = ClassName.get("java.util", "HashSet");
+      ClassName set = ClassName.get(Set.class).forceQualify(true);
+      ClassName hashSet = ClassName.get(HashSet.class).forceQualify(true);
       ClassName assetType = ClassName.get("core", "Asset");
       TypeName assetSet = ParameterizedTypeName.get(set, assetType);
       builder.returns(assetSet);

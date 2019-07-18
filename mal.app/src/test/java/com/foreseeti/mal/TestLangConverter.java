@@ -27,10 +27,8 @@ import static com.foreseeti.mal.AssertLang.assertLangStepExpr;
 import static com.foreseeti.mal.AssertLang.assertLangTTC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import com.foreseeti.mal.Lang.TTCFunc;
 
 public class TestLangConverter extends MalTest {
   @Test

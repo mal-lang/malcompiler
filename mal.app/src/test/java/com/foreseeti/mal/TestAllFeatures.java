@@ -39,9 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import com.foreseeti.mal.AST.ID;
-import com.foreseeti.mal.Distributions.Infinity;
-import com.foreseeti.mal.Distributions.Zero;
 
 public class TestAllFeatures extends MalTest {
   @Test

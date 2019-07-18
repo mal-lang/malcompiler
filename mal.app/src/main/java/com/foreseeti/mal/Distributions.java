@@ -514,8 +514,7 @@ public class Distributions {
     }
   }
 
-
-  public static class Zero extends Combination{
+  public static class Zero extends Combination {
     @Override
     public double getMean() {
       return 0;
