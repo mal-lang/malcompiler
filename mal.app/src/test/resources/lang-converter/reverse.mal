@@ -1,0 +1,19 @@
+#id: "reverse"
+#version: "0.0.0"
+category CAT {
+  asset Action {
+    | compromise
+  }
+  asset LocalAction extends Action {
+    | compromise
+      -> (a.ga /\ a.la).compromise
+  }
+  asset GlobalAction extends Action {
+    | compromise
+  }
+  asset Alpha {}
+}
+associations {
+  LocalAction [la] * <-- _ --> * [a] Alpha
+  GlobalAction [ga] * <-- _ --> * [a] Alpha
+}

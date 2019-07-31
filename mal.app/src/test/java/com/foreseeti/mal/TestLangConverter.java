@@ -32,6 +32,139 @@ import org.junit.jupiter.api.Test;
 
 public class TestLangConverter extends MalTest {
   @Test
+  public void testReverse() {
+    var lang = assertGetLangClassPath("lang-converter/reverse.mal");
+    // localaction
+    var asset = assertGetLangAsset(lang, "LocalAction", false, "CAT", "Action", new Lang.Meta());
+    // compromise
+    var attackstep =
+        assertGetLangAttackStep(
+            asset,
+            "compromise",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            true,
+            new Lang.Meta());
+    // -> (a.ga /\ a.la).compromise
+    var step =
+        new Lang.StepCollect(
+            asset,
+            asset,
+            null,
+            null,
+            new Lang.StepIntersection(
+                lang.getAsset("LocalAction"),
+                lang.getAsset("LocalAction"),
+                lang.getAsset("Action"),
+                lang.getAsset("Action"),
+                new Lang.StepCollect(
+                    lang.getAsset("LocalAction"),
+                    lang.getAsset("LocalAction"),
+                    lang.getAsset("GlobalAction"),
+                    lang.getAsset("GlobalAction"),
+                    new Lang.StepField(
+                        lang.getAsset("LocalAction"),
+                        lang.getAsset("LocalAction"),
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("Alpha"),
+                        asset.getField("a")),
+                    new Lang.StepField(
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("GlobalAction"),
+                        lang.getAsset("GlobalAction"),
+                        lang.getAsset("Alpha").getField("ga"))),
+                new Lang.StepCollect(
+                    lang.getAsset("LocalAction"),
+                    lang.getAsset("LocalAction"),
+                    lang.getAsset("LocalAction"),
+                    lang.getAsset("LocalAction"),
+                    new Lang.StepField(
+                        lang.getAsset("LocalAction"),
+                        lang.getAsset("LocalAction"),
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("Alpha"),
+                        asset.getField("a")),
+                    new Lang.StepField(
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("LocalAction"),
+                        lang.getAsset("LocalAction"),
+                        lang.getAsset("Alpha").getField("la")))),
+            new Lang.StepAttackStep(
+                lang.getAsset("Action"),
+                lang.getAsset("Action"),
+                lang.getAsset("Action").getAttackStep("compromise")));
+    assertLangStepExpr(step, attackstep.getReaches().get(0));
+
+    // action
+    asset = assertGetLangAsset(lang, "Action", false, "CAT", null, new Lang.Meta());
+    // compromise
+    attackstep =
+        assertGetLangAttackStep(
+            asset,
+            "compromise",
+            Lang.AttackStepType.ANY,
+            false,
+            false,
+            false,
+            false,
+            new Lang.Meta());
+    step =
+        new Lang.StepCollect(
+            asset,
+            asset,
+            null,
+            null,
+            new Lang.StepIntersection(
+                lang.getAsset("Action"),
+                lang.getAsset("Action"),
+                lang.getAsset("LocalAction"),
+                lang.getAsset("LocalAction"),
+                new Lang.StepCollect(
+                    lang.getAsset("LocalAction"),
+                    lang.getAsset("Action"),
+                    lang.getAsset("LocalAction"),
+                    lang.getAsset("LocalAction"),
+                    new Lang.StepField(
+                        lang.getAsset("LocalAction"),
+                        lang.getAsset("LocalAction"),
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("LocalAction").getField("a")),
+                    new Lang.StepField(
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("LocalAction"),
+                        lang.getAsset("LocalAction"),
+                        lang.getAsset("Alpha").getField("la"))),
+                new Lang.StepCollect(
+                    lang.getAsset("GlobalAction"),
+                    lang.getAsset("Action"),
+                    lang.getAsset("LocalAction"),
+                    lang.getAsset("LocalAction"),
+                    new Lang.StepField(
+                        lang.getAsset("GlobalAction"),
+                        lang.getAsset("GlobalAction"),
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("GlobalAction").getField("a")),
+                    new Lang.StepField(
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("Alpha"),
+                        lang.getAsset("LocalAction"),
+                        lang.getAsset("LocalAction"),
+                        lang.getAsset("Alpha").getField("la")))),
+            new Lang.StepAttackStep(
+                lang.getAsset("LocalAction"),
+                lang.getAsset("LocalAction"),
+                lang.getAsset("LocalAction").getAttackStep("compromise")));
+    assertLangStepExpr(step, attackstep.getParentSteps().get(0));
+  }
+
+  @Test
   public void testComplexModel() {
     var lang = assertGetLangClassPath("analyzer/complex.mal");
     assertDefines(lang);

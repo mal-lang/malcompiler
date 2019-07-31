@@ -498,51 +498,59 @@ public class LangConverter {
    * @param step A 'reaches' step expression with the final attack step removed
    * @return the input step expression reversed
    */
-  private static Lang.StepExpr reverseStep(Lang.StepExpr step) {
+  private static Lang.StepExpr reverseStep(Lang.StepExpr step, Lang.Asset src) {
     if (step instanceof Lang.StepUnion) {
       var stepUnion = (Lang.StepUnion) step;
       return new Lang.StepUnion(
           step.subTarget,
-          step.target,
+          src == null ? step.target : src,
           step.src,
           step.subSrc,
-          reverseStep(stepUnion.rhs),
-          reverseStep(stepUnion.lhs));
+          reverseStep(stepUnion.rhs, step.subTarget),
+          reverseStep(stepUnion.lhs, step.subTarget));
     } else if (step instanceof Lang.StepIntersection) {
       var stepIntersection = (Lang.StepIntersection) step;
       return new Lang.StepIntersection(
           step.subTarget,
-          step.target,
+          src == null ? step.target : src,
           step.src,
           step.subSrc,
-          reverseStep(stepIntersection.rhs),
-          reverseStep(stepIntersection.lhs));
+          reverseStep(stepIntersection.rhs, step.subTarget),
+          reverseStep(stepIntersection.lhs, step.subTarget));
     } else if (step instanceof Lang.StepDifference) {
       var stepDifference = (Lang.StepDifference) step;
       return new Lang.StepDifference(
           step.subTarget,
-          step.target,
+          src == null ? step.target : src,
           step.src,
           step.subSrc,
-          reverseStep(stepDifference.rhs),
-          reverseStep(stepDifference.lhs));
+          reverseStep(stepDifference.rhs, step.subTarget),
+          reverseStep(stepDifference.lhs, step.subTarget));
     } else if (step instanceof Lang.StepCollect) {
       var stepCollect = (Lang.StepCollect) step;
       return new Lang.StepCollect(
           step.subTarget,
-          step.target,
+          src == null ? step.target : src,
           step.src,
           step.subSrc,
-          reverseStep(stepCollect.rhs),
-          reverseStep(stepCollect.lhs));
+          reverseStep(stepCollect.rhs, null),
+          reverseStep(stepCollect.lhs, null));
     } else if (step instanceof Lang.StepTransitive) {
       var stepTransitive = (Lang.StepTransitive) step;
       return new Lang.StepTransitive(
-          step.subTarget, step.subTarget, step.src, step.subSrc, reverseStep(stepTransitive.e));
+          step.subTarget,
+          src == null ? step.subTarget : src,
+          step.src,
+          step.subSrc,
+          reverseStep(stepTransitive.e, null));
     } else if (step instanceof Lang.StepField) {
       var stepField = (Lang.StepField) step;
       return new Lang.StepField(
-          step.subTarget, step.target, step.src, step.subSrc, stepField.field.getTarget());
+          step.subTarget,
+          src == null ? step.target : src,
+          step.src,
+          step.subSrc,
+          stepField.field.getTarget());
     }
     throw new RuntimeException("reverseStep: Invalid Lang.StepExpr subtype");
   }
@@ -562,7 +570,7 @@ public class LangConverter {
               targetStepAttackStep.subSrc, targetAttackStep.getAsset(), attackStep));
     } else {
       var strippedStep = removeStepAttackStep(step);
-      var reversedStep = reverseStep(strippedStep);
+      var reversedStep = reverseStep(strippedStep, null);
       var newStep =
           new Lang.StepCollect(
               targetStepAttackStep.subSrc,
