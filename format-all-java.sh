@@ -8,6 +8,7 @@ JAR="${RELEASE}-all-deps.jar"
 URL="https://github.com/google/$FORMATTER/releases/download/$RELEASE/$JAR"
 
 BASEPATH="$(dirname "$(realpath "$0")")"
+JARPATH="$BASEPATH/$JAR"
 cd "$BASEPATH"
 
 if [[ ! -f "$JAR" ]]
@@ -16,23 +17,34 @@ then
   wget -q "$URL"
 fi
 
-SRCPATH="$BASEPATH/mal.app/src"
-JARPATH="$BASEPATH/$JAR"
-cd "$SRCPATH"
+PROJECTS=("exampleLang" "mal.lib" "mal.cli" "mal.test" "mal.img")
 
-PIDS=()
-
-echo "Formatting $(find . -name "*.java" | wc -l) files..."
-
-for f in `find . -name "*.java"`
+for project in "${PROJECTS[@]}"
 do
-  java -jar "$JARPATH" -i "$f" &
-  PIDS+=($!)
-done
+  PROJECT_PATH="$BASEPATH/$project"
 
-for pid in "${PIDS[@]}"
-do
-  wait "$pid"
-done
+  if [[ -d "$PROJECT_PATH" ]]
+  then
+    cd "$PROJECT_PATH"
 
+    if [[ -d "src" ]]
+    then
+      cd "src"
+      echo "Formatting $(find . -name "*.java" | wc -l) files in $project..."
+
+      PIDS=()
+
+      for f in `find . -name "*.java"`
+      do
+        java -jar "$JARPATH" -i "$f" &
+        PIDS+=($!)
+      done
+
+      for pid in "${PIDS[@]}"
+      do
+        wait "$pid"
+      done
+    fi
+  fi
+done
 echo "Done"
