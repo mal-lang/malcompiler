@@ -216,7 +216,11 @@ public class TestMain extends MalTest {
         "analyzer/complex-parser.txt",
         "analyzer/complex-parser-debug.txt");
     // Test analyzer
-    assertPhase("analyzer", new String[] {"--analyzer", inputFile}, null, null);
+    assertPhase(
+        "analyzer",
+        new String[] {"--analyzer", inputFile},
+        null,
+        "analyzer/complex-analyzer-warnings.txt");
     // Test analyzer with verbose
     assertPhase(
         "analyzer",

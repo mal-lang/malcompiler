@@ -724,6 +724,12 @@ public class AST {
       return sb.toString();
     }
 
+    public String toShortString() {
+      return String.format(
+          "%s [%s] <-- %s --> %s [%s]",
+          leftAsset.id, leftField.id, linkName.id, rightAsset.id, rightField.id);
+    }
+
     public static String listToString(List<Association> associations, int spaces) {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();

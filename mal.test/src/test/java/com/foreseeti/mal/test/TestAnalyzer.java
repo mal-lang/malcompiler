@@ -86,7 +86,12 @@ public class TestAnalyzer extends MalTest {
   public void testComplex() {
     assertAnalyzeClassPath("analyzer/complex.mal");
     assertEmptyOut();
-    assertEmptyErr();
+    String[] expected = {
+      "[ANALYZER WARNING] <complex.mal:69:3> Association 'Computer [studentComputer] <-- Use --> Student [student]' is never used",
+      "[ANALYZER WARNING] <complex.mal:70:3> Association 'Computer [teacherComputer] <-- Use --> Teacher [teacher]' is never used",
+      ""
+    };
+    assertErrLines(expected);
   }
 
   @Test

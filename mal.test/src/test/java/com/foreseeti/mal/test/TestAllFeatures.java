@@ -1548,12 +1548,15 @@ public class TestAllFeatures extends MalTest {
     assertAnalyzeClassPath("all-features/all-features.mal");
     assertEmptyOut();
     String[] lines = {
+      "[ANALYZER WARNING] <core.mal:66:9> Variable 'unused' is never used",
       "[ANALYZER WARNING] <core.mal:78:10> Category 'C2' contains no assets or metadata",
       "[ANALYZER WARNING] <core.mal:105:18> Asset 'A6' is abstract but never extended to",
       "[ANALYZER WARNING] <core.mal:115:10> Step 'a3Attack' defined as variable at <core.mal:120:9> and attack step at <core.mal:67:7>",
       "[ANALYZER WARNING] <core.mal:116:10> Step 'otherAttack' defined as variable at <core.mal:122:9> and attack step at <core.mal:118:7>",
       "[ANALYZER WARNING] <core.mal:117:10> Step 'a1' defined as variable at <core.mal:126:9> and field at <core.mal:151:38>",
       "[ANALYZER WARNING] <core.mal:126:14> Step 'a6' defined as variable at <core.mal:124:9> and field at <core.mal:150:38>",
+      "[ANALYZER WARNING] <core.mal:144:3> Association 'A5 [a5] <-- L2 --> A6 [a6]' is never used",
+      "[ANALYZER WARNING] <core.mal:150:3> Association 'A3 [a3] <-- L3 --> A6 [a6]' is never used",
       ""
     };
     assertErrLines(lines);

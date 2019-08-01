@@ -31,6 +31,9 @@ public class Analyzer {
   private Map<String, Scope<AST.Association>> fields = new LinkedHashMap<>();
   private Map<String, Scope<AST.AttackStep>> steps = new LinkedHashMap<>();
   private Set<AST.Variable> currentVariables = new LinkedHashSet<>();
+  private Map<AST.Variable, Integer> variableReferenceCount = new HashMap<>();
+  private Map<AST.Association, Map<String, Integer>> fieldReferenceCount = new HashMap<>();;
+
   private AST ast;
   private boolean failed;
 
@@ -59,6 +62,8 @@ public class Analyzer {
   }
 
   private void _analyze() throws CompilerException {
+    collectAssociations();
+
     checkDefines();
     checkCategories();
     checkAssets();
@@ -73,6 +78,59 @@ public class Analyzer {
     checkTTC();
     checkFields();
     checkReaches(); // might throw
+
+    checkUnused();
+  }
+
+  private void collectAssociations() {
+    for (AST.Association assoc : ast.getAssociations()) {
+      setupFieldReferenceCounts(assoc);
+    }
+  }
+
+  private void addVariableReference(AST.Variable variable) {
+    int oldval = variableReferenceCount.get(variable);
+    variableReferenceCount.put(variable, oldval + 1);
+  }
+
+  private void setupFieldReferenceCounts(AST.Association assoc) {
+    Map<String, Integer> fieldCounts = new HashMap<>();
+    fieldCounts.put(assoc.leftField.id, 0);
+    fieldCounts.put(assoc.rightField.id, 0);
+    fieldReferenceCount.put(assoc, fieldCounts);
+  }
+
+  private void addFieldReference(AST.Association assoc, AST.ID field) {
+    var fieldCounts = fieldReferenceCount.get(assoc);
+    int oldcount = fieldCounts.get(field.id);
+    fieldCounts.put(field.id, oldcount + 1);
+  }
+
+  private void checkUnused() {
+    // variables
+    for (AST.Variable variable : variableReferenceCount.keySet()) {
+      int val = variableReferenceCount.get(variable);
+      if (val == 0) {
+        LOGGER.warning(
+            variable.name, String.format("Variable '%s' is never used", variable.name.id));
+      }
+    }
+
+    // fields
+    for (var assoc : fieldReferenceCount.keySet()) {
+      var fieldCounts = fieldReferenceCount.get(assoc);
+      boolean onlyZeroRefs = true;
+      for (var field : fieldCounts.keySet()) {
+        int val = fieldCounts.get(field);
+        if (val > 0) {
+          onlyZeroRefs = false;
+          break;
+        }
+      }
+      if (onlyZeroRefs) {
+        LOGGER.warning(assoc, String.format("Association '%s' is never used", assoc.toShortString()));
+      }
+    }
   }
 
   private void checkDefines() {
@@ -477,6 +535,7 @@ public class Analyzer {
   private void addVariable(Scope<AST.Variable> scope, AST.Variable variable) {
     AST.Variable prevDef = scope.look(variable.name.id);
     if (prevDef == null) {
+      variableReferenceCount.put(variable, 0);
       scope.add(variable.name.id, variable);
     } else {
       error(
@@ -638,6 +697,7 @@ public class Analyzer {
    * @return True if variable is not being evaluated, false otherwise
    */
   private boolean evalVariableBegin(AST.Variable variable) {
+    addVariableReference(variable);
     if (currentVariables.add(variable)) {
       return true;
     } else {
@@ -781,6 +841,7 @@ public class Analyzer {
     Scope<AST.Association> scope = fields.get(asset.name.id);
     AST.Association assoc = scope.lookdown(name.id);
     if (assoc != null) {
+      addFieldReference(assoc, name);
       if (assoc.leftField.id.equals(name.id)) {
         return getAsset(assoc.leftAsset);
       } else {
