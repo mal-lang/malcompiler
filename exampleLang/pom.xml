@@ -41,42 +41,6 @@ limitations under the License.
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <directory>${project.build.directory}/generated-sources</directory>
-        <includes>
-          <include>attackerProfile.ttc</include>
-        </includes>
-      </resource>
-    </resources>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <versionRange>[1.6.0,)</versionRange>
-                    <goals>
-                      <goal>java</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -94,39 +58,26 @@ limitations under the License.
         <version>3.0.0-M3</version>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.6.0</version>
-        <dependencies>
-          <dependency>
-            <groupId>com.foreseeti.mal</groupId>
-            <artifactId>mal.cli</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
-          </dependency>
-        </dependencies>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <includePluginDependencies>true</includePluginDependencies>
-          <mainClass>com.foreseeti.mal.cli.Main</mainClass>
-          <arguments>
-            <argument>${project.basedir}/exampleLang.mal</argument>
-            <argument>--args</argument>
-            <argument>path=${project.build.directory}/generated-sources,package=com.foreseeti.examplelang</argument>
-          </arguments>
-          <sourceRoot>${project.build.directory}/generated-sources</sourceRoot>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.1.2</version>
+      </plugin>
+      <plugin>
+        <groupId>com.foreseeti.mal</groupId>
+        <artifactId>mal-maven-plugin</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>generate-examplelang</id>
+            <goals>
+              <goal>reference</goal>
+            </goals>
+            <configuration>
+              <file>exampleLang.mal</file>
+              <packageName>com.foreseeti.examplelang</packageName>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
