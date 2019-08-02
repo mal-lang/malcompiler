@@ -55,7 +55,13 @@ public class LangConverter {
   }
 
   public static Lang convert(AST ast, boolean verbose, boolean debug) {
-    return new LangConverter(ast, verbose, debug)._convert();
+    return new LangConverter(ast, verbose, debug).convertLog();
+  }
+
+  private Lang convertLog() {
+    var lang = _convert();
+    LOGGER.print();
+    return lang;
   }
 
   private Lang _convert() {

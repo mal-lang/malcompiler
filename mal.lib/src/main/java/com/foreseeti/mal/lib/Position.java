@@ -15,7 +15,7 @@
  */
 package com.foreseeti.mal.lib;
 
-public class Position {
+public class Position implements Comparable<Position> {
   public final String filename;
   public final int line;
   public final int col;
@@ -39,5 +39,30 @@ public class Position {
   @Override
   public String toString() {
     return posString();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof Position)) {
+      return false;
+    }
+    var other = (Position) obj;
+    return this.filename.equals(other.filename) && this.line == other.line && this.col == other.col;
+  }
+
+  @Override
+  public int compareTo(Position o) {
+    int cmp = this.filename.compareTo(o.filename);
+    if (cmp != 0) {
+      return cmp;
+    }
+    cmp = Integer.compare(this.line, o.line);
+    if (cmp != 0) {
+      return cmp;
+    }
+    return Integer.compare(this.col, o.col);
   }
 }

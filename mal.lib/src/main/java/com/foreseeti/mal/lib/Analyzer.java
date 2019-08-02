@@ -27,23 +27,17 @@ import java.util.Set;
 
 public class Analyzer {
   private MalLogger LOGGER;
+  private Map<String, AST.Asset> assets = new LinkedHashMap<>();
+  private Map<String, Scope<AST.Association>> fields = new LinkedHashMap<>();
+  private Map<String, Scope<AST.AttackStep>> steps = new LinkedHashMap<>();
+  private Set<AST.Variable> currentVariables = new LinkedHashSet<>();
   private AST ast;
-  private Map<String, AST.Asset> assets;
-  private Map<String, Scope<AST.Association>> fields;
-  private Map<String, Scope<AST.AttackStep>> steps;
-  private Set<String> errors;
   private boolean failed;
-  private Set<AST.Variable> currentVariables;
 
   private Analyzer(AST ast, boolean verbose, boolean debug) {
     Locale.setDefault(Locale.ROOT);
-    this.ast = ast;
     LOGGER = new MalLogger("ANALYZER", verbose, debug);
-    assets = new LinkedHashMap<>();
-    fields = new LinkedHashMap<>();
-    steps = new LinkedHashMap<>();
-    errors = new HashSet<>();
-    currentVariables = new LinkedHashSet<>();
+    this.ast = ast;
   }
 
   public static void analyze(AST ast) throws CompilerException {
@@ -51,7 +45,17 @@ public class Analyzer {
   }
 
   public static void analyze(AST ast, boolean verbose, boolean debug) throws CompilerException {
-    new Analyzer(ast, verbose, debug)._analyze();
+    new Analyzer(ast, verbose, debug).analyzeLog();
+  }
+
+  private void analyzeLog() throws CompilerException {
+    try {
+      _analyze();
+      LOGGER.print();
+    } catch (CompilerException e) {
+      LOGGER.print();
+      throw e;
+    }
   }
 
   private void _analyze() throws CompilerException {
@@ -280,7 +284,7 @@ public class Analyzer {
                   try {
                     Distributions.validate(func.name.id, func.params);
                   } catch (CompilerException e) {
-                    errorRegardless(func, e.getMessage());
+                    error(func, e.getMessage());
                   }
                   break;
                 default:
@@ -307,14 +311,14 @@ public class Analyzer {
     } else if (expr instanceof AST.TTCFuncExpr) {
       AST.TTCFuncExpr func = (AST.TTCFuncExpr) expr;
       if (func.name.id.equals("Enabled") || func.name.id.equals("Disabled")) {
-        errorRegardless(
+        error(
             expr,
             "Distributions 'Enabled' or 'Disabled' may not be used as TTC values in '&' and '|' attack steps");
       } else {
         try {
           Distributions.validate(func.name.id, func.params);
         } catch (CompilerException e) {
-          errorRegardless(func, e.getMessage());
+          error(func, e.getMessage());
         }
       }
     } else if (expr instanceof AST.TTCNumExpr) {
@@ -817,22 +821,13 @@ public class Analyzer {
     return new CompilerException("There were semantic errors");
   }
 
-  private void errorRegardless(Position pos, String msg) {
-    failed = true;
-    LOGGER.error(pos, msg);
-  }
-
   private void error(String msg) {
     failed = true;
-    if (errors.add(msg)) {
-      LOGGER.error(msg);
-    }
+    LOGGER.error(msg);
   }
 
   private void error(Position pos, String msg) {
     failed = true;
-    if (errors.add(msg)) {
-      LOGGER.error(pos, msg);
-    }
+    LOGGER.error(pos, msg);
   }
 }

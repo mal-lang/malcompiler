@@ -46,7 +46,8 @@ public class Parser {
 
   private Parser(File file, Path originPath, Set<File> included, boolean verbose, boolean debug)
       throws IOException {
-    this.LOGGER = new MalLogger("PARSER", verbose, debug);
+    Locale.setDefault(Locale.ROOT);
+    LOGGER = new MalLogger("PARSER", verbose, debug);
     this.lex = new Lexer(file, originPath.relativize(Path.of(file.getPath())).toString());
     this.included = included;
     this.included.add(file);
@@ -60,15 +61,24 @@ public class Parser {
 
   public static AST parse(File file, boolean verbose, boolean debug)
       throws IOException, CompilerException {
-    var parser = new Parser(file, verbose, debug);
-    return parser._parse();
+    return new Parser(file, verbose, debug).parseLog();
   }
 
   private static AST parse(
       File file, Path originPath, Set<File> included, boolean verbose, boolean debug)
       throws IOException, CompilerException {
-    var parser = new Parser(file, originPath, included, verbose, debug);
-    return parser._parse();
+    return new Parser(file, originPath, included, verbose, debug).parseLog();
+  }
+
+  private AST parseLog() throws CompilerException {
+    try {
+      var ast = _parse();
+      LOGGER.print();
+      return ast;
+    } catch (CompilerException e) {
+      LOGGER.print();
+      throw e;
+    }
   }
 
   // The first set of <mal>

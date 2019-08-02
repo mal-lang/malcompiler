@@ -15,6 +15,8 @@
  */
 package com.foreseeti.mal.lib;
 
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
@@ -71,8 +73,58 @@ public class MalLogger extends Logger {
     }
   }
 
+  private class LogMessage implements Comparable<LogMessage> {
+    public final Level level;
+    public final String message;
+
+    public LogMessage(Level level, String message) {
+      this.level = level;
+      this.message = message;
+    }
+
+    @Override
+    public int compareTo(LogMessage o) {
+      if (o instanceof LogMessagePosition) {
+        return -1;
+      }
+      int cmp = Integer.compare(this.level.intValue(), o.level.intValue());
+      if (cmp != 0) {
+        return cmp;
+      }
+      return this.message.compareTo(o.message);
+    }
+  }
+
+  private class LogMessagePosition extends LogMessage {
+    public final Position position;
+
+    public LogMessagePosition(Level level, String message, Position position) {
+      super(level, message);
+      this.position = position;
+    }
+
+    @Override
+    public int compareTo(LogMessage o) {
+      if (!(o instanceof LogMessagePosition)) {
+        return 1;
+      }
+      var other = (LogMessagePosition) o;
+      int cmp = this.position.compareTo(other.position);
+      if (cmp != 0) {
+        return cmp;
+      }
+      cmp = Integer.compare(this.level.intValue(), other.level.intValue());
+      if (cmp != 0) {
+        return cmp;
+      }
+      return this.message.compareTo(other.message);
+    }
+  }
+
   private boolean verbose;
   private boolean debug;
+
+  private Set<LogMessage> logMessages = new TreeSet<>();
 
   public MalLogger(String name) {
     this(name, false, false);
@@ -108,40 +160,55 @@ public class MalLogger extends Logger {
   }
 
   public void debug(Position pos, String msg) {
-    debug(msgFormat(pos, msg));
+    logMessages.add(new LogMessagePosition(MalLevel.DEBUG, msg, pos));
   }
 
   public void debug(String msg) {
-    log(MalLevel.DEBUG, msg);
+    logMessages.add(new LogMessage(MalLevel.DEBUG, msg));
   }
 
   public void info(Position pos, String msg) {
-    info(msgFormat(pos, msg));
+    logMessages.add(new LogMessagePosition(MalLevel.INFO, msg, pos));
   }
 
   @Override
   public void info(String msg) {
-    log(MalLevel.INFO, msg);
+    logMessages.add(new LogMessage(MalLevel.INFO, msg));
   }
 
   public void warning(Position pos, String msg) {
-    warning(msgFormat(pos, msg));
+    logMessages.add(new LogMessagePosition(MalLevel.WARNING, msg, pos));
   }
 
   @Override
   public void warning(String msg) {
-    log(MalLevel.WARNING, msg);
+    logMessages.add(new LogMessage(MalLevel.WARNING, msg));
   }
 
   public void error(Position pos, String msg) {
-    error(msgFormat(pos, msg));
+    logMessages.add(new LogMessagePosition(MalLevel.ERROR, msg, pos));
   }
 
   public void error(String msg) {
-    log(MalLevel.ERROR, msg);
+    if (!logMessages.add(new LogMessage(MalLevel.ERROR, msg))) {
+      System.err.println("Logger already contains: " + msg);
+    }
   }
 
-  public String msgFormat(Position pos, String msg) {
+  private String msgFormat(Position pos, String msg) {
     return String.format("%s %s", pos.posString(), msg);
+  }
+
+  public void print() {
+    for (var logMessage : logMessages) {
+      if (logMessage instanceof LogMessagePosition) {
+        var logMessagePosition = (LogMessagePosition) logMessage;
+        log(
+            logMessagePosition.level,
+            msgFormat(logMessagePosition.position, logMessagePosition.message));
+      } else {
+        log(logMessage.level, logMessage.message);
+      }
+    }
   }
 }

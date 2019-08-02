@@ -85,16 +85,21 @@ public class Lexer {
   public Lexer(File file, String relativeName, boolean verbose, boolean debug) throws IOException {
     Locale.setDefault(Locale.ROOT);
     LOGGER = new MalLogger("LEXER", verbose, debug);
-    LOGGER.debug(String.format("Creating lexer with file '%s'", relativeName));
-    if (!file.exists()) {
-      throw new IOException(String.format("%s: No such file or directory", relativeName));
+    try {
+      LOGGER.debug(String.format("Creating lexer with file '%s'", relativeName));
+      if (!file.exists()) {
+        throw new IOException(String.format("%s: No such file or directory", relativeName));
+      }
+      this.filename = relativeName;
+      this.input = Files.readAllBytes(file.toPath());
+      this.index = 0;
+      this.line = 1;
+      this.col = 1;
+      this.eof = input.length == 0;
+    } catch (IOException e) {
+      LOGGER.print();
+      throw e;
     }
-    filename = relativeName;
-    input = Files.readAllBytes(file.toPath());
-    index = 0;
-    line = 1;
-    col = 1;
-    eof = input.length == 0;
   }
 
   private String getLexemeString() {
@@ -110,6 +115,7 @@ public class Lexer {
     startCol = col;
     lexeme = new ArrayList<>();
     if (eof) {
+      LOGGER.print();
       return createToken(TokenType.EOF);
     }
     byte c = consume();
@@ -367,6 +373,7 @@ public class Lexer {
       pos = new Position(filename, startLine, startCol);
     }
     LOGGER.error(pos, msg);
+    LOGGER.print();
     return new CompilerException("There were syntax errors");
   }
 

@@ -71,52 +71,57 @@ public class ReferenceGenerator {
 
   public static void generate(Lang lang, Map<String, String> args, boolean verbose, boolean debug)
       throws CompilerException, IOException {
-    new ReferenceGenerator(lang, args, verbose, debug)._generate();
+    new ReferenceGenerator(lang, args, verbose, debug).generateLog();
   }
 
   private ReferenceGenerator(Lang lang, Map<String, String> args, boolean verbose, boolean debug)
       throws CompilerException {
     Locale.setDefault(Locale.ROOT);
     LOGGER = new MalLogger("GENERATOR", verbose, debug);
-    this.lang = lang;
-    if (!args.containsKey("path") || args.get("path").isBlank()) {
-      LOGGER.error("Reference generator requires argument 'path'");
-      throw new CompilerException("There were generator errors");
-    } else {
-      this.output = new File(args.get("path"));
-      if (!this.output.isAbsolute()) {
-        LOGGER.error("Argument 'path' must be an absolute path");
+    try {
+      this.lang = lang;
+      if (!args.containsKey("path") || args.get("path").isBlank()) {
+        LOGGER.error("Reference generator requires argument 'path'");
         throw new CompilerException("There were generator errors");
-      } else if (output.isFile()) {
-        LOGGER.error("Argument 'path' is a file but must be an empty directory");
-        throw new CompilerException("There were generator errors");
-      } else if (output.isDirectory() && output.listFiles().length != 0) {
-        LOGGER.error("Argument 'path' must be an empty directory");
-        throw new CompilerException("There were generator errors");
-      }
-    }
-    if (!args.containsKey("package") || args.get("package").isBlank()) {
-      LOGGER.warning("Missing optional argument 'package', using default");
-      this.pkg = "auto";
-    } else {
-      this.pkg = args.get("package");
-    }
-    if (!args.containsKey("core")) {
-      this.core = true;
-    } else {
-      switch (args.get("core").toLowerCase().trim()) {
-        case "true":
-          this.core = true;
-          break;
-        case "false":
-          this.core = false;
-          break;
-        default:
-          LOGGER.error("Optional argument 'core' must be either 'true' or 'false'");
+      } else {
+        this.output = new File(args.get("path"));
+        if (!this.output.isAbsolute()) {
+          LOGGER.error("Argument 'path' must be an absolute path");
           throw new CompilerException("There were generator errors");
+        } else if (output.isFile()) {
+          LOGGER.error("Argument 'path' is a file but must be an empty directory");
+          throw new CompilerException("There were generator errors");
+        } else if (output.isDirectory() && output.listFiles().length != 0) {
+          LOGGER.error("Argument 'path' must be an empty directory");
+          throw new CompilerException("There were generator errors");
+        }
       }
+      if (!args.containsKey("package") || args.get("package").isBlank()) {
+        LOGGER.warning("Missing optional argument 'package', using default");
+        this.pkg = "auto";
+      } else {
+        this.pkg = args.get("package");
+      }
+      if (!args.containsKey("core")) {
+        this.core = true;
+      } else {
+        switch (args.get("core").toLowerCase().trim()) {
+          case "true":
+            this.core = true;
+            break;
+          case "false":
+            this.core = false;
+            break;
+          default:
+            LOGGER.error("Optional argument 'core' must be either 'true' or 'false'");
+            throw new CompilerException("There were generator errors");
+        }
+      }
+      checkRestricted();
+    } catch (CompilerException e) {
+      LOGGER.print();
+      throw e;
     }
-    checkRestricted();
   }
 
   private void checkRestricted() throws CompilerException {
@@ -146,6 +151,16 @@ public class ReferenceGenerator {
     }
     if (err) {
       throw new CompilerException("There were generator errors");
+    }
+  }
+
+  private void generateLog() throws IOException, CompilerException {
+    try {
+      _generate();
+      LOGGER.print();
+    } catch (IOException | CompilerException e) {
+      LOGGER.print();
+      throw e;
     }
   }
 
