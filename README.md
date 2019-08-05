@@ -17,6 +17,13 @@ cd javapoet
 mvn install
 ```
 
+Install modified svgSalamander:
+```
+git clone https://github.com/foreseeti/svgSalamander.git
+cd svgSalamander/svg-core
+mvn install
+```
+
 ## Compile
 
 Compile MAL with:
@@ -40,5 +47,5 @@ source ~/.bashrc
 
 Run MAL with:
 ```
-mal FILE
+malc FILE
 ```

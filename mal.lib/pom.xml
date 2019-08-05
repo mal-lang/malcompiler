@@ -36,6 +36,10 @@ limitations under the License.
       <groupId>com.squareup</groupId>
       <artifactId>javapoet</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.kitfox</groupId>
+      <artifactId>svgSalamander</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

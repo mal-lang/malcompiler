@@ -33,12 +33,6 @@ public class TestCLIParser extends MalTest {
   private static final String FAIL_ILLEGAL_ARGUMENT =
       "CLIParser.addOption should have thrown an IllegalArgumentException";
 
-  private static void assertInvalidValue(IllegalArgumentException e, int value) {
-    assertEquals(
-        String.format("Invalid value %d: The value must be greater than or equal to zero", value),
-        e.getMessage());
-  }
-
   private static void assertInvalidShortOption(IllegalArgumentException e, String shortOpt) {
     assertEquals(
         String.format(

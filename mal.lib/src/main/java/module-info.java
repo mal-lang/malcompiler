@@ -15,8 +15,11 @@
  */
 module mal.lib {
   exports com.foreseeti.mal.lib;
-  exports com.foreseeti.mal.lib.generator;
+  exports com.foreseeti.mal.lib.reference;
+  exports com.foreseeti.mal.lib.securicad;
 
   requires com.squareup.javapoet;
   requires java.logging;
+  requires java.desktop;
+  requires svgSalamander;
 }

@@ -29,7 +29,6 @@ import com.foreseeti.mal.lib.MalLogger;
 import com.foreseeti.mal.lib.Parser;
 import com.foreseeti.mal.lib.Token;
 import com.foreseeti.mal.lib.TokenType;
-import com.foreseeti.mal.lib.generator.ReferenceGenerator;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -257,9 +256,14 @@ public class Main {
         AST ast = Parser.parse(file);
         Analyzer.analyze(ast);
         Lang lang = LangConverter.convert(ast);
-        ReferenceGenerator.generate(lang, opts.args, opts.verbose, opts.debug);
+        com.foreseeti.mal.lib.reference.Generator.generate(
+            lang, opts.args, opts.verbose, opts.debug);
       } else if (opts.target.equals("securicad")) {
-        throw new CompilerException("Target 'securicad' not yet implemented");
+        AST ast = Parser.parse(file);
+        Analyzer.analyze(ast);
+        Lang lang = LangConverter.convert(ast);
+        com.foreseeti.mal.lib.securicad.Generator.generate(
+            lang, opts.args, opts.verbose, opts.debug);
       } else if (opts.target.equals("d3")) {
         throw new CompilerException("Target 'd3' not yet implemented");
       } else {

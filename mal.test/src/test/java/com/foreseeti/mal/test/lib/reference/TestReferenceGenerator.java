@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.foreseeti.mal.test.lib.generator;
+package com.foreseeti.mal.test.lib.reference;
 
 import static com.foreseeti.mal.test.lib.AssertLang.assertGetLangClassPath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.foreseeti.mal.lib.CompilerException;
 import com.foreseeti.mal.lib.Lang;
-import com.foreseeti.mal.lib.generator.ReferenceGenerator;
+import com.foreseeti.mal.lib.reference.Generator;
 import com.foreseeti.mal.test.MalTest;
 import java.io.File;
 import java.io.IOException;
@@ -37,10 +37,10 @@ public class TestReferenceGenerator extends MalTest {
 
   private void assertGeneratorErrors(Lang lang, Map<String, String> args, String[] expectedErrors) {
     try {
-      ReferenceGenerator.generate(lang, args);
-      fail("ReferenceGenerator.generate should have thrown CompilerException");
+      Generator.generate(lang, args);
+      fail("Generator.generate should have thrown CompilerException");
     } catch (IOException e) {
-      fail("ReferenceGenerator.generate should have thrown CompilerException");
+      fail("Generator.generate should have thrown CompilerException");
     } catch (CompilerException e) {
       assertEquals("There were generator errors", e.getMessage());
       assertEmptyOut();
@@ -51,7 +51,7 @@ public class TestReferenceGenerator extends MalTest {
   private void assertGeneratorWarnings(
       Lang lang, Map<String, String> args, String[] expectedWarnings) {
     try {
-      ReferenceGenerator.generate(lang, args);
+      Generator.generate(lang, args);
       assertEmptyOut();
       assertErrLines(expectedWarnings);
     } catch (IOException | CompilerException e) {
@@ -61,7 +61,7 @@ public class TestReferenceGenerator extends MalTest {
 
   private void assertGeneratorOK(Lang lang, Map<String, String> args) {
     try {
-      ReferenceGenerator.generate(lang, args);
+      Generator.generate(lang, args);
       assertEmptyOut();
       assertEmptyErr();
     } catch (IOException | CompilerException e) {
@@ -252,19 +252,18 @@ public class TestReferenceGenerator extends MalTest {
     var lang = assertGetLangClassPath("generator/bad-lang.mal");
     resetTestSystem();
     try {
-      ReferenceGenerator.generate(
-          lang, Map.of("path", getNewTmpDir(), "package", "a", "core", "false"));
-      fail("ReferenceGenerator.generate should have thrown a CompilerException");
+      Generator.generate(lang, Map.of("path", getNewTmpDir(), "package", "a", "core", "false"));
+      fail("Generator.generate should have thrown a CompilerException");
     } catch (IOException e) {
-      fail("ReferenceGenerator.generate should have thrown a CompilerException");
+      fail("Generator.generate should have thrown a CompilerException");
     } catch (CompilerException e) {
       assertEquals("There were generator errors", e.getMessage());
       assertEmptyOut();
       String[] expectedErrors = {
         "[GENERATOR ERROR] Asset 'int' is a java keyword",
         "[GENERATOR ERROR] Attack step 'null' in asset 'int' is a java keyword",
-        "[GENERATOR ERROR] Field 'false' in asset 'int' is a java keyword",
         "[GENERATOR ERROR] Field 'static' in asset 'int' is a java keyword",
+        "[GENERATOR ERROR] Field 'false' in asset 'int' is a java keyword",
         ""
       };
       assertErrLines(expectedErrors);
@@ -276,7 +275,7 @@ public class TestReferenceGenerator extends MalTest {
     var lang = assertGetLangClassPath(langPath);
     resetTestSystem();
     try {
-      ReferenceGenerator.generate(lang, Map.of("path", outDir, "package", "lang"));
+      Generator.generate(lang, Map.of("path", outDir, "package", "lang"));
       assertEmptyOut();
       assertEmptyErr();
       for (var asset : lang.getAssets().values()) {
@@ -301,10 +300,10 @@ public class TestReferenceGenerator extends MalTest {
     var lang = assertGetLangClassPath("analyzer/complex.mal");
     resetTestSystem();
     try {
-      ReferenceGenerator.generate(lang, Map.of("path", outDir, "package", "lang"));
-      fail("ReferenceGenerator.generate should have thrown a CompilerException");
+      Generator.generate(lang, Map.of("path", outDir, "package", "lang"));
+      fail("Generator.generate should have thrown a CompilerException");
     } catch (IOException e) {
-      fail("ReferenceGenerator.generate should have thrown a CompilerException");
+      fail("Generator.generate should have thrown a CompilerException");
     } catch (CompilerException e) {
       assertEquals("There were generator errors", e.getMessage());
       assertEmptyOut();

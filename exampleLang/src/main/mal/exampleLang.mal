@@ -16,7 +16,7 @@
 #id: "com.foreseeti.examplelang"
 #version: "1.0.0"
 
-category Example {
+category System {
   asset Host {
     | networkAccess
       -> sshAccess

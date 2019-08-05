@@ -46,10 +46,10 @@ public class Distributions {
         Uniform.validate(params);
         break;
       case "EasyAndCertain":
-      case "EasyButUncertain":
-      case "HardButCertain":
+      case "EasyAndUncertain":
+      case "HardAndCertain":
       case "HardAndUncertain":
-      case "VeryHardButCertain":
+      case "VeryHardAndCertain":
       case "VeryHardAndUncertain":
       case "Infinity":
       case "Zero":
@@ -82,14 +82,14 @@ public class Distributions {
         return new Uniform(params);
       case "EasyAndCertain":
         return new EasyAndCertain();
-      case "EasyButUncertain":
-        return new EasyButUncertain();
-      case "HardButCertain":
-        return new HardButCertain();
+      case "EasyAndUncertain":
+        return new EasyAndUncertain();
+      case "HardAndCertain":
+        return new HardAndCertain();
       case "HardAndUncertain":
         return new HardAndUncertain();
-      case "VeryHardButCertain":
-        return new VeryHardButCertain();
+      case "VeryHardAndCertain":
+        return new VeryHardAndCertain();
       case "VeryHardAndUncertain":
         return new VeryHardAndUncertain();
       case "Infinity":
@@ -415,7 +415,7 @@ public class Distributions {
   }
 
   public static class EasyAndCertain extends Combination {
-    private static Exponential exponential = new Exponential(1);
+    public static final Exponential exponential = new Exponential(1);
 
     @Override
     public double getMean() {
@@ -428,8 +428,8 @@ public class Distributions {
     }
   }
 
-  public static class EasyButUncertain extends Combination {
-    private static Bernoulli bernoulli = new Bernoulli(0.5);
+  public static class EasyAndUncertain extends Combination {
+    public static final Bernoulli bernoulli = new Bernoulli(0.5);
 
     @Override
     public double getMean() {
@@ -438,12 +438,12 @@ public class Distributions {
 
     @Override
     public String toString() {
-      return "EasyButUncertain";
+      return "EasyAndUncertain";
     }
   }
 
-  public static class HardButCertain extends Combination {
-    private static Exponential exponential = new Exponential(0.1);
+  public static class HardAndCertain extends Combination {
+    public static final Exponential exponential = new Exponential(0.1);
 
     @Override
     public double getMean() {
@@ -452,13 +452,13 @@ public class Distributions {
 
     @Override
     public String toString() {
-      return "HardButCertain";
+      return "HardAndCertain";
     }
   }
 
   public static class HardAndUncertain extends Combination {
-    private static Bernoulli bernoulli = new Bernoulli(0.5);
-    private static Exponential exponential = new Exponential(0.1);
+    public static final Bernoulli bernoulli = new Bernoulli(0.5);
+    public static final Exponential exponential = new Exponential(0.1);
 
     @Override
     public double getMean() {
@@ -471,8 +471,8 @@ public class Distributions {
     }
   }
 
-  public static class VeryHardButCertain extends Combination {
-    private static Exponential exponential = new Exponential(0.01);
+  public static class VeryHardAndCertain extends Combination {
+    public static final Exponential exponential = new Exponential(0.01);
 
     @Override
     public double getMean() {
@@ -481,13 +481,13 @@ public class Distributions {
 
     @Override
     public String toString() {
-      return "VeryHardButCertain";
+      return "VeryHardAndCertain";
     }
   }
 
   public static class VeryHardAndUncertain extends Combination {
-    private static Bernoulli bernoulli = new Bernoulli(0.5);
-    private static Exponential exponential = new Exponential(0.01);
+    public static final Bernoulli bernoulli = new Bernoulli(0.5);
+    public static final Exponential exponential = new Exponential(0.01);
 
     @Override
     public double getMean() {

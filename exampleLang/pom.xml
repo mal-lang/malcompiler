@@ -28,8 +28,160 @@ limitations under the License.
   <version>1.0.0</version>
   <name>exampleLang</name>
 
+  <profiles>
+    <!--
+    This profile is used to build a jar file for securiCAD without
+    running the tests.
+    -->
+    <profile>
+      <id>build-only</id>
+
+      <properties>
+        <maven.test.skip>true</maven.test.skip>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>com.foreseeti</groupId>
+          <artifactId>corelib</artifactId>
+          <version>${kernelcad.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>com.foreseeti</groupId>
+          <artifactId>simulator</artifactId>
+          <version>${kernelcad.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <version>27.0.1-jre</version>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.foreseeti.mal</groupId>
+            <artifactId>mal-maven-plugin</artifactId>
+            <version>${malcompiler.version}</version>
+            <executions>
+              <execution>
+                <id>generate-code</id>
+                <goals>
+                  <goal>securicad</goal>
+                </goals>
+                <configuration>
+                  <file>exampleLang.mal</file>
+                  <packageName>com.foreseeti.examplelang</packageName>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+    This profile is used to run the tests without needing the
+    dependencies required to build a jar file for securiCAD.
+    -->
+    <profile>
+      <id>test-only</id>
+
+      <properties>
+        <maven.install.skip>true</maven.install.skip>
+      </properties>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.foreseeti.mal</groupId>
+            <artifactId>mal-maven-plugin</artifactId>
+            <version>${malcompiler.version}</version>
+            <executions>
+              <execution>
+                <id>generate-test-code</id>
+                <goals>
+                  <goal>reference</goal>
+                </goals>
+                <configuration>
+                  <file>exampleLang.mal</file>
+                  <packageName>com.foreseeti.test.examplelang</packageName>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+    This is the default profile that is used to both run the tests
+    and build a jar file for securiCAD.
+    -->
+    <profile>
+      <id>build-and-test</id>
+
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
+      <dependencies>
+        <dependency>
+          <groupId>com.foreseeti</groupId>
+          <artifactId>corelib</artifactId>
+          <version>${kernelcad.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>com.foreseeti</groupId>
+          <artifactId>simulator</artifactId>
+          <version>${kernelcad.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <version>27.0.1-jre</version>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.foreseeti.mal</groupId>
+            <artifactId>mal-maven-plugin</artifactId>
+            <version>${malcompiler.version}</version>
+            <executions>
+              <execution>
+                <id>generate-code</id>
+                <goals>
+                  <goal>securicad</goal>
+                </goals>
+                <configuration>
+                  <file>exampleLang.mal</file>
+                  <packageName>com.foreseeti.examplelang</packageName>
+                </configuration>
+              </execution>
+              <execution>
+                <id>generate-test-code</id>
+                <goals>
+                  <goal>reference</goal>
+                </goals>
+                <configuration>
+                  <file>exampleLang.mal</file>
+                  <packageName>com.foreseeti.test.examplelang</packageName>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <malcompiler.version>0.1.0-SNAPSHOT</malcompiler.version>
+    <kernelcad.version>1.5.1</kernelcad.version>
   </properties>
 
   <dependencies>
@@ -37,6 +189,7 @@ limitations under the License.
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <version>5.5.0</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -61,23 +214,12 @@ limitations under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.1.2</version>
-      </plugin>
-      <plugin>
-        <groupId>com.foreseeti.mal</groupId>
-        <artifactId>mal-maven-plugin</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
-        <executions>
-          <execution>
-            <id>generate-examplelang</id>
-            <goals>
-              <goal>reference</goal>
-            </goals>
-            <configuration>
-              <file>exampleLang.mal</file>
-              <packageName>com.foreseeti.examplelang</packageName>
-            </configuration>
-          </execution>
-        </executions>
+        <configuration>
+          <skipIfEmpty>true</skipIfEmpty>
+          <archive>
+            <addMavenDescriptor>false</addMavenDescriptor>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>

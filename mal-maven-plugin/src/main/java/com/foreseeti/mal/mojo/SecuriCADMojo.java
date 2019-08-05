@@ -19,30 +19,29 @@ import com.foreseeti.mal.lib.Analyzer;
 import com.foreseeti.mal.lib.CompilerException;
 import com.foreseeti.mal.lib.LangConverter;
 import com.foreseeti.mal.lib.Parser;
-import com.foreseeti.mal.lib.reference.Generator;
+import com.foreseeti.mal.lib.securicad.Generator;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-@Mojo(name = "reference", defaultPhase = LifecyclePhase.GENERATE_TEST_SOURCES)
-public class ReferenceMojo extends MalMojo {
+@Mojo(name = "securicad", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
+public class SecuriCADMojo extends MalMojo {
   /** The output directory to store the generated java files in. */
-  @Parameter(property = "mal.reference.path")
+  @Parameter(property = "mal.securicad.path")
   private File path;
 
   /** The package name to use for the generated java files. */
-  @Parameter(property = "mal.reference.package")
+  @Parameter(property = "mal.securicad.package")
   private String packageName;
 
-  /** Specifies whether the {@code core} classes should be generated. */
-  @Parameter(property = "mal.reference.core", defaultValue = "true")
-  private boolean core;
+  /** The directory where asset icons are located. */
+  @Parameter(property = "mal.securicad.icons")
+  private File icons;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
@@ -52,7 +51,7 @@ public class ReferenceMojo extends MalMojo {
 
     // Initialize output directory
     if (path == null) {
-      path = new File(getBuildDirectory(), "generated-test-sources");
+      path = new File(getBuildDirectory(), "generated-sources");
     }
     createOrClearDirectory(path);
 
@@ -64,7 +63,16 @@ public class ReferenceMojo extends MalMojo {
       args.put("package", packageName);
     }
 
-    args.put("core", String.valueOf(core));
+    if (icons == null) {
+      icons = new File(getResourceDirectory(), "icons");
+      if (icons.exists() && icons.isDirectory()) {
+        args.put("icons", icons.getPath());
+      }
+    } else {
+      validateFileExists(icons);
+      validateFileIsDirectory(icons);
+      args.put("icons", icons.getPath());
+    }
 
     // Generate code
     log.info(String.format("Compiling MAL specification %s", input.getPath()));
@@ -77,16 +85,8 @@ public class ReferenceMojo extends MalMojo {
       throw new MojoFailureException(e.getMessage());
     }
 
-    // Add generated code to project's test source root
-    log.info(String.format("Adding test compile source root %s", path.getPath()));
-    project.addTestCompileSourceRoot(path.getPath());
-
-    // Add attackerProfile.ttc as a resource
-    var attackerProfile = "attackerProfile.ttc";
-    log.info(String.format("Adding test resource %s/%s", path.getPath(), attackerProfile));
-    var resource = new Resource();
-    resource.setDirectory(path.getPath());
-    resource.addInclude(attackerProfile);
-    project.addTestResource(resource);
+    // Add generated code to project's source root
+    log.info(String.format("Adding compile source root %s", path.getPath()));
+    project.addCompileSourceRoot(path.getPath());
   }
 }

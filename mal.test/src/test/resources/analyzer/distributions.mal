@@ -71,25 +71,25 @@ category Distributions {
       EasyAndCertain() + //ok
       EasyAndCertain //ok
     ]
-    | easybutuncertain [
-      EasyButUncertain(0) +
-      EasyButUncertain() + //ok
-      EasyButUncertain //ok
+    | easyanduncertain [
+      EasyAndUncertain(0) +
+      EasyAndUncertain() + //ok
+      EasyAndUncertain //ok
     ]
-    | hardbutcertain [
-      HardButCertain(0) +
-      HardButCertain() + //ok
-      HardButCertain //ok
+    | hardandcertain [
+      HardAndCertain(0) +
+      HardAndCertain() + //ok
+      HardAndCertain //ok
     ]
     | hardanduncertain [
       HardAndUncertain(0) +
       HardAndUncertain() + //ok
       HardAndUncertain //ok
     ]
-    | veryhardbutcertain [
-      VeryHardButCertain(0) +
-      VeryHardButCertain() + //ok
-      VeryHardButCertain //ok
+    | veryhardandcertain [
+      VeryHardAndCertain(0) +
+      VeryHardAndCertain() + //ok
+      VeryHardAndCertain //ok
     ]
     | veryhardanduncertain [
       VeryHardAndUncertain(0) +

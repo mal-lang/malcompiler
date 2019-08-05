@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.foreseeti.mal.lib.generator;
+package com.foreseeti.mal.lib.reference;
 
 import com.foreseeti.mal.lib.CompilerException;
+import com.foreseeti.mal.lib.JavaGenerator;
 import com.foreseeti.mal.lib.Lang;
 import com.foreseeti.mal.lib.Lang.Asset;
 import com.foreseeti.mal.lib.Lang.AttackStep;
@@ -32,7 +33,6 @@ import com.foreseeti.mal.lib.Lang.StepTransitive;
 import com.foreseeti.mal.lib.Lang.StepUnion;
 import com.foreseeti.mal.lib.Lang.TTCExpr;
 import com.foreseeti.mal.lib.Lang.TTCFunc;
-import com.foreseeti.mal.lib.MalLogger;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
@@ -54,12 +54,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Modifier;
 
-public class ReferenceGenerator {
+public class Generator extends JavaGenerator {
   private final String pkg;
-  private final MalLogger LOGGER;
   private final File output;
   private final Lang lang;
   private final boolean core;
@@ -71,101 +69,40 @@ public class ReferenceGenerator {
 
   public static void generate(Lang lang, Map<String, String> args, boolean verbose, boolean debug)
       throws CompilerException, IOException {
-    new ReferenceGenerator(lang, args, verbose, debug).generateLog();
+    new Generator(lang, args, verbose, debug)._generate();
   }
 
-  private ReferenceGenerator(Lang lang, Map<String, String> args, boolean verbose, boolean debug)
+  private Generator(Lang lang, Map<String, String> args, boolean verbose, boolean debug)
       throws CompilerException {
+    super(verbose, debug);
     Locale.setDefault(Locale.ROOT);
-    LOGGER = new MalLogger("GENERATOR", verbose, debug);
-    try {
-      this.lang = lang;
-      if (!args.containsKey("path") || args.get("path").isBlank()) {
-        LOGGER.error("Reference generator requires argument 'path'");
-        throw new CompilerException("There were generator errors");
-      } else {
-        this.output = new File(args.get("path"));
-        if (!this.output.isAbsolute()) {
-          LOGGER.error("Argument 'path' must be an absolute path");
-          throw new CompilerException("There were generator errors");
-        } else if (output.isFile()) {
-          LOGGER.error("Argument 'path' is a file but must be an empty directory");
-          throw new CompilerException("There were generator errors");
-        } else if (output.isDirectory() && output.listFiles().length != 0) {
-          LOGGER.error("Argument 'path' must be an empty directory");
-          throw new CompilerException("There were generator errors");
-        }
-      }
-      if (!args.containsKey("package") || args.get("package").isBlank()) {
-        LOGGER.warning("Missing optional argument 'package', using default");
-        this.pkg = "auto";
-      } else {
-        this.pkg = args.get("package");
-      }
-      if (!args.containsKey("core")) {
-        this.core = true;
-      } else {
-        switch (args.get("core").toLowerCase().trim()) {
-          case "true":
-            this.core = true;
-            break;
-          case "false":
-            this.core = false;
-            break;
-          default:
-            LOGGER.error("Optional argument 'core' must be either 'true' or 'false'");
-            throw new CompilerException("There were generator errors");
-        }
-      }
-      checkRestricted();
-    } catch (CompilerException e) {
-      LOGGER.print();
-      throw e;
+    this.lang = lang;
+    if (!args.containsKey("path") || args.get("path").isBlank()) {
+      throw error("Reference generator requires argument 'path'");
     }
-  }
+    this.output = getOutputDirectory(args.get("path"));
+    if (!args.containsKey("package") || args.get("package").isBlank()) {
+      LOGGER.warning("Missing optional argument 'package', using default");
+      this.pkg = "auto";
+    } else {
+      this.pkg = args.get("package");
+    }
+    if (!args.containsKey("core")) {
+      this.core = true;
+    } else {
+      switch (args.get("core").toLowerCase().trim()) {
+        case "true":
+          this.core = true;
+          break;
+        case "false":
+          this.core = false;
+          break;
+        default:
+          throw error("Optional argument 'core' must be either 'true' or 'false'");
+      }
+    }
 
-  private void checkRestricted() throws CompilerException {
-    boolean err = false;
-    if (!SourceVersion.isName(pkg)) {
-      LOGGER.error(String.format("Package '%s' is not a valid package name", pkg));
-      err = true;
-    }
-    for (Asset asset : lang.getAssets().values()) {
-      if (SourceVersion.isKeyword(asset.getName())) {
-        LOGGER.error(String.format("Asset '%s' is a java keyword", asset.getName()));
-        err = true;
-      }
-      for (AttackStep attackStep : asset.getAttackSteps().values()) {
-        if (SourceVersion.isKeyword(attackStep.getName())) {
-          LOGGER.error(
-              String.format(
-                  "Attack step '%s' in asset '%s' is a java keyword",
-                  attackStep.getName(), asset.getName()));
-          err = true;
-        }
-      }
-      for (Field field : asset.getFields().values()) {
-        if (SourceVersion.isKeyword(field.getName())) {
-          LOGGER.error(
-              String.format(
-                  "Field '%s' in asset '%s' is a java keyword", field.getName(), asset.getName()));
-          err = true;
-        }
-      }
-    }
-    if (err) {
-      throw new CompilerException("There were generator errors");
-    }
-  }
-
-  private void generateLog() throws IOException, CompilerException {
-    try {
-      _generate();
-      LOGGER.print();
-    } catch (IOException | CompilerException e) {
-      LOGGER.print();
-      throw e;
-    }
+    validateNames(this.lang, this.pkg);
   }
 
   private void _generate() throws IOException, CompilerException {
@@ -180,7 +117,7 @@ public class ReferenceGenerator {
     LOGGER.info(String.format("Created %d classes", lang.getAssets().size()));
   }
 
-  private void _generateCore() throws IOException {
+  private void _generateCore() throws IOException, CompilerException {
     File outputFile = new File(output, "core");
     outputFile.mkdirs();
 
@@ -189,8 +126,11 @@ public class ReferenceGenerator {
             "Asset", "Attacker", "AttackStep", "AttackStepMax", "AttackStepMin", "Defense");
     for (String fileName : fileNames) {
       String name = String.format("%s.java", fileName);
-      String resourcePath = String.format("/generator/reference/%s", name);
-      InputStream is = ReferenceGenerator.class.getResourceAsStream(resourcePath);
+      String resourcePath = String.format("/reference/%s", name);
+      InputStream is = Generator.class.getResourceAsStream(resourcePath);
+      if (is == null) {
+        throw error(String.format("Couldn't get resource %s", resourcePath));
+      }
       File destination = new File(outputFile, name);
       Files.copy(is, destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
@@ -208,38 +148,16 @@ public class ReferenceGenerator {
             dist = ((TTCFunc) expr).dist.toString();
           } else {
             fw.close();
-            LOGGER.error(
+            throw error(
                 String.format(
                     "Advanced TTC, used at %s.%s, is not supported",
                     asset.getName(), attackStep.getName()));
-            throw new CompilerException("There were generator errors");
           }
         }
         fw.write(String.format("%s.%s = %s\n", asset.getName(), attackStep.getName(), dist));
       }
     }
     fw.close();
-  }
-
-  /** Name generator to avoid variable duplication. */
-  private static class Name {
-    private static int value = 0;
-
-    public static String get() {
-      return String.format("_%s", Integer.toHexString(value++));
-    }
-
-    public static void reset() {
-      value = 0;
-    }
-  }
-
-  private static String ucFirst(String str) {
-    if (str.isEmpty()) {
-      return str;
-    } else {
-      return str.substring(0, 1).toUpperCase() + str.substring(1, str.length());
-    }
   }
 
   private static ClassName getExtend(AttackStep as) {
@@ -665,88 +583,6 @@ public class ReferenceGenerator {
     return builder;
   }
 
-  /** Statement is an unevaluated javapoet statement. */
-  private class Statement {
-    public final String format;
-    public final Object[] args;
-
-    public Statement(String format, Object[] args) {
-      this.format = format;
-      this.args = args;
-    }
-
-    public void build(MethodSpec.Builder builder) {
-      builder.addStatement(format, args);
-    }
-  }
-
-  /**
-   * Control flows in javapoet usually requires manual closing. AutoFlow does this automatically
-   * when built. AutoFlow can store statements or other AutoFlows. Field prefix is to ease tracking
-   * the variable names when nestling scopes.
-   */
-  private class AutoFlow extends Statement {
-    private final String prefix;
-    private boolean loop;
-    private List<Statement> statements;
-
-    public AutoFlow() {
-      this("");
-    }
-
-    public AutoFlow(String prefix) {
-      this(prefix, "", new Object[0]);
-    }
-
-    public AutoFlow(String prefix, String format, Object... args) {
-      super(format, args);
-      this.prefix = prefix;
-      statements = new ArrayList<>();
-    }
-
-    public AutoFlow(String prefix, boolean loop, String format, Object... args) {
-      this(prefix, format, args);
-      this.loop = loop;
-    }
-
-    public boolean hasPrefix() {
-      return !prefix.isEmpty();
-    }
-
-    public boolean isLoop() {
-      return loop;
-    }
-
-    public AutoFlow addStatement(AutoFlow af) {
-      if (loop) {
-        af.loop = loop;
-      }
-      statements.add(af);
-      return af;
-    }
-
-    public Statement addStatement(String format, Object... args) {
-      Statement statement = new Statement(format, args);
-      statements.add(statement);
-      return statement;
-    }
-
-    @Override
-    public void build(MethodSpec.Builder builder) {
-      // Don't build autoflow without a format, this way we can have a single top-level autoflow and
-      // build that when needed.
-      if (!format.isEmpty()) {
-        builder.beginControlFlow(format, args);
-      }
-      for (Statement statement : statements) {
-        statement.build(builder);
-      }
-      if (!format.isEmpty()) {
-        builder.endControlFlow();
-      }
-    }
-  }
-
   private AutoFlow createStepField(AutoFlow af, StepField expr) {
     String name = expr.field.getName();
     if (af.hasPrefix()) {
@@ -853,7 +689,9 @@ public class ReferenceGenerator {
   }
 
   private AutoFlow createExpr(AutoFlow af, StepExpr expr, Asset asset) {
-    af = subType(af, expr.src, expr.subSrc, asset);
+    if (!af.hasPrefix()) {
+      af = subType(af, expr.src, expr.subSrc, asset);
+    }
     if (expr instanceof StepCollect) {
       af = createExpr(af, ((StepCollect) expr).lhs, asset);
       af = createExpr(af, ((StepCollect) expr).rhs, asset);

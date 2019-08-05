@@ -9,3 +9,7 @@ MAL contributors: Foreseeti AB, Sotirios Katsikeas
 This product includes/uses software, javapoet 1.12.0-SNAPSHOT (https://github.com/square/javapoet),
 developed by Square  (https://square.github.io/)
 License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+This product includes/uses software, svgSalamander 1.1.2 (https://github.com/blackears/svgSalamander)
+developed by Mark McKay  (http://www.kitfox.com/)
+License: The 3-Clause BSD License  (https://opensource.org/licenses/BSD-3-Clause)
