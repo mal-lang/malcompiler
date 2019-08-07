@@ -1,0 +1,12 @@
+#id: "bad-lang"
+#version: "0.0.0"
+
+category Cat {
+  asset int {
+    | null
+  }
+}
+
+associations {
+  int [false] * <-- _ --> * [static] int
+}

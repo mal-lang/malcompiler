@@ -126,6 +126,10 @@ public class ReferenceGenerator {
 
   private void checkRestricted() throws CompilerException {
     boolean err = false;
+    if (!SourceVersion.isName(pkg)) {
+      LOGGER.error(String.format("Package '%s' is not a valid package name", pkg));
+      err = true;
+    }
     for (Asset asset : lang.getAssets().values()) {
       if (SourceVersion.isKeyword(asset.getName())) {
         LOGGER.error(String.format("Asset '%s' is a java keyword", asset.getName()));

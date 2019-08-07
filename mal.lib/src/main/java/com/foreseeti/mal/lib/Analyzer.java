@@ -128,7 +128,8 @@ public class Analyzer {
         }
       }
       if (onlyZeroRefs) {
-        LOGGER.warning(assoc, String.format("Association '%s' is never used", assoc.toShortString()));
+        LOGGER.warning(
+            assoc, String.format("Association '%s' is never used", assoc.toShortString()));
       }
     }
   }

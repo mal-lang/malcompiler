@@ -27,6 +27,8 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.security.Permission;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -62,6 +64,7 @@ public abstract class MalTest {
   private PrintStream errStream;
   private PrintStream oldOut = System.out;
   private PrintStream oldErr = System.err;
+  private List<File> tmpDirs = new ArrayList<>();
 
   private void initTestSystem() {
     System.setSecurityManager(s);
@@ -94,6 +97,15 @@ public abstract class MalTest {
     initTestSystem();
   }
 
+  private static void deleteRecursive(File file) {
+    if (file.isDirectory()) {
+      for (var subFile : file.listFiles()) {
+        deleteRecursive(subFile);
+      }
+    }
+    file.delete();
+  }
+
   @BeforeEach
   public void init() {
     initTestSystem();
@@ -102,6 +114,7 @@ public abstract class MalTest {
   @AfterEach
   public void tearDown() {
     clearTestSystem();
+    deleteTmpDirs();
   }
 
   protected String getOut() {
@@ -221,5 +234,24 @@ public abstract class MalTest {
       fail(e.getMessage());
     }
     throw new RuntimeException("This should be unreachable");
+  }
+
+  public String getNewTmpDir() {
+    try {
+      var tmpPath = Files.createTempDirectory("test-reference-generator");
+      var tmpFile = tmpPath.toFile();
+      tmpDirs.add(tmpFile);
+      return tmpFile.getAbsolutePath();
+    } catch (IOException e) {
+      deleteTmpDirs();
+      fail(e.getMessage());
+    }
+    throw new RuntimeException("This should be unreachable");
+  }
+
+  private void deleteTmpDirs() {
+    for (var tmpDir : tmpDirs) {
+      deleteRecursive(tmpDir);
+    }
   }
 }
