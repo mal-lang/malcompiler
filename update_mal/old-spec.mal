@@ -1,0 +1,146 @@
+#id: "tmp"
+#version: "0.0.0"
+
+include a
+include a // not a comment
+include a.b
+include a b 
+include a/b
+include a\b
+
+category C1 {
+}
+
+category C2
+  info: "info"
+{
+  asset A1 {
+    & At1
+    | At2
+    # At3
+    3 At4
+    E At5
+  }
+
+  asset A2
+    info: "info"
+  {
+    & At1 [BernoulliDistribution(0.7)]
+    & At2 [BinomialDistribution(0.5, 0.6)]
+    & At3 [ExponentialDistribution(0.1)]
+    & At4 [GammaDistribution(0.1, 0.2)]
+    & At5 [Infinity]
+    & At6 [LogNormalDistribution(1, 3)]
+    & At7 [NormalDistribution(1.1, 2.0)]
+    & At8 [ParetoDistribution(1.0, 0)]
+    & At9 [TruncatedNormalDistribution(1.2, 1.3)]
+    & At10 [UniformDistribution(0, 10)]
+    & At11 [Zero]
+  }
+
+  asset A3
+    rationale: "rationale"
+  {
+    & At1
+    & At2
+      info: "info"
+    & At3
+      rationale: "rationale"
+    & At4
+      assumptions: "assumptions"
+    & At5
+      info: "info"
+      assumptions: "assumptions"
+    & At6
+      info: "info"
+      rationale: "rationale"
+      assumptions: "assumptions"
+  }
+
+  asset A4
+    assumptions: "assumptions"
+  {
+    & A1
+      <- A
+    & A2
+      <- A, B
+  }
+
+  asset A5
+    info: "info"
+    assumptions: "assumptions"
+  {
+    & A1
+      -> let v1 = a,
+         a.b,
+         (a),
+         (a)[t],
+         a /\ b,
+         a \/ b,
+         a /\ b \/ c,
+         a[t],
+         a+,
+         a[t]+
+    & A2
+      +> a
+  }
+
+  asset A6
+    info: "info"
+    rationale: "rationale"
+    assumptions: "assumptions"
+  {
+  }
+}
+
+category C3
+  rationale: "rationale"
+{
+  asset A1 extends A1 {
+  }
+}
+
+category C4
+  assumptions: "assumptions"
+{
+  abstractAsset A1 {
+  }
+}
+
+category C5
+  info: "info"
+  assumptions: "assumptions"
+{
+  asset distribution {
+  }
+}
+
+category C6
+  info: "info"
+  rationale: "rationale"
+  assumptions: "assumptions"
+{
+}
+
+associations {
+  I1 [t1] 1   <-- I2 --> 0-1 [t2] I3
+  I4 [t3] 1-* <-- I5 --> *   [t4] I6
+}
+
+assocations {
+  A  [a]  1   <-- A  --> 1   [a]  A
+    info: "info"
+  A  [a]  1   <-- A  --> 1   [a]  A
+    rationale: "rationale"
+  A  [a]  1   <-- A  --> 1   [a]  A
+    assumptions: "assumptions"
+  A  [a]  1   <-- A  --> 1   [a]  A
+    info: "info"
+    assumptions: "assumptions"
+  A  [a]  1   <-- A  --> 1   [a]  A
+    info: "info"
+    rationale: "rationale"
+    assumptions: "assumptions"
+}
+
+// Comment
