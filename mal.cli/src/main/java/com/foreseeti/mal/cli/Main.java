@@ -15,6 +15,9 @@
  */
 package com.foreseeti.mal.cli;
 
+import static com.foreseeti.mal.cli.CLIParser.HasArgument.NO_ARGUMENT;
+import static com.foreseeti.mal.cli.CLIParser.HasArgument.REQUIRED_ARGUMENT;
+
 import com.foreseeti.mal.lib.AST;
 import com.foreseeti.mal.lib.Analyzer;
 import com.foreseeti.mal.lib.CompilerException;
@@ -29,70 +32,23 @@ import com.foreseeti.mal.lib.TokenType;
 import com.foreseeti.mal.lib.generator.ReferenceGenerator;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.ParameterException;
-import picocli.CommandLine.Parameters;
 
 public class Main {
-  @Command(name = "mal")
+  private static boolean useSGR = System.console() != null;
+
   private static class Options {
-    @Parameters(paramLabel = "FILE", description = "MAL specification to compile")
-    public List<File> files;
-
-    @Option(
-        names = {"-l", "--lexer"},
-        description = "Run the lexer and print the tokens")
     public boolean lexer = false;
-
-    @Option(
-        names = {"-p", "--parser"},
-        description = "Run the parser and print the AST")
     public boolean parser = false;
-
-    @Option(
-        names = {"-a", "--analyzer"},
-        description = "Run the analyzer and print the results")
     public boolean analyzer = false;
-
-    @Option(
-        names = {"-t", "--target"},
-        paramLabel = "TARGET",
-        description = "Compilation target")
     public String target = "reference";
-
-    @Option(
-        names = {"--args"},
-        paramLabel = "ARGS",
-        description = "Code generation arguments")
-    public String args = "";
-
-    @Option(
-        names = {"-v", "--verbose"},
-        description = "Print verbose output")
+    public Map<String, String> args = new HashMap<>();
     public boolean verbose = false;
-
-    @Option(
-        names = {"-d", "--debug"},
-        description = "Print debug output")
     public boolean debug = false;
-
-    @Option(
-        names = {"-h", "--help"},
-        usageHelp = true,
-        description = "Print this help and exit")
-    public boolean help = false;
-
-    @Option(
-        names = {"-V", "--version"},
-        versionHelp = true,
-        description = "Print version information and exit")
-    public boolean version = false;
   }
 
   private static Map<String, String> argsToMap(String args) {
@@ -129,6 +85,84 @@ public class Main {
     return map;
   }
 
+  private static void printError(String error) {
+    var sgrError = SGR.of(SGR.bold(SGR.fgRed("Error:")), " ", error);
+    if (useSGR) {
+      System.err.println(sgrError.getSGRString());
+    } else {
+      System.err.println(sgrError.getPlainString());
+    }
+  }
+
+  private static void printHelp(CLIParser cli) {
+    List<SGR> lines = new ArrayList<>();
+    lines.add(
+        SGR.of(
+            SGR.bold("Usage:"),
+            " malc [",
+            SGR.italicized("OPTION"),
+            "]... ",
+            SGR.italicized("FILE")));
+    lines.add(SGR.of());
+    lines.add(SGR.bold("Options:"));
+    lines.addAll(cli.getSGROptionLines());
+    lines.add(SGR.of());
+    lines.add(SGR.bold("Targets:"));
+    lines.add(SGR.of("  reference [", SGR.italicized("default"), "]"));
+    lines.add(SGR.of("  securicad"));
+    lines.add(SGR.of("  d3"));
+    lines.add(SGR.of());
+    lines.add(SGR.of(SGR.bold("Args:"), " [", SGR.italicized("reference"), "]"));
+    lines.add(
+        CLIParser.getSGROptionLine(
+            SGR.of(SGR.fgRGB(135, 206, 235, "path"), "=", SGR.italicized("PATH")),
+            "Write generated sources to PATH"));
+    lines.add(
+        CLIParser.getSGROptionLine(
+            SGR.of(SGR.fgRGB(135, 206, 235, "package"), "=", SGR.italicized("PACKAGE")),
+            "Use PACKAGE as the package for the generated\nsources"));
+    lines.add(
+        CLIParser.getSGROptionLine(
+            SGR.of(
+                SGR.fgRGB(135, 206, 235, "core"),
+                "=",
+                SGR.italicized("true"),
+                "|",
+                SGR.italicized("false")),
+            "Specifies if the core package should be generated"));
+    lines.add(SGR.of());
+    lines.add(SGR.of(SGR.bold("Args:"), " [", SGR.italicized("securicad"), "]"));
+    lines.add(
+        CLIParser.getSGROptionLine(
+            SGR.of(SGR.fgRGB(135, 206, 235, "path"), "=", SGR.italicized("PATH")),
+            "Write generated sources to PATH"));
+    lines.add(
+        CLIParser.getSGROptionLine(
+            SGR.of(SGR.fgRGB(135, 206, 235, "package"), "=", SGR.italicized("PACKAGE")),
+            "Use PACKAGE as the package for the generated\nsources"));
+    lines.add(
+        CLIParser.getSGROptionLine(
+            SGR.of(
+                SGR.fgRGB(135, 206, 235, "core"),
+                "=",
+                SGR.italicized("true"),
+                "|",
+                SGR.italicized("false")),
+            "Specifies if the core package should be generated"));
+    lines.add(SGR.of());
+    lines.add(SGR.of(SGR.bold("Args:"), " [", SGR.italicized("d3"), "]"));
+    lines.add(SGR.of("  Not yet implemented"));
+    if (useSGR) {
+      for (var line : lines) {
+        System.err.println(line.getSGRString());
+      }
+    } else {
+      for (var line : lines) {
+        System.err.println(line.getPlainString());
+      }
+    }
+  }
+
   private static void printVersion() {
     try {
       var title = MalInfo.getTitle();
@@ -143,57 +177,66 @@ public class Main {
     Locale.setDefault(Locale.ROOT);
 
     // Parse command line arguments
+    var cli = new CLIParser();
+    int LEXER = cli.addOption('l', "lexer", NO_ARGUMENT, "Run the lexer and print the tokens");
+    int PARSER = cli.addOption('p', "parser", NO_ARGUMENT, "Run the parser and print the AST");
+    int ANALYZER =
+        cli.addOption('a', "analyzer", NO_ARGUMENT, "Run the analyzer and print the results");
+    int TARGET = cli.addOption('t', "target", REQUIRED_ARGUMENT, "TARGET", "Compilation target");
+    int ARGS = cli.addOption("args", REQUIRED_ARGUMENT, "ARGS", "Code generation arguments");
+    int VERBOSE = cli.addOption('v', "verbose", NO_ARGUMENT, "Print verbose output");
+    int DEBUG = cli.addOption('d', "debug", NO_ARGUMENT, "Print debug output");
+    int HELP = cli.addOption('h', "help", NO_ARGUMENT, "Print this help and exit");
+    int VERSION = cli.addOption('V', "version", NO_ARGUMENT, "Print version information and exit");
+    var cliArgs = cli.parse(args);
+    var options = cliArgs.getOptions();
+    var operands = cliArgs.getOperands();
     var opts = new Options();
-    var cli = new CommandLine(opts);
-    var err = false;
-    String msg = null;
 
-    try {
-      cli.parse(args);
-    } catch (ParameterException e) {
-      err = true;
-      msg = e.getMessage();
-    }
-
-    // Check if help was requested
-    if (cli.isUsageHelpRequested()) {
-      cli.usage(System.err);
-      System.exit(1);
-    }
-
-    // Check if version was requested
-    if (cli.isVersionHelpRequested()) {
-      printVersion();
-      System.exit(1);
-    }
-
-    // Check if command line arguments had errors
-    if (err) {
-      System.err.println(msg);
-      cli.usage(System.err);
-      System.exit(1);
+    for (var opt : options) {
+      int value = opt.getValue();
+      if (value == -1) {
+        printError(((CLIArguments.InvalidOption) opt).getError());
+        printHelp(cli);
+        System.exit(1);
+      } else if (value == LEXER) {
+        opts.lexer = true;
+      } else if (value == PARSER) {
+        opts.parser = true;
+      } else if (value == ANALYZER) {
+        opts.analyzer = true;
+      } else if (value == TARGET) {
+        opts.target = opt.getArgument();
+      } else if (value == ARGS) {
+        opts.args.putAll(argsToMap(opt.getArgument()));
+      } else if (value == VERBOSE) {
+        opts.verbose = true;
+      } else if (value == DEBUG) {
+        opts.debug = true;
+      } else if (value == HELP) {
+        printHelp(cli);
+        System.exit(1);
+      } else if (value == VERSION) {
+        printVersion();
+        System.exit(1);
+      }
     }
 
     // Check if no file was supplied
-    if (opts.files == null || opts.files.size() == 0) {
-      System.err.println("A file must be specified");
-      cli.usage(System.err);
+    if (operands.isEmpty()) {
+      printError("A file must be specified");
+      printHelp(cli);
       System.exit(1);
     }
 
     // Check if multiple files were supplied
-    if (opts.files.size() > 1) {
-      System.err.println("Only one file can be specified");
-      cli.usage(System.err);
+    if (operands.size() > 1) {
+      printError("Only one file can be specified");
+      printHelp(cli);
       System.exit(1);
     }
 
-    Map<String, String> argmap = new HashMap<>();
-    if (!opts.args.isBlank()) {
-      argmap = argsToMap(opts.args);
-    }
-
-    var file = opts.files.get(0);
+    var file = new File(operands.get(0));
     var LOGGER = new MalLogger("MAIN", opts.verbose, opts.debug);
 
     // Execute requested phase
@@ -214,7 +257,7 @@ public class Main {
         AST ast = Parser.parse(file);
         Analyzer.analyze(ast);
         Lang lang = LangConverter.convert(ast);
-        ReferenceGenerator.generate(lang, argmap, opts.verbose, opts.debug);
+        ReferenceGenerator.generate(lang, opts.args, opts.verbose, opts.debug);
       } else if (opts.target.equals("securicad")) {
         throw new CompilerException("Target 'securicad' not yet implemented");
       } else if (opts.target.equals("d3")) {
@@ -223,7 +266,7 @@ public class Main {
         throw new CompilerException(String.format("Invalid compilation target %s", opts.target));
       }
     } catch (IOException | CompilerException e) {
-      msg = e.getMessage();
+      var msg = e.getMessage();
       if (msg != null && !msg.isBlank()) {
         LOGGER.error(e.getMessage());
       }

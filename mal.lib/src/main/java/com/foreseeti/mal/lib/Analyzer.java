@@ -32,7 +32,7 @@ public class Analyzer {
   private Map<String, Scope<AST.AttackStep>> steps = new LinkedHashMap<>();
   private Set<AST.Variable> currentVariables = new LinkedHashSet<>();
   private Map<AST.Variable, Integer> variableReferenceCount = new HashMap<>();
-  private Map<AST.Association, Map<String, Integer>> fieldReferenceCount = new HashMap<>();;
+  private Map<AST.Association, Map<String, Integer>> fieldReferenceCount = new HashMap<>();
 
   private AST ast;
   private boolean failed;

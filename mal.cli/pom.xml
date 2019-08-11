@@ -37,10 +37,6 @@ limitations under the License.
 
   <dependencies>
     <dependency>
-      <groupId>info.picocli</groupId>
-      <artifactId>picocli</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.foreseeti.mal</groupId>
       <artifactId>mal.lib</artifactId>
       <version>${project.version}</version>

@@ -388,13 +388,6 @@ public class Lexer {
     return '0' <= c && c <= '9';
   }
 
-  private boolean isAlpha() {
-    if (eof) {
-      return false;
-    }
-    return isAlpha(input[index]);
-  }
-
   private boolean isAlpha(byte c) {
     return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || c == '_';
   }

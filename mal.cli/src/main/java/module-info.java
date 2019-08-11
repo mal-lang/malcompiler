@@ -16,10 +16,6 @@
 module mal.cli {
   exports com.foreseeti.mal.cli;
 
-  requires info.picocli;
   requires java.logging;
   requires mal.lib;
-
-  opens com.foreseeti.mal.cli to
-      info.picocli;
 }

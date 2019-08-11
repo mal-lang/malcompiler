@@ -32,30 +32,30 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-@SuppressWarnings("serial")
-class ExitSecurityException extends SecurityException {
-  private int status;
-
-  public ExitSecurityException(int status) {
-    this.status = status;
-  }
-
-  public int getStatus() {
-    return this.status;
-  }
-}
-
-class NoExitSecurityManager extends SecurityManager {
-  @Override
-  public void checkExit(int status) {
-    throw new ExitSecurityException(status);
-  }
-
-  @Override
-  public void checkPermission(Permission perm) {}
-}
-
 public abstract class MalTest {
+  @SuppressWarnings("serial")
+  public static class ExitSecurityException extends SecurityException {
+    private int status;
+
+    public ExitSecurityException(int status) {
+      this.status = status;
+    }
+
+    public int getStatus() {
+      return this.status;
+    }
+  }
+
+  private class NoExitSecurityManager extends SecurityManager {
+    @Override
+    public void checkExit(int status) {
+      throw new ExitSecurityException(status);
+    }
+
+    @Override
+    public void checkPermission(Permission perm) {}
+  }
+
   private SecurityManager s = new NoExitSecurityManager();
   private SecurityManager oldS = System.getSecurityManager();
   private ByteArrayOutputStream out;
