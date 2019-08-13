@@ -270,6 +270,7 @@ public class Main {
       if (msg != null && !msg.isBlank()) {
         LOGGER.error(e.getMessage());
       }
+      LOGGER.print();
       System.exit(1);
     }
   }
