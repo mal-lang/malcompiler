@@ -4,6 +4,12 @@ git:
   depth: 1
   quiet: true
 
+addons:
+  sonarcloud:
+    organization: "meta-attack-language"
+    token:
+      secure: "n9xhay1Juhh0Z1WQFl+Q6+0FVbnmeEwJHclL7kl5w4pRXCUN3pCSe/DpnWGoFSWsAu3yvIlrVptGNyb68Kwcv4gGy468rrx8hceXYjMbDOVHlIUvWYfsm7qrx2L+eMs7iw0tERiKX2E3qxOrNBCg9fQ5T7eBhP5KF4oextXyonAXRRSaxzNLqaAD8ABP9ahkuDFu30BGI0dGccCKMG7D4pffHOGNayLrbP1COY8pVgRtl2cDgzySVTlF4882nj/zo3vzT4of6i5J4zxuaaEMG56k6rRmFySfL4L6pdwYYhWGCeg9X6VPH388hoVs0acirtlc5stRcYuloc6Nda5HpJbQr4hhtzjd6sq8ZvrH8lkxaW9RTk0j7DD6/rcmE+VVZ/IWYoO+7YYJFFk+Anbir+p9hO3NA3PWjulJL1g2Eh5hMHuIG+A81Cyv2bpAK6yJwo03coh8C0knNkPwa8RoghE2UKagJGaZbFzoqHkrax5upuxRBSYwvRacp1vAAgnsGb1Xr84k7bghBB0eGNxGNMYINng2fkZCJMfChWd5GdlizQwtT7M5daTwCalky/XegYIBcRwDXYiUx131wkathvqs1rAQcQWMptWHHYqS2niCSWx2qAYPIgHK6BDfLIMHlf50ZvtFOkAW6jcpUWgvhIGYT9Khp90NitiwsmVhE8E="
+
 before_install:
   - echo "Cloning maven-jlink-plugin..."
   - git clone --quiet --no-checkout https://github.com/apache/maven-jlink-plugin.git
@@ -54,3 +60,6 @@ script:
   - echo "Testing update_mal.py..."
   - cd ../update_mal
   - ./run-tests.sh
+  - cd ..
+  - mvn clean verify
+  - mvn sonar:sonar --define sonar.java.coveragePlugin=jacoco --define sonar.dynamicAnalysis=reuseReports --define sonar.jacoco.reportPath="$PWD/mal.test/target/jacoco.exec" --define sonar.language=java
