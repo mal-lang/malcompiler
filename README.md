@@ -12,14 +12,14 @@ mvn install
 
 Install modified javapoet:
 ```
-git clone https://github.com/foreseeti/javapoet.git
+git clone https://github.com/meta-attack-language/javapoet.git
 cd javapoet
 mvn install
 ```
 
 Install modified svgSalamander:
 ```
-git clone https://github.com/foreseeti/svgSalamander.git
+git clone https://github.com/meta-attack-language/svgSalamander.git
 cd svgSalamander/svg-core
 mvn install
 ```
@@ -29,7 +29,7 @@ mvn install
 Compile MAL with:
 ```
 cd malcompiler
-mvn package
+mvn install
 ```
 
 ## Install
