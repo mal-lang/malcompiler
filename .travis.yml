@@ -1,0 +1,56 @@
+language: java
+
+git:
+  depth: 1
+  quiet: true
+
+before_install:
+  - echo "Cloning maven-jlink-plugin..."
+  - git clone --quiet --no-checkout https://github.com/apache/maven-jlink-plugin.git
+  - cd maven-jlink-plugin
+  - git checkout --quiet -b tmp d474b2d0c664faee2500fb3cb869898aca281b79
+  - cd ..
+  - echo "Cloning javapoet..."
+  - git clone --quiet --depth 1 https://github.com/meta-attack-language/javapoet.git
+  - echo "Cloning svgSalamander..."
+  - git clone --quiet --depth 1 https://github.com/meta-attack-language/svgSalamander.git
+
+install:
+  - echo "Installing maven-jlink-plugin..."
+  - cd maven-jlink-plugin
+  - mvn install --quiet --batch-mode --define maven.test.skip=true
+  - echo "Installing javapoet..."
+  - cd ../javapoet
+  - mvn install --quiet --batch-mode --define maven.test.skip=true
+  - echo "Installing svgSalamander..."
+  - cd ../svgSalamander/svg-core
+  - mvn install --quiet --batch-mode --define maven.test.skip=true
+  - cd ../..
+
+before_script:
+  - echo "Cleaning up cloned dependencies"
+  - rm -rf maven-jlink-plugin
+  - rm -rf javapoet
+  - rm -rf svgSalamander
+
+script:
+  - echo "Installing mal..."
+  - mvn clean install --batch-mode
+  - echo "Installing mal.lib..."
+  - cd mal.lib
+  - mvn clean install --quiet --batch-mode
+  - echo "Installing mal.cli..."
+  - cd ../mal.cli
+  - mvn clean install --quiet --batch-mode
+  - echo "Installing mal.test..."
+  - cd ../mal.test
+  - mvn clean install --quiet --batch-mode
+  - echo "Installing mal.img..."
+  - cd ../mal.img
+  - mvn clean install --quiet --batch-mode
+  - echo "Installing mal-maven-plugin..."
+  - cd ../mal-maven-plugin
+  - mvn clean install --quiet --batch-mode
+  - echo "Testing update_mal.py..."
+  - cd ../update_mal
+  - ./run-tests.sh

@@ -4,12 +4,14 @@ OLD_MAL="old-spec.mal"
 NEW_MAL="new-spec.mal"
 TMP_MAL="tmp-spec.mal"
 RUN_UPDATE="python3 update_mal.py"
+FAIL="0"
 
 function run_test {
   CMD="$1"
   eval "$CMD"
   if [[ "$(diff "$NEW_MAL" "$TMP_MAL")" != "" ]]; then
     >&2 echo "Error: \"$CMD\" failed"
+    FAIL="1"
   fi
   rm -f "$TMP_MAL"
 }
@@ -28,3 +30,7 @@ run_test "$RUN_UPDATE -i - -o $TMP_MAL < $OLD_MAL"
 
 # Test input from stdin, output to stdout
 run_test "$RUN_UPDATE -i - -o - < $OLD_MAL > $TMP_MAL"
+
+if [[ "$FAIL" == "1" ]]; then
+  exit 1
+fi
