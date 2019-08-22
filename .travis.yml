@@ -1,6 +1,6 @@
 language: java
 dist: bionic
-jdk: openjdk11
+jdk: openjdk12
 
 git:
   quiet: true
@@ -13,14 +13,11 @@ addons:
 
 before_install:
   - echo "Cloning maven-jlink-plugin..."
-  - git clone --quiet --no-checkout https://github.com/apache/maven-jlink-plugin.git
-  - cd maven-jlink-plugin
-  - git checkout --quiet -b tmp d474b2d0c664faee2500fb3cb869898aca281b79
-  - cd ..
+  - git clone --quiet --depth 1 https://github.com/mal-lang/maven-jlink-plugin.git
   - echo "Cloning javapoet..."
-  - git clone --quiet --depth 1 https://github.com/foreseeti/javapoet.git
+  - git clone --quiet --depth 1 https://github.com/mal-lang/javapoet.git
   - echo "Cloning svgSalamander..."
-  - git clone --quiet --depth 1 https://github.com/foreseeti/svgSalamander.git
+  - git clone --quiet --depth 1 https://github.com/mal-lang/svgSalamander.git
 
 install:
   - echo "Installing maven-jlink-plugin..."

@@ -23,7 +23,7 @@ limitations under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.foreseeti.mal</groupId>
+    <groupId>org.mal-lang</groupId>
     <artifactId>mal</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
@@ -33,7 +33,7 @@ limitations under the License.
 
   <dependencies>
     <dependency>
-      <groupId>com.foreseeti.mal</groupId>
+      <groupId>org.mal-lang</groupId>
       <artifactId>mal.cli</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -42,10 +42,10 @@ limitations under the License.
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jlink-plugin</artifactId>
+        <groupId>org.mal-lang</groupId>
+        <artifactId>jlink-maven-plugin</artifactId>
         <configuration>
-          <launcher>malc=mal.cli/com.foreseeti.mal.cli.Main</launcher>
+          <launcher>malc=mal.cli/org.mal_lang.mal.cli.Main</launcher>
         </configuration>
       </plugin>
     </plugins>

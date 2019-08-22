@@ -4,22 +4,21 @@
 
 Install latest maven-jlink-plugin:
 ```
-git clone https://github.com/apache/maven-jlink-plugin.git
+git clone https://github.com/mal-lang/maven-jlink-plugin.git
 cd maven-jlink-plugin
-git checkout -b tmp d474b2d0c664faee2500fb3cb869898aca281b79
 mvn install
 ```
 
 Install modified javapoet:
 ```
-git clone https://github.com/meta-attack-language/javapoet.git
+git clone https://github.com/mal-lang/javapoet.git
 cd javapoet
 mvn install
 ```
 
 Install modified svgSalamander:
 ```
-git clone https://github.com/meta-attack-language/svgSalamander.git
+git clone https://github.com/mal-lang/svgSalamander.git
 cd svgSalamander/svg-core
 mvn install
 ```

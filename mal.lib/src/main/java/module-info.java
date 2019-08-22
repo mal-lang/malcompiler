@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 module mal.lib {
-  exports com.foreseeti.mal.lib;
-  exports com.foreseeti.mal.lib.reference;
-  exports com.foreseeti.mal.lib.securicad;
+  exports org.mal_lang.mal.lib;
+  exports org.mal_lang.mal.lib.reference;
+  exports org.mal_lang.mal.lib.securicad;
 
   requires com.squareup.javapoet;
   requires java.logging;
