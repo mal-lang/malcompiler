@@ -23,7 +23,7 @@ limitations under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.mal-lang</groupId>
-  <artifactId>mal</artifactId>
+  <artifactId>malcompiler</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
@@ -54,10 +54,10 @@ limitations under the License.
   </scm>
 
   <modules>
-    <module>mal.lib</module>
-    <module>mal.cli</module>
-    <module>mal.test</module>
-    <module>mal.img</module>
+    <module>malcompiler.lib</module>
+    <module>malcompiler.cli</module>
+    <module>malcompiler.test</module>
+    <module>malcompiler.jlink</module>
     <module>mal-maven-plugin</module>
   </modules>
 

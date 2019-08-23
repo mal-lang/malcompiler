@@ -38,19 +38,19 @@ before_script:
   - rm -rf svgSalamander
 
 script:
-  - echo "Installing mal..."
+  - echo "Installing malcompiler..."
   - mvn clean install --quiet --batch-mode
-  - echo "Installing mal.lib..."
-  - cd mal.lib
+  - echo "Installing malcompiler.lib..."
+  - cd malcompiler.lib
   - mvn clean install --quiet --batch-mode
-  - echo "Installing mal.cli..."
-  - cd ../mal.cli
+  - echo "Installing malcompiler.cli..."
+  - cd ../malcompiler.cli
   - mvn clean install --quiet --batch-mode
-  - echo "Installing mal.test..."
-  - cd ../mal.test
+  - echo "Installing malcompiler.test..."
+  - cd ../malcompiler.test
   - mvn clean install --quiet --batch-mode
-  - echo "Installing mal.img..."
-  - cd ../mal.img
+  - echo "Installing malcompiler.img..."
+  - cd ../malcompiler.jlink
   - mvn clean install --quiet --batch-mode
   - echo "Installing mal-maven-plugin..."
   - cd ../mal-maven-plugin
@@ -60,4 +60,4 @@ script:
   - ./run-tests.sh
   - cd ..
   - mvn clean verify --quiet --batch-mode
-  - mvn sonar:sonar --quiet --batch-mode --define sonar.projectKey=mal-lang_malcompiler --define sonar.java.coveragePlugin=jacoco --define sonar.dynamicAnalysis=reuseReports --define sonar.jacoco.reportPath="$PWD/mal.test/target/jacoco.exec" --define sonar.language=java
+  - mvn sonar:sonar --quiet --batch-mode --define sonar.projectKey=mal-lang_malcompiler --define sonar.java.coveragePlugin=jacoco --define sonar.dynamicAnalysis=reuseReports --define sonar.jacoco.reportPath="$PWD/malcompiler.test/target/jacoco.exec" --define sonar.language=java

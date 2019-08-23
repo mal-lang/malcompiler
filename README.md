@@ -2,25 +2,25 @@
 
 ## Requirements
 
-Install latest maven-jlink-plugin:
+Install modified maven-jlink-plugin:
 ```
 git clone https://github.com/mal-lang/maven-jlink-plugin.git
 cd maven-jlink-plugin
-mvn install
+mvn install -Dmaven.test.skip=true
 ```
 
 Install modified javapoet:
 ```
 git clone https://github.com/mal-lang/javapoet.git
 cd javapoet
-mvn install
+mvn install -Dmaven.test.skip=true
 ```
 
 Install modified svgSalamander:
 ```
 git clone https://github.com/mal-lang/svgSalamander.git
 cd svgSalamander/svg-core
-mvn install
+mvn install -Dmaven.test.skip=true
 ```
 
 ## Compile
@@ -35,10 +35,10 @@ mvn install
 
 Install MAL with:
 ```
-mkdir ~/bin/mal
-cd ~/bin/mal
-unzip /path/to/malcomplier/mal.img/target/mal.img-0.1.0-SNAPSHOT.zip
-echo 'export PATH="$PATH:$HOME/bin/mal/bin"' >> ~/.bashrc
+mkdir -p ~/bin/malcompiler
+cd ~/bin/malcompiler
+unzip /path/to/malcomplier/malcompiler.jlink/target/malcompiler.jlink-0.1.0-SNAPSHOT.zip
+echo 'export PATH="$PATH:$HOME/bin/malcompiler/bin"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
