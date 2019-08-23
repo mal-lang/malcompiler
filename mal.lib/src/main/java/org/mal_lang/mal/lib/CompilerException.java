@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module mal.cli {
-  exports org.mal_lang.mal.cli;
+package org.mal_lang.mal.lib;
 
-  requires java.logging;
-  requires mal.lib;
+@SuppressWarnings("serial")
+public class CompilerException extends Exception {
+  public CompilerException() {
+    super("");
+  }
+
+  public CompilerException(String msg) {
+    super(msg);
+  }
 }

@@ -23,7 +23,7 @@ limitations under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.foreseeti.mal</groupId>
+    <groupId>org.mal-lang</groupId>
     <artifactId>mal</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
@@ -32,12 +32,12 @@ limitations under the License.
   <packaging>jar</packaging>
 
   <properties>
-    <project.mainClass>com.foreseeti.mal.cli.Main</project.mainClass>
+    <project.mainClass>org.mal_lang.mal.cli.Main</project.mainClass>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>com.foreseeti.mal</groupId>
+      <groupId>org.mal-lang</groupId>
       <artifactId>mal.lib</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -59,6 +59,30 @@ limitations under the License.
             <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
           </archive>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
