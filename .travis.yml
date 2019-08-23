@@ -1,14 +1,15 @@
 language: java
+dist: bionic
+jdk: openjdk11
 
 git:
-  depth: 1
   quiet: true
 
 addons:
   sonarcloud:
     organization: "meta-attack-language"
     token:
-      secure: "n9xhay1Juhh0Z1WQFl+Q6+0FVbnmeEwJHclL7kl5w4pRXCUN3pCSe/DpnWGoFSWsAu3yvIlrVptGNyb68Kwcv4gGy468rrx8hceXYjMbDOVHlIUvWYfsm7qrx2L+eMs7iw0tERiKX2E3qxOrNBCg9fQ5T7eBhP5KF4oextXyonAXRRSaxzNLqaAD8ABP9ahkuDFu30BGI0dGccCKMG7D4pffHOGNayLrbP1COY8pVgRtl2cDgzySVTlF4882nj/zo3vzT4of6i5J4zxuaaEMG56k6rRmFySfL4L6pdwYYhWGCeg9X6VPH388hoVs0acirtlc5stRcYuloc6Nda5HpJbQr4hhtzjd6sq8ZvrH8lkxaW9RTk0j7DD6/rcmE+VVZ/IWYoO+7YYJFFk+Anbir+p9hO3NA3PWjulJL1g2Eh5hMHuIG+A81Cyv2bpAK6yJwo03coh8C0knNkPwa8RoghE2UKagJGaZbFzoqHkrax5upuxRBSYwvRacp1vAAgnsGb1Xr84k7bghBB0eGNxGNMYINng2fkZCJMfChWd5GdlizQwtT7M5daTwCalky/XegYIBcRwDXYiUx131wkathvqs1rAQcQWMptWHHYqS2niCSWx2qAYPIgHK6BDfLIMHlf50ZvtFOkAW6jcpUWgvhIGYT9Khp90NitiwsmVhE8E="
+      secure: "J+RqAUI5IHYgJA08XX0EzMhcxTZbD6r3UK6Z0+kyU8HRZUdgDyVmaIyCFnzBOOqePcQ6vFd6PHvFICFvIsdgV3h4C49IgCseYlRtiXPmXJQmoJcXBLsPMUal2ZbQsjeoDaHT9moAr9rLNmAVA/ThuJSVmxXGe0RTOqda61uZXBPeB5/0JSOObV4OHogiJ2zGrosetnafHUs2T80MXStMn7jFiQ5tzgj/oXasFw7FVV/mnkHpRosU/QUSDeZD+FRpwykWwIXRI/5hqK9EMhsvS0BEasyrPlSutVH8qU7v0lk9C0xffpIRAr9ahcwokIppIVGCY3tW7RWTBHAzzIDfR21hA8qbIR2CAPqf5hoNwrDnmbSCumRjOnVfiJAicW5wp8p1nX7JQJAhUeF/1E3CzdXHNrmkPcp3BA2Ug01I4LQxmz/IGEfsfA1mEP8mchPY2p0e5iHYTojgJMfyuqVgLdFhhTq/bED9rnElHEtbK9/Yt77Ws4iwXwGLMo3C6uFn3dhmiIvyaRZUjyjgU6TpuqFrujtH1LksbEtmH1tY/T9APbQFFxd6PzqaxYnRIlVdPrtb3ERQFGoHC5O0lieVZI26LaPwbmFdJgA6NqCrNiRf4fOYBQfsyFGqhbLHlayh4mqxlD05wserhkpDcmBHCR9/VF7Kqbh4/FB9JUv09tY="
 
 before_install:
   - echo "Cloning maven-jlink-plugin..."
@@ -17,9 +18,9 @@ before_install:
   - git checkout --quiet -b tmp d474b2d0c664faee2500fb3cb869898aca281b79
   - cd ..
   - echo "Cloning javapoet..."
-  - git clone --quiet --depth 1 https://github.com/meta-attack-language/javapoet.git
+  - git clone --quiet --depth 1 https://github.com/foreseeti/javapoet.git
   - echo "Cloning svgSalamander..."
-  - git clone --quiet --depth 1 https://github.com/meta-attack-language/svgSalamander.git
+  - git clone --quiet --depth 1 https://github.com/foreseeti/svgSalamander.git
 
 install:
   - echo "Installing maven-jlink-plugin..."
@@ -41,7 +42,7 @@ before_script:
 
 script:
   - echo "Installing mal..."
-  - mvn clean install --batch-mode
+  - mvn clean install --quiet --batch-mode
   - echo "Installing mal.lib..."
   - cd mal.lib
   - mvn clean install --quiet --batch-mode
@@ -61,5 +62,5 @@ script:
   - cd ../update_mal
   - ./run-tests.sh
   - cd ..
-  - mvn clean verify
-  - mvn sonar:sonar --define sonar.java.coveragePlugin=jacoco --define sonar.dynamicAnalysis=reuseReports --define sonar.jacoco.reportPath="$PWD/mal.test/target/jacoco.exec" --define sonar.language=java
+  - mvn clean verify --quiet --batch-mode
+  - mvn sonar:sonar --quiet --batch-mode --define sonar.projectKey=mal-lang_malcompiler --define sonar.java.coveragePlugin=jacoco --define sonar.dynamicAnalysis=reuseReports --define sonar.jacoco.reportPath="$PWD/mal.test/target/jacoco.exec" --define sonar.language=java
