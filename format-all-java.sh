@@ -17,7 +17,7 @@ then
   wget -q "$URL"
 fi
 
-PROJECTS=("mal.lib" "mal.cli" "mal.test" "mal.img" "mal-maven-plugin")
+PROJECTS=("malcompiler.lib" "malcompiler.cli" "malcompiler.test" "malcompiler.jlink" "mal-maven-plugin")
 
 for project in "${PROJECTS[@]}"
 do
