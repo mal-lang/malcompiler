@@ -9,7 +9,7 @@ import com.foreseeti.simulator.AbstractAttacker;
 import com.foreseeti.simulator.AttackStep;
 import com.foreseeti.simulator.BaseLangLink;
 import com.foreseeti.simulator.Defense;
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 
 @DisplayClass(supportCapexOpex = false, category = Category.Attacker)
 @TypeName(name = "Attacker")
@@ -51,13 +51,13 @@ public class Attacker extends AbstractAttacker {
   }
 
   @Override
-  public ImmutableSet<AttackStep> getAttackSteps() {
-    return ImmutableSet.copyOf(new AttackStep[] {entryPoint});
+  public Set<AttackStep> getAttackSteps() {
+    return Set.of(entryPoint);
   }
 
   @Override
-  public ImmutableSet<Defense> getDefenses() {
-    return ImmutableSet.copyOf(new Defense[] {});
+  public Set<Defense> getDefenses() {
+    return Set.of();
   }
 
   @TypeName(name = "EntryPoint")

@@ -147,12 +147,12 @@ public class AssetGenerator extends JavaGenerator {
   private void createFields(TypeSpec.Builder parentBuilder, Asset asset) {
     if (!asset.hasSuperAsset()) {
       // if we extend something we will have these lists from our parent
-      ClassName immutableSet = ClassName.get("com.google.common.collect", "ImmutableSet");
+      ClassName set = ClassName.get("java.util", "Set");
       ClassName attackStep = ClassName.get("com.foreseeti.simulator", "AttackStep");
-      TypeName type = ParameterizedTypeName.get(immutableSet, attackStep);
+      TypeName type = ParameterizedTypeName.get(set, attackStep);
       parentBuilder.addField(type, "attackSteps", Modifier.PROTECTED);
       ClassName defense = ClassName.get("com.foreseeti.simulator", "Defense");
-      type = ParameterizedTypeName.get(immutableSet, defense);
+      type = ParameterizedTypeName.get(set, defense);
       parentBuilder.addField(type, "defenses", Modifier.PROTECTED);
     }
 
@@ -299,9 +299,9 @@ public class AssetGenerator extends JavaGenerator {
   // GETTERS
 
   private void createGetAttackSteps(TypeSpec.Builder parentBuilder) {
-    ClassName immutableSet = ClassName.get("com.google.common.collect", "ImmutableSet");
+    ClassName set = ClassName.get("java.util", "Set");
     ClassName attackStep = ClassName.get("com.foreseeti.simulator", "AttackStep");
-    TypeName type = ParameterizedTypeName.get(immutableSet, attackStep);
+    TypeName type = ParameterizedTypeName.get(set, attackStep);
     MethodSpec.Builder builder = MethodSpec.methodBuilder("getAttackSteps");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
@@ -311,9 +311,9 @@ public class AssetGenerator extends JavaGenerator {
   }
 
   private void createGetDefenses(TypeSpec.Builder parentBuilder) {
-    ClassName immutableSet = ClassName.get("com.google.common.collect", "ImmutableSet");
+    ClassName set = ClassName.get("java.util", "Set");
     ClassName defense = ClassName.get("com.foreseeti.simulator", "Defense");
-    TypeName type = ParameterizedTypeName.get(immutableSet, defense);
+    TypeName type = ParameterizedTypeName.get(set, defense);
     MethodSpec.Builder builder = MethodSpec.methodBuilder("getDefenses");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
@@ -423,7 +423,6 @@ public class AssetGenerator extends JavaGenerator {
   }
 
   private void createInitLists(TypeSpec.Builder parentBuilder, Asset asset) {
-    ClassName immutableSet = ClassName.get("com.google.common.collect", "ImmutableSet");
     MethodSpec.Builder builder = MethodSpec.methodBuilder("initLists");
     builder.addModifiers(Modifier.PROTECTED);
     List<String> attackSteps = new ArrayList<>();
@@ -440,25 +439,28 @@ public class AssetGenerator extends JavaGenerator {
       builder.addStatement("super.initLists()");
     }
 
+    ClassName set = ClassName.get("java.util", "Set");
+    ClassName hashSet = ClassName.get("java.util", "HashSet");
+
     ClassName attackStep = ClassName.get("com.foreseeti.simulator", "AttackStep");
-    builder.addCode("this.attackSteps = $T.<$T>builder()", immutableSet, attackStep);
+    builder.addStatement("$T<$T> attackSteps = new $T<>()", set, attackStep, hashSet);
     if (asset.hasSuperAsset()) {
-      builder.addCode(".addAll(this.attackSteps)");
+      builder.addStatement("attackSteps.addAll(this.attackSteps)");
     }
     for (String name : attackSteps) {
-      builder.addCode(".add($L)", name);
+      builder.addStatement("attackSteps.add($L)", name);
     }
-    builder.addStatement(".build()");
+    builder.addStatement("this.attackSteps = $T.copyOf(attackSteps)", set);
 
     ClassName defense = ClassName.get("com.foreseeti.simulator", "Defense");
-    builder.addCode("this.defenses = $T.<$T>builder()", immutableSet, defense);
+    builder.addStatement("$T<$T> defenses = new $T<>()", set, defense, hashSet);
     if (asset.hasSuperAsset()) {
-      builder.addCode(".addAll(this.defenses)");
+      builder.addStatement("defenses.addAll(this.defenses)");
     }
     for (String name : defenses) {
-      builder.addCode(".add($L)", name);
+      builder.addStatement("defenses.add($L)", name);
     }
-    builder.addStatement(".build()");
+    builder.addStatement("this.defenses = $T.copyOf(defenses)", set);
 
     builder.addStatement("fillElementMap()");
     parentBuilder.addMethod(builder.build());
