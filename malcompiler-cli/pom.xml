@@ -28,24 +28,25 @@ limitations under the License.
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>malcompiler.lib</artifactId>
+  <artifactId>malcompiler-cli</artifactId>
   <packaging>jar</packaging>
+
+  <properties>
+    <project.mainClass>org.mal_lang.compiler.cli.Main</project.mainClass>
+  </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.mal-lang</groupId>
-      <artifactId>javapoet</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.mal-lang</groupId>
-      <artifactId>svgSalamander</artifactId>
+      <artifactId>malcompiler-lib</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
   <build>
     <resources>
       <resource>
-        <directory>${project.basedir}/src/main/resources</directory>
+        <directory>${project.basedir}/src/main/resources-filtered</directory>
         <filtering>true</filtering>
       </resource>
     </resources>

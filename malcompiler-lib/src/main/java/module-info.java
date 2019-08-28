@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module malcompiler.cli {
-  exports org.mal_lang.compiler.cli;
+module org.mal_lang.compiler.lib {
+  exports org.mal_lang.compiler.lib;
+  exports org.mal_lang.compiler.lib.reference;
+  exports org.mal_lang.compiler.lib.securicad;
 
+  requires com.squareup.javapoet;
   requires java.logging;
-  requires malcompiler.lib;
+  requires java.desktop;
+  requires svgSalamander;
 }

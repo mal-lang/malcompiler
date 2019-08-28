@@ -28,7 +28,7 @@ limitations under the License.
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>malcompiler.test</artifactId>
+  <artifactId>malcompiler-test</artifactId>
 
   <properties>
     <maven.install.skip>true</maven.install.skip>
@@ -41,12 +41,12 @@ limitations under the License.
     </dependency>
     <dependency>
       <groupId>org.mal-lang</groupId>
-      <artifactId>malcompiler.lib</artifactId>
+      <artifactId>malcompiler-lib</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.mal-lang</groupId>
-      <artifactId>malcompiler.cli</artifactId>
+      <artifactId>malcompiler-cli</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
@@ -75,7 +75,7 @@ limitations under the License.
         <artifactId>exec-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>Generating vehicleLang</id>
+            <id>generate-vehiclelang</id>
             <phase>generate-test-sources</phase>
             <goals>
               <goal>java</goal>
@@ -85,13 +85,15 @@ limitations under the License.
               <arguments>
                 <argument>${project.basedir}/src/test/resources/vehiclelang/vehicleLang.mal</argument>
                 <argument>--args</argument>
-                <argument>path=${project.build.directory}/generated-test-sources,package=vehicle</argument>
+                <argument>path=${project.build.directory}/generated-test-sources</argument>
+                <argument>--args</argument>
+                <argument>package=vehicle</argument>
               </arguments>
               <testSourceRoot>${project.build.directory}/generated-test-sources</testSourceRoot>
             </configuration>
           </execution>
           <execution>
-            <id>Generating Bleeding Edge</id>
+            <id>generate-bled</id>
             <phase>generate-test-sources</phase>
             <goals>
               <goal>java</goal>
@@ -101,7 +103,11 @@ limitations under the License.
               <arguments>
                 <argument>${project.basedir}/src/test/resources/bled/bled.mal</argument>
                 <argument>--args</argument>
-                <argument>path=${project.build.directory}/generated-bled-sources/bled,package=bled,core=false</argument>
+                <argument>path=${project.build.directory}/generated-bled-sources/bled</argument>
+                <argument>--args</argument>
+                <argument>package=bled</argument>
+                <argument>--args</argument>
+                <argument>core=false</argument>
               </arguments>
               <testSourceRoot>${project.build.directory}/generated-bled-sources/bled</testSourceRoot>
             </configuration>
