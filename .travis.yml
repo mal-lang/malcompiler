@@ -1,6 +1,6 @@
 language: java
 dist: bionic
-jdk: openjdk12
+jdk: openjdk11
 
 git:
   quiet: true
@@ -12,45 +12,33 @@ addons:
       secure: "J+RqAUI5IHYgJA08XX0EzMhcxTZbD6r3UK6Z0+kyU8HRZUdgDyVmaIyCFnzBOOqePcQ6vFd6PHvFICFvIsdgV3h4C49IgCseYlRtiXPmXJQmoJcXBLsPMUal2ZbQsjeoDaHT9moAr9rLNmAVA/ThuJSVmxXGe0RTOqda61uZXBPeB5/0JSOObV4OHogiJ2zGrosetnafHUs2T80MXStMn7jFiQ5tzgj/oXasFw7FVV/mnkHpRosU/QUSDeZD+FRpwykWwIXRI/5hqK9EMhsvS0BEasyrPlSutVH8qU7v0lk9C0xffpIRAr9ahcwokIppIVGCY3tW7RWTBHAzzIDfR21hA8qbIR2CAPqf5hoNwrDnmbSCumRjOnVfiJAicW5wp8p1nX7JQJAhUeF/1E3CzdXHNrmkPcp3BA2Ug01I4LQxmz/IGEfsfA1mEP8mchPY2p0e5iHYTojgJMfyuqVgLdFhhTq/bED9rnElHEtbK9/Yt77Ws4iwXwGLMo3C6uFn3dhmiIvyaRZUjyjgU6TpuqFrujtH1LksbEtmH1tY/T9APbQFFxd6PzqaxYnRIlVdPrtb3ERQFGoHC5O0lieVZI26LaPwbmFdJgA6NqCrNiRf4fOYBQfsyFGqhbLHlayh4mqxlD05wserhkpDcmBHCR9/VF7Kqbh4/FB9JUv09tY="
 
 before_install:
-  - echo "Cloning maven-jlink-plugin..."
-  - git clone --quiet --depth 1 https://github.com/mal-lang/maven-jlink-plugin.git
   - echo "Cloning javapoet..."
   - git clone --quiet --depth 1 https://github.com/mal-lang/javapoet.git
-  - echo "Cloning svgSalamander..."
-  - git clone --quiet --depth 1 https://github.com/mal-lang/svgSalamander.git
 
 install:
-  - echo "Installing maven-jlink-plugin..."
-  - cd maven-jlink-plugin
-  - mvn install --quiet --batch-mode --define maven.test.skip=true
   - echo "Installing javapoet..."
-  - cd ../javapoet
+  - cd javapoet
   - mvn install --quiet --batch-mode --define maven.test.skip=true
-  - echo "Installing svgSalamander..."
-  - cd ../svgSalamander/svg-core
-  - mvn install --quiet --batch-mode --define maven.test.skip=true
-  - cd ../..
+  - cd ..
 
 before_script:
   - echo "Cleaning up cloned dependencies"
-  - rm -rf maven-jlink-plugin
   - rm -rf javapoet
-  - rm -rf svgSalamander
 
 script:
   - echo "Installing malcompiler..."
   - mvn clean install --quiet --batch-mode
-  - echo "Installing malcompiler.lib..."
-  - cd malcompiler.lib
+  - echo "Installing malcompiler-lib..."
+  - cd malcompiler-lib
   - mvn clean install --quiet --batch-mode
-  - echo "Installing malcompiler.cli..."
-  - cd ../malcompiler.cli
+  - echo "Installing malcompiler-cli..."
+  - cd ../malcompiler-cli
   - mvn clean install --quiet --batch-mode
-  - echo "Installing malcompiler.test..."
-  - cd ../malcompiler.test
+  - echo "Installing malcompiler-test..."
+  - cd ../malcompiler-test
   - mvn clean install --quiet --batch-mode
-  - echo "Installing malcompiler.img..."
-  - cd ../malcompiler.jlink
+  - echo "Installing malcompiler-jlink..."
+  - cd ../malcompiler-jlink
   - mvn clean install --quiet --batch-mode
   - echo "Installing mal-maven-plugin..."
   - cd ../mal-maven-plugin
@@ -60,4 +48,4 @@ script:
   - ./run-tests.sh
   - cd ..
   - mvn clean verify --quiet --batch-mode
-  - mvn sonar:sonar --quiet --batch-mode --define sonar.projectKey=mal-lang_malcompiler --define sonar.java.coveragePlugin=jacoco --define sonar.dynamicAnalysis=reuseReports --define sonar.jacoco.reportPath="$PWD/malcompiler.test/target/jacoco.exec" --define sonar.language=java
+  - mvn sonar:sonar --quiet --batch-mode --define sonar.projectKey=mal-lang_malcompiler --define sonar.java.coveragePlugin=jacoco --define sonar.dynamicAnalysis=reuseReports --define sonar.jacoco.reportPath="$PWD/malcompiler-test/target/jacoco.exec" --define sonar.language=java

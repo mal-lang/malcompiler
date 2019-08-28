@@ -54,10 +54,10 @@ limitations under the License.
   </scm>
 
   <modules>
-    <module>malcompiler.lib</module>
-    <module>malcompiler.cli</module>
-    <module>malcompiler.test</module>
-    <module>malcompiler.jlink</module>
+    <module>malcompiler-lib</module>
+    <module>malcompiler-cli</module>
+    <module>malcompiler-test</module>
+    <module>malcompiler-jlink</module>
     <module>mal-maven-plugin</module>
   </modules>
 
@@ -79,9 +79,9 @@ limitations under the License.
         <version>1.12.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.mal-lang</groupId>
+        <groupId>guru.nidi.com.kitfox</groupId>
         <artifactId>svgSalamander</artifactId>
-        <version>1.1.2-SNAPSHOT</version>
+        <version>1.1.2</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -115,6 +115,21 @@ limitations under the License.
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.0.0-M2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.1</version>
           <configuration>
@@ -127,6 +142,11 @@ limitations under the License.
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.0.0-M3</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>3.1.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -144,38 +164,22 @@ limitations under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <!--version>3.1.1</version-->
-          <!-- This is a workaround -->
-          <version>3.1.0</version>
-          <configuration>
-            <source>8</source>
-          </configuration>
-          <!-- End of workaround -->
+          <version>3.1.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jlink-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>default-jlink</id>
-              <phase>none</phase>
-            </execution>
-          </executions>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>3.1.1</version>
         </plugin>
         <plugin>
-          <groupId>org.mal-lang</groupId>
-          <artifactId>jlink-maven-plugin</artifactId>
-          <version>3.0.0-alpha-2-SNAPSHOT</version>
-          <extensions>true</extensions>
-          <executions>
-            <execution>
-              <id>default-jlink</id>
-              <phase>package</phase>
-              <goals>
-                <goal>jlink</goal>
-              </goals>
-            </execution>
-          </executions>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>3.0.0-M1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>1.8</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
