@@ -27,7 +27,7 @@ limitations under the License.
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>${project.title}</name>
+  <name>${project.groupId}:${project.artifactId}</name>
   <description>Compiler for the Meta Attack Language</description>
   <url>https://mal-lang.org/</url>
 
@@ -39,6 +39,18 @@ limitations under the License.
   </licenses>
 
   <developers>
+    <developer>
+      <name>Mikael Modin</name>
+      <email>mikael.modin@foreseeti.com</email>
+      <organization>foreseeti</organization>
+      <organizationUrl>https://www.foreseeti.com/</organizationUrl>
+    </developer>
+    <developer>
+      <name>Simon Wrede</name>
+      <email>simon.wrede@foreseeti.com</email>
+      <organization>foreseeti</organization>
+      <organizationUrl>https://www.foreseeti.com/</organizationUrl>
+    </developer>
     <developer>
       <name>Max Wällstedt</name>
       <email>max.wallstedt@foreseeti.com</email>
@@ -53,6 +65,17 @@ limitations under the License.
     <url>https://github.com/mal-lang/malcompiler/tree/master</url>
   </scm>
 
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   <modules>
     <module>malcompiler-lib</module>
     <module>malcompiler-cli</module>
@@ -63,7 +86,11 @@ limitations under the License.
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.title>MAL Compiler</project.title>
+    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+    <sonar.language>java</sonar.language>
   </properties>
 
   <dependencyManagement>
@@ -173,8 +200,18 @@ limitations under the License.
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>1.6</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
           <version>3.0.0-M1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -190,6 +227,11 @@ limitations under the License.
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>0.8.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <version>3.6.1.1688</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -208,4 +250,27 @@ limitations under the License.
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>ossrh</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

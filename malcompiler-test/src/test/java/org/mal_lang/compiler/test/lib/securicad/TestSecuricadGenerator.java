@@ -16,55 +16,32 @@
 package org.mal_lang.compiler.test.lib.securicad;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mal_lang.compiler.test.lib.AssertLang.assertGetLangClassPath;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mal_lang.compiler.lib.CompilerException;
 import org.mal_lang.compiler.lib.Lang;
 import org.mal_lang.compiler.lib.securicad.Generator;
-import org.mal_lang.compiler.test.MalTest;
+import org.mal_lang.compiler.test.lib.JavaGeneratorTest;
 
-public class TestSecuricadGenerator extends MalTest {
-  private static Lang emptyLang = new Lang(Map.of(), Map.of(), Map.of(), List.of());
-
-  private void assertGeneratorErrors(Lang lang, Map<String, String> args, String[] expectedErrors) {
-    try {
-      Generator.generate(lang, args);
-      fail("Generator.generate should have thrown CompilerException");
-    } catch (IOException e) {
-      fail("Generator.generate should have thrown CompilerException");
-    } catch (CompilerException e) {
-      assertEquals("There were generator errors", e.getMessage());
-      assertEmptyOut();
-      assertErrLines(expectedErrors);
-    }
+public class TestSecuricadGenerator extends JavaGeneratorTest {
+  @BeforeAll
+  public static void initGenerator() {
+    generatorClass = Generator.class;
+    defaultArgs = Map.of("package", "lang", "mock", "true");
   }
 
-  private void assertGeneratorWarnings(
-      Lang lang, Map<String, String> args, String[] expectedWarnings) {
-    try {
-      Generator.generate(lang, args);
-      assertEmptyOut();
-      assertErrLines(expectedWarnings);
-    } catch (IOException | CompilerException e) {
-      fail(String.format("%s\n%s", e.getMessage(), getPlainErr()));
-    }
-  }
-
-  private void assertGeneratorOK(Lang lang, Map<String, String> args) {
-    try {
-      Generator.generate(lang, args);
-      assertEmptyOut();
-      assertEmptyErr();
-    } catch (IOException | CompilerException e) {
-      fail(String.format("%s\n%s", e.getMessage(), getPlainErr()));
-    }
+  @AfterAll
+  public static void clearGenerator() {
+    generatorClass = null;
+    defaultArgs = Map.of();
   }
 
   private void assertPathMissing(Lang lang, Map<String, String> args) {
@@ -119,6 +96,112 @@ public class TestSecuricadGenerator extends MalTest {
     assertGeneratorErrors(lang, args, expectedErrors);
   }
 
+  private void assertMockFilesPresent(File dir, String[] files) {
+    if (!dir.isDirectory()) {
+      fail(String.format("%s is not a directory", dir.getPath()));
+    }
+    var filesMap = new HashMap<String, Boolean>();
+    for (var file : files) {
+      filesMap.put(file, Boolean.FALSE);
+    }
+    for (var mockFile : dir.listFiles()) {
+      if (mockFile.isFile()) {
+        assertTrue(
+            filesMap.containsKey(mockFile.getName()),
+            String.format("Unexpected file %s", mockFile.getPath()));
+        assertEquals(
+            Boolean.FALSE,
+            filesMap.get(mockFile.getName()),
+            String.format("Duplicate file %s", mockFile.getPath()));
+        filesMap.put(mockFile.getName(), Boolean.TRUE);
+      }
+    }
+    for (var entry : filesMap.entrySet()) {
+      assertEquals(
+          Boolean.TRUE,
+          entry.getValue(),
+          String.format("File %s not found in %s", entry.getKey(), dir.getPath()));
+    }
+  }
+
+  private void assertMockInvalid(Lang lang, Map<String, String> args) {
+    String[] expectedErrors = {
+      "[GENERATOR ERROR] Optional argument 'mock' must be either 'true' or 'false'", ""
+    };
+    assertGeneratorErrors(lang, args, expectedErrors);
+  }
+
+  private void assertMockPresent(String outDir) {
+    // com.foreseeti.corelib
+    var corelibDir = new File(outDir, "com/foreseeti/corelib");
+    String[] corelibFiles = {
+      "AbstractSample.java",
+      "AssociationManager.java",
+      "BaseSample.java",
+      "DefaultValue.java",
+      "FAnnotations.java",
+      "FClass.java",
+      "Link.java",
+      "ModelElement.java"
+    };
+    assertMockFilesPresent(corelibDir, corelibFiles);
+
+    // com.foreseeti.corelib.math
+    var corelibMathDir = new File(corelibDir, "math");
+    String[] corelibMathFiles = {
+      "FBernoulliDistribution.java",
+      "FBinomialDistribution.java",
+      "FDistribution.java",
+      "FExponentialDistribution.java",
+      "FGammaDistribution.java",
+      "FMath.java",
+      "FLogNormalDistribution.java",
+      "FParetoDistribution.java",
+      "FTruncatedNormalDistribution.java",
+      "FUniformDistribution.java"
+    };
+    assertMockFilesPresent(corelibMathDir, corelibMathFiles);
+
+    // com.foreseeti.corelib.util
+    var corelibUtilDir = new File(corelibDir, "util");
+    String[] corelibUtilFiles = {"FProb.java", "FProbSet.java"};
+    assertMockFilesPresent(corelibUtilDir, corelibUtilFiles);
+
+    // com.foreseeti.simulator
+    var simulatorDir = new File(outDir, "com/foreseeti/simulator");
+    String[] simulatorFiles = {
+      "Asset.java",
+      "AbstractAttacker.java",
+      "AttackStep.java",
+      "AttackStepMax.java",
+      "AttackStepMin.java",
+      "BaseLangLink.java",
+      "ConcreteSample.java",
+      "Defense.java",
+      "MultiParentAsset.java",
+      "SingleParentAsset.java"
+    };
+    assertMockFilesPresent(simulatorDir, simulatorFiles);
+  }
+
+  private void assertMockNotPresent(String outDir) {
+    // com.foreseeti.corelib
+    var corelibDir = new File(outDir, "com/foreseeti/corelib");
+    assertFalse(corelibDir.exists(), String.format("%s exists", corelibDir));
+
+    // com.foreseeti.corelib.math
+    var corelibMathDir = new File(corelibDir, "math");
+    assertFalse(corelibMathDir.exists(), String.format("%s exists", corelibMathDir));
+
+    // com.foreseeti.corelib.util
+    var corelibUtilDir = new File(corelibDir, "util");
+    assertFalse(corelibUtilDir.exists(), String.format("%s exists", corelibUtilDir));
+
+    // com.foreseeti.simulator
+    var simulatorDir = new File(outDir, "com/foreseeti/simulator");
+    assertFalse(simulatorDir.exists(), String.format("%s exists", simulatorDir));
+  }
+
   @Test
   public void testBadPath() {
     assertPathMissing(null, Map.of());
@@ -140,17 +223,16 @@ public class TestSecuricadGenerator extends MalTest {
 
   @Test
   public void testGoodPath() {
-    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir(), "package", "a"));
+    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir()));
     resetTestSystem();
-    assertGeneratorOK(
-        emptyLang, Map.of("path", String.format("%s/a", getNewTmpDir()), "package", "a"));
+    assertGeneratorOK(emptyLang, Map.of("path", String.format("%s/a", getNewTmpDir())));
     resetTestSystem();
-    assertGeneratorOK(
-        emptyLang, Map.of("path", String.format("%s/a/b", getNewTmpDir()), "package", "a"));
+    assertGeneratorOK(emptyLang, Map.of("path", String.format("%s/a/b", getNewTmpDir())));
   }
 
   @Test
   public void testBadPackage() {
+    removedArgs = Set.of("package");
     assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir()));
     resetTestSystem();
     assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir(), "package", ""));
@@ -168,147 +250,116 @@ public class TestSecuricadGenerator extends MalTest {
     assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "a-b"));
     resetTestSystem();
     assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "a.int"));
+    removedArgs = Set.of();
   }
 
   @Test
   public void testBadIcons() {
     // Relative icons
-    assertIconsRelative(null, Map.of("path", getNewTmpDir(), "package", "a", "icons", "a"));
+    assertIconsRelative(null, Map.of("path", getNewTmpDir(), "icons", "a"));
     resetTestSystem();
-    assertIconsRelative(null, Map.of("path", getNewTmpDir(), "package", "a", "icons", "a/b"));
+    assertIconsRelative(null, Map.of("path", getNewTmpDir(), "icons", "a/b"));
     resetTestSystem();
     // File icons
     var bledFile = assertGetFileClassPath("bled/bled.mal");
-    assertIconsFile(
-        null, Map.of("path", getNewTmpDir(), "package", "a", "icons", bledFile.getAbsolutePath()));
+    assertIconsFile(null, Map.of("path", getNewTmpDir(), "icons", bledFile.getAbsolutePath()));
   }
 
   @Test
   public void testGoodIcons() {
     // Missing icons
-    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir(), "package", "a"));
+    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir()));
     resetTestSystem();
     // Empty icons
-    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir(), "package", "a", "icons", ""));
+    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir(), "icons", ""));
     resetTestSystem();
     // Blank icons
-    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir(), "package", "a", "icons", " \t "));
+    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir(), "icons", " \t "));
     resetTestSystem();
     // Good icons
-    assertGeneratorOK(
-        emptyLang, Map.of("path", getNewTmpDir(), "package", "a", "icons", getNewTmpDir()));
+    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir(), "icons", getNewTmpDir()));
+  }
+
+  @Test
+  public void testBadMock() {
+    removedArgs = Set.of("mock");
+    assertMockInvalid(emptyLang, Map.of("path", getNewTmpDir(), "mock", "a"));
+    removedArgs = Set.of();
+  }
+
+  @Test
+  public void testGoodMock() {
+    // Test that {"mock": "true"} generates mock files
+    var outDir = getNewTmpDir();
+    assertGeneratorOK(emptyLang, Map.of("path", outDir, "mock", "true"));
+    assertMockPresent(outDir);
+    resetTestSystem();
+    // Test that {"mock": "false"} doesn't generate mock files
+    outDir = getNewTmpDir();
+    assertGeneratorOK(emptyLang, Map.of("path", outDir, "mock", "false"));
+    assertMockNotPresent(outDir);
+    assertEmptyOut();
+    assertEmptyErr();
+    resetTestSystem();
+    // Test that missing "mock" argument doesn't generate mock files
+    removedArgs = Set.of("mock");
+    outDir = getNewTmpDir();
+    assertGeneratorOK(emptyLang, Map.of("path", outDir));
+    assertMockNotPresent(outDir);
+    assertEmptyOut();
+    assertEmptyErr();
+    removedArgs = Set.of();
   }
 
   @Test
   public void testBadLang() {
-    var lang = assertGetLangClassPath("generator/bad-lang.mal");
-    resetTestSystem();
-    try {
-      Generator.generate(lang, Map.of("path", getNewTmpDir(), "package", "a"));
-      fail("Generator.generate should have thrown a CompilerException");
-    } catch (IOException e) {
-      fail("Generator.generate should have thrown a CompilerException");
-    } catch (CompilerException e) {
-      assertEquals("There were generator errors", e.getMessage());
-      assertEmptyOut();
-      String[] expectedErrors = {
-        "[GENERATOR ERROR] Asset 'int' is a java keyword",
-        "[GENERATOR ERROR] Attack step 'null' in asset 'int' is a java keyword",
-        "[GENERATOR ERROR] Field 'static' in asset 'int' is a java keyword",
-        "[GENERATOR ERROR] Field 'false' in asset 'int' is a java keyword",
-        ""
-      };
-      assertErrLines(expectedErrors);
-    }
-  }
-
-  private void assertLangGenerated(String langPath) {
-    var outDir = getNewTmpDir();
-    var lang = assertGetLangClassPath(langPath);
-    resetTestSystem();
-    try {
-      Generator.generate(lang, Map.of("path", outDir, "package", "lang"));
-      assertEmptyOut();
-      assertEmptyErr();
-      for (var asset : lang.getAssets().values()) {
-        var assetFile =
-            new File(String.format(String.format("%s/lang/%s.java", outDir, asset.getName())));
-        assertTrue(assetFile.exists(), String.format("%s does not exist", assetFile.getPath()));
-        assertTrue(assetFile.isFile(), String.format("%s is not a file", assetFile.getPath()));
-      }
-    } catch (IOException | CompilerException e) {
-      fail(String.format("%s\n%s", e.getMessage(), getPlainErr()));
-    }
+    String[] expectedErrors = {
+      "[GENERATOR ERROR] Asset 'int' is a java keyword",
+      "[GENERATOR ERROR] Attack step 'null' in asset 'int' is a java keyword",
+      "[GENERATOR ERROR] Field 'static' in asset 'int' is a java keyword",
+      "[GENERATOR ERROR] Field 'false' in asset 'int' is a java keyword",
+      ""
+    };
+    assertLangNotGenerated("generator/bad-lang.mal", expectedErrors);
   }
 
   @Test
   public void testAllFeaturesNotGenerated() {
-    var outDir = getNewTmpDir();
-    var lang = assertGetLangClassPath("all-features/all-features.mal");
-    resetTestSystem();
-    try {
-      Generator.generate(lang, Map.of("path", outDir, "package", "lang"));
-      fail("Generator.generate should have thrown a CompilerException");
-    } catch (IOException e) {
-      fail("Generator.generate should have thrown a CompilerException");
-    } catch (CompilerException e) {
-      assertEquals("There were generator errors", e.getMessage());
-      assertEmptyOut();
-      String[] expectedErrors = {
-        "[GENERATOR ERROR] Category 'C1' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
-        "[GENERATOR ERROR] Category 'C2' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
-        "[GENERATOR ERROR] Category 'C3' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
-        ""
-      };
-      assertErrLines(expectedErrors);
-    }
+    String[] expectedErrors = {
+      "[GENERATOR ERROR] Category 'C1' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
+      "[GENERATOR ERROR] Category 'C2' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
+      "[GENERATOR ERROR] Category 'C3' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
+      ""
+    };
+    assertLangNotGenerated("all-features/all-features.mal", expectedErrors);
   }
 
   @Test
   public void testComplexNotGenerated() {
-    var outDir = getNewTmpDir();
-    var lang = assertGetLangClassPath("analyzer/complex.mal");
-    resetTestSystem();
-    try {
-      Generator.generate(lang, Map.of("path", outDir, "package", "lang"));
-      fail("Generator.generate should have thrown a CompilerException");
-    } catch (IOException e) {
-      fail("Generator.generate should have thrown a CompilerException");
-    } catch (CompilerException e) {
-      assertEquals("There were generator errors", e.getMessage());
-      assertEmptyOut();
-      String[] expectedErrors = {
-        "[GENERATOR ERROR] Category 'Person' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
-        "[GENERATOR ERROR] Category 'Hardware' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
-        ""
-      };
-      assertErrLines(expectedErrors);
-    }
+    String[] expectedErrors = {
+      "[GENERATOR ERROR] Category 'Person' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
+      "[GENERATOR ERROR] Category 'Hardware' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
+      ""
+    };
+    assertLangNotGenerated("analyzer/complex.mal", expectedErrors);
   }
 
   @Test
   public void testBledNotGenerated() {
-    var outDir = getNewTmpDir();
-    var lang = assertGetLangClassPath("bled/bled.mal");
-    resetTestSystem();
-    try {
-      Generator.generate(lang, Map.of("path", outDir, "package", "lang"));
-      fail("Generator.generate should have thrown a CompilerException");
-    } catch (IOException e) {
-      fail("Generator.generate should have thrown a CompilerException");
-    } catch (CompilerException e) {
-      assertEquals("There were generator errors", e.getMessage());
-      assertEmptyOut();
-      String[] expectedErrors = {
-        "[GENERATOR ERROR] Category 'LatestAndGreatest' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
-        ""
-      };
-      assertErrLines(expectedErrors);
-    }
+    String[] expectedErrors = {
+      "[GENERATOR ERROR] Category 'LatestAndGreatest' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
+      ""
+    };
+    assertLangNotGenerated("bled/bled.mal", expectedErrors);
   }
 
   @Test
   public void testVehicleLangGenerated() {
     assertLangGenerated("vehiclelang/vehicleLang.mal");
+  }
+
+  @Test
+  public void testAttackStepSet() {
+    assertLangGenerated("generator/attack-step-set.mal");
   }
 }
