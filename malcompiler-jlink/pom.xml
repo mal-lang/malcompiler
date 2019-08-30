@@ -30,8 +30,49 @@ limitations under the License.
 
   <artifactId>malcompiler-jlink</artifactId>
 
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>jlink packaging of the compiler for the Meta Attack Language</description>
+  <url>https://mal-lang.org/</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Mikael Modin</name>
+      <email>mikael.modin@foreseeti.com</email>
+      <organization>foreseeti</organization>
+      <organizationUrl>https://www.foreseeti.com/</organizationUrl>
+    </developer>
+    <developer>
+      <name>Simon Wrede</name>
+      <email>simon.wrede@foreseeti.com</email>
+      <organization>foreseeti</organization>
+      <organizationUrl>https://www.foreseeti.com/</organizationUrl>
+    </developer>
+    <developer>
+      <name>Max Wällstedt</name>
+      <email>max.wallstedt@foreseeti.com</email>
+      <organization>foreseeti</organization>
+      <organizationUrl>https://www.foreseeti.com/</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/mal-lang/malcompiler.git</connection>
+    <developerConnection>scm:git:ssh://github.com:mal-lang/malcompiler.git</developerConnection>
+    <url>https://github.com/mal-lang/malcompiler/tree/master/malcompiler-jlink</url>
+  </scm>
+
   <properties>
+    <jacoco.skip>true</jacoco.skip>
+    <gpg.skip>true</gpg.skip>
     <maven.install.skip>true</maven.install.skip>
+    <maven.deploy.skip>true</maven.deploy.skip>
     <jlink.exec>${java.home}/bin/jlink</jlink.exec>
     <jlink.output>${project.build.directory}/jlink</jlink.output>
     <jlink.modules>java.compiler,java.desktop,java.logging</jlink.modules>

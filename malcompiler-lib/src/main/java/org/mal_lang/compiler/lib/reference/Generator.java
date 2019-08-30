@@ -107,8 +107,14 @@ public class Generator extends JavaGenerator {
 
   private void _generate() throws IOException, CompilerException {
     for (Asset asset : lang.getAssets().values()) {
-      JavaFile javaFile = JavaFile.builder(pkg, createAsset(asset)).build();
-      javaFile.writeTo(this.output);
+      var javaFile = JavaFile.builder(pkg, createAsset(asset));
+      for (var a : lang.getAssets().values()) {
+        for (var b : a.getAttackSteps().values()) {
+          javaFile.alwaysQualify(ucFirst(b.getName()));
+        }
+      }
+      javaFile.skipJavaLangImports(true);
+      javaFile.build().writeTo(this.output);
     }
     if (core) {
       _generateCore();
@@ -338,8 +344,8 @@ public class Generator extends JavaGenerator {
     }
 
     // Instantiating fields to either null or a HashSet of correct type
-    ClassName set = ClassName.get(Set.class).forceQualify(true);
-    ClassName hashSet = ClassName.get(HashSet.class).forceQualify(true);
+    ClassName set = ClassName.get(Set.class);
+    ClassName hashSet = ClassName.get(HashSet.class);
     for (Field field : asset.getFields().values()) {
       TypeName type = ClassName.get(pkg, field.getTarget().getAsset().getName());
       if (field.getMax() > 1) {
@@ -366,7 +372,7 @@ public class Generator extends JavaGenerator {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("updateChildren");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
-    ClassName set = ClassName.get(Set.class).forceQualify(true);
+    ClassName set = ClassName.get(Set.class);
     ClassName as = ClassName.get("core", "AttackStep");
     TypeName asSet = ParameterizedTypeName.get(set, as);
     builder.addParameter(asSet, "attackSteps");
@@ -601,10 +607,10 @@ public class Generator extends JavaGenerator {
 
   private AutoFlow createStepTransitive(AutoFlow af, StepTransitive expr, Asset asset) {
     ClassName targetType = ClassName.get(pkg, expr.target.getName());
-    ClassName list = ClassName.get(List.class).forceQualify(true);
-    ClassName arrayList = ClassName.get(ArrayList.class).forceQualify(true);
-    ClassName set = ClassName.get(Set.class).forceQualify(true);
-    ClassName hashSet = ClassName.get(HashSet.class).forceQualify(true);
+    ClassName list = ClassName.get(List.class);
+    ClassName arrayList = ClassName.get(ArrayList.class);
+    ClassName set = ClassName.get(Set.class);
+    ClassName hashSet = ClassName.get(HashSet.class);
     TypeName targetSet = ParameterizedTypeName.get(set, targetType);
     TypeName targetList = ParameterizedTypeName.get(list, targetType);
     String name1 = Name.get();
@@ -637,8 +643,8 @@ public class Generator extends JavaGenerator {
     StepBinOp binop = (StepBinOp) expr;
     String targetName = binop.target.getName();
     ClassName targetType = ClassName.get(pkg, targetName);
-    ClassName set = ClassName.get(Set.class).forceQualify(true);
-    ClassName hashSet = ClassName.get(HashSet.class).forceQualify(true);
+    ClassName set = ClassName.get(Set.class);
+    ClassName hashSet = ClassName.get(HashSet.class);
     TypeName targetSet = ParameterizedTypeName.get(set, targetType);
     String name1 = Name.get();
     String name2 = Name.get();
@@ -737,8 +743,8 @@ public class Generator extends JavaGenerator {
       builder = MethodSpec.methodBuilder("getAssociatedAssets");
       builder.addAnnotation(Override.class);
       builder.addModifiers(Modifier.PUBLIC);
-      ClassName set = ClassName.get(Set.class).forceQualify(true);
-      ClassName hashSet = ClassName.get(HashSet.class).forceQualify(true);
+      ClassName set = ClassName.get(Set.class);
+      ClassName hashSet = ClassName.get(HashSet.class);
       ClassName assetType = ClassName.get("core", "Asset");
       TypeName assetSet = ParameterizedTypeName.get(set, assetType);
       builder.returns(assetSet);

@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +58,7 @@ public class Generator extends JavaGenerator {
   private final File output;
   private final Lang lang;
   private final File icons;
+  private final boolean mock;
 
   public static void generate(Lang lang, Map<String, String> args)
       throws CompilerException, IOException {
@@ -95,6 +97,20 @@ public class Generator extends JavaGenerator {
     } else {
       this.icons = null;
     }
+    if (!args.containsKey("mock")) {
+      this.mock = false;
+    } else {
+      switch (args.get("mock").toLowerCase().strip()) {
+        case "true":
+          this.mock = true;
+          break;
+        case "false":
+          this.mock = false;
+          break;
+        default:
+          throw error("Optional argument 'mock' must be either 'true' or 'false'");
+      }
+    }
 
     validateNames(this.lang, this.pkg);
     validateCategories();
@@ -117,7 +133,7 @@ public class Generator extends JavaGenerator {
   }
 
   private void _generate() throws IOException, CompilerException {
-    AssetGenerator ag = new AssetGenerator(LOGGER, pkg, output, icons);
+    AssetGenerator ag = new AssetGenerator(LOGGER, pkg, output, icons, lang);
     for (Asset asset : lang.getAssets().values()) {
       ag.generate(asset);
     }
@@ -125,6 +141,10 @@ public class Generator extends JavaGenerator {
     createAutoLangLink();
     createMetaData();
     createAttacker();
+
+    if (mock) {
+      createMock();
+    }
 
     LOGGER.info(String.format("Created %d classes", lang.getAssets().size()));
   }
@@ -211,5 +231,84 @@ public class Generator extends JavaGenerator {
     Files.writeString(
         new File(new File(output, this.pkg.replaceAll("\\.", "/")), "Attacker.java").toPath(),
         code);
+  }
+
+  private void createMock() throws IOException, CompilerException {
+    createCorelibMock();
+    createSimulatorMock();
+  }
+
+  private void createCorelibMock() throws IOException, CompilerException {
+    // com.foreseeti.corelib
+    var corelibDirectory = new File(output, "com/foreseeti/corelib");
+    String[] corelibFiles = {
+      "AbstractSample.java",
+      "AssociationManager.java",
+      "BaseSample.java",
+      "DefaultValue.java",
+      "FAnnotations.java",
+      "FClass.java",
+      "Link.java",
+      "ModelElement.java"
+    };
+    copyMockFiles("/securicad/mock/corelib", corelibDirectory, corelibFiles);
+
+    // com.foreseeti.corelib.math
+    var corelibMathDirectory = new File(corelibDirectory, "math");
+    String[] corelibMathFiles = {
+      "FBernoulliDistribution.java",
+      "FBinomialDistribution.java",
+      "FDistribution.java",
+      "FExponentialDistribution.java",
+      "FGammaDistribution.java",
+      "FMath.java",
+      "FLogNormalDistribution.java",
+      "FParetoDistribution.java",
+      "FTruncatedNormalDistribution.java",
+      "FUniformDistribution.java"
+    };
+    copyMockFiles("/securicad/mock/corelib/math", corelibMathDirectory, corelibMathFiles);
+
+    // com.foreseeti.corelib.util
+    var corelibUtilDirectory = new File(corelibDirectory, "util");
+    String[] corelibUtilFiles = {"FProb.java", "FProbSet.java"};
+    copyMockFiles("/securicad/mock/corelib/util", corelibUtilDirectory, corelibUtilFiles);
+  }
+
+  private void createSimulatorMock() throws IOException, CompilerException {
+    // com.foreseeti.simulator
+    var simulatorDirectory = new File(output, "com/foreseeti/simulator");
+    String[] simulatorFiles = {
+      "Asset.java",
+      "AbstractAttacker.java",
+      "AttackStep.java",
+      "AttackStepMax.java",
+      "AttackStepMin.java",
+      "BaseLangLink.java",
+      "ConcreteSample.java",
+      "Defense.java",
+      "MultiParentAsset.java",
+      "SingleParentAsset.java"
+    };
+    copyMockFiles("/securicad/mock/simulator", simulatorDirectory, simulatorFiles);
+  }
+
+  private void copyMockFiles(String sourcePath, File outputDirectory, String[] files)
+      throws IOException, CompilerException {
+    if (outputDirectory.exists()) {
+      throw error(String.format("Path \"%s\" already exists", outputDirectory.getPath()));
+    }
+    if (!outputDirectory.mkdirs()) {
+      throw error(String.format("Failed to create directory \"%s\"", outputDirectory.getPath()));
+    }
+    for (var file : files) {
+      var resourcePath = String.format("%s/%s", sourcePath, file);
+      var resourceStream = Generator.class.getResourceAsStream(resourcePath);
+      if (resourceStream == null) {
+        throw error(String.format("Couldn't get resource %s", resourcePath));
+      }
+      var targetFile = new File(outputDirectory, file);
+      Files.copy(resourceStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
   }
 }

@@ -236,6 +236,17 @@ public abstract class MalTest {
     throw new RuntimeException("This should be unreachable");
   }
 
+  public void failPrintOutErr(String message) {
+    String errorMessage = String.format("%s\n", message);
+    if (!getOut().isEmpty()) {
+      errorMessage = String.format("%s\nSTDOUT:\n%s", errorMessage, getPlainOut());
+    }
+    if (!getErr().isEmpty()) {
+      errorMessage = String.format("%s\nSTDERR:\n%s", errorMessage, getPlainErr());
+    }
+    fail(errorMessage);
+  }
+
   public String getNewTmpDir() {
     try {
       var tmpPath = Files.createTempDirectory("test-reference-generator");

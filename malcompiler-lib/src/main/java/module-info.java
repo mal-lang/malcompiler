@@ -19,6 +19,7 @@ module org.mal_lang.compiler.lib {
   exports org.mal_lang.compiler.lib.securicad;
 
   requires com.squareup.javapoet;
+  requires java.compiler;
   requires java.logging;
   requires java.desktop;
   requires svgSalamander;

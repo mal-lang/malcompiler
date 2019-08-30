@@ -1,0 +1,15 @@
+#id: "attack-step-set"
+#version: "0.0.0"
+
+category Container {
+  asset File {
+    | set
+  }
+
+  asset ZipFile extends File {
+  }
+}
+
+associations {
+  ZipFile [archive] 0..1 <-- Compressed --> * [archived] File
+}

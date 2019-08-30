@@ -18,55 +18,30 @@ package org.mal_lang.compiler.test.lib.reference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mal_lang.compiler.test.lib.AssertLang.assertGetLangClassPath;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mal_lang.compiler.lib.CompilerException;
 import org.mal_lang.compiler.lib.Lang;
 import org.mal_lang.compiler.lib.reference.Generator;
-import org.mal_lang.compiler.test.MalTest;
+import org.mal_lang.compiler.test.lib.JavaGeneratorTest;
 
-public class TestReferenceGenerator extends MalTest {
-  private static Lang emptyLang = new Lang(Map.of(), Map.of(), Map.of(), List.of());
-
-  private void assertGeneratorErrors(Lang lang, Map<String, String> args, String[] expectedErrors) {
-    try {
-      Generator.generate(lang, args);
-      fail("Generator.generate should have thrown CompilerException");
-    } catch (IOException e) {
-      fail("Generator.generate should have thrown CompilerException");
-    } catch (CompilerException e) {
-      assertEquals("There were generator errors", e.getMessage());
-      assertEmptyOut();
-      assertErrLines(expectedErrors);
-    }
+public class TestReferenceGenerator extends JavaGeneratorTest {
+  @BeforeAll
+  public static void initGenerator() {
+    generatorClass = Generator.class;
+    defaultArgs = Map.of("package", "lang");
   }
 
-  private void assertGeneratorWarnings(
-      Lang lang, Map<String, String> args, String[] expectedWarnings) {
-    try {
-      Generator.generate(lang, args);
-      assertEmptyOut();
-      assertErrLines(expectedWarnings);
-    } catch (IOException | CompilerException e) {
-      fail(String.format("%s\n%s", e.getMessage(), getPlainErr()));
-    }
-  }
-
-  private void assertGeneratorOK(Lang lang, Map<String, String> args) {
-    try {
-      Generator.generate(lang, args);
-      assertEmptyOut();
-      assertEmptyErr();
-    } catch (IOException | CompilerException e) {
-      fail(String.format("%s\n%s", e.getMessage(), getPlainErr()));
-    }
+  @AfterAll
+  public static void clearGenerator() {
+    generatorClass = null;
+    defaultArgs = Map.of();
   }
 
   private void assertPathMissing(Lang lang, Map<String, String> args) {
@@ -114,62 +89,6 @@ public class TestReferenceGenerator extends MalTest {
       "[GENERATOR ERROR] Optional argument 'core' must be either 'true' or 'false'", ""
     };
     assertGeneratorErrors(lang, args, expectedErrors);
-  }
-
-  @Test
-  public void testBadPath() {
-    assertPathMissing(null, Map.of());
-    resetTestSystem();
-    assertPathMissing(null, Map.of("path", ""));
-    resetTestSystem();
-    assertPathMissing(null, Map.of("path", " \t "));
-    resetTestSystem();
-    assertPathRelative(null, Map.of("path", "a"));
-    resetTestSystem();
-    assertPathRelative(null, Map.of("path", "a/b"));
-    resetTestSystem();
-    var bledFile = assertGetFileClassPath("bled/bled.mal");
-    assertPathFile(null, Map.of("path", bledFile.getAbsolutePath()));
-    resetTestSystem();
-    var bledDir = assertGetFileClassPath("bled");
-    assertPathNotEmpty(null, Map.of("path", bledDir.getAbsolutePath()));
-  }
-
-  @Test
-  public void testGoodPath() {
-    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir(), "package", "a"));
-    resetTestSystem();
-    assertGeneratorOK(
-        emptyLang, Map.of("path", String.format("%s/a", getNewTmpDir()), "package", "a"));
-    resetTestSystem();
-    assertGeneratorOK(
-        emptyLang, Map.of("path", String.format("%s/a/b", getNewTmpDir()), "package", "a"));
-  }
-
-  @Test
-  public void testBadPackage() {
-    assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir()));
-    resetTestSystem();
-    assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir(), "package", ""));
-    resetTestSystem();
-    assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir(), "package", " \t "));
-    resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "int"));
-    resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "true"));
-    resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "null"));
-    resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "a/b"));
-    resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "a-b"));
-    resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "a.int"));
-  }
-
-  @Test
-  public void testBadCore() {
-    assertCoreInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "a", "core", "a"));
   }
 
   private static void assertAttackerProfilePresent(String outDir) {
@@ -229,10 +148,66 @@ public class TestReferenceGenerator extends MalTest {
   }
 
   @Test
+  public void testBadPath() {
+    assertPathMissing(null, Map.of());
+    resetTestSystem();
+    assertPathMissing(null, Map.of("path", ""));
+    resetTestSystem();
+    assertPathMissing(null, Map.of("path", " \t "));
+    resetTestSystem();
+    assertPathRelative(null, Map.of("path", "a"));
+    resetTestSystem();
+    assertPathRelative(null, Map.of("path", "a/b"));
+    resetTestSystem();
+    var bledFile = assertGetFileClassPath("bled/bled.mal");
+    assertPathFile(null, Map.of("path", bledFile.getAbsolutePath()));
+    resetTestSystem();
+    var bledDir = assertGetFileClassPath("bled");
+    assertPathNotEmpty(null, Map.of("path", bledDir.getAbsolutePath()));
+  }
+
+  @Test
+  public void testGoodPath() {
+    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir()));
+    resetTestSystem();
+    assertGeneratorOK(emptyLang, Map.of("path", String.format("%s/a", getNewTmpDir())));
+    resetTestSystem();
+    assertGeneratorOK(emptyLang, Map.of("path", String.format("%s/a/b", getNewTmpDir())));
+  }
+
+  @Test
+  public void testBadPackage() {
+    removedArgs = Set.of("package");
+    assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir()));
+    resetTestSystem();
+    assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir(), "package", ""));
+    resetTestSystem();
+    assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir(), "package", " \t "));
+    resetTestSystem();
+    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "int"));
+    resetTestSystem();
+    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "true"));
+    resetTestSystem();
+    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "null"));
+    resetTestSystem();
+    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "a/b"));
+    resetTestSystem();
+    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "a-b"));
+    resetTestSystem();
+    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir(), "package", "a.int"));
+    removedArgs = Set.of();
+  }
+
+  @Test
+  public void testBadCore() {
+    assertCoreInvalid(emptyLang, Map.of("path", getNewTmpDir(), "core", "a"));
+  }
+
+  @Test
   public void testGoodCore() {
     // Test that {"core": "true"} generates core package
     var outDir = getNewTmpDir();
-    assertGeneratorOK(emptyLang, Map.of("path", outDir, "package", "a", "core", "true"));
+    assertGeneratorOK(emptyLang, Map.of("path", outDir, "core", "true"));
     assertAttackerProfilePresent(outDir);
     assertCorePresent(outDir);
     assertEmptyOut();
@@ -240,7 +215,7 @@ public class TestReferenceGenerator extends MalTest {
     resetTestSystem();
     // Test that {"core": "false"} doesn't generate core package
     outDir = getNewTmpDir();
-    assertGeneratorOK(emptyLang, Map.of("path", outDir, "package", "a", "core", "false"));
+    assertGeneratorOK(emptyLang, Map.of("path", outDir, "core", "false"));
     assertAttackerProfilePresent(outDir);
     assertCoreNotPresent(outDir);
     assertEmptyOut();
@@ -249,44 +224,14 @@ public class TestReferenceGenerator extends MalTest {
 
   @Test
   public void testBadLang() {
-    var lang = assertGetLangClassPath("generator/bad-lang.mal");
-    resetTestSystem();
-    try {
-      Generator.generate(lang, Map.of("path", getNewTmpDir(), "package", "a", "core", "false"));
-      fail("Generator.generate should have thrown a CompilerException");
-    } catch (IOException e) {
-      fail("Generator.generate should have thrown a CompilerException");
-    } catch (CompilerException e) {
-      assertEquals("There were generator errors", e.getMessage());
-      assertEmptyOut();
-      String[] expectedErrors = {
-        "[GENERATOR ERROR] Asset 'int' is a java keyword",
-        "[GENERATOR ERROR] Attack step 'null' in asset 'int' is a java keyword",
-        "[GENERATOR ERROR] Field 'static' in asset 'int' is a java keyword",
-        "[GENERATOR ERROR] Field 'false' in asset 'int' is a java keyword",
-        ""
-      };
-      assertErrLines(expectedErrors);
-    }
-  }
-
-  private void assertLangGenerated(String langPath) {
-    var outDir = getNewTmpDir();
-    var lang = assertGetLangClassPath(langPath);
-    resetTestSystem();
-    try {
-      Generator.generate(lang, Map.of("path", outDir, "package", "lang"));
-      assertEmptyOut();
-      assertEmptyErr();
-      for (var asset : lang.getAssets().values()) {
-        var assetFile =
-            new File(String.format(String.format("%s/lang/%s.java", outDir, asset.getName())));
-        assertTrue(assetFile.exists(), String.format("%s does not exist", assetFile.getPath()));
-        assertTrue(assetFile.isFile(), String.format("%s is not a file", assetFile.getPath()));
-      }
-    } catch (IOException | CompilerException e) {
-      fail(String.format("%s\n%s", e.getMessage(), getPlainErr()));
-    }
+    String[] expectedErrors = {
+      "[GENERATOR ERROR] Asset 'int' is a java keyword",
+      "[GENERATOR ERROR] Attack step 'null' in asset 'int' is a java keyword",
+      "[GENERATOR ERROR] Field 'static' in asset 'int' is a java keyword",
+      "[GENERATOR ERROR] Field 'false' in asset 'int' is a java keyword",
+      ""
+    };
+    assertLangNotGenerated("generator/bad-lang.mal", expectedErrors);
   }
 
   @Test
@@ -296,22 +241,10 @@ public class TestReferenceGenerator extends MalTest {
 
   @Test
   public void testComplexNotGenerated() {
-    var outDir = getNewTmpDir();
-    var lang = assertGetLangClassPath("analyzer/complex.mal");
-    resetTestSystem();
-    try {
-      Generator.generate(lang, Map.of("path", outDir, "package", "lang"));
-      fail("Generator.generate should have thrown a CompilerException");
-    } catch (IOException e) {
-      fail("Generator.generate should have thrown a CompilerException");
-    } catch (CompilerException e) {
-      assertEquals("There were generator errors", e.getMessage());
-      assertEmptyOut();
-      String[] expectedErrors = {
-        "[GENERATOR ERROR] Advanced TTC, used at Computer.bypassFirewall, is not supported", ""
-      };
-      assertErrLines(expectedErrors);
-    }
+    String[] expectedErrors = {
+      "[GENERATOR ERROR] Advanced TTC, used at Computer.bypassFirewall, is not supported", ""
+    };
+    assertLangNotGenerated("analyzer/complex.mal", expectedErrors);
   }
 
   @Test
@@ -322,5 +255,10 @@ public class TestReferenceGenerator extends MalTest {
   @Test
   public void testVehicleLangGenerated() {
     assertLangGenerated("vehiclelang/vehicleLang.mal");
+  }
+
+  @Test
+  public void testAttackStepSet() {
+    assertLangGenerated("generator/attack-step-set.mal");
   }
 }

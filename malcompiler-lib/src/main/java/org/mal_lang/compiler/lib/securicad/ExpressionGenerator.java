@@ -53,7 +53,7 @@ public class ExpressionGenerator extends JavaGenerator {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("getAttackStepChildren");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
-    ClassName set = ClassName.get(Set.class).forceQualify(true);
+    ClassName set = ClassName.get(Set.class);
     ClassName as = ClassName.get("com.foreseeti.simulator", "AttackStep");
     ClassName hashSet = ClassName.get(HashSet.class);
     TypeName asSet = ParameterizedTypeName.get(set, as);
@@ -155,10 +155,10 @@ public class ExpressionGenerator extends JavaGenerator {
   private AutoFlow createStepTransitive(
       AutoFlow af, StepTransitive expr, Asset asset, String nameSuffix) {
     ClassName targetType = ClassName.get(pkg, expr.target.getName());
-    ClassName list = ClassName.get(List.class).forceQualify(true);
-    ClassName arrayList = ClassName.get(ArrayList.class).forceQualify(true);
-    ClassName set = ClassName.get(Set.class).forceQualify(true);
-    ClassName hashSet = ClassName.get(HashSet.class).forceQualify(true);
+    ClassName list = ClassName.get(List.class);
+    ClassName arrayList = ClassName.get(ArrayList.class);
+    ClassName set = ClassName.get(Set.class);
+    ClassName hashSet = ClassName.get(HashSet.class);
     TypeName targetSet = ParameterizedTypeName.get(set, targetType);
     TypeName targetList = ParameterizedTypeName.get(list, targetType);
     String name1 = Name.get();
@@ -191,8 +191,8 @@ public class ExpressionGenerator extends JavaGenerator {
     StepBinOp binop = (StepBinOp) expr;
     String targetName = binop.target.getName();
     ClassName targetType = ClassName.get(pkg, targetName);
-    ClassName set = ClassName.get(Set.class).forceQualify(true);
-    ClassName hashSet = ClassName.get(HashSet.class).forceQualify(true);
+    ClassName set = ClassName.get(Set.class);
+    ClassName hashSet = ClassName.get(HashSet.class);
     TypeName targetSet = ParameterizedTypeName.get(set, targetType);
     String name1 = Name.get();
     String name2 = Name.get();

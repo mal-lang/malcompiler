@@ -38,6 +38,7 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.JavaGenerator;
+import org.mal_lang.compiler.lib.Lang;
 import org.mal_lang.compiler.lib.Lang.Asset;
 import org.mal_lang.compiler.lib.Lang.AttackStep;
 import org.mal_lang.compiler.lib.Lang.Field;
@@ -48,14 +49,16 @@ public class AssetGenerator extends JavaGenerator {
   private final String pkg;
   private final File output;
   private final File icons;
+  private final Lang lang;
   private final AttackStepGenerator asGen;
   private final DefenseGenerator defGen;
 
-  protected AssetGenerator(MalLogger LOGGER, String pkg, File output, File icons) {
+  protected AssetGenerator(MalLogger LOGGER, String pkg, File output, File icons, Lang lang) {
     super(LOGGER);
     this.pkg = pkg;
     this.output = output;
     this.icons = icons;
+    this.lang = lang;
     asGen = new AttackStepGenerator(LOGGER, pkg);
     defGen = new DefenseGenerator(LOGGER, pkg);
   }
@@ -124,8 +127,14 @@ public class AssetGenerator extends JavaGenerator {
       }
     }
 
-    JavaFile file = JavaFile.builder(this.pkg, builder.build()).build();
-    file.writeTo(this.output);
+    var file = JavaFile.builder(this.pkg, builder.build());
+    for (var a : lang.getAssets().values()) {
+      for (var b : a.getAttackSteps().values()) {
+        file.alwaysQualify(ucFirst(b.getName()));
+      }
+    }
+    file.skipJavaLangImports(true);
+    file.build().writeTo(this.output);
   }
 
   private void createAssetAnnotations(TypeSpec.Builder parentBuilder, Asset asset) {

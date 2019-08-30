@@ -30,8 +30,49 @@ limitations under the License.
 
   <artifactId>malcompiler-test</artifactId>
 
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Unit tests of the compiler for the Meta Attack Language</description>
+  <url>https://mal-lang.org/</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Mikael Modin</name>
+      <email>mikael.modin@foreseeti.com</email>
+      <organization>foreseeti</organization>
+      <organizationUrl>https://www.foreseeti.com/</organizationUrl>
+    </developer>
+    <developer>
+      <name>Simon Wrede</name>
+      <email>simon.wrede@foreseeti.com</email>
+      <organization>foreseeti</organization>
+      <organizationUrl>https://www.foreseeti.com/</organizationUrl>
+    </developer>
+    <developer>
+      <name>Max Wällstedt</name>
+      <email>max.wallstedt@foreseeti.com</email>
+      <organization>foreseeti</organization>
+      <organizationUrl>https://www.foreseeti.com/</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/mal-lang/malcompiler.git</connection>
+    <developerConnection>scm:git:ssh://github.com:mal-lang/malcompiler.git</developerConnection>
+    <url>https://github.com/mal-lang/malcompiler/tree/master/malcompiler-test</url>
+  </scm>
+
   <properties>
+    <gpg.skip>true</gpg.skip>
     <maven.install.skip>true</maven.install.skip>
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <sonar.coverage.jacoco.xmlReportPaths>../target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
 
   <dependencies>
@@ -124,6 +165,9 @@ limitations under the License.
             <goals>
               <goal>report-aggregate</goal>
             </goals>
+            <configuration>
+              <outputDirectory>${project.parent.basedir}/target/site/jacoco-aggregate</outputDirectory>
+            </configuration>
           </execution>
         </executions>
       </plugin>
