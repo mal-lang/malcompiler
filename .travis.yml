@@ -15,7 +15,7 @@ addons:
       secure: "J+RqAUI5IHYgJA08XX0EzMhcxTZbD6r3UK6Z0+kyU8HRZUdgDyVmaIyCFnzBOOqePcQ6vFd6PHvFICFvIsdgV3h4C49IgCseYlRtiXPmXJQmoJcXBLsPMUal2ZbQsjeoDaHT9moAr9rLNmAVA/ThuJSVmxXGe0RTOqda61uZXBPeB5/0JSOObV4OHogiJ2zGrosetnafHUs2T80MXStMn7jFiQ5tzgj/oXasFw7FVV/mnkHpRosU/QUSDeZD+FRpwykWwIXRI/5hqK9EMhsvS0BEasyrPlSutVH8qU7v0lk9C0xffpIRAr9ahcwokIppIVGCY3tW7RWTBHAzzIDfR21hA8qbIR2CAPqf5hoNwrDnmbSCumRjOnVfiJAicW5wp8p1nX7JQJAhUeF/1E3CzdXHNrmkPcp3BA2Ug01I4LQxmz/IGEfsfA1mEP8mchPY2p0e5iHYTojgJMfyuqVgLdFhhTq/bED9rnElHEtbK9/Yt77Ws4iwXwGLMo3C6uFn3dhmiIvyaRZUjyjgU6TpuqFrujtH1LksbEtmH1tY/T9APbQFFxd6PzqaxYnRIlVdPrtb3ERQFGoHC5O0lieVZI26LaPwbmFdJgA6NqCrNiRf4fOYBQfsyFGqhbLHlayh4mqxlD05wserhkpDcmBHCR9/VF7Kqbh4/FB9JUv09tY="
 
 install:
-  - mvn install --quiet --batch-mode --define maven.test.skip=true
+  - .buildscript/install.sh
 
 script:
   - .buildscript/test.sh

@@ -23,6 +23,8 @@ else
   export GPG_TTY=$(tty)
   echo $GPG_SECRET_KEYS | base64 --decode 2> /dev/null | $GPG_EXECUTABLE --import --no-tty --batch --yes &> /dev/null
   echo $GPG_OWNERTRUST | base64 --decode 2> /dev/null | $GPG_EXECUTABLE --import-ownertrust --no-tty --batch --yes &> /dev/null
-  mvn clean deploy --quiet --batch-mode --settings .buildscript/settings.xml --activate-profiles ossrh --define maven.test.skip=true
+  mvn clean deploy --quiet --batch-mode \
+    --settings .buildscript/settings.xml \
+    --define maven.test.skip=true
   echo "Deployed!"
 fi
