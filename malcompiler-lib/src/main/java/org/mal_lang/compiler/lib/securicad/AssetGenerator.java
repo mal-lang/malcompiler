@@ -421,10 +421,12 @@ public class AssetGenerator extends JavaGenerator {
     for (Field field : asset.getFields().values()) {
       ClassName type = ClassName.get(this.pkg, field.getTarget().getAsset().getName());
       builder.addStatement(
-          "$T.addSupportedAssociationMultiple(this.getClass(), $S, $T.class, $T.$L)",
+          "$T.addSupportedAssociationMultiple(this.getClass(), $S, $T.class, $L, $L, $T.$L)",
           associationManager,
           field.getName(),
           type,
+          field.getMin(),
+          field.getMax(),
           autoLangLink,
           getLinkName(field));
     }
