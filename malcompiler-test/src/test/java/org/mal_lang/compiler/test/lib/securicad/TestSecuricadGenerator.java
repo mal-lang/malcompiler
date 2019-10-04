@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -361,5 +362,10 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
   @Test
   public void testAttackStepSet() {
     assertLangGenerated("generator/attack-step-set.mal");
+  }
+
+  @Test
+  public void testDist() {
+    assertLangGenerated("generator/dist.mal");
   }
 }
