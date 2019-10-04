@@ -1,0 +1,14 @@
+#id: "broken.assoc"
+#version: "1.0.0"
+
+category System {
+  asset Groups {
+  }
+
+  asset User {
+  }
+}
+
+associations {
+  User [users] * <-- UserGroups --> * [groups] Group
+}
