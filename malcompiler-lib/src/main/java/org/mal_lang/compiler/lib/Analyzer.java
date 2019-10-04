@@ -79,6 +79,8 @@ public class Analyzer {
     checkFields();
     checkReaches(); // might throw
 
+    checkAssociations(); // might throw
+
     checkUnused();
   }
 
@@ -104,6 +106,23 @@ public class Analyzer {
     var fieldCounts = fieldReferenceCount.get(assoc);
     int oldcount = fieldCounts.get(field.id);
     fieldCounts.put(field.id, oldcount + 1);
+  }
+
+  private void checkAssociations() throws CompilerException {
+    boolean err = false;
+    for (AST.Association assoc : ast.getAssociations()) {
+      if (!assets.containsKey(assoc.leftAsset.id)) {
+        error(assoc.leftAsset, String.format("Left asset '%s' is not defined", assoc.leftAsset.id));
+        err = true;
+      }
+      if (!assets.containsKey(assoc.rightAsset.id)) {
+        error(assoc.rightAsset, String.format("Right asset '%s' is not defined", assoc.rightAsset.id));
+        err = true;
+      }
+    }
+    if (err) {
+      throw exception();
+    }
   }
 
   private void checkUnused() {
