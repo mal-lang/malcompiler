@@ -15,8 +15,11 @@
  */
 package org.mal_lang.compiler.lib.securicad;
 
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
 import javax.lang.model.element.Modifier;
-
 import org.mal_lang.compiler.lib.Distributions;
 import org.mal_lang.compiler.lib.JavaGenerator;
 import org.mal_lang.compiler.lib.Lang.Asset;
@@ -31,11 +34,6 @@ import org.mal_lang.compiler.lib.Lang.TTCNum;
 import org.mal_lang.compiler.lib.Lang.TTCPow;
 import org.mal_lang.compiler.lib.Lang.TTCSub;
 import org.mal_lang.compiler.lib.MalLogger;
-
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
 
 public class AttackStepGenerator extends JavaGenerator {
   private final String pkg;

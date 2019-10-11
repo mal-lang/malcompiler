@@ -116,7 +116,9 @@ public class Analyzer {
         err = true;
       }
       if (!assets.containsKey(assoc.rightAsset.id)) {
-        error(assoc.rightAsset, String.format("Right asset '%s' is not defined", assoc.rightAsset.id));
+        error(
+            assoc.rightAsset,
+            String.format("Right asset '%s' is not defined", assoc.rightAsset.id));
         err = true;
       }
     }

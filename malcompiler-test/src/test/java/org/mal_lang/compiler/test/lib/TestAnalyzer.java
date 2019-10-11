@@ -166,8 +166,7 @@ public class TestAnalyzer extends MalTest {
     assertAnalyzeClassPathError("analyzer/invalid-assoc.mal");
     assertEmptyOut();
     String[] expected = {
-      "[ANALYZER ERROR] <invalid-assoc.mal:13:48> Right asset 'Group' is not defined",
-      ""
+      "[ANALYZER ERROR] <invalid-assoc.mal:13:48> Right asset 'Group' is not defined", ""
     };
     assertErrLines(expected);
   }
