@@ -225,18 +225,6 @@ public class AttackStepGenerator extends JavaGenerator {
   }
 
   private CodeBlock createTTC(TTCExpr expr, CodeBlock otherExpr) {
-    if (expr instanceof TTCSub || expr instanceof TTCPow || expr instanceof TTCDiv) {
-      TTCExpr lhs = ((TTCBinOp) expr).lhs;
-      if (lhs instanceof TTCFunc && ((TTCFunc) lhs).dist instanceof Distributions.Bernoulli) {
-        throw new RuntimeException(
-            "TTC distribution 'Bernoulli' is not available in subtraction, division or exponential expressions");
-      }
-      TTCExpr rhs = ((TTCBinOp) expr).rhs;
-      if (rhs instanceof TTCFunc && ((TTCFunc) rhs).dist instanceof Distributions.Bernoulli) {
-        throw new RuntimeException(
-            "TTC distribution 'Bernoulli' is not available in subtraction, division or exponential expressions");
-      }
-    }
     if (expr instanceof TTCPow) {
       ClassName math = ClassName.get("java.lang", "Math");
       CodeBlock left = createTTC(((TTCPow) expr).lhs);
@@ -250,10 +238,13 @@ public class AttackStepGenerator extends JavaGenerator {
           .build();
     } else if (expr instanceof TTCBinOp) {
       if (expr instanceof TTCMul) {
-        if (((TTCFunc) ((TTCBinOp) expr).lhs).dist instanceof Distributions.Bernoulli) {
-          return createTTC(((TTCBinOp) expr).lhs, createTTC(((TTCBinOp) expr).rhs));
-        } else if (((TTCFunc) ((TTCBinOp) expr).rhs).dist instanceof Distributions.Bernoulli) {
-          return createTTC(((TTCBinOp) expr).rhs, createTTC(((TTCBinOp) expr).lhs));
+        TTCExpr lhs = ((TTCBinOp) expr).lhs;
+        TTCExpr rhs = ((TTCBinOp) expr).rhs;
+        if (lhs instanceof TTCFunc && ((TTCFunc) lhs).dist instanceof Distributions.Bernoulli) {
+          return createTTC(lhs, createTTC(rhs));
+        } else if (rhs instanceof TTCFunc
+            && ((TTCFunc) rhs).dist instanceof Distributions.Bernoulli) {
+          return createTTC(rhs, createTTC(lhs));
         }
       }
       CodeBlock left = createTTC(((TTCBinOp) expr).lhs);

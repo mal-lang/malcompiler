@@ -170,4 +170,15 @@ public class TestAnalyzer extends MalTest {
     };
     assertErrLines(expected);
   }
+
+  @Test
+  public void testDist() {
+    assertAnalyzeClassPathError("analyzer/dist-fail.mal");
+    assertEmptyOut();
+    String[] expected = {
+      "[ANALYZER ERROR] <dist-fail.mal:5:55> TTC distribution 'Bernoulli' is not available in subtraction, division or exponential expressions.",
+      ""
+    };
+    assertErrLines(expected);
+  }
 }
