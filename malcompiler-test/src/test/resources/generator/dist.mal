@@ -1,0 +1,20 @@
+#id: "dist"
+#version: "1.0.0"
+category System {
+  asset Alpha {
+    | compromise [Bernoulli(0.5) * Exponential(0.1)]
+      -> bravo.compromise
+  }
+  asset Bravo {
+    | compromise [Bernoulli(0.5) * LogNormal(7, 1) + Gamma(0.2, 1) * Bernoulli(0.9)]
+    | access [5 + Bernoulli(0.5)]
+    | read [Bernoulli(0.5) + Pareto(5, 1) + Gamma(0.2, 1) * Bernoulli(0.9)]
+    | write [Binomial(5, 0.5) - Gamma(0.2, 1) / TruncatedNormal(0.9, 4) ^ Uniform(3, 4)]
+    | delete [EasyAndCertain + EasyAndUncertain * HardAndCertain - HardAndUncertain]
+    | overwrite [VeryHardAndCertain ^ VeryHardAndUncertain]
+    | lock [Infinity - Zero + 5]
+  }
+}
+associations {
+  Bravo [bravo] 1 <-- _ --> 1 [alpha] Alpha
+}

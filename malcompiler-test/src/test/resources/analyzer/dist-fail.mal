@@ -1,0 +1,14 @@
+#id: "dist"
+#version: "1.0.0"
+category System {
+  asset Alpha {
+    | compromise [Bernoulli(0.5) * Exponential(0.1) - Bernoulli(0.7)]
+      -> bravo.compromise
+  }
+  asset Bravo {
+    | compromise
+  }
+}
+associations {
+  Bravo [bravo] 1 <-- _ --> 1 [alpha] Alpha
+}

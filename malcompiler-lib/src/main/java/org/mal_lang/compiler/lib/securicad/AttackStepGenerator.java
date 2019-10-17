@@ -121,15 +121,29 @@ public class AttackStepGenerator extends JavaGenerator {
   }
 
   private CodeBlock createTTCFunc(Distributions.Distribution dist) {
+    return createTTCFunc(dist, null);
+  }
+
+  private CodeBlock createTTCFunc(Distributions.Distribution dist, CodeBlock otherExpr) {
     CodeBlock.Builder builder = CodeBlock.builder();
     ClassName fmath = ClassName.get("com.foreseeti.corelib.math", "FMath");
     if (dist instanceof Distributions.Bernoulli) {
       ClassName dbl = ClassName.get("java.lang", "Double");
-      builder.add(
-          "($T.getBernoulliDist($L).sample() ? 0 : $T.MAX_VALUE)",
-          fmath,
-          ((Distributions.Bernoulli) dist).probability,
-          dbl);
+      if (otherExpr != null) {
+        builder
+            .add(
+                "($T.getBernoulliDist($L).sample() ? ",
+                fmath,
+                ((Distributions.Bernoulli) dist).probability)
+            .add(otherExpr)
+            .add(" : $T.MAX_VALUE)", dbl);
+      } else {
+        builder.add(
+            "($T.getBernoulliDist($L).sample() ? 0 : $T.MAX_VALUE)",
+            fmath,
+            ((Distributions.Bernoulli) dist).probability,
+            dbl);
+      }
     } else if (dist instanceof Distributions.Binomial) {
       // trials, p
       builder.add(
@@ -181,19 +195,20 @@ public class AttackStepGenerator extends JavaGenerator {
     } else if (dist instanceof Distributions.EasyAndCertain) {
       return createTTCFunc(Distributions.EasyAndCertain.exponential);
     } else if (dist instanceof Distributions.EasyAndUncertain) {
-      return createTTCFunc(Distributions.EasyAndUncertain.bernoulli);
+      return createTTCFunc(Distributions.EasyAndUncertain.bernoulli, otherExpr);
     } else if (dist instanceof Distributions.HardAndCertain) {
       return createTTCFunc(Distributions.HardAndCertain.exponential);
     } else if (dist instanceof Distributions.HardAndUncertain) {
-      CodeBlock bernoulli = createTTCFunc(Distributions.HardAndUncertain.bernoulli);
       CodeBlock exponential = createTTCFunc(Distributions.HardAndUncertain.exponential);
-      builder.add(bernoulli).add(" * ").add(exponential);
+      CodeBlock bernoulli = createTTCFunc(Distributions.HardAndUncertain.bernoulli, exponential);
+      builder.add(bernoulli);
     } else if (dist instanceof Distributions.VeryHardAndCertain) {
       return createTTCFunc(Distributions.VeryHardAndCertain.exponential);
     } else if (dist instanceof Distributions.VeryHardAndUncertain) {
-      CodeBlock bernoulli = createTTCFunc(Distributions.VeryHardAndUncertain.bernoulli);
       CodeBlock exponential = createTTCFunc(Distributions.VeryHardAndUncertain.exponential);
-      builder.add(bernoulli).add(" * ").add(exponential);
+      CodeBlock bernoulli =
+          createTTCFunc(Distributions.VeryHardAndUncertain.bernoulli, exponential);
+      builder.add(bernoulli);
     } else if (dist instanceof Distributions.Infinity) {
       ClassName dbl = ClassName.get("java.lang", "Double");
       builder.add("$T.MAX_VALUE", dbl);
@@ -206,6 +221,10 @@ public class AttackStepGenerator extends JavaGenerator {
   }
 
   private CodeBlock createTTC(TTCExpr expr) {
+    return createTTC(expr, null);
+  }
+
+  private CodeBlock createTTC(TTCExpr expr, CodeBlock otherExpr) {
     if (expr instanceof TTCPow) {
       ClassName math = ClassName.get("java.lang", "Math");
       CodeBlock left = createTTC(((TTCPow) expr).lhs);
@@ -218,6 +237,16 @@ public class AttackStepGenerator extends JavaGenerator {
           .add(")")
           .build();
     } else if (expr instanceof TTCBinOp) {
+      if (expr instanceof TTCMul) {
+        TTCExpr lhs = ((TTCBinOp) expr).lhs;
+        TTCExpr rhs = ((TTCBinOp) expr).rhs;
+        if (lhs instanceof TTCFunc && ((TTCFunc) lhs).dist instanceof Distributions.Bernoulli) {
+          return createTTC(lhs, createTTC(rhs));
+        } else if (rhs instanceof TTCFunc
+            && ((TTCFunc) rhs).dist instanceof Distributions.Bernoulli) {
+          return createTTC(rhs, createTTC(lhs));
+        }
+      }
       CodeBlock left = createTTC(((TTCBinOp) expr).lhs);
       CodeBlock right = createTTC(((TTCBinOp) expr).rhs);
       return CodeBlock.builder()
@@ -226,7 +255,7 @@ public class AttackStepGenerator extends JavaGenerator {
           .add(right)
           .build();
     } else if (expr instanceof TTCFunc) {
-      return createTTCFunc(((TTCFunc) expr).dist);
+      return createTTCFunc(((TTCFunc) expr).dist, otherExpr);
     } else if (expr instanceof TTCNum) {
       return CodeBlock.builder().add("$L", ((TTCNum) expr).value).build();
     } else {

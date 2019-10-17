@@ -166,7 +166,17 @@ public class TestAnalyzer extends MalTest {
     assertAnalyzeClassPathError("analyzer/invalid-assoc.mal");
     assertEmptyOut();
     String[] expected = {
-      "[ANALYZER ERROR] <invalid-assoc.mal:13:48> Right asset 'Group' is not defined",
+      "[ANALYZER ERROR] <invalid-assoc.mal:13:48> Right asset 'Group' is not defined", ""
+    };
+    assertErrLines(expected);
+  }
+
+  @Test
+  public void testDist() {
+    assertAnalyzeClassPathError("analyzer/dist-fail.mal");
+    assertEmptyOut();
+    String[] expected = {
+      "[ANALYZER ERROR] <dist-fail.mal:5:55> TTC distribution 'Bernoulli' is not available in subtraction, division or exponential expressions.",
       ""
     };
     assertErrLines(expected);

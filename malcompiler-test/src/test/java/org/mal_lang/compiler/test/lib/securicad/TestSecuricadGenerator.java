@@ -362,4 +362,9 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
   public void testAttackStepSet() {
     assertLangGenerated("generator/attack-step-set.mal");
   }
+
+  @Test
+  public void testDist() {
+    assertLangGenerated("generator/dist.mal");
+  }
 }

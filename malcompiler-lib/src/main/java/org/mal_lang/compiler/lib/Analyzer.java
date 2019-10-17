@@ -15,6 +15,7 @@
  */
 package org.mal_lang.compiler.lib;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -116,7 +117,9 @@ public class Analyzer {
         err = true;
       }
       if (!assets.containsKey(assoc.rightAsset.id)) {
-        error(assoc.rightAsset, String.format("Right asset '%s' is not defined", assoc.rightAsset.id));
+        error(
+            assoc.rightAsset,
+            String.format("Right asset '%s' is not defined", assoc.rightAsset.id));
         err = true;
       }
     }
@@ -383,9 +386,17 @@ public class Analyzer {
   }
 
   private void checkTTCExpr(AST.TTCExpr expr) {
+    checkTTCExpr(expr, false);
+  }
+
+  private void checkTTCExpr(AST.TTCExpr expr, boolean isSubDivExp) {
     if (expr instanceof AST.TTCBinaryExpr) {
-      checkTTCExpr(((AST.TTCBinaryExpr) expr).lhs);
-      checkTTCExpr(((AST.TTCBinaryExpr) expr).rhs);
+      isSubDivExp =
+          expr instanceof AST.TTCSubExpr
+              || expr instanceof AST.TTCDivExpr
+              || expr instanceof AST.TTCPowExpr;
+      checkTTCExpr(((AST.TTCBinaryExpr) expr).lhs, isSubDivExp);
+      checkTTCExpr(((AST.TTCBinaryExpr) expr).rhs, isSubDivExp);
     } else if (expr instanceof AST.TTCFuncExpr) {
       AST.TTCFuncExpr func = (AST.TTCFuncExpr) expr;
       if (func.name.id.equals("Enabled") || func.name.id.equals("Disabled")) {
@@ -393,6 +404,13 @@ public class Analyzer {
             expr,
             "Distributions 'Enabled' or 'Disabled' may not be used as TTC values in '&' and '|' attack steps");
       } else {
+        if (isSubDivExp && Arrays.asList("Bernoulli", "EasyAndUncertain").contains(func.name.id)) {
+          error(
+              expr,
+              String.format(
+                  "TTC distribution '%s' is not available in subtraction, division or exponential expressions.",
+                  func.name.id));
+        }
         try {
           Distributions.validate(func.name.id, func.params);
         } catch (CompilerException e) {
