@@ -210,7 +210,7 @@ public class TestMain extends MalTest {
     } catch (ExitSecurityException e) {
       fail(
           String.format(
-              "Phase '%s' exited with status code %d\n%s", phase, e.getStatus(), getErr()));
+              "Phase '%s' exited with status code %d%n%s", phase, e.getStatus(), getErr()));
     }
   }
 

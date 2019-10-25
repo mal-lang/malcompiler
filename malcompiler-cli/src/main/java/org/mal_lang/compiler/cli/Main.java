@@ -119,7 +119,7 @@ public class Main {
     lines.add(
         CLIParser.getSGROptionLine(
             SGR.of(SGR.fgRGB(135, 206, 235, "package"), "=", SGR.italicized("PACKAGE")),
-            "Use PACKAGE as the package for the generated\nsources"));
+            String.format("Use PACKAGE as the package for the generated%nsources")));
     lines.add(
         CLIParser.getSGROptionLine(
             SGR.of(
@@ -138,7 +138,7 @@ public class Main {
     lines.add(
         CLIParser.getSGROptionLine(
             SGR.of(SGR.fgRGB(135, 206, 235, "package"), "=", SGR.italicized("PACKAGE")),
-            "Use PACKAGE as the package for the generated\nsources"));
+            String.format("Use PACKAGE as the package for the generated%nsources")));
     lines.add(
         CLIParser.getSGROptionLine(
             SGR.of(

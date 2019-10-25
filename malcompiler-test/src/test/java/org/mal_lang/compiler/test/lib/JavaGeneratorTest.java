@@ -132,8 +132,8 @@ public abstract class JavaGeneratorTest extends MalTest {
   }
 
   protected void assertLangGenerated(String langPath) {
-    var sourcesDir = getNewTmpDir();
-    var classesDir = getNewTmpDir();
+    var sourcesDir = getNewTmpDir("java-generator-test");
+    var classesDir = getNewTmpDir("java-generator-test");
     var lang = assertGetLangClassPath(langPath);
     resetTestSystem();
     try {
@@ -169,7 +169,7 @@ public abstract class JavaGeneratorTest extends MalTest {
   }
 
   protected void assertLangNotGenerated(String langPath, String[] expectedErrors) {
-    var sourcesDir = getNewTmpDir();
+    var sourcesDir = getNewTmpDir("java-generator-test");
     var lang = assertGetLangClassPath(langPath);
     resetTestSystem();
     try {

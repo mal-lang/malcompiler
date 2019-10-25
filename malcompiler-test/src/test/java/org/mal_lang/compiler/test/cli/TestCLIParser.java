@@ -418,8 +418,8 @@ public class TestCLIParser extends MalTest {
     cli.addOption("b", NO_ARGUMENT);
     cli.addOption('c', "c", NO_ARGUMENT);
     cli.addOption('d', NO_ARGUMENT, "description for d");
-    cli.addOption("e", NO_ARGUMENT, "description for e\nit is long");
-    cli.addOption('f', "f", NO_ARGUMENT, "description for f\nit is really\nlong");
+    cli.addOption("e", NO_ARGUMENT, String.format("description for e%nit is long"));
+    cli.addOption('f', "f", NO_ARGUMENT, String.format("description for f%nit is really%nlong"));
     cli.addOption('g', REQUIRED_ARGUMENT);
     cli.addOption("h", REQUIRED_ARGUMENT);
     cli.addOption('i', "i", REQUIRED_ARGUMENT);
@@ -428,7 +428,7 @@ public class TestCLIParser extends MalTest {
     cli.addOption('l', "l", REQUIRED_ARGUMENT, "VERY_SPECIFIC_ARGUMENT", null);
     cli.addOption('m', REQUIRED_ARGUMENT, "description for m");
     cli.addOption("n", REQUIRED_ARGUMENT, "description for n");
-    cli.addOption('o', "o", REQUIRED_ARGUMENT, "description for o\nsome extra info");
+    cli.addOption('o', "o", REQUIRED_ARGUMENT, String.format("description for o%nsome extra info"));
     cli.addOption('p', REQUIRED_ARGUMENT, "ARGUMENT1", "description for p");
     cli.addOption("q", REQUIRED_ARGUMENT, "ARGUMENT2", "description for q");
     cli.addOption(
@@ -436,16 +436,16 @@ public class TestCLIParser extends MalTest {
         "r",
         REQUIRED_ARGUMENT,
         "VERY_SPECIFIC_ARGUMENT",
-        "description for r\nsome extra info");
+        String.format("description for r%nsome extra info"));
     cli.addOption('s', OPTIONAL_ARGUMENT, "");
     cli.addOption("t", OPTIONAL_ARGUMENT, "");
     cli.addOption('u', "u", OPTIONAL_ARGUMENT, "");
-    cli.addOption('v', OPTIONAL_ARGUMENT, "ARGUMENT1", "\n");
-    cli.addOption("w", OPTIONAL_ARGUMENT, "ARGUMENT2", "\n\n");
-    cli.addOption('x', "x", OPTIONAL_ARGUMENT, "VERY_SPECIFIC_ARGUMENT", "\n\n\n");
+    cli.addOption('v', OPTIONAL_ARGUMENT, "ARGUMENT1", String.format("%n"));
+    cli.addOption("w", OPTIONAL_ARGUMENT, "ARGUMENT2", String.format("%n%n"));
+    cli.addOption('x', "x", OPTIONAL_ARGUMENT, "VERY_SPECIFIC_ARGUMENT", String.format("%n%n%n"));
     cli.addOption('y', OPTIONAL_ARGUMENT, "description for y");
     cli.addOption("z", OPTIONAL_ARGUMENT, "description for z");
-    cli.addOption('0', "0", OPTIONAL_ARGUMENT, "description for 0\nsome extra info");
+    cli.addOption('0', "0", OPTIONAL_ARGUMENT, String.format("description for 0%nsome extra info"));
     cli.addOption('1', OPTIONAL_ARGUMENT, "ARGUMENT1", "description for 1");
     cli.addOption("2", OPTIONAL_ARGUMENT, "ARGUMENT2", "description for 2");
     cli.addOption(
@@ -453,7 +453,7 @@ public class TestCLIParser extends MalTest {
         "3",
         OPTIONAL_ARGUMENT,
         "VERY_SPECIFIC_ARGUMENT",
-        "description for 3\nsome extra info");
+        String.format("description for 3%nsome extra info"));
     cli.addOption("border-line-option-x", NO_ARGUMENT, "description 1");
     cli.addOption("border-line-option-xx", NO_ARGUMENT, "description 2");
     String[] expectedLines = {
@@ -509,11 +509,11 @@ public class TestCLIParser extends MalTest {
       ""
     };
     var actualLines = cli.getSGROptionLines();
-    var expected = String.join("\n", expectedLines);
+    var expected = String.join(lineSep, expectedLines);
     var actualBuffer = new StringBuffer();
     for (var actualLine : actualLines) {
       actualBuffer.append(actualLine.getPlainString());
-      actualBuffer.append("\n");
+      actualBuffer.append(lineSep);
     }
     var actual = actualBuffer.toString();
     assertEquals(expected, actual);

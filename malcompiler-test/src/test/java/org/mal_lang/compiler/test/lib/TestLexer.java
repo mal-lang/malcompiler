@@ -127,7 +127,7 @@ public class TestLexer extends MalTest {
       assertTrue(e instanceof CompilerException);
       assertEquals("There were syntax errors", e.getMessage());
       assertEmptyOut();
-      assertEquals(String.format("[LEXER ERROR] %s %s\n", pos.posString(), error), getPlainErr());
+      assertEquals(String.format("[LEXER ERROR] %s %s%n", pos.posString(), error), getPlainErr());
     }
   }
 

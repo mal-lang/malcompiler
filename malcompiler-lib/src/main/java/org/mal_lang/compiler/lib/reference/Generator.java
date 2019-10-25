@@ -160,7 +160,7 @@ public class Generator extends JavaGenerator {
                       asset.getName(), attackStep.getName()));
             }
           }
-          fw.write(String.format("%s.%s = %s\n", asset.getName(), attackStep.getName(), dist));
+          fw.write(String.format("%s.%s = %s%n", asset.getName(), attackStep.getName(), dist));
         }
       }
     }

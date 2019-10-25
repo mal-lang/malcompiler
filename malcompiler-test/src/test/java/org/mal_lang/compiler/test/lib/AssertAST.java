@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mal_lang.compiler.test.MalTest.getFileClassPath;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import org.mal_lang.compiler.lib.AST;
 import org.mal_lang.compiler.lib.Analyzer;
@@ -32,14 +33,14 @@ public final class AssertAST {
   // Prevent instantiation
   private AssertAST() {}
 
-  public static AST getASTClassPath(String filename) throws IOException, CompilerException {
+  public static AST getASTClassPath(String filename) throws IOException, URISyntaxException, CompilerException {
     return Parser.parse(getFileClassPath(filename));
   }
 
   public static AST assertGetASTClassPath(String filename) {
     try {
       return getASTClassPath(filename);
-    } catch (IOException | CompilerException e) {
+    } catch (IOException | URISyntaxException | CompilerException e) {
       fail(e.getMessage());
     }
     throw new RuntimeException("This should be unreachable");
