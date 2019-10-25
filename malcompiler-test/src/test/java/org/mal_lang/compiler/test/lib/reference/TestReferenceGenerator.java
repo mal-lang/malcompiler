@@ -170,9 +170,12 @@ public class TestReferenceGenerator extends JavaGeneratorTest {
   public void testGoodPath() {
     assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir("test-reference-generator")));
     resetTestSystem();
-    assertGeneratorOK(emptyLang, Map.of("path", String.format("%s/a", getNewTmpDir("test-reference-generator"))));
+    assertGeneratorOK(
+        emptyLang, Map.of("path", String.format("%s/a", getNewTmpDir("test-reference-generator"))));
     resetTestSystem();
-    assertGeneratorOK(emptyLang, Map.of("path", String.format("%s/a/b", getNewTmpDir("test-reference-generator"))));
+    assertGeneratorOK(
+        emptyLang,
+        Map.of("path", String.format("%s/a/b", getNewTmpDir("test-reference-generator"))));
   }
 
   @Test
@@ -180,27 +183,36 @@ public class TestReferenceGenerator extends JavaGeneratorTest {
     removedArgs = Set.of("package");
     assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir("test-reference-generator")));
     resetTestSystem();
-    assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", ""));
+    assertPackageMissing(
+        emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", ""));
     resetTestSystem();
-    assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", " \t "));
+    assertPackageMissing(
+        emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", " \t "));
     resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", "int"));
+    assertPackageInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", "int"));
     resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", "true"));
+    assertPackageInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", "true"));
     resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", "null"));
+    assertPackageInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", "null"));
     resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", "a/b"));
+    assertPackageInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", "a/b"));
     resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", "a-b"));
+    assertPackageInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", "a-b"));
     resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", "a.int"));
+    assertPackageInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "package", "a.int"));
     removedArgs = Set.of();
   }
 
   @Test
   public void testBadCore() {
-    assertCoreInvalid(emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "core", "a"));
+    assertCoreInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-reference-generator"), "core", "a"));
   }
 
   @Test

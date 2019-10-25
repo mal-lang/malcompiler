@@ -52,7 +52,8 @@ public class TestAllFeatures extends MalTest {
   private static final String CORE_MAL = "core.mal";
   private static final String SUBINCLUDED_MAL = "subincluded.mal";
   private static final String INCLUDED_MAL = "included.mal";
-  private static final String SUBDIR_SUBINCLUDED_MAL = String.format("subdir%ssubincluded.mal", fileSep);
+  private static final String SUBDIR_SUBINCLUDED_MAL =
+      String.format("subdir%ssubincluded.mal", fileSep);
 
   @Test
   public void testLexerAllFeatures() {
@@ -649,8 +650,7 @@ public class TestAllFeatures extends MalTest {
             new AST.ID(new Position(CORE_MAL, 1, 10), "C1"),
             Arrays.asList(
                 new AST.Meta(new Position(CORE_MAL, 2, 3), AST.MetaType.INFO, "This is C1"),
-                new AST.Meta(
-                    new Position(CORE_MAL, 3, 3), AST.MetaType.ASSUMPTIONS, "None for C1"),
+                new AST.Meta(new Position(CORE_MAL, 3, 3), AST.MetaType.ASSUMPTIONS, "None for C1"),
                 new AST.Meta(
                     new Position(CORE_MAL, 4, 3), AST.MetaType.RATIONALE, "Reasoning for C1")),
             new ArrayList<AST.Asset>()),
@@ -782,8 +782,7 @@ public class TestAllFeatures extends MalTest {
                                     Arrays.asList(
                                         new AST.IDExpr(
                                             new Position(CORE_MAL, 26, 10),
-                                            new AST.ID(
-                                                new Position(CORE_MAL, 26, 10), "a1Sub"))))),
+                                            new AST.ID(new Position(CORE_MAL, 26, 10), "a1Sub"))))),
                             Optional.empty()),
                         new AST.AttackStep(
                             new Position(CORE_MAL, 28, 5),
@@ -811,8 +810,7 @@ public class TestAllFeatures extends MalTest {
                                                 new AST.IDExpr(
                                                     new Position(CORE_MAL, 30, 14),
                                                     new AST.ID(
-                                                        new Position(CORE_MAL, 30, 14),
-                                                        "a1Super")),
+                                                        new Position(CORE_MAL, 30, 14), "a1Super")),
                                                 new AST.IDExpr(
                                                     new Position(CORE_MAL, 30, 22),
                                                     new AST.ID(
@@ -1017,8 +1015,7 @@ public class TestAllFeatures extends MalTest {
                                                 new AST.IDExpr(
                                                     new Position(CORE_MAL, 49, 16),
                                                     new AST.ID(
-                                                        new Position(CORE_MAL, 49, 16),
-                                                        "a1Sub"))),
+                                                        new Position(CORE_MAL, 49, 16), "a1Sub"))),
                                             new AST.IDExpr(
                                                 new Position(CORE_MAL, 49, 22),
                                                 new AST.ID(
@@ -1066,8 +1063,7 @@ public class TestAllFeatures extends MalTest {
                                         new AST.IDExpr(
                                             new Position(CORE_MAL, 56, 10),
                                             new AST.ID(
-                                                new Position(CORE_MAL, 56, 10),
-                                                "a1Defense2")))))),
+                                                new Position(CORE_MAL, 56, 10), "a1Defense2")))))),
                         new AST.AttackStep(
                             new Position(CORE_MAL, 58, 5),
                             AST.AttackStepType.NOTEXIST,
@@ -1092,8 +1088,7 @@ public class TestAllFeatures extends MalTest {
                                         new AST.IDExpr(
                                             new Position(CORE_MAL, 60, 11),
                                             new AST.ID(
-                                                new Position(CORE_MAL, 60, 11),
-                                                "a1Defense1"))))))),
+                                                new Position(CORE_MAL, 60, 11), "a1Defense1"))))))),
                     new ArrayList<AST.Variable>()),
                 new AST.Asset(
                     new Position(CORE_MAL, 63, 3),
@@ -1131,8 +1126,7 @@ public class TestAllFeatures extends MalTest {
                                             new AST.ID(new Position(CORE_MAL, 73, 14), "V1"),
                                             new AST.IDExpr(
                                                 new Position(CORE_MAL, 73, 19),
-                                                new AST.ID(
-                                                    new Position(CORE_MAL, 73, 19), "V2")))),
+                                                new AST.ID(new Position(CORE_MAL, 73, 19), "V2")))),
                                     Arrays.asList(
                                         new AST.StepExpr(
                                             new Position(CORE_MAL, 74, 10),
@@ -1195,9 +1189,7 @@ public class TestAllFeatures extends MalTest {
                     Optional.empty(),
                     Arrays.asList(
                         new AST.Meta(
-                            new Position(CORE_MAL, 84, 5),
-                            AST.MetaType.ASSUMPTIONS,
-                            "None for A4"),
+                            new Position(CORE_MAL, 84, 5), AST.MetaType.ASSUMPTIONS, "None for A4"),
                         new AST.Meta(
                             new Position(CORE_MAL, 85, 5),
                             AST.MetaType.RATIONALE,
@@ -1227,8 +1219,7 @@ public class TestAllFeatures extends MalTest {
                                                     new Position(CORE_MAL, 92, 20),
                                                     new AST.ID(
                                                         new Position(CORE_MAL, 92, 20), "a1")),
-                                                new AST.ID(
-                                                    new Position(CORE_MAL, 92, 23), "A2")))),
+                                                new AST.ID(new Position(CORE_MAL, 92, 23), "A2")))),
                                     Arrays.asList(
                                         new AST.StepExpr(
                                             new Position(CORE_MAL, 90, 10),
@@ -1343,8 +1334,7 @@ public class TestAllFeatures extends MalTest {
                                             new Position(CORE_MAL, 117, 10),
                                             new AST.IDExpr(
                                                 new Position(CORE_MAL, 117, 10),
-                                                new AST.ID(
-                                                    new Position(CORE_MAL, 117, 10), "a1")),
+                                                new AST.ID(new Position(CORE_MAL, 117, 10), "a1")),
                                             new AST.IDExpr(
                                                 new Position(CORE_MAL, 117, 13),
                                                 new AST.ID(

@@ -225,9 +225,12 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
   public void testGoodPath() {
     assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator")));
     resetTestSystem();
-    assertGeneratorOK(emptyLang, Map.of("path", String.format("%s/a", getNewTmpDir("test-securicad-generator"))));
+    assertGeneratorOK(
+        emptyLang, Map.of("path", String.format("%s/a", getNewTmpDir("test-securicad-generator"))));
     resetTestSystem();
-    assertGeneratorOK(emptyLang, Map.of("path", String.format("%s/a/b", getNewTmpDir("test-securicad-generator"))));
+    assertGeneratorOK(
+        emptyLang,
+        Map.of("path", String.format("%s/a/b", getNewTmpDir("test-securicad-generator"))));
   }
 
   @Test
@@ -235,34 +238,47 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
     removedArgs = Set.of("package");
     assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator")));
     resetTestSystem();
-    assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", ""));
+    assertPackageMissing(
+        emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", ""));
     resetTestSystem();
-    assertPackageMissing(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", " \t "));
+    assertPackageMissing(
+        emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", " \t "));
     resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", "int"));
+    assertPackageInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", "int"));
     resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", "true"));
+    assertPackageInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", "true"));
     resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", "null"));
+    assertPackageInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", "null"));
     resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", "a/b"));
+    assertPackageInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", "a/b"));
     resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", "a-b"));
+    assertPackageInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", "a-b"));
     resetTestSystem();
-    assertPackageInvalid(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", "a.int"));
+    assertPackageInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "package", "a.int"));
     removedArgs = Set.of();
   }
 
   @Test
   public void testBadIcons() {
     // Relative icons
-    assertIconsRelative(null, Map.of("path", getNewTmpDir("test-securicad-generator"), "icons", "a"));
+    assertIconsRelative(
+        null, Map.of("path", getNewTmpDir("test-securicad-generator"), "icons", "a"));
     resetTestSystem();
-    assertIconsRelative(null, Map.of("path", getNewTmpDir("test-securicad-generator"), "icons", "a/b"));
+    assertIconsRelative(
+        null, Map.of("path", getNewTmpDir("test-securicad-generator"), "icons", "a/b"));
     resetTestSystem();
     // File icons
     var bledFile = assertGetFileClassPath("bled/bled.mal");
-    assertIconsFile(null, Map.of("path", getNewTmpDir("test-securicad-generator"), "icons", bledFile.getAbsolutePath()));
+    assertIconsFile(
+        null,
+        Map.of(
+            "path", getNewTmpDir("test-securicad-generator"), "icons", bledFile.getAbsolutePath()));
   }
 
   @Test
@@ -271,19 +287,28 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
     assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator")));
     resetTestSystem();
     // Empty icons
-    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "icons", ""));
+    assertGeneratorOK(
+        emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "icons", ""));
     resetTestSystem();
     // Blank icons
-    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "icons", " \t "));
+    assertGeneratorOK(
+        emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "icons", " \t "));
     resetTestSystem();
     // Good icons
-    assertGeneratorOK(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "icons", getNewTmpDir("test-securicad-generator")));
+    assertGeneratorOK(
+        emptyLang,
+        Map.of(
+            "path",
+            getNewTmpDir("test-securicad-generator"),
+            "icons",
+            getNewTmpDir("test-securicad-generator")));
   }
 
   @Test
   public void testBadMock() {
     removedArgs = Set.of("mock");
-    assertMockInvalid(emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "mock", "a"));
+    assertMockInvalid(
+        emptyLang, Map.of("path", getNewTmpDir("test-securicad-generator"), "mock", "a"));
     removedArgs = Set.of();
   }
 

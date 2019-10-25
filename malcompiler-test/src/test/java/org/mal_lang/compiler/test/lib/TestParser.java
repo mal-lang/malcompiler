@@ -22,7 +22,6 @@ import static org.mal_lang.compiler.test.lib.AssertAST.assertDefine;
 import static org.mal_lang.compiler.test.lib.AssertAST.assertEmptyAST;
 import static org.mal_lang.compiler.test.lib.AssertAST.assertGetASTClassPath;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
@@ -37,7 +36,8 @@ public class TestParser extends MalTest {
   private static final String ASSOCIATIONS_MAL = "associations.mal";
   private static final String INCLUDE_MAL = "include.mal";
   private static final String INCLUDED1_MAL = "included1.mal";
-  private static final String SUBDIR_SUBINCLUDED1_MAL = String.format("subDir%ssubIncluded1.mal", fileSep);
+  private static final String SUBDIR_SUBINCLUDED1_MAL =
+      String.format("subDir%ssubIncluded1.mal", fileSep);
   private static final String INCLUDED2_MAL = "included2.mal";
   private static final String ASSETS_MAL = "assets.mal";
   private static final String ATTACKSTEPS_MAL = "attacksteps.mal";
@@ -114,8 +114,7 @@ public class TestParser extends MalTest {
             new Position(CATEGORIES_MAL, 6, 1),
             new AST.ID(new Position(CATEGORIES_MAL, 6, 10), "C2"),
             Arrays.asList(
-                new AST.Meta(
-                    new Position(CATEGORIES_MAL, 7, 3), AST.MetaType.ASSUMPTIONS, "none")),
+                new AST.Meta(new Position(CATEGORIES_MAL, 7, 3), AST.MetaType.ASSUMPTIONS, "none")),
             Arrays.asList(
                 new AST.Asset(
                     new Position(CATEGORIES_MAL, 9, 3),
@@ -212,8 +211,7 @@ public class TestParser extends MalTest {
             new AST.ID(new Position(ASSOCIATIONS_MAL, 47, 34), "A2"),
             Arrays.asList(
                 new AST.Meta(new Position(ASSOCIATIONS_MAL, 48, 6), AST.MetaType.INFO, "testing"),
-                new AST.Meta(
-                    new Position(ASSOCIATIONS_MAL, 49, 6), AST.MetaType.RATIONALE, "hej"),
+                new AST.Meta(new Position(ASSOCIATIONS_MAL, 49, 6), AST.MetaType.RATIONALE, "hej"),
                 new AST.Meta(
                     new Position(ASSOCIATIONS_MAL, 50, 6),
                     AST.MetaType.ASSUMPTIONS,
@@ -231,9 +229,7 @@ public class TestParser extends MalTest {
     assertEquals(5, defines.size());
     assertDefine(
         new AST.Define(
-            new Position(INCLUDE_MAL, 1, 1),
-            new AST.ID(new Position(INCLUDE_MAL, 1, 2), "a"),
-            "b"),
+            new Position(INCLUDE_MAL, 1, 1), new AST.ID(new Position(INCLUDE_MAL, 1, 2), "a"), "b"),
         defines.get(0));
     assertDefine(
         new AST.Define(
@@ -255,9 +251,7 @@ public class TestParser extends MalTest {
         defines.get(3));
     assertDefine(
         new AST.Define(
-            new Position(INCLUDE_MAL, 5, 1),
-            new AST.ID(new Position(INCLUDE_MAL, 5, 2), "b"),
-            "c"),
+            new Position(INCLUDE_MAL, 5, 1), new AST.ID(new Position(INCLUDE_MAL, 5, 2), "b"), "c"),
         defines.get(4));
   }
 
@@ -536,8 +530,7 @@ public class TestParser extends MalTest {
                                         new Position(ATTACKSTEPS_MAL, 10, 11),
                                         new AST.TTCFuncExpr(
                                             new Position(ATTACKSTEPS_MAL, 10, 11),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 10, 11), "a"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 10, 11), "a"),
                                             new ArrayList<Double>()),
                                         new AST.TTCPowExpr(
                                             new Position(ATTACKSTEPS_MAL, 10, 13),
@@ -570,13 +563,11 @@ public class TestParser extends MalTest {
                                         new Position(ATTACKSTEPS_MAL, 11, 12),
                                         new AST.TTCFuncExpr(
                                             new Position(ATTACKSTEPS_MAL, 11, 12),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 11, 12), "a"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 11, 12), "a"),
                                             new ArrayList<Double>()),
                                         new AST.TTCFuncExpr(
                                             new Position(ATTACKSTEPS_MAL, 11, 14),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 11, 14), "b"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 11, 14), "b"),
                                             new ArrayList<Double>())),
                                     new AST.TTCFuncExpr(
                                         new Position(ATTACKSTEPS_MAL, 11, 17),
@@ -601,13 +592,11 @@ public class TestParser extends MalTest {
                                         new Position(ATTACKSTEPS_MAL, 12, 14),
                                         new AST.TTCFuncExpr(
                                             new Position(ATTACKSTEPS_MAL, 12, 14),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 12, 14), "b"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 12, 14), "b"),
                                             new ArrayList<Double>()),
                                         new AST.TTCFuncExpr(
                                             new Position(ATTACKSTEPS_MAL, 12, 16),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 12, 16), "c"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 12, 16), "c"),
                                             new ArrayList<Double>())))),
                             new ArrayList<AST.Meta>(),
                             Optional.empty(),
@@ -624,13 +613,11 @@ public class TestParser extends MalTest {
                                         new Position(ATTACKSTEPS_MAL, 13, 12),
                                         new AST.TTCFuncExpr(
                                             new Position(ATTACKSTEPS_MAL, 13, 12),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 13, 12), "a"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 13, 12), "a"),
                                             new ArrayList<Double>()),
                                         new AST.TTCFuncExpr(
                                             new Position(ATTACKSTEPS_MAL, 13, 14),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 13, 14), "b"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 13, 14), "b"),
                                             new ArrayList<Double>())),
                                     new AST.TTCFuncExpr(
                                         new Position(ATTACKSTEPS_MAL, 13, 17),
@@ -655,13 +642,11 @@ public class TestParser extends MalTest {
                                         new Position(ATTACKSTEPS_MAL, 14, 14),
                                         new AST.TTCFuncExpr(
                                             new Position(ATTACKSTEPS_MAL, 14, 14),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 14, 14), "b"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 14, 14), "b"),
                                             new ArrayList<Double>()),
                                         new AST.TTCFuncExpr(
                                             new Position(ATTACKSTEPS_MAL, 14, 16),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 14, 16), "c"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 14, 16), "c"),
                                             new ArrayList<Double>())))),
                             new ArrayList<AST.Meta>(),
                             Optional.empty(),
@@ -903,21 +888,18 @@ public class TestParser extends MalTest {
                                     Arrays.asList(
                                         new AST.Variable(
                                             new Position(ATTACKSTEPS_MAL, 48, 10),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 48, 14), "x"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 48, 14), "x"),
                                             new AST.IDExpr(
                                                 new Position(ATTACKSTEPS_MAL, 48, 18),
                                                 new AST.ID(
                                                     new Position(ATTACKSTEPS_MAL, 48, 18), "y"))),
                                         new AST.Variable(
                                             new Position(ATTACKSTEPS_MAL, 50, 10),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 50, 14), "a"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 50, 14), "a"),
                                             new AST.IDExpr(
                                                 new Position(ATTACKSTEPS_MAL, 50, 18),
                                                 new AST.ID(
-                                                    new Position(ATTACKSTEPS_MAL, 50, 18),
-                                                    "b")))),
+                                                    new Position(ATTACKSTEPS_MAL, 50, 18), "b")))),
                                     Arrays.asList(
                                         new AST.StepExpr(
                                             new Position(ATTACKSTEPS_MAL, 49, 10),
@@ -931,8 +913,7 @@ public class TestParser extends MalTest {
                                                     new Position(ATTACKSTEPS_MAL, 49, 12), "y"))),
                                         new AST.IDExpr(
                                             new Position(ATTACKSTEPS_MAL, 51, 10),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 51, 10), "b")),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 51, 10), "b")),
                                         new AST.UnionExpr(
                                             new Position(ATTACKSTEPS_MAL, 52, 10),
                                             new AST.IDExpr(
@@ -985,21 +966,18 @@ public class TestParser extends MalTest {
                                     Arrays.asList(
                                         new AST.Variable(
                                             new Position(ATTACKSTEPS_MAL, 59, 10),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 59, 14), "x"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 59, 14), "x"),
                                             new AST.IDExpr(
                                                 new Position(ATTACKSTEPS_MAL, 59, 18),
                                                 new AST.ID(
                                                     new Position(ATTACKSTEPS_MAL, 59, 18), "y"))),
                                         new AST.Variable(
                                             new Position(ATTACKSTEPS_MAL, 61, 10),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 61, 14), "a"),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 61, 14), "a"),
                                             new AST.IDExpr(
                                                 new Position(ATTACKSTEPS_MAL, 61, 18),
                                                 new AST.ID(
-                                                    new Position(ATTACKSTEPS_MAL, 61, 18),
-                                                    "b")))),
+                                                    new Position(ATTACKSTEPS_MAL, 61, 18), "b")))),
                                     Arrays.asList(
                                         new AST.StepExpr(
                                             new Position(ATTACKSTEPS_MAL, 60, 10),
@@ -1013,8 +991,7 @@ public class TestParser extends MalTest {
                                                     new Position(ATTACKSTEPS_MAL, 60, 12), "y"))),
                                         new AST.IDExpr(
                                             new Position(ATTACKSTEPS_MAL, 62, 10),
-                                            new AST.ID(
-                                                new Position(ATTACKSTEPS_MAL, 62, 10), "b")),
+                                            new AST.ID(new Position(ATTACKSTEPS_MAL, 62, 10), "b")),
                                         new AST.UnionExpr(
                                             new Position(ATTACKSTEPS_MAL, 63, 10),
                                             new AST.IDExpr(

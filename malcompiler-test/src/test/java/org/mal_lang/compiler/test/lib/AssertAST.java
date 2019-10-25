@@ -33,7 +33,8 @@ public final class AssertAST {
   // Prevent instantiation
   private AssertAST() {}
 
-  public static AST getASTClassPath(String filename) throws IOException, URISyntaxException, CompilerException {
+  public static AST getASTClassPath(String filename)
+      throws IOException, URISyntaxException, CompilerException {
     return Parser.parse(getFileClassPath(filename));
   }
 

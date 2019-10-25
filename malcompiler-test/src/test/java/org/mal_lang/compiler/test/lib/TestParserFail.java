@@ -37,8 +37,10 @@ public class TestParserFail extends MalTest {
   private static final String BAD_META3_MAL = "bad-meta3.mal";
   private static final String BAD_INCLUDE1_MAL = "bad-include1.mal";
   private static final String BAD_INCLUDE2_MAL = "bad-include2.mal";
-  private static final String SUBDIR_NON_EXISTANT_MAL = String.format("subDir%snon-existant.mal", fileSep);
-  private static final String SUBDIR_BAD_INCLUDED1_MAL = String.format("subDir%sbad-included1.mal", fileSep);
+  private static final String SUBDIR_NON_EXISTANT_MAL =
+      String.format("subDir%snon-existant.mal", fileSep);
+  private static final String SUBDIR_BAD_INCLUDED1_MAL =
+      String.format("subDir%sbad-included1.mal", fileSep);
   private static final String BAD_CATEGORY1_MAL = "bad-category1.mal";
   private static final String BAD_ASSET1_MAL = "bad-asset1.mal";
   private static final String BAD_ASSET2_MAL = "bad-asset2.mal";
@@ -69,7 +71,9 @@ public class TestParserFail extends MalTest {
 
   @Test
   public void testBadFile() {
-    assertIOException("parser/non-existant.mal", String.format("%s: No such file or directory", NON_EXISTANT_MAL));
+    assertIOException(
+        "parser/non-existant.mal",
+        String.format("%s: No such file or directory", NON_EXISTANT_MAL));
     assertIOException("parser/\u0000non-existant.mal", "Invalid file path");
   }
 

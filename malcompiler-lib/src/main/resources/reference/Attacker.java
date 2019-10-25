@@ -13,7 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Attacker {
-  private static final Pattern distributionPattern = Pattern.compile("^([a-zA-Z]+)(?:\\((?:([0-9.]+)(?:, ([0-9.]+))?)?\\))?$");
+  private static final Pattern distributionPattern =
+      Pattern.compile("^([a-zA-Z]+)(?:\\((?:([0-9.]+)(?:, ([0-9.]+))?)?\\))?$");
 
   protected Set<AttackStep> activeAttackSteps = new HashSet<>();
   public boolean verbose = false;

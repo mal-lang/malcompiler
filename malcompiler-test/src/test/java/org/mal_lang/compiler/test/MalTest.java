@@ -157,7 +157,8 @@ public abstract class MalTest {
       var streamLines = stream.split("\\R", -1);
       var len = Math.min(lines.length, streamLines.length);
       for (int i = 0; i < len; i++) {
-        assertEquals(lines[i], streamLines[i], String.format("Invalid line %d in %s", i + 1, streamname));
+        assertEquals(
+            lines[i], streamLines[i], String.format("Invalid line %d in %s", i + 1, streamname));
       }
       assertEquals(
           lines.length,
