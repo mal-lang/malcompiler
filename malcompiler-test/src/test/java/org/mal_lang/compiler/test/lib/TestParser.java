@@ -77,7 +77,7 @@ public class TestParser extends MalTest {
         new AST.Define(
             new Position(DEFINES_MAL, 5, 1),
             new AST.ID(new Position(DEFINES_MAL, 6, 1), "def"),
-            String.format("String%nLine")),
+            "String\nLine"),
         defines.get(2));
   }
 
