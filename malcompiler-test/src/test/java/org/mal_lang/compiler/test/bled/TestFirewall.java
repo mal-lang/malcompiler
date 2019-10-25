@@ -15,6 +15,8 @@
  */
 package org.mal_lang.compiler.test.bled;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import bled.Firewall;
 import bled.Host;
 import bled.IP;
@@ -23,7 +25,8 @@ import core.Asset;
 import core.AttackStep;
 import core.Attacker;
 import core.Defense;
-import java.net.URL;
+import java.io.File;
+import java.net.URISyntaxException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mal_lang.compiler.test.MalTest;
@@ -121,8 +124,12 @@ public class TestFirewall extends MalTest {
     attacker.addAttackPoint(host_veni.access);
     System.out.println("ATTACKER");
 
-    URL resource = TestFirewall.class.getResource("/bled/attackerProfile.ttc");
-    attacker.attack(resource.getPath());
+    try {
+      File resource = new File(TestFirewall.class.getResource("/bled/attackerProfile.ttc").toURI());
+      attacker.attack(resource);
+    } catch (URISyntaxException e) {
+      fail(e);
+    }
 
     // LUTO
     host_ursu.access.assertCompromisedInstantaneously();
