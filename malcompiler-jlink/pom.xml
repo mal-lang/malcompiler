@@ -73,8 +73,7 @@ limitations under the License.
     <gpg.skip>true</gpg.skip>
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
-    <jlink.exec>${java.home}/bin/jlink</jlink.exec>
-    <jlink.output>${project.build.directory}/jlink</jlink.output>
+    <jlink.output>${project.build.directory}/${project.build.finalName}</jlink.output>
     <jlink.modules>java.compiler,java.desktop,java.logging</jlink.modules>
     <jlink.dependencies>${jlink.output}/dependencies</jlink.dependencies>
     <dependencies.output>${project.build.directory}/dependencies</dependencies.output>
@@ -183,19 +182,6 @@ limitations under the License.
               </target>
             </configuration>
           </execution>
-          <execution>
-            <id>include-launcher</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <copy file="${project.basedir}/src/main/resources/malc" todir="${jlink.output}/bin" />
-                <chmod file="${jlink.output}/bin/malc" perm="775" />
-              </target>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -203,16 +189,15 @@ limitations under the License.
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
-            <id>create-tarball</id>
+            <id>create-archive</id>
             <phase>package</phase>
             <goals>
               <goal>single</goal>
             </goals>
             <configuration>
               <appendAssemblyId>false</appendAssemblyId>
-              <finalName>${project.parent.artifactId}-${project.version}</finalName>
               <descriptors>
-                <descriptor>${project.basedir}/src/assembly/linux.xml</descriptor>
+                <descriptor>${project.basedir}/src/assembly/${assembly.descriptor}</descriptor>
               </descriptors>
             </configuration>
           </execution>
@@ -220,4 +205,116 @@ limitations under the License.
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>linux</id>
+      <activation>
+        <os>
+          <family>unix</family>
+          <name>Linux</name>
+        </os>
+      </activation>
+      <properties>
+        <jlink.exec>${java.home}/bin/jlink</jlink.exec>
+        <assembly.descriptor>unix.xml</assembly.descriptor>
+      </properties>
+      <build>
+        <finalName>${project.parent.artifactId}-${project.version}-linux</finalName>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>include-launcher</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <copy file="${project.basedir}/src/main/resources/malc" todir="${jlink.output}/bin" />
+                    <chmod file="${jlink.output}/bin/malc" perm="775" />
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>macos</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <properties>
+        <jlink.exec>${java.home}/bin/jlink</jlink.exec>
+        <assembly.descriptor>unix.xml</assembly.descriptor>
+      </properties>
+      <build>
+        <finalName>${project.parent.artifactId}-${project.version}-macos</finalName>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>include-launcher</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <copy file="${project.basedir}/src/main/resources/malc" todir="${jlink.output}/bin" />
+                    <chmod file="${jlink.output}/bin/malc" perm="775" />
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <properties>
+        <jlink.exec>${java.home}/bin/jlink.exe</jlink.exec>
+        <assembly.descriptor>windows.xml</assembly.descriptor>
+      </properties>
+      <build>
+        <finalName>${project.parent.artifactId}-${project.version}-windows</finalName>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>include-launcher</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <copy file="${project.basedir}/src/main/resources/malc" todir="${jlink.output}/bin" />
+                    <copy file="${project.basedir}/src/main/resources/malc.bat" todir="${jlink.output}/bin" />
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
