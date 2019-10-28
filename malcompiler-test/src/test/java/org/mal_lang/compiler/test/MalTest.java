@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -33,6 +34,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 public abstract class MalTest {
+  public static final String fileSep = System.getProperty("file.separator");
+  public static final String lineSep = System.getProperty("line.separator");
+
   @SuppressWarnings("serial")
   public static class ExitSecurityException extends SecurityException {
     private int status;
@@ -135,7 +139,7 @@ public abstract class MalTest {
 
   private static void assertEmptyStream(String streamname, String stream) {
     assertTrue(
-        stream.isEmpty(), String.format("%s should be empty, found:\n%s", streamname, stream));
+        stream.isEmpty(), String.format("%s should be empty, found:%n%s", streamname, stream));
   }
 
   protected void assertEmptyOut() {
@@ -151,13 +155,15 @@ public abstract class MalTest {
       assertEmptyStream(streamname, stream);
     } else {
       var streamLines = stream.split("\\R", -1);
+      var len = Math.min(lines.length, streamLines.length);
+      for (int i = 0; i < len; i++) {
+        assertEquals(
+            lines[i], streamLines[i], String.format("Invalid line %d in %s", i + 1, streamname));
+      }
       assertEquals(
           lines.length,
           streamLines.length,
           String.format("Invalid number of lines in %s", streamname));
-      for (int i = 0; i < lines.length; i++) {
-        assertEquals(lines[i], streamLines[i], String.format("Invalid line in %s", streamname));
-      }
     }
   }
 
@@ -169,16 +175,17 @@ public abstract class MalTest {
         var fileLines = Files.readString(Path.of(filename)).split("\\R", -1);
         var streamLines = stream.split("\\R", -1);
         filename = filename.substring(filename.lastIndexOf('/') + 1);
+        var len = Math.min(fileLines.length, streamLines.length);
+        for (int i = 0; i < len; i++) {
+          assertEquals(
+              fileLines[i],
+              streamLines[i],
+              String.format("Invalid line %d in %s (%s)", i + 1, streamname, filename));
+        }
         assertEquals(
             fileLines.length,
             streamLines.length,
             String.format("Invalid number of lines in %s (%s)", streamname, filename));
-        for (int i = 0; i < fileLines.length; i++) {
-          assertEquals(
-              fileLines[i],
-              streamLines[i],
-              String.format("Invalid line in %s (%s)", streamname, filename));
-        }
       }
     } catch (InvalidPathException | IOException e) {
       var msg = e.getMessage();
@@ -206,50 +213,50 @@ public abstract class MalTest {
     assertStreamLinesFile(filename, "stderr", getPlainErr());
   }
 
-  public static File getFileClassPath(String filename) throws IOException {
+  public static File getFileClassPath(String filename) throws IOException, URISyntaxException {
     var resource = MalTest.class.getClassLoader().getResource(filename);
     if (resource == null) {
       throw new IOException(String.format("%s: No such file or directory", filename));
     }
-    return new File(resource.getFile());
+    return new File(resource.toURI());
   }
 
   public static File assertGetFileClassPath(String filename) {
     try {
       return getFileClassPath(filename);
-    } catch (IOException e) {
+    } catch (IOException | URISyntaxException e) {
       fail(e.getMessage());
     }
     throw new RuntimeException("This should be unreachable");
   }
 
-  public static String readFileClassPath(String filename) throws IOException {
+  public static String readFileClassPath(String filename) throws IOException, URISyntaxException {
     return Files.readString(getFileClassPath(filename).toPath());
   }
 
   public static String assertReadFileClassPath(String filename) {
     try {
       return readFileClassPath(filename);
-    } catch (IOException e) {
+    } catch (IOException | URISyntaxException e) {
       fail(e.getMessage());
     }
     throw new RuntimeException("This should be unreachable");
   }
 
   public void failPrintOutErr(String message) {
-    String errorMessage = String.format("%s\n", message);
+    String errorMessage = String.format("%s%n", message);
     if (!getOut().isEmpty()) {
-      errorMessage = String.format("%s\nSTDOUT:\n%s", errorMessage, getPlainOut());
+      errorMessage = String.format("%s%nSTDOUT:%n%s", errorMessage, getPlainOut());
     }
     if (!getErr().isEmpty()) {
-      errorMessage = String.format("%s\nSTDERR:\n%s", errorMessage, getPlainErr());
+      errorMessage = String.format("%s%nSTDERR:%n%s", errorMessage, getPlainErr());
     }
     fail(errorMessage);
   }
 
-  public String getNewTmpDir() {
+  public String getNewTmpDir(String prefix) {
     try {
-      var tmpPath = Files.createTempDirectory("test-reference-generator");
+      var tmpPath = Files.createTempDirectory(prefix);
       var tmpFile = tmpPath.toFile();
       tmpDirs.add(tmpFile);
       return tmpFile.getAbsolutePath();

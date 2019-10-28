@@ -1,7 +1,9 @@
 package core;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,11 +13,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Attacker {
+  private static final Pattern distributionPattern =
+      Pattern.compile("^([a-zA-Z]+)(?:\\((?:([0-9.]+)(?:, ([0-9.]+))?)?\\))?$");
 
   protected Set<AttackStep> activeAttackSteps = new HashSet<>();
   public boolean verbose = false;
-  public static String defaultProfilePath =
-      Attacker.class.getClassLoader().getResource("attackerProfile.ttc").getFile();
+  private static final String defaultProfile = "attackerProfile.ttc";
   protected static Map<String, Double> ttcHashMap = new HashMap<>();
 
   public Attacker() {
@@ -66,10 +69,7 @@ public class Attacker {
   }
 
   public static double parseDistribution(String dist, boolean defense) {
-    Pattern pattern =
-        Pattern.compile(
-            "^([a-zA-Z]+)(?:\\((?:([0-9.]+)(?:, ([0-9.]+))?)?\\))?$", Pattern.CASE_INSENSITIVE);
-    Matcher matcher = pattern.matcher(dist);
+    Matcher matcher = distributionPattern.matcher(dist);
     matcher.matches();
     double a = 0;
     double b = 0;
@@ -104,7 +104,7 @@ public class Attacker {
       case "Zero":
         return 0;
       default:
-        System.err.printf("No matching distribution for: %s\n", dist);
+        System.err.println(String.format("No matching distribution for: %s", dist));
         return 0;
     }
   }
@@ -134,16 +134,23 @@ public class Attacker {
   }
 
   public void attack() {
-    System.err.println("No attacker profile selected! Trying default path...");
-    attack(defaultProfilePath);
+    try {
+      attack(new File(getClass().getClassLoader().getResource(defaultProfile).toURI()));
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public void attack(String profilePath) {
+    attack(new File(profilePath));
+  }
+
+  public void attack(File profileFile) {
     Properties profile = new Properties();
     try {
-      profile.load(new FileInputStream(profilePath));
+      profile.load(new FileInputStream(profileFile));
     } catch (IOException e) {
-      System.err.printf("Could not open profile: %s\n", profilePath);
+      System.err.println("Could not open profile: " + profileFile.getPath());
       System.exit(1);
     }
     attack(profile);
@@ -151,25 +158,21 @@ public class Attacker {
 
   public void attack(Properties profile) {
     AttackStep.ttcHashMap = readProfile(profile);
-    System.out.println("Attacking");
     debugPrint("debug attacking");
 
     debugPrint(
-        "The model contains "
-            + Integer.toString(Asset.allAssets.size())
-            + " assets and "
-            + Integer.toString(AttackStep.allAttackSteps.size())
-            + " attack steps.");
+        String.format(
+            "The model contains %d assets and %d attack steps.",
+            Asset.allAssets.size(), AttackStep.allAttackSteps.size()));
     AttackStep currentAttackStep = null;
-    debugPrint("AttackStep.allAttackSteps = " + AttackStep.allAttackSteps);
+    debugPrint(String.format("AttackStep.allAttackSteps = %s", AttackStep.allAttackSteps));
 
     for (AttackStep attackStep : AttackStep.allAttackSteps) {
       attackStep.setExpectedParents();
       debugPrint(
-          "The expected parents of "
-              + attackStep.fullName()
-              + " are "
-              + attackStep.expectedParents);
+          String.format(
+              "The expected parents of %s are %s",
+              attackStep.fullName(), attackStep.expectedParents));
     }
 
     for (Defense defense : Defense.allDefenses) {
@@ -179,9 +182,9 @@ public class Attacker {
     }
 
     while (!activeAttackSteps.isEmpty()) {
-      debugPrint("activeAttackSteps = " + activeAttackSteps);
+      debugPrint(String.format("activeAttackSteps = %s", activeAttackSteps));
       currentAttackStep = getShortestActiveStep();
-      debugPrint("Updating children of " + currentAttackStep.fullName());
+      debugPrint(String.format("Updating children of %s", currentAttackStep.fullName()));
       currentAttackStep.updateChildren(activeAttackSteps);
       activeAttackSteps.remove(currentAttackStep);
     }

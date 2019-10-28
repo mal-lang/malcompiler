@@ -22,12 +22,13 @@ import java.util.Map;
 import java.util.Optional;
 
 public class CLIParser {
+  private static final String LINE_SEP = System.getProperty("line.separator");
   private static final int DESCRIPTION_XPOS = 29;
   private static final String DESCRIPTION_INDENT;
 
   static {
     var sb = new StringBuilder();
-    sb.append('\n');
+    sb.append(LINE_SEP);
     for (int i = 0; i < DESCRIPTION_XPOS; i++) {
       sb.append(' ');
     }
@@ -319,7 +320,7 @@ public class CLIParser {
     String remainder = description;
     while (remainder != null) {
       // Get the first line in the remainder
-      var idx = remainder.indexOf('\n');
+      var idx = remainder.indexOf(LINE_SEP);
       if (idx == -1) {
         // This is the last line
         descriptionLine = remainder;
@@ -327,7 +328,7 @@ public class CLIParser {
       } else {
         // There are more lines
         descriptionLine = remainder.substring(0, idx);
-        remainder = remainder.substring(idx + 1);
+        remainder = remainder.substring(idx + LINE_SEP.length());
       }
       descriptionLines.add(descriptionLine);
     }

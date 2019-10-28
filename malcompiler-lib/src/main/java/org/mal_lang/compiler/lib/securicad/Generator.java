@@ -227,7 +227,7 @@ public class Generator extends JavaGenerator {
     if (is == null) {
       throw error(String.format("Couldn't get resource %s", resourcePath));
     }
-    String code = String.format("package %s;\n\n%s", this.pkg, new String(is.readAllBytes()));
+    String code = String.format("package %s;%n%n%s", this.pkg, new String(is.readAllBytes()));
     Files.writeString(
         new File(new File(output, this.pkg.replaceAll("\\.", "/")), "Attacker.java").toPath(),
         code);

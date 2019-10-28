@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mal_lang.compiler.test.MalTest.getFileClassPath;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import org.mal_lang.compiler.lib.CompilerException;
 import org.mal_lang.compiler.lib.Lexer;
 import org.mal_lang.compiler.lib.Token;
@@ -29,14 +30,14 @@ public final class AssertToken {
   // Prevent instantiation
   private AssertToken() {}
 
-  public static Lexer getLexerClassPath(String filename) throws IOException {
+  public static Lexer getLexerClassPath(String filename) throws IOException, URISyntaxException {
     return new Lexer(getFileClassPath(filename));
   }
 
   public static Lexer assertGetLexerClassPath(String filename) {
     try {
       return getLexerClassPath(filename);
-    } catch (IOException e) {
+    } catch (IOException | URISyntaxException e) {
       fail(e.getMessage());
     }
     throw new RuntimeException("This should be unreachable");

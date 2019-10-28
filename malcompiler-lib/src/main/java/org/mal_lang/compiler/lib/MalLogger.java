@@ -43,7 +43,7 @@ public class MalLogger extends Logger {
       sb.append(printLevel(record.getLoggerName(), record.getLevel()));
       sb.append(" ");
       sb.append(record.getMessage());
-      sb.append("\n");
+      sb.append(String.format("%n"));
       return sb.toString();
     }
 

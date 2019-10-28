@@ -122,7 +122,7 @@ public class AttackStep {
     } else {
       System.out.println(
           fullName() + ".ttc was supposed to be infinite, but was " + Double.toString(ttc) + ".");
-      System.out.println("\nExplaining compromise:");
+      System.out.println(String.format("%nExplaining compromise:"));
       explainCompromise("", explanationDepth);
       fail();
     }
@@ -153,7 +153,7 @@ public class AttackStep {
               + ".ttc was "
               + Double.toString(expectedParent.ttc)
               + ".");
-      System.out.println("\nExplaining compromise:");
+      System.out.println(String.format("%nExplaining compromise:"));
       explainCompromise("", explanationDepth);
       fail();
     }
@@ -298,9 +298,9 @@ public class AttackStep {
   }
 
   public void explain() {
-    System.out.println("\nExplaining uncompromise:");
+    System.out.println(String.format("%nExplaining uncompromise:"));
     explainUncompromise("", explanationDepth);
-    System.out.println("\nExplaining compromise:");
+    System.out.println(String.format("%nExplaining compromise:"));
     explainCompromise("", explanationDepth);
   }
 
