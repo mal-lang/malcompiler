@@ -24,7 +24,7 @@ class MalUpdater():
         # Input file
         if in_filename == '-':
             self.in_filename = 'stdin'
-            self.in_array = sys.stdin.read().encode('utf-8')
+            self.input = sys.stdin.read()
         else:
             if not os.path.exists(in_filename):
                 sys.exit('{}: No such file or directory'.format(in_filename))
@@ -32,10 +32,14 @@ class MalUpdater():
                 sys.exit('{}: Not a file'.format(in_filename))
             self.in_filename = in_filename
             try:
-                with open(in_filename, 'rb') as f:
-                    self.in_array = f.read()
+                with open(in_filename) as f:
+                    self.input = f.read()
             except OSError as e:
                 sys.exit('{}: Could not open file for reading'.format(in_filename))
+
+        self.in_array = []
+        for c in self.input:
+            self.in_array += [c]
 
         # Output file
         self.out_file = None
@@ -47,7 +51,7 @@ class MalUpdater():
                 sys.exit('{}: File already exists'.format(out_filename))
             self.out_filename = out_filename
             try:
-                self.out_file = open(out_filename, 'wb')
+                self.out_file = open(out_filename, 'w')
             except OSError as e:
                 sys.exit('{}: Could not open file for writing'.format(out_filename))
 
@@ -56,7 +60,7 @@ class MalUpdater():
         self.line = 1
         self.col = 1
         if self.pos < len(self.in_array):
-            self.cur = chr(self.in_array[self.pos])
+            self.cur = self.in_array[self.pos]
         else:
             self.cur = None
 
@@ -79,29 +83,26 @@ class MalUpdater():
                 else:
                     self.col += 1
                 if self.pos < len(self.in_array):
-                    self.cur = chr(self.in_array[self.pos])
+                    self.cur = self.in_array[self.pos]
                 else:
                     self.cur = None
 
     def peek(self, s):
         for i in range(len(s)):
-            if self.pos + i == len(self.in_array) or s[i] != chr(self.in_array[self.pos + i]):
+            if self.pos + i >= len(self.in_array) or s[i] != self.in_array[self.pos + i]:
                 return False
         return True
 
     def get_peek(self, n):
-        if self.pos + n >= len(self.in_array):
+        if self.pos + n > len(self.in_array):
             return None
         peek = ''
         for i in range(n):
-            peek += chr(self.in_array[self.pos + i])
+            peek += self.in_array[self.pos + i]
         return peek
 
     def write(self, output):
-        if self.out_file is sys.stdout:
-            self.out_file.write(output)
-        else:
-            self.out_file.write(output.encode('utf-8'))
+        self.out_file.write(output)
 
     def error(self, message):
         sys.exit("{}:{}:{}: {}".format(self.in_filename, self.line, self.col, message))
