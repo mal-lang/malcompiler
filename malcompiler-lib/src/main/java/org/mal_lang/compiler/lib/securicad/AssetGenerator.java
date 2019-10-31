@@ -120,17 +120,21 @@ public class AssetGenerator extends JavaGenerator {
     createLocalStep(builder, asset, "Defense");
 
     for (AttackStep attackStep : asset.getAttackSteps().values()) {
-      if (attackStep.isDefense() || attackStep.isConditionalDefense()) {
-        defGen.generate(builder, asset, attackStep);
-      } else {
-        asGen.generate(builder, asset, attackStep);
+      if (!hasDebugTag(attackStep)) {
+        if (attackStep.isDefense() || attackStep.isConditionalDefense()) {
+          defGen.generate(builder, asset, attackStep);
+        } else {
+          asGen.generate(builder, asset, attackStep);
+        }
       }
     }
 
     var file = JavaFile.builder(this.pkg, builder.build());
     for (var a : lang.getAssets().values()) {
       for (var b : a.getAttackSteps().values()) {
-        file.alwaysQualify(ucFirst(b.getName()));
+        if (!hasDebugTag(b)) {
+          file.alwaysQualify(ucFirst(b.getName()));
+        }
       }
     }
     file.skipJavaLangImports(true);
@@ -245,8 +249,10 @@ public class AssetGenerator extends JavaGenerator {
 
     // @annotations
     createFieldAnnotation(builder, attackStep.getName(), index);
-    ClassName display = ClassName.get("com.foreseeti.corelib.FAnnotations", "Display");
-    builder.addAnnotation(display);
+    if (!attackStep.hasTag("hidden")) {
+      ClassName display = ClassName.get("com.foreseeti.corelib.FAnnotations", "Display");
+      builder.addAnnotation(display);
+    }
 
     // modifiers
     builder.addModifiers(Modifier.PUBLIC);

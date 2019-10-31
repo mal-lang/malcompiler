@@ -152,6 +152,7 @@ public final class AssertAST {
     assertPosition(expected, actual);
     assertEqualsPos(expected.type, actual.type, actual);
     assertID(expected.name, actual.name);
+    assertTags(expected.tags, actual.tags);
     if (expected.ttc.isEmpty()) {
       assertTruePos(actual.ttc.isEmpty(), actual);
     } else {
@@ -175,6 +176,13 @@ public final class AssertAST {
     assertEquals(expected.size(), actual.size());
     for (int i = 0; i < expected.size(); i++) {
       assertAttackStep(expected.get(i), actual.get(i));
+    }
+  }
+
+  private static void assertTags(List<AST.ID> expected, List<AST.ID> actual) {
+    assertEquals(expected.size(), actual.size());
+    for (int i = 0; i < expected.size(); i++) {
+      assertID(expected.get(i), actual.get(i));
     }
   }
 

@@ -338,6 +338,7 @@ public class Lang {
     private AttackStepType type;
     private Asset asset;
     private boolean inheritsReaches;
+    private List<String> tags;
     private CIA cia;
     private Meta meta;
     private TTCExpr ttc;
@@ -351,6 +352,7 @@ public class Lang {
       this.type = type;
       this.asset = asset;
       this.inheritsReaches = inheritsReaches;
+      this.tags = new ArrayList<>();
       this.cia = cia;
       this.meta = new Meta();
       this.requires = new ArrayList<>();
@@ -376,6 +378,18 @@ public class Lang {
 
     public Meta getMeta() {
       return this.meta;
+    }
+
+    public boolean hasTag(String tag) {
+      return this.tags.contains(tag);
+    }
+
+    public List<String> getTags() {
+      return List.copyOf(this.tags);
+    }
+
+    public void addTag(String tag) {
+      this.tags.add(tag);
     }
 
     public boolean hasCIA() {

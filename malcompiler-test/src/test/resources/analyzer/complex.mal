@@ -7,7 +7,7 @@ be semantically and syntactically correct as well as have more features.
 #version: "1.0.0"
 category Person {
   abstract asset User {
-    | impersonate
+    | impersonate @hidden
       -> compromise,
       stealInformation
     | compromise

@@ -26,7 +26,9 @@ import static org.mal_lang.compiler.test.lib.AssertLang.assertLangField;
 import static org.mal_lang.compiler.test.lib.AssertLang.assertLangLink;
 import static org.mal_lang.compiler.test.lib.AssertLang.assertLangStepExpr;
 import static org.mal_lang.compiler.test.lib.AssertLang.assertLangTTC;
+import static org.mal_lang.compiler.test.lib.AssertLang.assertLangTags;
 
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mal_lang.compiler.lib.Distributions;
@@ -224,6 +226,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of("hidden"));
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     var requires = attackStep.getRequires();
@@ -290,6 +293,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -341,6 +345,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -395,6 +400,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -464,6 +470,7 @@ public class TestLangConverter extends MalTest {
             new Lang.Meta()
                 .setInfo(
                     "An extra level of protection, their school computer must be used to impersonate them."));
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     var requires = attackStep.getRequires();
@@ -503,6 +510,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     var requires = attackStep.getRequires();
@@ -528,6 +536,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -576,6 +585,7 @@ public class TestLangConverter extends MalTest {
             false,
             new Lang.Meta()
                 .setInfo("Retrieval of password is only possible if password is unencrypted"));
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -638,6 +648,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     // ExponentialDistribution(0.05) * GammaDistribution(1.2, 1.7)
     assertLangTTC(
@@ -683,6 +694,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -748,6 +760,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -772,6 +785,7 @@ public class TestLangConverter extends MalTest {
             true,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -831,6 +845,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     var requires = attackStep.getRequires();
@@ -957,6 +972,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     var requires = attackStep.getRequires();
@@ -1037,6 +1053,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -1133,6 +1150,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     var requires = attackStep.getRequires();

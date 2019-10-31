@@ -148,6 +148,9 @@ public class LangConverter {
                     inheritsReaches,
                     _convertCIA(astAttackStep.cia));
             _convertMetaList(langAttackStep.getMeta(), astAttackStep.meta);
+            for (var tag : astAttackStep.tags) {
+              langAttackStep.addTag(tag.id);
+            }
             if (astAttackStep.ttc.isPresent()) {
               langAttackStep.setTTC(_convertTTC(astAttackStep.ttc.get()));
             }

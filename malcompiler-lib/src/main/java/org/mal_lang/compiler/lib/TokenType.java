@@ -46,6 +46,7 @@ public enum TokenType {
   ALL("'&'"),
   ANY("'|'"),
   NOTEXIST("'!E'"),
+  AT("'@'"),
   LBRACKET("'['"),
   RBRACKET("']'"),
   LPAREN("'('"),

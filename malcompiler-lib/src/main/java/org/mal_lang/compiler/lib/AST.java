@@ -272,6 +272,7 @@ public class AST {
   public static class AttackStep extends Position {
     public final AttackStepType type;
     public final ID name;
+    public final List<ID> tags;
     public final Optional<List<CIA>> cia;
     public final Optional<TTCExpr> ttc;
     public final List<Meta> meta;
@@ -282,6 +283,7 @@ public class AST {
         Position pos,
         AttackStepType type,
         ID name,
+        List<ID> tags,
         Optional<List<CIA>> cia,
         Optional<TTCExpr> ttc,
         List<Meta> meta,
@@ -290,6 +292,7 @@ public class AST {
       super(pos);
       this.type = type;
       this.name = name;
+      this.tags = tags;
       this.cia = cia;
       this.ttc = ttc;
       this.meta = meta;
@@ -303,6 +306,14 @@ public class AST {
       sb.append(
           String.format(
               "%sAttackStep(%s, %s, %s,%n", indent, posString(), type.name(), name.toString()));
+      sb.append(String.format("%s  tags = {", indent));
+      for (int i = 0; i < tags.size(); i++) {
+        if (i > 0) {
+          sb.append(", ");
+        }
+        sb.append(tags.get(i).toString());
+      }
+      sb.append(String.format("},%n"));
       if (cia.isEmpty()) {
         sb.append(String.format("%s  cia = {},%n", indent));
       } else {

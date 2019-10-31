@@ -348,12 +348,16 @@ public class Parser {
     }
   }
 
-  // <attackstep> ::= <astype> ID <cia>? <ttc>? <meta>* <existence>? <reaches>?
+  // <attackstep> ::= <astype> ID <tag>* <cia>? <ttc>? <meta>* <existence>? <reaches>?
   private AST.AttackStep _parseAttackStep() throws CompilerException {
     var firstToken = tok;
 
     var asType = _parseAttackStepType();
     var name = _parseID();
+    List<AST.ID> tags = new ArrayList<>();
+    while (tok.type == TokenType.AT) {
+      tags.add(_parseTag());
+    }
     Optional<List<AST.CIA>> cia = Optional.empty();
     if (tok.type == TokenType.LCURLY) {
       cia = Optional.of(_parseCIA());
@@ -371,7 +375,7 @@ public class Parser {
     if (tok.type == TokenType.INHERIT || tok.type == TokenType.OVERRIDE) {
       reaches = Optional.of(_parseReaches());
     }
-    return new AST.AttackStep(firstToken, asType, name, cia, ttc, meta, requires, reaches);
+    return new AST.AttackStep(firstToken, asType, name, tags, cia, ttc, meta, requires, reaches);
   }
 
   // <astype> ::= ALL | ANY | HASH | EXIST | NOTEXIST
@@ -395,6 +399,12 @@ public class Parser {
       default:
         throw exception(attackStepFirst);
     }
+  }
+
+  // <tag> ::= AT ID
+  private AST.ID _parseTag() throws CompilerException {
+    _expect(TokenType.AT);
+    return _parseID();
   }
 
   // <cia> ::= LCURLY <cia-list>? RCURLY
