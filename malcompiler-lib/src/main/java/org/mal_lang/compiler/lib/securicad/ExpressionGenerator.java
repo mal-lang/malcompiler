@@ -48,7 +48,7 @@ public class ExpressionGenerator extends JavaGenerator {
   }
 
   protected void createGetAttackStepChildren(
-      TypeSpec.Builder parentBuilder, AttackStep attackStep) {
+      TypeSpec.Builder parentBuilder, AttackStep attackStep, String cacheName) {
     Name.reset();
     MethodSpec.Builder builder = MethodSpec.methodBuilder("getAttackStepChildren");
     builder.addAnnotation(Override.class);
@@ -58,37 +58,50 @@ public class ExpressionGenerator extends JavaGenerator {
     ClassName hashSet = ClassName.get(HashSet.class);
     TypeName asSet = ParameterizedTypeName.get(set, as);
     builder.returns(asSet);
-    String setName = Name.get();
+
+    builder.beginControlFlow("if ($N == null)", cacheName);
     if (attackStep.inheritsReaches()) {
-      builder.addStatement(
-          "$T $L = new $T<>(super.getAttackStepChildren())", asSet, setName, hashSet);
+      builder.addStatement("$L = new $T<>(super.getAttackStepChildren())", cacheName, hashSet);
     } else {
-      builder.addStatement("$T $L = new $T<>()", asSet, setName, hashSet);
+      builder.addStatement("$L = new $T<>()", cacheName, hashSet);
     }
     for (StepExpr expr : attackStep.getReaches()) {
       AutoFlow af = new AutoFlow();
       AutoFlow end = generate(af, expr, attackStep.getAsset(), "(null)");
-      end.addStatement("$L.add($L)", setName, end.prefix);
+      end.addStatement("$L.add($L)", cacheName, end.prefix);
       af.build(builder);
     }
-    builder.addStatement("return $L", setName);
+    builder.endControlFlow();
+
+    builder.addStatement("return new $T<>($L)", HashSet.class, cacheName);
     parentBuilder.addMethod(builder.build());
   }
 
-  protected void createSetExpectedParents(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
+  protected void createSetExpectedParents(
+      TypeSpec.Builder parentBuilder, AttackStep attackStep, String cacheName) {
     Name.reset();
     MethodSpec.Builder builder = MethodSpec.methodBuilder("setExpectedParents");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
     ClassName concreteSample = ClassName.get("com.foreseeti.simulator", "ConcreteSample");
     builder.addParameter(concreteSample, "sample");
+
     builder.addStatement("super.setExpectedParents(sample)");
+    builder.beginControlFlow("if ($N == null)", cacheName);
+    builder.addStatement("$N = new $T<>()", cacheName, HashSet.class);
     for (StepExpr expr : attackStep.getParentSteps()) {
       AutoFlow af = new AutoFlow();
       AutoFlow end = generate(af, expr, attackStep.getAsset(), "(sample)");
-      end.addStatement("sample.addExpectedParent(this, $N)", end.prefix);
+      end.addStatement("$N.add($N)", cacheName, end.prefix);
       af.build(builder);
     }
+    builder.endControlFlow();
+
+    ClassName as = ClassName.get("com.foreseeti.simulator", "AttackStep");
+    builder.beginControlFlow("for($T attackStep : $N)", as, cacheName);
+    builder.addStatement("sample.addExpectedParent(this, attackStep)");
+    builder.endControlFlow();
+
     parentBuilder.addMethod(builder.build());
   }
 
