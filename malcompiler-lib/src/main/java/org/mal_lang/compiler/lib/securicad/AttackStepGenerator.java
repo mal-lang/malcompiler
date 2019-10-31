@@ -17,7 +17,9 @@ package org.mal_lang.compiler.lib.securicad;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import javax.lang.model.element.Modifier;
@@ -76,11 +78,15 @@ public class AttackStepGenerator extends JavaGenerator {
     }
 
     if (!attackStep.getReaches().isEmpty()) {
-      exprGen.createGetAttackStepChildren(builder, attackStep);
+      String name = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
+      createSetField(builder, name);
+      exprGen.createGetAttackStepChildren(builder, attackStep, name);
     }
 
     if (!attackStep.getParentSteps().isEmpty()) {
-      exprGen.createSetExpectedParents(builder, attackStep);
+      String name = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
+      createSetField(builder, name);
+      exprGen.createSetExpectedParents(builder, attackStep, name);
     }
 
     createTraceabilityHelper(builder, attackStep);
@@ -287,5 +293,14 @@ public class AttackStepGenerator extends JavaGenerator {
     builder.returns(TypeName.BOOLEAN);
     builder.addStatement("return $L", attackStep.hasTag("trace"));
     parentBuilder.addMethod(builder.build());
+  }
+
+  private void createSetField(TypeSpec.Builder parentBuilder, String name) {
+    ClassName set = ClassName.get("java.util", "Set");
+    ClassName attackStep = ClassName.get("com.foreseeti.simulator", "AttackStep");
+    TypeName type = ParameterizedTypeName.get(set, attackStep);
+    FieldSpec.Builder builder = FieldSpec.builder(type, name);
+    builder.addModifiers(Modifier.PRIVATE);
+    parentBuilder.addField(builder.build());
   }
 }
