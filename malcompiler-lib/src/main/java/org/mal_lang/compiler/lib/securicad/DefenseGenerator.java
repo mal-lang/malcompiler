@@ -182,12 +182,10 @@ public class DefenseGenerator extends JavaGenerator {
 
   private void createSetField(TypeSpec.Builder parentBuilder, String name) {
     ClassName set = ClassName.get("java.util", "Set");
-    ClassName hashSet = ClassName.get("java.util", "HashSet");
     ClassName attackStep = ClassName.get("com.foreseeti.simulator", "AttackStep");
     TypeName type = ParameterizedTypeName.get(set, attackStep);
     FieldSpec.Builder builder = FieldSpec.builder(type, name);
     builder.addModifiers(Modifier.PRIVATE);
-    builder.initializer("new $T<>()", hashSet);
     parentBuilder.addField(builder.build());
   }
 }

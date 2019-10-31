@@ -73,7 +73,7 @@ public class ExpressionGenerator extends JavaGenerator {
     }
     builder.endControlFlow();
 
-    builder.addStatement("return $L", cacheName);
+    builder.addStatement("return new $T<>($L)", HashSet.class, cacheName);
     parentBuilder.addMethod(builder.build());
   }
 
