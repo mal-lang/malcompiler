@@ -193,13 +193,13 @@ public class Generator extends JavaGenerator {
    * @return updated parameter list
    */
   private static LinkedHashSet<String> getParameters(Asset asset, LinkedHashSet<String> params) {
+    if (asset.hasSuperAsset()) {
+      params = getParameters(asset.getSuperAsset(), params);
+    }
     for (AttackStep attackStep : asset.getAttackSteps().values()) {
       if (attackStep.isDefense()) {
         params.add(String.format("is%sEnabled", ucFirst(attackStep.getName())));
       }
-    }
-    if (asset.hasSuperAsset()) {
-      return getParameters(asset.getSuperAsset(), params);
     }
     return params;
   }
@@ -212,7 +212,7 @@ public class Generator extends JavaGenerator {
    */
   private static LinkedHashSet<String> getParameters(Asset asset) {
     if (asset.hasSuperAsset()) {
-      return getParameters(asset.getSuperAsset(), new LinkedHashSet<>());
+      return new LinkedHashSet<>(getParameters(asset.getSuperAsset(), new LinkedHashSet<>()));
     } else {
       return new LinkedHashSet<>();
     }
