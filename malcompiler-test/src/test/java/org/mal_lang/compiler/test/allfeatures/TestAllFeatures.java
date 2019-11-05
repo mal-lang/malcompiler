@@ -31,6 +31,7 @@ import static org.mal_lang.compiler.test.lib.AssertLang.assertLangField;
 import static org.mal_lang.compiler.test.lib.AssertLang.assertLangLink;
 import static org.mal_lang.compiler.test.lib.AssertLang.assertLangStepExpr;
 import static org.mal_lang.compiler.test.lib.AssertLang.assertLangTTC;
+import static org.mal_lang.compiler.test.lib.AssertLang.assertLangTags;
 import static org.mal_lang.compiler.test.lib.AssertToken.assertTokens;
 
 import java.util.ArrayList;
@@ -672,6 +673,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 12, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(CORE_MAL, 12, 7), "a1Attack1"),
+                            List.of(),
                             Optional.of(Arrays.asList(AST.CIA.C)),
                             Optional.empty(),
                             Arrays.asList(
@@ -693,6 +695,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 17, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position(CORE_MAL, 17, 7), "a1Attack2"),
+                            List.of(),
                             Optional.of(Arrays.asList(AST.CIA.I, AST.CIA.C)),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -733,6 +736,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 20, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position(CORE_MAL, 20, 7), "a1Defense1"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -750,6 +754,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 23, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position(CORE_MAL, 23, 7), "a1Defense2"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -772,6 +777,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 25, 5),
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position(CORE_MAL, 25, 7), "a1Exist1"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -788,6 +794,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 28, 5),
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position(CORE_MAL, 28, 7), "a1Exist2"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             Arrays.asList(
@@ -853,6 +860,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 32, 5),
                             AST.AttackStepType.NOTEXIST,
                             new AST.ID(new Position(CORE_MAL, 32, 8), "a1NotExist1"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -889,6 +897,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 35, 5),
                             AST.AttackStepType.NOTEXIST,
                             new AST.ID(new Position(CORE_MAL, 35, 8), "a1NotExist2"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -940,6 +949,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 42, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(CORE_MAL, 42, 7), "a1Attack1"),
+                            List.of(),
                             Optional.of(new ArrayList<AST.CIA>()),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -965,6 +975,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 45, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position(CORE_MAL, 45, 7), "a1Attack2"),
+                            List.of(),
                             Optional.of(Arrays.asList(AST.CIA.C, AST.CIA.I, AST.CIA.A)),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -990,6 +1001,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 48, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position(CORE_MAL, 48, 7), "a1Defense1"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -1025,6 +1037,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 51, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position(CORE_MAL, 51, 7), "a1Defense2"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -1043,6 +1056,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 54, 5),
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position(CORE_MAL, 54, 7), "a1Exist2"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -1068,6 +1082,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 58, 5),
                             AST.AttackStepType.NOTEXIST,
                             new AST.ID(new Position(CORE_MAL, 58, 8), "a1NotExist1"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -1103,6 +1118,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 67, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(CORE_MAL, 67, 7), "a3Attack"),
+                            List.of(),
                             Optional.of(Arrays.asList(AST.CIA.A, AST.CIA.I, AST.CIA.C)),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -1112,6 +1128,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 72, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position(CORE_MAL, 72, 7), "AT"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -1201,6 +1218,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 89, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(CORE_MAL, 89, 7), "a"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -1312,6 +1330,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 114, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(CORE_MAL, 114, 7), "a7Attack"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -1344,6 +1363,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 118, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(CORE_MAL, 118, 7), "otherAttack"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -1395,6 +1415,7 @@ public class TestAllFeatures extends MalTest {
                             new Position(CORE_MAL, 130, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position(CORE_MAL, 130, 7), "destroy"),
+                            List.of(),
                             Optional.of(Arrays.asList(AST.CIA.C, AST.CIA.I, AST.CIA.A)),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -1635,6 +1656,7 @@ public class TestAllFeatures extends MalTest {
                 .setInfo("This is a1Attack1")
                 .setAssumptions("None for a1Attack1")
                 .setRationale("Reasoning for a1Attack1"));
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, false, false));
     assertLangTTC(attackStep, null);
     var requires = attackStep.getRequires();
@@ -1769,6 +1791,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             new Lang.Meta().setInfo("This is a1Attack2"));
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, false));
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Zero()));
     requires = attackStep.getRequires();
@@ -1851,6 +1874,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             new Lang.Meta().setRationale("Reasoning for a1Defense"));
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Bernoulli(0.5)));
     requires = attackStep.getRequires();
@@ -1871,6 +1895,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Disabled()));
     requires = attackStep.getRequires();
@@ -1899,6 +1924,7 @@ public class TestAllFeatures extends MalTest {
             true,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -1929,6 +1955,7 @@ public class TestAllFeatures extends MalTest {
             true,
             false,
             new Lang.Meta().setAssumptions("None for a1Exist2"));
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -2026,6 +2053,7 @@ public class TestAllFeatures extends MalTest {
             true,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -2083,6 +2111,7 @@ public class TestAllFeatures extends MalTest {
             true,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -2160,6 +2189,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(false, false, false));
     assertLangTTC(attackStep, null);
     var requires = attackStep.getRequires();
@@ -2209,6 +2239,7 @@ public class TestAllFeatures extends MalTest {
     attackStep =
         assertGetLangAttackStep(
             asset, "a1Attack2", Lang.AttackStepType.ALL, true, false, false, true, new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, true));
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -2256,6 +2287,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Enabled()));
     requires = attackStep.getRequires();
@@ -2314,6 +2346,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -2350,6 +2383,7 @@ public class TestAllFeatures extends MalTest {
             true,
             true,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -2388,6 +2422,7 @@ public class TestAllFeatures extends MalTest {
             true,
             true,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -2436,6 +2471,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, true));
     assertLangTTC(attackStep, null);
     var requires = attackStep.getRequires();
@@ -2449,6 +2485,7 @@ public class TestAllFeatures extends MalTest {
     attackStep =
         assertGetLangAttackStep(
             asset, "AT", Lang.AttackStepType.ALL, false, false, false, false, new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -2501,6 +2538,7 @@ public class TestAllFeatures extends MalTest {
     var attackStep =
         assertGetLangAttackStep(
             asset, "a", Lang.AttackStepType.ANY, false, false, false, false, new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     var requires = attackStep.getRequires();
@@ -2618,6 +2656,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     var requires = attackStep.getRequires();
@@ -2703,6 +2742,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
     requires = attackStep.getRequires();
@@ -2728,6 +2768,7 @@ public class TestAllFeatures extends MalTest {
     var attackStep =
         assertGetLangAttackStep(
             asset, "destroy", Lang.AttackStepType.ALL, false, false, false, false, new Lang.Meta());
+    assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, true));
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Exponential(5)));
     var requires = attackStep.getRequires();

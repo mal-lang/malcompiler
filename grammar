@@ -8,8 +8,9 @@
 
 <category>      ::= CATEGORY ID <meta>* LCURLY <asset>* RCURLY
 <asset>         ::= ABSTRACT? ASSET ID (EXTENDS ID)? <meta>* LCURLY (<attackstep> | <variable>)* RCURLY
-<attackstep>    ::= <astype> ID <cia>? <ttc>? <meta>* <existence>? <reaches>?
+<attackstep>    ::= <astype> ID <tag>* <cia>? <ttc>? <meta>* <existence>? <reaches>?
 <astype>        ::= ALL | ANY | HASH | EXIST | NOTEXIST
+<tag>           ::= AT ID
 <cia>           ::= LCURLY <cia-list>? RCURLY
 <cia-list>      ::= <cia-class> (COMMA <cia-class>)*
 <cia-class>     ::= C | I | A
@@ -67,6 +68,7 @@ OVERRIDE        ::= "->"
 ALL             ::= "&"
 ANY             ::= "|"
 NOTEXIST        ::= "!E"
+AT              ::= "@"
 LBRACKET        ::= "["
 RBRACKET        ::= "]"
 LPAREN          ::= "("

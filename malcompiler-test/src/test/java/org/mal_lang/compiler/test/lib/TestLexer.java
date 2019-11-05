@@ -61,6 +61,7 @@ public class TestLexer extends MalTest {
       TokenType.ALL,
       TokenType.ANY,
       TokenType.NOTEXIST,
+      TokenType.AT,
       TokenType.LBRACKET,
       TokenType.RBRACKET,
       TokenType.LPAREN,

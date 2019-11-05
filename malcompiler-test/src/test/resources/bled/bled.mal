@@ -3,7 +3,10 @@
 category LatestAndGreatest {
   asset Firewall {}
   asset IP {}
-  asset Network {}
+  asset Network {
+    | helper @hidden
+    | reached @debug
+  }
   asset Host {
     | access ->
     (networks.hosts.ip /\ (fws.allowedIPs - fws.blockedIPs)).host.access

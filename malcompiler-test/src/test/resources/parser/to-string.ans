@@ -22,6 +22,7 @@ categories = {
         },
         attacksteps = {
           AttackStep(<to-string.mal:9:15>, ALL, ID(<to-string.mal:9:17>, "at"),
+            tags = {},
             cia = {},
             ttc = [],
             meta = {
@@ -42,6 +43,7 @@ categories = {
             )
           ),
           AttackStep(<to-string.mal:12:15>, ANY, ID(<to-string.mal:12:17>, "at2"),
+            tags = {},
             cia = {},
             ttc = [TTCFuncExpr(<to-string.mal:12:22>, ID(<to-string.mal:12:22>, "a"))],
             meta = {

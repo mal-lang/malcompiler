@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mal_lang.compiler.test.lib.AssertAST.assertGetASTClassPath;
 
+import java.util.List;
 import java.util.Map;
 import org.mal_lang.compiler.lib.Analyzer;
 import org.mal_lang.compiler.lib.CompilerException;
@@ -221,6 +222,20 @@ public final class AssertLang {
     assertLangMeta(
         meta, attackStep.getMeta(), String.format("attack step %s.%s", asset.getName(), name));
     return attackStep;
+  }
+
+  public static void assertLangTags(Lang.AttackStep attackStep, List<String> tags) {
+    var actualTags = attackStep.getTags();
+    assertEquals(
+        tags.size(),
+        actualTags.size(),
+        String.format("Wrong number of tags for attack step %s", attackStep.getName()));
+    for (int i = 0; i < tags.size(); i++) {
+      assertEquals(
+          tags.get(i),
+          actualTags.get(i),
+          String.format("Wrong tag with index %d for attack step %s", i, attackStep.getName()));
+    }
   }
 
   public static void assertLangCIA(Lang.AttackStep attackStep, Lang.CIA cia) {

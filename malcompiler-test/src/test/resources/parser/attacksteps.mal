@@ -73,4 +73,13 @@ category Cat {
       <- x
       -> y
   }
+
+  // Testing tags
+  asset A6 {
+    | a @a
+    | b @a {C}
+    | c @a @b
+    | d @a @b [t]
+    | e @a @b @c {C} [t]
+  }
 }

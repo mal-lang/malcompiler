@@ -24,6 +24,7 @@ import static org.mal_lang.compiler.test.lib.AssertAST.assertGetASTClassPath;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mal_lang.compiler.lib.AST;
@@ -314,6 +315,7 @@ public class TestParser extends MalTest {
                             new Position(ASSETS_MAL, 22, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position(ASSETS_MAL, 22, 7), "a"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -323,6 +325,7 @@ public class TestParser extends MalTest {
                             new Position(ASSETS_MAL, 23, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ASSETS_MAL, 23, 7), "a"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -345,6 +348,7 @@ public class TestParser extends MalTest {
                             new Position(ASSETS_MAL, 31, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position(ASSETS_MAL, 31, 7), "a"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -354,6 +358,7 @@ public class TestParser extends MalTest {
                             new Position(ASSETS_MAL, 33, 5),
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position(ASSETS_MAL, 33, 7), "b"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -363,6 +368,7 @@ public class TestParser extends MalTest {
                             new Position(ASSETS_MAL, 34, 5),
                             AST.AttackStepType.NOTEXIST,
                             new AST.ID(new Position(ASSETS_MAL, 34, 8), "c"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -402,6 +408,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 4, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 4, 8), "a"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCAddExpr(
@@ -421,6 +428,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 5, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 5, 8), "b"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCSubExpr(
@@ -440,6 +448,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 6, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 6, 8), "c"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCMulExpr(
@@ -459,6 +468,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 7, 5),
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 7, 8), "d"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCDivExpr(
@@ -478,6 +488,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 8, 5),
                             AST.AttackStepType.NOTEXIST,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 8, 8), "e"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCPowExpr(
@@ -497,6 +508,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 9, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 9, 8), "a"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCAddExpr(
@@ -522,6 +534,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 10, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 10, 8), "b"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCAddExpr(
@@ -555,6 +568,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 11, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 11, 8), "c"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCMulExpr(
@@ -580,6 +594,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 12, 5),
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 12, 8), "d"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCAddExpr(
@@ -605,6 +620,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 13, 5),
                             AST.AttackStepType.NOTEXIST,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 13, 8), "e"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCAddExpr(
@@ -630,6 +646,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 14, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 14, 8), "a"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCMulExpr(
@@ -655,6 +672,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 15, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 15, 8), "b"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -668,6 +686,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 16, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 16, 8), "c"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -681,6 +700,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 17, 5),
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 17, 8), "d"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -694,6 +714,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 18, 5),
                             AST.AttackStepType.NOTEXIST,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 18, 8), "e"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -707,6 +728,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 19, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 19, 8), "a"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -720,6 +742,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 20, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 20, 8), "b"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCAddExpr(
@@ -750,6 +773,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 25, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 25, 7), "a1"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -759,6 +783,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 26, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 26, 7), "a2"),
+                            List.of(),
                             Optional.of(new ArrayList<AST.CIA>()),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -768,6 +793,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 27, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 27, 7), "a3"),
+                            List.of(),
                             Optional.of(Arrays.asList(AST.CIA.C)),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -777,6 +803,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 28, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 28, 7), "a4"),
+                            List.of(),
                             Optional.of(Arrays.asList(AST.CIA.C, AST.CIA.C)),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -786,6 +813,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 29, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 29, 7), "a5"),
+                            List.of(),
                             Optional.of(Arrays.asList(AST.CIA.C, AST.CIA.I, AST.CIA.A)),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -795,6 +823,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 30, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 30, 7), "a6"),
+                            List.of(),
                             Optional.of(Arrays.asList(AST.CIA.A, AST.CIA.C, AST.CIA.I)),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -804,6 +833,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 31, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 31, 7), "a7"),
+                            List.of(),
                             Optional.of(
                                 Arrays.asList(
                                     AST.CIA.C, AST.CIA.C, AST.CIA.I, AST.CIA.I, AST.CIA.A,
@@ -824,6 +854,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 36, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 36, 7), "a"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             Arrays.asList(
@@ -837,6 +868,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 38, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 38, 7), "b"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             Arrays.asList(
@@ -854,6 +886,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 41, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 41, 7), "c"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -879,6 +912,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 47, 5),
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 47, 7), "a"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -955,6 +989,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 58, 5),
                             AST.AttackStepType.ALL,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 58, 7), "a"),
+                            List.of(),
                             Optional.of(Arrays.asList(AST.CIA.I)),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -1024,6 +1059,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 65, 5),
                             AST.AttackStepType.ANY,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 65, 7), "b"),
+                            List.of(),
                             Optional.empty(),
                             Optional.empty(),
                             new ArrayList<AST.Meta>(),
@@ -1050,6 +1086,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 68, 5),
                             AST.AttackStepType.DEFENSE,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 68, 7), "c"),
+                            List.of(),
                             Optional.empty(),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -1080,6 +1117,7 @@ public class TestParser extends MalTest {
                             new Position(ATTACKSTEPS_MAL, 71, 5),
                             AST.AttackStepType.EXIST,
                             new AST.ID(new Position(ATTACKSTEPS_MAL, 71, 7), "d"),
+                            List.of(),
                             Optional.of(Arrays.asList(AST.CIA.C)),
                             Optional.of(
                                 new AST.TTCFuncExpr(
@@ -1110,7 +1148,80 @@ public class TestParser extends MalTest {
                                             new Position(ATTACKSTEPS_MAL, 74, 10),
                                             new AST.ID(
                                                 new Position(ATTACKSTEPS_MAL, 74, 10), "y"))))))),
-                    new ArrayList<AST.Variable>()))),
+                    new ArrayList<AST.Variable>()),
+                new AST.Asset(
+                    new Position(ATTACKSTEPS_MAL, 78, 3),
+                    false,
+                    new AST.ID(new Position(ATTACKSTEPS_MAL, 78, 9), "A6"),
+                    Optional.empty(),
+                    List.of(),
+                    List.of(
+                        new AST.AttackStep(
+                            new Position(ATTACKSTEPS_MAL, 79, 5),
+                            AST.AttackStepType.ANY,
+                            new AST.ID(new Position(ATTACKSTEPS_MAL, 79, 7), "a"),
+                            List.of(new AST.ID(new Position(ATTACKSTEPS_MAL, 79, 10), "a")),
+                            Optional.empty(),
+                            Optional.empty(),
+                            List.of(),
+                            Optional.empty(),
+                            Optional.empty()),
+                        new AST.AttackStep(
+                            new Position(ATTACKSTEPS_MAL, 80, 5),
+                            AST.AttackStepType.ANY,
+                            new AST.ID(new Position(ATTACKSTEPS_MAL, 80, 7), "b"),
+                            List.of(new AST.ID(new Position(ATTACKSTEPS_MAL, 80, 10), "a")),
+                            Optional.of(List.of(AST.CIA.C)),
+                            Optional.empty(),
+                            List.of(),
+                            Optional.empty(),
+                            Optional.empty()),
+                        new AST.AttackStep(
+                            new Position(ATTACKSTEPS_MAL, 81, 5),
+                            AST.AttackStepType.ANY,
+                            new AST.ID(new Position(ATTACKSTEPS_MAL, 81, 7), "c"),
+                            List.of(
+                                new AST.ID(new Position(ATTACKSTEPS_MAL, 81, 10), "a"),
+                                new AST.ID(new Position(ATTACKSTEPS_MAL, 81, 13), "b")),
+                            Optional.empty(),
+                            Optional.empty(),
+                            List.of(),
+                            Optional.empty(),
+                            Optional.empty()),
+                        new AST.AttackStep(
+                            new Position(ATTACKSTEPS_MAL, 82, 5),
+                            AST.AttackStepType.ANY,
+                            new AST.ID(new Position(ATTACKSTEPS_MAL, 82, 7), "d"),
+                            List.of(
+                                new AST.ID(new Position(ATTACKSTEPS_MAL, 82, 10), "a"),
+                                new AST.ID(new Position(ATTACKSTEPS_MAL, 82, 13), "b")),
+                            Optional.empty(),
+                            Optional.of(
+                                new AST.TTCFuncExpr(
+                                    new Position(ATTACKSTEPS_MAL, 82, 16),
+                                    new AST.ID(new Position(ATTACKSTEPS_MAL, 82, 16), "t"),
+                                    List.of())),
+                            List.of(),
+                            Optional.empty(),
+                            Optional.empty()),
+                        new AST.AttackStep(
+                            new Position(ATTACKSTEPS_MAL, 83, 5),
+                            AST.AttackStepType.ANY,
+                            new AST.ID(new Position(ATTACKSTEPS_MAL, 83, 7), "e"),
+                            List.of(
+                                new AST.ID(new Position(ATTACKSTEPS_MAL, 83, 10), "a"),
+                                new AST.ID(new Position(ATTACKSTEPS_MAL, 83, 13), "b"),
+                                new AST.ID(new Position(ATTACKSTEPS_MAL, 83, 16), "c")),
+                            Optional.of(List.of(AST.CIA.C)),
+                            Optional.of(
+                                new AST.TTCFuncExpr(
+                                    new Position(ATTACKSTEPS_MAL, 83, 23),
+                                    new AST.ID(new Position(ATTACKSTEPS_MAL, 83, 23), "t"),
+                                    List.of())),
+                            List.of(),
+                            Optional.empty(),
+                            Optional.empty())),
+                    List.of()))),
         categories.get(0));
     assertEquals(0, ast.getAssociations().size());
     assertEquals(0, ast.getDefines().size());

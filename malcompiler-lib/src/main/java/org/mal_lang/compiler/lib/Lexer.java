@@ -161,6 +161,8 @@ public class Lexer {
         } else {
           throw exception("Expected 'E'");
         }
+      case '@':
+        return createToken(TokenType.AT);
       case '[':
         return createToken(TokenType.LBRACKET);
       case ']':

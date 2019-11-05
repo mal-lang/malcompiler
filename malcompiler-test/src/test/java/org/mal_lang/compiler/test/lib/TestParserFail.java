@@ -53,6 +53,7 @@ public class TestParserFail extends MalTest {
   private static final String BAD_ATTACKSTEP5_MAL = "bad-attackstep5.mal";
   private static final String BAD_ATTACKSTEP6_MAL = "bad-attackstep6.mal";
   private static final String BAD_ATTACKSTEP7_MAL = "bad-attackstep7.mal";
+  private static final String BAD_ATTACKSTEP8_MAL = "bad-attackstep8.mal";
   private static final String BAD_ASSOCIATION1_MAL = "bad-association1.mal";
   private static final String BAD_ASSOCIATION2_MAL = "bad-association2.mal";
   private static final String BAD_ASSOCIATION3_MAL = "bad-association3.mal";
@@ -188,6 +189,10 @@ public class TestParserFail extends MalTest {
         "parser/bad-attackstep7.mal",
         new Position(BAD_ATTACKSTEP7_MAL, 3, 14),
         "expected '&', '|', '#', 'E', '!E', 'let', or '}', found '{'");
+    assertSyntaxError(
+        "parser/bad-attackstep8.mal",
+        new Position(BAD_ATTACKSTEP8_MAL, 3, 12),
+        "expected identifier, found '{'");
   }
 
   @Test
