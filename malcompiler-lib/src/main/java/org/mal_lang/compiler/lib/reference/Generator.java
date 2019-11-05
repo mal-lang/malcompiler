@@ -103,6 +103,7 @@ public class Generator extends JavaGenerator {
     }
 
     validateNames(this.lang, this.pkg);
+    checkSteps(this.lang);
   }
 
   private void _generate() throws IOException, CompilerException {

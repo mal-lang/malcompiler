@@ -152,4 +152,22 @@ public abstract class JavaGenerator extends Generator {
       throw error();
     }
   }
+
+  protected void checkSteps(Lang lang) throws CompilerException {
+    boolean err = false;
+    for (var asset : lang.getAssets().values()) {
+      for (var attackStep : asset.getAttackSteps().values()) {
+        if (attackStep.getName().equalsIgnoreCase(asset.getName())) {
+          LOGGER.error(
+              String.format(
+                  "Attack step '%s' shares name with its asset '%s'",
+                  attackStep.getName(), asset.getName()));
+          err = true;
+        }
+      }
+    }
+    if (err) {
+      throw error();
+    }
+  }
 }
