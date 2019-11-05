@@ -384,6 +384,16 @@ public class Lang {
       return this.tags.contains(tag);
     }
 
+    public boolean hasInheritedTag(String tag) {
+      if (this.hasTag(tag)) {
+        return true;
+      }
+      if (!this.hasParent()) {
+        return false;
+      }
+      return this.getAsset().getSuperAsset().getAttackStep(this.getName()).hasInheritedTag(tag);
+    }
+
     public List<String> getTags() {
       return List.copyOf(this.tags);
     }

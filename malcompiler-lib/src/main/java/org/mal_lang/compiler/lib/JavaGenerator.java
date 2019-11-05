@@ -152,14 +152,4 @@ public abstract class JavaGenerator extends Generator {
       throw error();
     }
   }
-
-  protected boolean hasDebugTag(Lang.AttackStep attackStep) {
-    if (attackStep.hasTag("debug")) {
-      return true;
-    }
-    if (!attackStep.hasParent()) {
-      return false;
-    }
-    return hasDebugTag(attackStep.getAsset().getSuperAsset().getAttackStep(attackStep.getName()));
-  }
 }
