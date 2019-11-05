@@ -1,0 +1,11 @@
+#id: "naming"
+#version: "1.0.0"
+category cat {
+  asset A1 {
+    | a1
+  }
+  asset A2 extends A1 {
+    | a1 // OK
+    | A2
+  }
+}
