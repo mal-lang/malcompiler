@@ -315,7 +315,7 @@ public class AdvancedNetworkTest extends MalTest {
     ECU Ecu2 = new ECU("ECU#2", true, true);
     SensorOrActuator PhyMachine = new SensorOrActuator("Sensor/Actuator");
     EthernetGatewayECU EthGateEcu =
-        new EthernetGatewayECU("EthGatewayECU", firewallStatus, true, true);
+        new EthernetGatewayECU("EthGatewayECU", true, true, firewallStatus);
     CANNetwork vNet = new CANNetwork("CAN");
     EthernetNetwork ethNet = new EthernetNetwork("Ethernet");
     ConnectionlessDataflow dataflow = new ConnectionlessDataflow("Dataflow");
