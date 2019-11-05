@@ -78,47 +78,14 @@ public class Lang {
     return List.copyOf(this.links);
   }
 
-  public static class Meta {
-    private String info;
-    private String assumptions;
-    private String rationale;
-
-    public String getInfo() {
-      return this.info;
-    }
-
-    public Meta setInfo(String info) {
-      this.info = info;
-      return this;
-    }
-
-    public String getAssumptions() {
-      return this.assumptions;
-    }
-
-    public Meta setAssumptions(String assumptions) {
-      this.assumptions = assumptions;
-      return this;
-    }
-
-    public String getRationale() {
-      return this.rationale;
-    }
-
-    public Meta setRationale(String rationale) {
-      this.rationale = rationale;
-      return this;
-    }
-  }
-
   public static class Category {
     private String name;
-    private Meta meta;
+    private Map<String, String> meta;
     private Map<String, Asset> assets;
 
     public Category(String name) {
       this.name = name;
-      this.meta = new Meta();
+      this.meta = new LinkedHashMap<>();
       this.assets = new LinkedHashMap<>();
     }
 
@@ -126,7 +93,7 @@ public class Lang {
       return this.name;
     }
 
-    public Meta getMeta() {
+    public Map<String, String> getMeta() {
       return this.meta;
     }
 
@@ -151,7 +118,7 @@ public class Lang {
     private String name;
     private boolean isAbstract;
     private Category category;
-    private Meta meta;
+    private Map<String, String> meta;
     private Asset superAsset;
     private Map<String, Field> fields;
     private Map<String, AttackStep> attackSteps;
@@ -160,7 +127,7 @@ public class Lang {
       this.name = name;
       this.isAbstract = isAbstract;
       this.category = category;
-      this.meta = new Meta();
+      this.meta = new LinkedHashMap<>();
       this.fields = new LinkedHashMap<>();
       this.attackSteps = new LinkedHashMap<>();
     }
@@ -177,7 +144,7 @@ public class Lang {
       return this.category;
     }
 
-    public Meta getMeta() {
+    public Map<String, String> getMeta() {
       return this.meta;
     }
 
@@ -240,20 +207,20 @@ public class Lang {
 
   public static class Link {
     private String name;
-    private Meta meta;
+    private Map<String, String> meta;
     private Field leftField;
     private Field rightField;
 
     public Link(String name) {
       this.name = name;
-      this.meta = new Meta();
+      this.meta = new LinkedHashMap<>();
     }
 
     public String getName() {
       return this.name;
     }
 
-    public Meta getMeta() {
+    public Map<String, String> getMeta() {
       return this.meta;
     }
 
@@ -340,7 +307,7 @@ public class Lang {
     private boolean inheritsReaches;
     private List<String> tags;
     private CIA cia;
-    private Meta meta;
+    private Map<String, String> meta;
     private TTCExpr ttc;
     private List<StepExpr> requires;
     private List<StepExpr> reaches;
@@ -354,7 +321,7 @@ public class Lang {
       this.inheritsReaches = inheritsReaches;
       this.tags = new ArrayList<>();
       this.cia = cia;
-      this.meta = new Meta();
+      this.meta = new LinkedHashMap<>();
       this.requires = new ArrayList<>();
       this.reaches = new ArrayList<>();
       this.parentSteps = new ArrayList<>();
@@ -376,7 +343,7 @@ public class Lang {
       return this.inheritsReaches;
     }
 
-    public Meta getMeta() {
+    public Map<String, String> getMeta() {
       return this.meta;
     }
 

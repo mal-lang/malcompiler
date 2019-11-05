@@ -29,6 +29,7 @@ public class Parser {
   private MalLogger LOGGER;
   private Lexer lex;
   private Token tok;
+  private Token nextTok;
   private Set<File> included;
   private File currentFile;
   private Path originPath;
@@ -86,11 +87,6 @@ public class Parser {
     TokenType.CATEGORY, TokenType.ASSOCIATIONS, TokenType.INCLUDE, TokenType.HASH
   };
 
-  // The first set of <meta>
-  private static TokenType[] metaFirst = {
-    TokenType.INFO, TokenType.ASSUMPTIONS, TokenType.RATIONALE
-  };
-
   // The first set of <asset>
   private static TokenType[] assetFirst = {TokenType.ABSTRACT, TokenType.ASSET};
 
@@ -100,7 +96,12 @@ public class Parser {
   };
 
   private void _next() throws CompilerException {
-    tok = lex.next();
+    if (tok == null) {
+      tok = lex.next();
+    } else {
+      tok = nextTok;
+    }
+    nextTok = lex.next();
   }
 
   private void _expect(TokenType type) throws CompilerException {
@@ -176,47 +177,24 @@ public class Parser {
     return new AST.Define(firstToken, key, value);
   }
 
-  // <meta> ::= <meta-type> COLON STRING
+  // <meta> ::= ID INFO COLON STRING
   private AST.Meta _parseMeta() throws CompilerException {
     var firstToken = tok;
 
-    var type = _parseMetaType();
+    var type = _parseID();
+    _expect(TokenType.INFO);
     _expect(TokenType.COLON);
     var value = _parseString();
     return new AST.Meta(firstToken, type, value);
   }
 
-  // <meta-type> ::= INFO | ASSUMPTIONS | RATIONALE
-  private AST.MetaType _parseMetaType() throws CompilerException {
-    switch (tok.type) {
-      case INFO:
-        _next();
-        return AST.MetaType.INFO;
-      case ASSUMPTIONS:
-        _next();
-        return AST.MetaType.ASSUMPTIONS;
-      case RATIONALE:
-        _next();
-        return AST.MetaType.RATIONALE;
-      default:
-        throw exception(metaFirst);
-    }
-  }
-
   // <meta>*
   private List<AST.Meta> _parseMetaList() throws CompilerException {
     var meta = new ArrayList<AST.Meta>();
-    while (true) {
-      switch (tok.type) {
-        case INFO:
-        case ASSUMPTIONS:
-        case RATIONALE:
-          meta.add(_parseMeta());
-          break;
-        default:
-          return meta;
-      }
+    while (tok.type == TokenType.ID && nextTok.type == TokenType.INFO) {
+      meta.add(_parseMeta());
     }
+    return meta;
   }
 
   // <include> ::= INCLUDE STRING
@@ -275,7 +253,7 @@ public class Parser {
     if (tok.type == TokenType.LCURLY) {
       _next();
     } else {
-      throw exception(metaFirst, TokenType.LCURLY);
+      throw exception(TokenType.INFO, TokenType.LCURLY);
     }
     var assets = _parseAssetList();
     if (tok.type == TokenType.RCURLY) {
@@ -306,7 +284,7 @@ public class Parser {
     if (tok.type == TokenType.LCURLY) {
       _next();
     } else {
-      throw exception(metaFirst, TokenType.LCURLY);
+      throw exception(TokenType.ID, TokenType.LCURLY);
     }
     var attackSteps = new ArrayList<AST.AttackStep>();
     var variables = new ArrayList<AST.Variable>();

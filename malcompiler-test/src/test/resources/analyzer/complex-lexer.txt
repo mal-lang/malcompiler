@@ -62,9 +62,10 @@ identifier, <complex.mal:24:25>, User
 '{', <complex.mal:24:30>
 '|', <complex.mal:25:5>
 identifier, <complex.mal:25:7>, accessSchoolComputer
-'info', <complex.mal:26:7>
-':', <complex.mal:26:11>
-string literal, <complex.mal:26:13>, An extra level of protection, their school computer must be used to impersonate them.
+identifier, <complex.mal:26:7>, user
+'info', <complex.mal:26:12>
+':', <complex.mal:26:16>
+string literal, <complex.mal:26:18>, An extra level of protection, their school computer must be used to impersonate them.
 '->', <complex.mal:27:7>
 identifier, <complex.mal:27:10>, compromise
 '}', <complex.mal:28:3>
@@ -91,9 +92,10 @@ identifier, <complex.mal:35:7>, interceptTraffic
 identifier, <complex.mal:36:10>, retrievePassword
 '&', <complex.mal:37:5>
 identifier, <complex.mal:37:7>, retrievePassword
-'info', <complex.mal:38:7>
-':', <complex.mal:38:11>
-string literal, <complex.mal:38:13>, Retrieval of password is only possible if password is unencrypted
+identifier, <complex.mal:38:7>, user
+'info', <complex.mal:38:12>
+':', <complex.mal:38:16>
+string literal, <complex.mal:38:18>, Retrieval of password is only possible if password is unencrypted
 '->', <complex.mal:39:7>
 identifier, <complex.mal:39:10>, user
 '.', <complex.mal:39:14>

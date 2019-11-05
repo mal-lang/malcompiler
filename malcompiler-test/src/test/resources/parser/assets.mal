@@ -1,32 +1,32 @@
 category Cat {
   asset A1
-    info: "Info1"
-    rationale: "Reason1"
-    assumptions: "None1"
+    user info: "Info1"
+    developer info: "Reason1"
+    modeler info: "None1"
   {
   }
 
   abstract asset A2
-    info: "Info2"
-    rationale: "Reason2"
-    assumptions: "None2"
+    user info: "Info2"
+    developer info: "Reason2"
+    modeler info: "None2"
   {
     let x = y
   }
 
   asset A3 extends A1
-    info: "Info3"
-    rationale: "Reason3"
-    assumptions: "None3"
+    user info: "Info3"
+    developer info: "Reason3"
+    modeler info: "None3"
   {
     & a
     | a
   }
 
   abstract asset A4 extends A2
-    info: "Info4"
-    rationale: "Reason4"
-    assumptions: "None4"
+    user info: "Info4"
+    developer info: "Reason4"
+    modeler info: "None4"
   {
     # a
     let x = y

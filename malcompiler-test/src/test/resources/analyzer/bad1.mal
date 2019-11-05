@@ -4,16 +4,16 @@
 #custom: "" // duplicate define
 category emp {} // empty category (warning)
 category cat
-  rationale: "rat"
+  developer info: "rat"
   {}
 category cat
-  info: "category"
-  info: "category" // duplicate info
-  rationale: "rat" // duplicate rationale from different definition
+  user info: "category"
+  user info: "category" // duplicate info
+  developer info: "rat" // duplicate rationale from different definition
   {
   asset _A
-    rationale: "asset"
-    rationale: "asset" // duplicate rationale
+    developer info: "asset"
+    developer info: "asset" // duplicate rationale
     {
     | compromise ->
       let c = a, // variable as field (warning)
@@ -48,6 +48,6 @@ category cat
 associations {
   _A [a] * <-- ac --> * [c] _C
   _A [a] * <-- aa --> * [a] _A // duplicate fields
-     assumptions: "association"
-     assumptions: "association" // duplicate association
+     modeler info: "association"
+     modeler info: "association" // duplicate association
 }

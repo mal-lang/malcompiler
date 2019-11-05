@@ -106,12 +106,12 @@ public class TestParserFail extends MalTest {
     assertSyntaxError(
         "parser/bad-meta1.mal",
         new Position(BAD_META1_MAL, 2, 3),
-        "expected 'info', 'assumptions', 'rationale', or '{', found identifier");
+        "expected 'info' or '{', found identifier");
     assertSyntaxError(
-        "parser/bad-meta2.mal", new Position(BAD_META2_MAL, 2, 8), "expected ':', found '='");
+        "parser/bad-meta2.mal", new Position(BAD_META2_MAL, 2, 13), "expected ':', found '='");
     assertSyntaxError(
         "parser/bad-meta3.mal",
-        new Position(BAD_META3_MAL, 2, 9),
+        new Position(BAD_META3_MAL, 2, 14),
         "expected string literal, found identifier");
   }
 
@@ -136,7 +136,7 @@ public class TestParserFail extends MalTest {
     assertSyntaxError(
         "parser/bad-category1.mal",
         new Position(BAD_CATEGORY1_MAL, 2, 3),
-        "expected 'abstract', 'asset', or '}', found 'info'");
+        "expected 'abstract', 'asset', or '}', found identifier");
   }
 
   @Test
@@ -156,7 +156,7 @@ public class TestParserFail extends MalTest {
     assertSyntaxError(
         "parser/bad-asset4.mal",
         new Position(BAD_ASSET4_MAL, 3, 5),
-        "expected '&', '|', '#', 'E', '!E', 'let', or '}', found 'info'");
+        "expected '&', '|', '#', 'E', '!E', 'let', or '}', found identifier");
   }
 
   @Test
@@ -175,12 +175,12 @@ public class TestParserFail extends MalTest {
         "expected ']', found ')'");
     assertSyntaxError(
         "parser/bad-attackstep4.mal",
-        new Position(BAD_ATTACKSTEP4_MAL, 5, 9),
-        "expected identifier or '(', found 'info'");
+        new Position(BAD_ATTACKSTEP4_MAL, 5, 14),
+        "expected '&', '|', '#', 'E', '!E', 'let', or '}', found 'info'");
     assertSyntaxError(
         "parser/bad-attackstep5.mal",
-        new Position(BAD_ATTACKSTEP5_MAL, 5, 9),
-        "expected identifier or '(', found 'info'");
+        new Position(BAD_ATTACKSTEP5_MAL, 5, 14),
+        "expected '&', '|', '#', 'E', '!E', 'let', or '}', found 'info'");
     assertSyntaxError(
         "parser/bad-attackstep6.mal",
         new Position(BAD_ATTACKSTEP6_MAL, 3, 11),

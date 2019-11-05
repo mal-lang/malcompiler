@@ -1,8 +1,7 @@
 ; rules
 <mal>           ::= (<category> | <associations> | <include> | <define>)* EOF
 <define>        ::= HASH ID COLON STRING
-<meta>          ::= <meta-type> COLON STRING
-<meta-type>     ::= INFO | ASSUMPTIONS | RATIONALE
+<meta>          ::= ID INFO COLON STRING
 <include>       ::= INCLUDE STRING
 <number>        ::= INT | FLOAT
 
@@ -39,8 +38,6 @@
 ; keywords
 INCLUDE         ::= "include"
 INFO            ::= "info"
-ASSUMPTIONS     ::= "assumptions"
-RATIONALE       ::= "rationale"
 CATEGORY        ::= "category"
 ABSTRACT        ::= "abstract"
 ASSET           ::= "asset"

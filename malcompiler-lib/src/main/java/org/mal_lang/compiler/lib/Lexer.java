@@ -43,8 +43,6 @@ public class Lexer {
     keywords = new HashMap<>();
     keywords.put("include", TokenType.INCLUDE);
     keywords.put("info", TokenType.INFO);
-    keywords.put("assumptions", TokenType.ASSUMPTIONS);
-    keywords.put("rationale", TokenType.RATIONALE);
     keywords.put("category", TokenType.CATEGORY);
     keywords.put("abstract", TokenType.ABSTRACT);
     keywords.put("asset", TokenType.ASSET);

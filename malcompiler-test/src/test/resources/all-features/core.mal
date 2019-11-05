@@ -1,7 +1,7 @@
 category C1
-  info: "This is C1"
-  assumptions: "None for C1"
-  rationale: "Reasoning for C1"
+  user info: "This is C1"
+  modeler info: "None for C1"
+  developer info: "Reasoning for C1"
 {
   // This category only contains meta information
 }
@@ -10,15 +10,15 @@ category C1 {
   asset A1
   {
     | a1Attack1 {C}
-      info: "This is a1Attack1"
-      assumptions: "None for a1Attack1"
-      rationale: "Reasoning for a1Attack1"
+      user info: "This is a1Attack1"
+      modeler info: "None for a1Attack1"
+      developer info: "Reasoning for a1Attack1"
       // No reaches
     & a1Attack2 {I, C} []
-      info: "This is a1Attack2"
+      user info: "This is a1Attack2"
       -> a1Sub[A1]*.a1Attack1
     # a1Defense1 [Bernoulli(0.5)]
-      rationale: "Reasoning for a1Defense"
+      developer info: "Reasoning for a1Defense"
       // No reaches
     # a1Defense2 [Disabled]
       -> a1Attack2
@@ -26,7 +26,7 @@ category C1 {
       <- a1Sub
       /* No reaches */
     E a1Exist2
-      assumptions: "None for a1Exist2"
+      modeler info: "None for a1Exist2"
       <- a7, a1Super.a1Super.a7
       -> (a1Super*)[A2].(a8.destroy)
     !E a1NotExist1
@@ -61,7 +61,7 @@ category C1 {
   }
 
   abstract asset A3 extends A1
-    info: "This is A3"
+    user info: "This is A3"
   {
     let unused = a1Sub
     | a3Attack {A, I, C}
@@ -78,12 +78,12 @@ category C1 {
 category C2 { /* This category is empty */ }
 
 category C2
-  assumptions: "None for C2"
+  modeler info: "None for C2"
 {
   abstract asset A4
-    assumptions: "None for A4"
-    rationale: "Reasoning for A4"
-    info: "This is A4"
+    modeler info: "None for A4"
+    developer info: "Reasoning for A4"
+    user info: "This is A4"
   {
     let var = a1.a1Sub*
     | a
@@ -96,14 +96,14 @@ category C2
 }
 
 category C2
-  rationale: "Reasoning for C2"
+  developer info: "Reasoning for C2"
 {
   asset A5 extends A4
-    assumptions: "None for A5"
+    modeler info: "None for A5"
   { /* This asset is empty */ }
 
   abstract asset A6 extends A4
-    rationale: "Reasoning for A6"
+    developer info: "Reasoning for A6"
   {
     // Nothing extends this abstract asset
   }

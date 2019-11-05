@@ -36,11 +36,13 @@ import static org.mal_lang.compiler.test.lib.AssertToken.assertTokens;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mal_lang.compiler.lib.AST;
+import org.mal_lang.compiler.lib.AST.ID;
 import org.mal_lang.compiler.lib.Distributions;
 import org.mal_lang.compiler.lib.Lang;
 import org.mal_lang.compiler.lib.Position;
@@ -81,15 +83,18 @@ public class TestAllFeatures extends MalTest {
     Token[] tokens = {
       new Token(TokenType.CATEGORY, CORE_MAL, 1, 1),
       new Token(TokenType.ID, CORE_MAL, 1, 10, "C1"),
-      new Token(TokenType.INFO, CORE_MAL, 2, 3),
-      new Token(TokenType.COLON, CORE_MAL, 2, 7),
-      new Token(TokenType.STRING, CORE_MAL, 2, 9, "This is C1"),
-      new Token(TokenType.ASSUMPTIONS, CORE_MAL, 3, 3),
-      new Token(TokenType.COLON, CORE_MAL, 3, 14),
-      new Token(TokenType.STRING, CORE_MAL, 3, 16, "None for C1"),
-      new Token(TokenType.RATIONALE, CORE_MAL, 4, 3),
-      new Token(TokenType.COLON, CORE_MAL, 4, 12),
-      new Token(TokenType.STRING, CORE_MAL, 4, 14, "Reasoning for C1"),
+      new Token(TokenType.ID, CORE_MAL, 2, 3, "user"),
+      new Token(TokenType.INFO, CORE_MAL, 2, 8),
+      new Token(TokenType.COLON, CORE_MAL, 2, 12),
+      new Token(TokenType.STRING, CORE_MAL, 2, 14, "This is C1"),
+      new Token(TokenType.ID, CORE_MAL, 3, 3, "modeler"),
+      new Token(TokenType.INFO, CORE_MAL, 3, 11),
+      new Token(TokenType.COLON, CORE_MAL, 3, 15),
+      new Token(TokenType.STRING, CORE_MAL, 3, 17, "None for C1"),
+      new Token(TokenType.ID, CORE_MAL, 4, 3, "developer"),
+      new Token(TokenType.INFO, CORE_MAL, 4, 13),
+      new Token(TokenType.COLON, CORE_MAL, 4, 17),
+      new Token(TokenType.STRING, CORE_MAL, 4, 19, "Reasoning for C1"),
       new Token(TokenType.LCURLY, CORE_MAL, 5, 1),
       new Token(TokenType.RCURLY, CORE_MAL, 7, 1),
       new Token(TokenType.CATEGORY, CORE_MAL, 9, 1),
@@ -103,15 +108,18 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.LCURLY, CORE_MAL, 12, 17),
       new Token(TokenType.C, CORE_MAL, 12, 18),
       new Token(TokenType.RCURLY, CORE_MAL, 12, 19),
-      new Token(TokenType.INFO, CORE_MAL, 13, 7),
-      new Token(TokenType.COLON, CORE_MAL, 13, 11),
-      new Token(TokenType.STRING, CORE_MAL, 13, 13, "This is a1Attack1"),
-      new Token(TokenType.ASSUMPTIONS, CORE_MAL, 14, 7),
-      new Token(TokenType.COLON, CORE_MAL, 14, 18),
-      new Token(TokenType.STRING, CORE_MAL, 14, 20, "None for a1Attack1"),
-      new Token(TokenType.RATIONALE, CORE_MAL, 15, 7),
-      new Token(TokenType.COLON, CORE_MAL, 15, 16),
-      new Token(TokenType.STRING, CORE_MAL, 15, 18, "Reasoning for a1Attack1"),
+      new Token(TokenType.ID, CORE_MAL, 13, 7, "user"),
+      new Token(TokenType.INFO, CORE_MAL, 13, 12),
+      new Token(TokenType.COLON, CORE_MAL, 13, 16),
+      new Token(TokenType.STRING, CORE_MAL, 13, 18, "This is a1Attack1"),
+      new Token(TokenType.ID, CORE_MAL, 14, 7, "modeler"),
+      new Token(TokenType.INFO, CORE_MAL, 14, 15),
+      new Token(TokenType.COLON, CORE_MAL, 14, 19),
+      new Token(TokenType.STRING, CORE_MAL, 14, 21, "None for a1Attack1"),
+      new Token(TokenType.ID, CORE_MAL, 15, 7, "developer"),
+      new Token(TokenType.INFO, CORE_MAL, 15, 17),
+      new Token(TokenType.COLON, CORE_MAL, 15, 21),
+      new Token(TokenType.STRING, CORE_MAL, 15, 23, "Reasoning for a1Attack1"),
       new Token(TokenType.ALL, CORE_MAL, 17, 5),
       new Token(TokenType.ID, CORE_MAL, 17, 7, "a1Attack2"),
       new Token(TokenType.LCURLY, CORE_MAL, 17, 17),
@@ -121,9 +129,10 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.RCURLY, CORE_MAL, 17, 22),
       new Token(TokenType.LBRACKET, CORE_MAL, 17, 24),
       new Token(TokenType.RBRACKET, CORE_MAL, 17, 25),
-      new Token(TokenType.INFO, CORE_MAL, 18, 7),
-      new Token(TokenType.COLON, CORE_MAL, 18, 11),
-      new Token(TokenType.STRING, CORE_MAL, 18, 13, "This is a1Attack2"),
+      new Token(TokenType.ID, CORE_MAL, 18, 7, "user"),
+      new Token(TokenType.INFO, CORE_MAL, 18, 12),
+      new Token(TokenType.COLON, CORE_MAL, 18, 16),
+      new Token(TokenType.STRING, CORE_MAL, 18, 18, "This is a1Attack2"),
       new Token(TokenType.OVERRIDE, CORE_MAL, 19, 7),
       new Token(TokenType.ID, CORE_MAL, 19, 10, "a1Sub"),
       new Token(TokenType.LBRACKET, CORE_MAL, 19, 15),
@@ -140,9 +149,10 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.FLOAT, CORE_MAL, 20, 29, 0.5),
       new Token(TokenType.RPAREN, CORE_MAL, 20, 32),
       new Token(TokenType.RBRACKET, CORE_MAL, 20, 33),
-      new Token(TokenType.RATIONALE, CORE_MAL, 21, 7),
-      new Token(TokenType.COLON, CORE_MAL, 21, 16),
-      new Token(TokenType.STRING, CORE_MAL, 21, 18, "Reasoning for a1Defense"),
+      new Token(TokenType.ID, CORE_MAL, 21, 7, "developer"),
+      new Token(TokenType.INFO, CORE_MAL, 21, 17),
+      new Token(TokenType.COLON, CORE_MAL, 21, 21),
+      new Token(TokenType.STRING, CORE_MAL, 21, 23, "Reasoning for a1Defense"),
       new Token(TokenType.HASH, CORE_MAL, 23, 5),
       new Token(TokenType.ID, CORE_MAL, 23, 7, "a1Defense2"),
       new Token(TokenType.LBRACKET, CORE_MAL, 23, 18),
@@ -156,9 +166,10 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.ID, CORE_MAL, 26, 10, "a1Sub"),
       new Token(TokenType.EXIST, CORE_MAL, 28, 5),
       new Token(TokenType.ID, CORE_MAL, 28, 7, "a1Exist2"),
-      new Token(TokenType.ASSUMPTIONS, CORE_MAL, 29, 7),
-      new Token(TokenType.COLON, CORE_MAL, 29, 18),
-      new Token(TokenType.STRING, CORE_MAL, 29, 20, "None for a1Exist2"),
+      new Token(TokenType.ID, CORE_MAL, 29, 7, "modeler"),
+      new Token(TokenType.INFO, CORE_MAL, 29, 15),
+      new Token(TokenType.COLON, CORE_MAL, 29, 19),
+      new Token(TokenType.STRING, CORE_MAL, 29, 21, "None for a1Exist2"),
       new Token(TokenType.REQUIRE, CORE_MAL, 30, 7),
       new Token(TokenType.ID, CORE_MAL, 30, 10, "a7"),
       new Token(TokenType.COMMA, CORE_MAL, 30, 12),
@@ -265,9 +276,10 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.ID, CORE_MAL, 63, 18, "A3"),
       new Token(TokenType.EXTENDS, CORE_MAL, 63, 21),
       new Token(TokenType.ID, CORE_MAL, 63, 29, "A1"),
-      new Token(TokenType.INFO, CORE_MAL, 64, 5),
-      new Token(TokenType.COLON, CORE_MAL, 64, 9),
-      new Token(TokenType.STRING, CORE_MAL, 64, 11, "This is A3"),
+      new Token(TokenType.ID, CORE_MAL, 64, 5, "user"),
+      new Token(TokenType.INFO, CORE_MAL, 64, 10),
+      new Token(TokenType.COLON, CORE_MAL, 64, 14),
+      new Token(TokenType.STRING, CORE_MAL, 64, 16, "This is A3"),
       new Token(TokenType.LCURLY, CORE_MAL, 65, 3),
       new Token(TokenType.LET, CORE_MAL, 66, 5),
       new Token(TokenType.ID, CORE_MAL, 66, 9, "unused"),
@@ -316,22 +328,26 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.RCURLY, CORE_MAL, 78, 44),
       new Token(TokenType.CATEGORY, CORE_MAL, 80, 1),
       new Token(TokenType.ID, CORE_MAL, 80, 10, "C2"),
-      new Token(TokenType.ASSUMPTIONS, CORE_MAL, 81, 3),
-      new Token(TokenType.COLON, CORE_MAL, 81, 14),
-      new Token(TokenType.STRING, CORE_MAL, 81, 16, "None for C2"),
+      new Token(TokenType.ID, CORE_MAL, 81, 3, "modeler"),
+      new Token(TokenType.INFO, CORE_MAL, 81, 11),
+      new Token(TokenType.COLON, CORE_MAL, 81, 15),
+      new Token(TokenType.STRING, CORE_MAL, 81, 17, "None for C2"),
       new Token(TokenType.LCURLY, CORE_MAL, 82, 1),
       new Token(TokenType.ABSTRACT, CORE_MAL, 83, 3),
       new Token(TokenType.ASSET, CORE_MAL, 83, 12),
       new Token(TokenType.ID, CORE_MAL, 83, 18, "A4"),
-      new Token(TokenType.ASSUMPTIONS, CORE_MAL, 84, 5),
-      new Token(TokenType.COLON, CORE_MAL, 84, 16),
-      new Token(TokenType.STRING, CORE_MAL, 84, 18, "None for A4"),
-      new Token(TokenType.RATIONALE, CORE_MAL, 85, 5),
-      new Token(TokenType.COLON, CORE_MAL, 85, 14),
-      new Token(TokenType.STRING, CORE_MAL, 85, 16, "Reasoning for A4"),
-      new Token(TokenType.INFO, CORE_MAL, 86, 5),
-      new Token(TokenType.COLON, CORE_MAL, 86, 9),
-      new Token(TokenType.STRING, CORE_MAL, 86, 11, "This is A4"),
+      new Token(TokenType.ID, CORE_MAL, 84, 5, "modeler"),
+      new Token(TokenType.INFO, CORE_MAL, 84, 13),
+      new Token(TokenType.COLON, CORE_MAL, 84, 17),
+      new Token(TokenType.STRING, CORE_MAL, 84, 19, "None for A4"),
+      new Token(TokenType.ID, CORE_MAL, 85, 5, "developer"),
+      new Token(TokenType.INFO, CORE_MAL, 85, 15),
+      new Token(TokenType.COLON, CORE_MAL, 85, 19),
+      new Token(TokenType.STRING, CORE_MAL, 85, 21, "Reasoning for A4"),
+      new Token(TokenType.ID, CORE_MAL, 86, 5, "user"),
+      new Token(TokenType.INFO, CORE_MAL, 86, 10),
+      new Token(TokenType.COLON, CORE_MAL, 86, 14),
+      new Token(TokenType.STRING, CORE_MAL, 86, 16, "This is A4"),
       new Token(TokenType.LCURLY, CORE_MAL, 87, 3),
       new Token(TokenType.LET, CORE_MAL, 88, 5),
       new Token(TokenType.ID, CORE_MAL, 88, 9, "var"),
@@ -369,17 +385,19 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.RCURLY, CORE_MAL, 96, 1),
       new Token(TokenType.CATEGORY, CORE_MAL, 98, 1),
       new Token(TokenType.ID, CORE_MAL, 98, 10, "C2"),
-      new Token(TokenType.RATIONALE, CORE_MAL, 99, 3),
-      new Token(TokenType.COLON, CORE_MAL, 99, 12),
-      new Token(TokenType.STRING, CORE_MAL, 99, 14, "Reasoning for C2"),
+      new Token(TokenType.ID, CORE_MAL, 99, 3, "developer"),
+      new Token(TokenType.INFO, CORE_MAL, 99, 13),
+      new Token(TokenType.COLON, CORE_MAL, 99, 17),
+      new Token(TokenType.STRING, CORE_MAL, 99, 19, "Reasoning for C2"),
       new Token(TokenType.LCURLY, CORE_MAL, 100, 1),
       new Token(TokenType.ASSET, CORE_MAL, 101, 3),
       new Token(TokenType.ID, CORE_MAL, 101, 9, "A5"),
       new Token(TokenType.EXTENDS, CORE_MAL, 101, 12),
       new Token(TokenType.ID, CORE_MAL, 101, 20, "A4"),
-      new Token(TokenType.ASSUMPTIONS, CORE_MAL, 102, 5),
-      new Token(TokenType.COLON, CORE_MAL, 102, 16),
-      new Token(TokenType.STRING, CORE_MAL, 102, 18, "None for A5"),
+      new Token(TokenType.ID, CORE_MAL, 102, 5, "modeler"),
+      new Token(TokenType.INFO, CORE_MAL, 102, 13),
+      new Token(TokenType.COLON, CORE_MAL, 102, 17),
+      new Token(TokenType.STRING, CORE_MAL, 102, 19, "None for A5"),
       new Token(TokenType.LCURLY, CORE_MAL, 103, 3),
       new Token(TokenType.RCURLY, CORE_MAL, 103, 31),
       new Token(TokenType.ABSTRACT, CORE_MAL, 105, 3),
@@ -387,9 +405,10 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.ID, CORE_MAL, 105, 18, "A6"),
       new Token(TokenType.EXTENDS, CORE_MAL, 105, 21),
       new Token(TokenType.ID, CORE_MAL, 105, 29, "A4"),
-      new Token(TokenType.RATIONALE, CORE_MAL, 106, 5),
-      new Token(TokenType.COLON, CORE_MAL, 106, 14),
-      new Token(TokenType.STRING, CORE_MAL, 106, 16, "Reasoning for A6"),
+      new Token(TokenType.ID, CORE_MAL, 106, 5, "developer"),
+      new Token(TokenType.INFO, CORE_MAL, 106, 15),
+      new Token(TokenType.COLON, CORE_MAL, 106, 19),
+      new Token(TokenType.STRING, CORE_MAL, 106, 21, "Reasoning for A6"),
       new Token(TokenType.LCURLY, CORE_MAL, 107, 3),
       new Token(TokenType.RCURLY, CORE_MAL, 109, 3),
       new Token(TokenType.RCURLY, CORE_MAL, 110, 1),
@@ -458,17 +477,11 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.LCURLY, CORE_MAL, 133, 12),
       new Token(TokenType.RCURLY, CORE_MAL, 136, 3),
       new Token(TokenType.RCURLY, CORE_MAL, 137, 1),
-
-      // 139: associations { /* No associations here */ }
       new Token(TokenType.ASSOCIATIONS, CORE_MAL, 139, 1),
       new Token(TokenType.LCURLY, CORE_MAL, 139, 14),
       new Token(TokenType.RCURLY, CORE_MAL, 139, 43),
-
-      // 141: associations {
       new Token(TokenType.ASSOCIATIONS, CORE_MAL, 141, 1),
       new Token(TokenType.LCURLY, CORE_MAL, 141, 14),
-
-      // 143:   A1 [a1]      1    <-- L1 --> 1..* [a4]    A4
       new Token(TokenType.ID, CORE_MAL, 143, 3, "A1"),
       new Token(TokenType.LBRACKET, CORE_MAL, 143, 6),
       new Token(TokenType.ID, CORE_MAL, 143, 7, "a1"),
@@ -484,8 +497,6 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.ID, CORE_MAL, 143, 38, "a4"),
       new Token(TokenType.RBRACKET, CORE_MAL, 143, 40),
       new Token(TokenType.ID, CORE_MAL, 143, 45, "A4"),
-
-      // 144:   A5 [a5]      1..1 <-- L2 --> 0..* [a6]    A6
       new Token(TokenType.ID, CORE_MAL, 144, 3, "A5"),
       new Token(TokenType.LBRACKET, CORE_MAL, 144, 6),
       new Token(TokenType.ID, CORE_MAL, 144, 7, "a5"),
@@ -503,15 +514,9 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.ID, CORE_MAL, 144, 38, "a6"),
       new Token(TokenType.RBRACKET, CORE_MAL, 144, 40),
       new Token(TokenType.ID, CORE_MAL, 144, 45, "A6"),
-
-      // 145: }
       new Token(TokenType.RCURLY, CORE_MAL, 145, 1),
-
-      // 147: associations {
       new Token(TokenType.ASSOCIATIONS, CORE_MAL, 147, 1),
       new Token(TokenType.LCURLY, CORE_MAL, 147, 14),
-
-      // 149:   A1 [a1Super] 0..1 <-- L3 --> *    [a1Sub]   A1
       new Token(TokenType.ID, CORE_MAL, 149, 3, "A1"),
       new Token(TokenType.LBRACKET, CORE_MAL, 149, 6),
       new Token(TokenType.ID, CORE_MAL, 149, 7, "a1Super"),
@@ -527,8 +532,6 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.ID, CORE_MAL, 149, 38, "a1Sub"),
       new Token(TokenType.RBRACKET, CORE_MAL, 149, 43),
       new Token(TokenType.ID, CORE_MAL, 149, 47, "A1"),
-
-      // 150:   A3 [a3]      *    <-- L3 --> *    [a6]      A6
       new Token(TokenType.ID, CORE_MAL, 150, 3, "A3"),
       new Token(TokenType.LBRACKET, CORE_MAL, 150, 6),
       new Token(TokenType.ID, CORE_MAL, 150, 7, "a3"),
@@ -542,8 +545,6 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.ID, CORE_MAL, 150, 38, "a6"),
       new Token(TokenType.RBRACKET, CORE_MAL, 150, 40),
       new Token(TokenType.ID, CORE_MAL, 150, 47, "A6"),
-
-      // 151:   A7 [a7]      0..1 <-- L3 --> 1    [a1]      A1
       new Token(TokenType.ID, CORE_MAL, 151, 3, "A7"),
       new Token(TokenType.LBRACKET, CORE_MAL, 151, 6),
       new Token(TokenType.ID, CORE_MAL, 151, 7, "a7"),
@@ -559,8 +560,6 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.ID, CORE_MAL, 151, 38, "a1"),
       new Token(TokenType.RBRACKET, CORE_MAL, 151, 40),
       new Token(TokenType.ID, CORE_MAL, 151, 47, "A1"),
-
-      // 152:   A8 [a8]      *    <-- L4 --> *    [a1]      A1
       new Token(TokenType.ID, CORE_MAL, 152, 3, "A8"),
       new Token(TokenType.LBRACKET, CORE_MAL, 152, 6),
       new Token(TokenType.ID, CORE_MAL, 152, 7, "a8"),
@@ -574,8 +573,6 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.ID, CORE_MAL, 152, 38, "a1"),
       new Token(TokenType.RBRACKET, CORE_MAL, 152, 40),
       new Token(TokenType.ID, CORE_MAL, 152, 47, "A1"),
-
-      // 153:   A8 [a8]      *    <-- L4 --> *    [a4]      A4
       new Token(TokenType.ID, CORE_MAL, 153, 3, "A8"),
       new Token(TokenType.LBRACKET, CORE_MAL, 153, 6),
       new Token(TokenType.ID, CORE_MAL, 153, 7, "a8"),
@@ -589,8 +586,6 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.ID, CORE_MAL, 153, 38, "a4"),
       new Token(TokenType.RBRACKET, CORE_MAL, 153, 40),
       new Token(TokenType.ID, CORE_MAL, 153, 47, "A4"),
-
-      // 154:   A8 [a8Sub]   *    <-- L4 --> *    [a8Super] A8
       new Token(TokenType.ID, CORE_MAL, 154, 3, "A8"),
       new Token(TokenType.LBRACKET, CORE_MAL, 154, 6),
       new Token(TokenType.ID, CORE_MAL, 154, 7, "a8Sub"),
@@ -604,8 +599,6 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.ID, CORE_MAL, 154, 38, "a8Super"),
       new Token(TokenType.RBRACKET, CORE_MAL, 154, 45),
       new Token(TokenType.ID, CORE_MAL, 154, 47, "A8"),
-
-      // 155: }
       new Token(TokenType.RCURLY, CORE_MAL, 155, 1),
       new Token(TokenType.EOF, CORE_MAL, 156, 1)
     };
@@ -650,10 +643,18 @@ public class TestAllFeatures extends MalTest {
             new Position(CORE_MAL, 1, 1),
             new AST.ID(new Position(CORE_MAL, 1, 10), "C1"),
             Arrays.asList(
-                new AST.Meta(new Position(CORE_MAL, 2, 3), AST.MetaType.INFO, "This is C1"),
-                new AST.Meta(new Position(CORE_MAL, 3, 3), AST.MetaType.ASSUMPTIONS, "None for C1"),
                 new AST.Meta(
-                    new Position(CORE_MAL, 4, 3), AST.MetaType.RATIONALE, "Reasoning for C1")),
+                    new Position(CORE_MAL, 2, 3),
+                    new ID(new Position(CORE_MAL, 2, 3), "user"),
+                    "This is C1"),
+                new AST.Meta(
+                    new Position(CORE_MAL, 3, 3),
+                    new ID(new Position(CORE_MAL, 3, 3), "modeler"),
+                    "None for C1"),
+                new AST.Meta(
+                    new Position(CORE_MAL, 4, 3),
+                    new ID(new Position(CORE_MAL, 4, 3), "developer"),
+                    "Reasoning for C1")),
             new ArrayList<AST.Asset>()),
         categories.get(0));
     assertCategory(
@@ -679,15 +680,15 @@ public class TestAllFeatures extends MalTest {
                             Arrays.asList(
                                 new AST.Meta(
                                     new Position(CORE_MAL, 13, 7),
-                                    AST.MetaType.INFO,
+                                    new ID(new Position(CORE_MAL, 13, 7), "user"),
                                     "This is a1Attack1"),
                                 new AST.Meta(
                                     new Position(CORE_MAL, 14, 7),
-                                    AST.MetaType.ASSUMPTIONS,
+                                    new ID(new Position(CORE_MAL, 14, 7), "modeler"),
                                     "None for a1Attack1"),
                                 new AST.Meta(
                                     new Position(CORE_MAL, 15, 7),
-                                    AST.MetaType.RATIONALE,
+                                    new ID(new Position(CORE_MAL, 15, 7), "developer"),
                                     "Reasoning for a1Attack1")),
                             Optional.empty(),
                             Optional.empty()),
@@ -705,7 +706,7 @@ public class TestAllFeatures extends MalTest {
                             Arrays.asList(
                                 new AST.Meta(
                                     new Position(CORE_MAL, 18, 7),
-                                    AST.MetaType.INFO,
+                                    new ID(new Position(CORE_MAL, 18, 7), "user"),
                                     "This is a1Attack2")),
                             Optional.empty(),
                             Optional.of(
@@ -746,7 +747,7 @@ public class TestAllFeatures extends MalTest {
                             Arrays.asList(
                                 new AST.Meta(
                                     new Position(CORE_MAL, 21, 7),
-                                    AST.MetaType.RATIONALE,
+                                    new ID(new Position(CORE_MAL, 21, 7), "developer"),
                                     "Reasoning for a1Defense")),
                             Optional.empty(),
                             Optional.empty()),
@@ -800,7 +801,7 @@ public class TestAllFeatures extends MalTest {
                             Arrays.asList(
                                 new AST.Meta(
                                     new Position(CORE_MAL, 29, 7),
-                                    AST.MetaType.ASSUMPTIONS,
+                                    new ID(new Position(CORE_MAL, 29, 7), "modeler"),
                                     "None for a1Exist2")),
                             Optional.of(
                                 new AST.Requires(
@@ -1112,7 +1113,9 @@ public class TestAllFeatures extends MalTest {
                     Optional.of(new AST.ID(new Position(CORE_MAL, 63, 29), "A1")),
                     Arrays.asList(
                         new AST.Meta(
-                            new Position(CORE_MAL, 64, 5), AST.MetaType.INFO, "This is A3")),
+                            new Position(CORE_MAL, 64, 5),
+                            new ID(new Position(CORE_MAL, 64, 5), "user"),
+                            "This is A3")),
                     Arrays.asList(
                         new AST.AttackStep(
                             new Position(CORE_MAL, 67, 5),
@@ -1197,7 +1200,9 @@ public class TestAllFeatures extends MalTest {
             new AST.ID(new Position(CORE_MAL, 80, 10), "C2"),
             Arrays.asList(
                 new AST.Meta(
-                    new Position(CORE_MAL, 81, 3), AST.MetaType.ASSUMPTIONS, "None for C2")),
+                    new Position(CORE_MAL, 81, 3),
+                    new ID(new Position(CORE_MAL, 81, 3), "modeler"),
+                    "None for C2")),
             Arrays.asList(
                 new AST.Asset(
                     new Position(CORE_MAL, 83, 3),
@@ -1206,13 +1211,17 @@ public class TestAllFeatures extends MalTest {
                     Optional.empty(),
                     Arrays.asList(
                         new AST.Meta(
-                            new Position(CORE_MAL, 84, 5), AST.MetaType.ASSUMPTIONS, "None for A4"),
+                            new Position(CORE_MAL, 84, 5),
+                            new ID(new Position(CORE_MAL, 84, 5), "modeler"),
+                            "None for A4"),
                         new AST.Meta(
                             new Position(CORE_MAL, 85, 5),
-                            AST.MetaType.RATIONALE,
+                            new ID(new Position(CORE_MAL, 85, 5), "developer"),
                             "Reasoning for A4"),
                         new AST.Meta(
-                            new Position(CORE_MAL, 86, 5), AST.MetaType.INFO, "This is A4")),
+                            new Position(CORE_MAL, 86, 5),
+                            new ID(new Position(CORE_MAL, 86, 5), "user"),
+                            "This is A4")),
                     Arrays.asList(
                         new AST.AttackStep(
                             new Position(CORE_MAL, 89, 5),
@@ -1286,7 +1295,9 @@ public class TestAllFeatures extends MalTest {
             new AST.ID(new Position(CORE_MAL, 98, 10), "C2"),
             Arrays.asList(
                 new AST.Meta(
-                    new Position(CORE_MAL, 99, 3), AST.MetaType.RATIONALE, "Reasoning for C2")),
+                    new Position(CORE_MAL, 99, 3),
+                    new ID(new Position(CORE_MAL, 99, 3), "developer"),
+                    "Reasoning for C2")),
             Arrays.asList(
                 new AST.Asset(
                     new Position(CORE_MAL, 101, 3),
@@ -1296,7 +1307,7 @@ public class TestAllFeatures extends MalTest {
                     Arrays.asList(
                         new AST.Meta(
                             new Position(CORE_MAL, 102, 5),
-                            AST.MetaType.ASSUMPTIONS,
+                            new ID(new Position(CORE_MAL, 102, 5), "modeler"),
                             "None for A5")),
                     new ArrayList<AST.AttackStep>(),
                     new ArrayList<AST.Variable>()),
@@ -1308,7 +1319,7 @@ public class TestAllFeatures extends MalTest {
                     Arrays.asList(
                         new AST.Meta(
                             new Position(CORE_MAL, 106, 5),
-                            AST.MetaType.RATIONALE,
+                            new ID(new Position(CORE_MAL, 106, 5), "developer"),
                             "Reasoning for A6")),
                     new ArrayList<AST.AttackStep>(),
                     new ArrayList<AST.Variable>()))),
@@ -1605,16 +1616,17 @@ public class TestAllFeatures extends MalTest {
         lang,
         "C1",
         new String[] {"A1", "A2", "A3"},
-        new Lang.Meta()
-            .setInfo("This is C1")
-            .setAssumptions("None for C1")
-            .setRationale("Reasoning for C1"));
+        Map.ofEntries(
+            Map.entry("user", "This is C1"),
+            Map.entry("modeler", "None for C1"),
+            Map.entry("developer", "Reasoning for C1")));
     assertLangCategory(
         lang,
         "C2",
         new String[] {"A4", "A5", "A6"},
-        new Lang.Meta().setAssumptions("None for C2").setRationale("Reasoning for C2"));
-    assertLangCategory(lang, "C3", new String[] {"A7", "A8", "A9"}, new Lang.Meta());
+        Map.ofEntries(
+            Map.entry("modeler", "None for C2"), Map.entry("developer", "Reasoning for C2")));
+    assertLangCategory(lang, "C3", new String[] {"A7", "A8", "A9"}, new HashMap<>());
   }
 
   private static void assertAssets(Lang lang) {
@@ -1631,7 +1643,7 @@ public class TestAllFeatures extends MalTest {
   }
 
   private static void assertAssetA1(Lang lang) {
-    var asset = assertGetLangAsset(lang, "A1", false, "C1", null, new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "A1", false, "C1", null, new HashMap<>());
     // Check fields
     assertEquals(5, asset.getFields().size());
     assertLangField(asset, "a4", 1, Integer.MAX_VALUE);
@@ -1652,10 +1664,10 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta()
-                .setInfo("This is a1Attack1")
-                .setAssumptions("None for a1Attack1")
-                .setRationale("Reasoning for a1Attack1"));
+            Map.ofEntries(
+                Map.entry("user", "This is a1Attack1"),
+                Map.entry("modeler", "None for a1Attack1"),
+                Map.entry("developer", "Reasoning for a1Attack1")));
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, false, false));
     assertLangTTC(attackStep, null);
@@ -1790,7 +1802,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta().setInfo("This is a1Attack2"));
+            Map.ofEntries(Map.entry("user", "This is a1Attack2")));
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, false));
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Zero()));
@@ -1873,7 +1885,8 @@ public class TestAllFeatures extends MalTest {
             true,
             false,
             false,
-            new Lang.Meta().setRationale("Reasoning for a1Defense"));
+            Map.ofEntries(Map.entry("developer", "Reasoning for a1Defense")));
+
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Bernoulli(0.5)));
@@ -1894,7 +1907,7 @@ public class TestAllFeatures extends MalTest {
             true,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Disabled()));
@@ -1923,7 +1936,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -1954,7 +1967,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             false,
-            new Lang.Meta().setAssumptions("None for a1Exist2"));
+            Map.ofEntries(Map.entry("modeler", "None for a1Exist2")));
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2052,7 +2065,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2110,7 +2123,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2172,7 +2185,7 @@ public class TestAllFeatures extends MalTest {
   }
 
   private static void assertAssetA2(Lang lang) {
-    var asset = assertGetLangAsset(lang, "A2", false, "C1", "A1", new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "A2", false, "C1", "A1", new HashMap<>());
     // Check fields
     assertEquals(0, asset.getFields().size());
     // Check attack steps
@@ -2188,7 +2201,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             true,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(false, false, false));
     assertLangTTC(attackStep, null);
@@ -2238,7 +2251,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a1Attack2"
     attackStep =
         assertGetLangAttackStep(
-            asset, "a1Attack2", Lang.AttackStepType.ALL, true, false, false, true, new Lang.Meta());
+            asset, "a1Attack2", Lang.AttackStepType.ALL, true, false, false, true, new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, true));
     assertLangTTC(attackStep, null);
@@ -2286,7 +2299,7 @@ public class TestAllFeatures extends MalTest {
             true,
             false,
             true,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Enabled()));
@@ -2345,7 +2358,7 @@ public class TestAllFeatures extends MalTest {
             true,
             false,
             true,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2382,7 +2395,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             true,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2421,7 +2434,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             true,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2453,7 +2466,8 @@ public class TestAllFeatures extends MalTest {
 
   private static void assertAssetA3(Lang lang) {
     var asset =
-        assertGetLangAsset(lang, "A3", true, "C1", "A1", new Lang.Meta().setInfo("This is A3"));
+        assertGetLangAsset(
+            lang, "A3", true, "C1", "A1", Map.ofEntries(Map.entry("user", "This is A3")));
     // Check fields
     assertEquals(1, asset.getFields().size());
     assertLangField(asset, "a6", 0, Integer.MAX_VALUE);
@@ -2470,7 +2484,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, true));
     assertLangTTC(attackStep, null);
@@ -2484,7 +2498,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "AT"
     attackStep =
         assertGetLangAttackStep(
-            asset, "AT", Lang.AttackStepType.ALL, false, false, false, false, new Lang.Meta());
+            asset, "AT", Lang.AttackStepType.ALL, false, false, false, false, new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2523,10 +2537,10 @@ public class TestAllFeatures extends MalTest {
             true,
             "C2",
             null,
-            new Lang.Meta()
-                .setAssumptions("None for A4")
-                .setRationale("Reasoning for A4")
-                .setInfo("This is A4"));
+            Map.ofEntries(
+                Map.entry("user", "This is A4"),
+                Map.entry("developer", "Reasoning for A4"),
+                Map.entry("modeler", "None for A4")));
     // Check fields
     assertEquals(2, asset.getFields().size());
     assertLangField(asset, "a1", 1, 1);
@@ -2537,7 +2551,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a"
     var attackStep =
         assertGetLangAttackStep(
-            asset, "a", Lang.AttackStepType.ANY, false, false, false, false, new Lang.Meta());
+            asset, "a", Lang.AttackStepType.ANY, false, false, false, false, new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2617,7 +2631,7 @@ public class TestAllFeatures extends MalTest {
   private static void assertAssetA5(Lang lang) {
     var asset =
         assertGetLangAsset(
-            lang, "A5", false, "C2", "A4", new Lang.Meta().setAssumptions("None for A5"));
+            lang, "A5", false, "C2", "A4", Map.ofEntries(Map.entry("modeler", "None for A5")));
     // Check fields
     assertEquals(1, asset.getFields().size());
     assertLangField(asset, "a6", 0, Integer.MAX_VALUE);
@@ -2628,7 +2642,12 @@ public class TestAllFeatures extends MalTest {
   private static void assertAssetA6(Lang lang) {
     var asset =
         assertGetLangAsset(
-            lang, "A6", true, "C2", "A4", new Lang.Meta().setRationale("Reasoning for A6"));
+            lang,
+            "A6",
+            true,
+            "C2",
+            "A4",
+            Map.ofEntries(Map.entry("developer", "Reasoning for A6")));
     // Check fields
     assertEquals(2, asset.getFields().size());
     assertLangField(asset, "a5", 1, 1);
@@ -2638,7 +2657,7 @@ public class TestAllFeatures extends MalTest {
   }
 
   private static void assertAssetA7(Lang lang) {
-    var asset = assertGetLangAsset(lang, "A7", false, "C3", "A3", new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "A7", false, "C3", "A3", new HashMap<>());
     // Check fields
     assertEquals(1, asset.getFields().size());
     assertLangField(asset, "a1", 1, 1);
@@ -2655,7 +2674,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2741,7 +2760,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2754,7 +2773,7 @@ public class TestAllFeatures extends MalTest {
   }
 
   private static void assertAssetA8(Lang lang) {
-    var asset = assertGetLangAsset(lang, "A8", false, "C3", null, new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "A8", false, "C3", null, new HashMap<>());
     // Check fields
     assertEquals(4, asset.getFields().size());
     assertLangField(asset, "a1", 0, Integer.MAX_VALUE);
@@ -2767,7 +2786,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "destroy"
     var attackStep =
         assertGetLangAttackStep(
-            asset, "destroy", Lang.AttackStepType.ALL, false, false, false, false, new Lang.Meta());
+            asset, "destroy", Lang.AttackStepType.ALL, false, false, false, false, new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, true));
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Exponential(5)));
@@ -2856,7 +2875,7 @@ public class TestAllFeatures extends MalTest {
   }
 
   private static void assertAssetA9(Lang lang) {
-    var asset = assertGetLangAsset(lang, "A9", false, "C3", null, new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "A9", false, "C3", null, new HashMap<>());
     // Check fields
     assertEquals(0, asset.getFields().size());
     // Check attack steps
@@ -2865,13 +2884,13 @@ public class TestAllFeatures extends MalTest {
 
   private static void assertLinks(Lang lang) {
     assertEquals(8, lang.getLinks().size());
-    assertLangLink(lang, "A1", "a4", "A4", "a1", 0, "L1", new Lang.Meta());
-    assertLangLink(lang, "A5", "a6", "A6", "a5", 1, "L2", new Lang.Meta());
-    assertLangLink(lang, "A1", "a1Sub", "A1", "a1Super", 2, "L3", new Lang.Meta());
-    assertLangLink(lang, "A3", "a6", "A6", "a3", 3, "L3", new Lang.Meta());
-    assertLangLink(lang, "A7", "a1", "A1", "a7", 4, "L3", new Lang.Meta());
-    assertLangLink(lang, "A8", "a1", "A1", "a8", 5, "L4", new Lang.Meta());
-    assertLangLink(lang, "A8", "a4", "A4", "a8", 6, "L4", new Lang.Meta());
-    assertLangLink(lang, "A8", "a8Super", "A8", "a8Sub", 7, "L4", new Lang.Meta());
+    assertLangLink(lang, "A1", "a4", "A4", "a1", 0, "L1", new HashMap<>());
+    assertLangLink(lang, "A5", "a6", "A6", "a5", 1, "L2", new HashMap<>());
+    assertLangLink(lang, "A1", "a1Sub", "A1", "a1Super", 2, "L3", new HashMap<>());
+    assertLangLink(lang, "A3", "a6", "A6", "a3", 3, "L3", new HashMap<>());
+    assertLangLink(lang, "A7", "a1", "A1", "a7", 4, "L3", new HashMap<>());
+    assertLangLink(lang, "A8", "a1", "A1", "a8", 5, "L4", new HashMap<>());
+    assertLangLink(lang, "A8", "a4", "A4", "a8", 6, "L4", new HashMap<>());
+    assertLangLink(lang, "A8", "a8Super", "A8", "a8Sub", 7, "L4", new HashMap<>());
   }
 }

@@ -90,8 +90,6 @@ public class TestLexer extends MalTest {
     TokenType[] tokenTypes = {
       TokenType.INCLUDE,
       TokenType.INFO,
-      TokenType.ASSUMPTIONS,
-      TokenType.RATIONALE,
       TokenType.CATEGORY,
       TokenType.ABSTRACT,
       TokenType.ASSET,

@@ -219,15 +219,27 @@ public class Analyzer {
   }
 
   private void checkMeta(List<AST.Meta> lst) {
-    Map<AST.MetaType, AST.Meta> metas = new HashMap<>();
+    Map<String, AST.Meta> metas = new HashMap<>();
     for (AST.Meta meta : lst) {
-      if (!metas.containsKey(meta.type)) {
-        metas.put(meta.type, meta);
+      if (!metas.containsKey(meta.type.id)) {
+        switch (meta.type.id) {
+          case "user":
+          case "developer":
+          case "modeler":
+            metas.put(meta.type.id, meta);
+            break;
+          default:
+            error(
+                meta,
+                String.format(
+                    "Metadata type '%s' must be 'user', 'developer' or 'modeler'", meta.type.id));
+        }
       } else {
-        AST.Meta prevDef = metas.get(meta.type);
+        AST.Meta prevDef = metas.get(meta.type.id);
         error(
             meta,
-            String.format("Metadata %s previously defined at %s", meta.type, prevDef.posString()));
+            String.format(
+                "Metadata %s previously defined at %s", meta.type.id, prevDef.posString()));
       }
     }
   }

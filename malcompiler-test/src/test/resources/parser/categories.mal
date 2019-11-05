@@ -4,17 +4,17 @@ category C1 {
 }
 
 category C2
-  assumptions: "none"
+  modeler info: "none"
 {
   asset A3 extends A1 { }
   abstract asset A4 extends A2 { }
 }
 
 category C3
-  info: "this is first C3"
-  info: "another info"
-  rationale: "just to test"
-  assumptions: "will not run through the analyzer"
+  user info: "this is first C3"
+  user info: "another info"
+  developer info: "just to test"
+  modeler info: "will not run through the analyzer"
 {
 }
 

@@ -31,9 +31,9 @@ public class TestAnalyzer extends MalTest {
       "[ANALYZER ERROR] Missing required define '#version: \"\"'",
       "[ANALYZER ERROR] <bad1.mal:4:1> Define 'custom' previously defined at <bad1.mal:3:1>",
       "[ANALYZER WARNING] <bad1.mal:5:10> Category 'emp' contains no assets or metadata",
-      "[ANALYZER ERROR] <bad1.mal:11:3> Metadata 'info' previously defined at <bad1.mal:10:3>",
-      "[ANALYZER ERROR] <bad1.mal:12:3> Metadata 'rationale' previously defined at <bad1.mal:7:3>",
-      "[ANALYZER ERROR] <bad1.mal:16:5> Metadata 'rationale' previously defined at <bad1.mal:15:5>",
+      "[ANALYZER ERROR] <bad1.mal:11:3> Metadata user previously defined at <bad1.mal:10:3>",
+      "[ANALYZER ERROR] <bad1.mal:12:3> Metadata developer previously defined at <bad1.mal:7:3>",
+      "[ANALYZER ERROR] <bad1.mal:16:5> Metadata developer previously defined at <bad1.mal:15:5>",
       "[ANALYZER ERROR] <bad1.mal:20:8> Last step is not attack step",
       "[ANALYZER WARNING] <bad1.mal:21:7> Step 'c' defined as variable at <bad1.mal:19:11> and field at <bad1.mal:49:26>",
       "[ANALYZER ERROR] <bad1.mal:22:7> Attack step 'compromise' previously defined at <bad1.mal:18:7>",
@@ -54,7 +54,7 @@ public class TestAnalyzer extends MalTest {
       "[ANALYZER ERROR] <bad1.mal:43:7> Previous asset '_C' is not of type '_A'",
       "[ANALYZER ERROR] <bad1.mal:44:7> Defenses cannot have CIA classifications",
       "[ANALYZER ERROR] <bad1.mal:50:7> Field _A.a previously defined at <bad1.mal:50:26>",
-      "[ANALYZER ERROR] <bad1.mal:52:6> Metadata 'assumptions' previously defined at <bad1.mal:51:6>",
+      "[ANALYZER ERROR] <bad1.mal:52:6> Metadata modeler previously defined at <bad1.mal:51:6>",
       ""
     };
     assertErrLines(expected);

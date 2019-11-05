@@ -45,17 +45,17 @@ public final class AssertLang {
     return LangConverter.convert(ast);
   }
 
-  public static void assertLangMeta(Lang.Meta expected, Lang.Meta actual, String location) {
-    assertEquals(
-        expected.getInfo(), actual.getInfo(), String.format("Wrong info string at %s", location));
-    assertEquals(
-        expected.getAssumptions(),
-        actual.getAssumptions(),
-        String.format("Wrong assumptions string at %s", location));
-    assertEquals(
-        expected.getRationale(),
-        actual.getRationale(),
-        String.format("Wrong rationale string at %s", location));
+  public static void assertLangMeta(
+      Map<String, String> expected, Map<String, String> actual, String location) {
+    assertEquals(expected.size(), actual.size(), "Wrong number of metas");
+    for (var meta : expected.entrySet()) {
+      assertTrue(
+          actual.containsKey(meta.getKey()), String.format("Expected meta #%s", meta.getKey()));
+      assertEquals(
+          meta.getValue(),
+          actual.get(meta.getKey()),
+          String.format("Wrong value for meta #%s", meta.getKey()));
+    }
   }
 
   public static void assertLangDefines(Map<String, String> expected, Map<String, String> actual) {
@@ -72,7 +72,7 @@ public final class AssertLang {
   }
 
   public static void assertLangCategory(
-      Lang lang, String name, String[] expectedAssets, Lang.Meta meta) {
+      Lang lang, String name, String[] expectedAssets, Map<String, String> meta) {
     var categories = lang.getCategories();
     assertTrue(categories.containsKey(name), String.format("Expected category %s", name));
     var category = categories.get(name);
@@ -107,7 +107,7 @@ public final class AssertLang {
       boolean isAbstract,
       String category,
       String superAsset,
-      Lang.Meta meta) {
+      Map<String, String> meta) {
     var assets = lang.getAssets();
     assertTrue(assets.containsKey(name), String.format("Expected asset %s", name));
     var asset = assets.get(name);
@@ -176,7 +176,7 @@ public final class AssertLang {
       boolean isDefense,
       boolean isConditionalDefense,
       boolean hasParent,
-      Lang.Meta meta) {
+      Map<String, String> meta) {
     var attackSteps = asset.getAttackSteps();
     assertTrue(
         attackSteps.containsKey(name),
@@ -464,7 +464,7 @@ public final class AssertLang {
       String asset2Field,
       int idx,
       String name,
-      Lang.Meta meta) {
+      Map<String, String> meta) {
     var link = lang.getLinks().get(idx);
     var leftField = lang.getAsset(asset1).getField(asset1Field);
     var rightField = lang.getAsset(asset2).getField(asset2Field);
