@@ -313,7 +313,7 @@ public class Analyzer {
   private void checkSteps() {
     for (AST.Asset asset : assets.values()) {
       for (var attackStep : asset.attackSteps) {
-        if (attackStep.name.id.toLowerCase().equals(asset.name.id.toLowerCase())) {
+        if (attackStep.name.id.equalsIgnoreCase(asset.name.id)) {
           error(
               attackStep.name,
               String.format(
