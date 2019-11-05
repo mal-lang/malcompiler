@@ -312,15 +312,6 @@ public class Analyzer {
 
   private void checkSteps() {
     for (AST.Asset asset : assets.values()) {
-      for (var attackStep : asset.attackSteps) {
-        if (attackStep.name.id.equalsIgnoreCase(asset.name.id)) {
-          error(
-              attackStep.name,
-              String.format(
-                  "Attack step '%s' shares name with asset '%s' defined at %s",
-                  attackStep.name.id, asset.name.id, asset.name.posString()));
-        }
-      }
       Scope<AST.AttackStep> scope = new Scope<>();
       steps.put(asset.name.id, scope);
       readSteps(scope, asset);

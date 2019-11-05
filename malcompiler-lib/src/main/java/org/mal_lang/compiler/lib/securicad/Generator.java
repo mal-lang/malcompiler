@@ -114,6 +114,7 @@ public class Generator extends JavaGenerator {
 
     validateNames(this.lang, this.pkg);
     validateCategories();
+    checkSteps(this.lang);
   }
 
   private void validateCategories() throws CompilerException {

@@ -181,16 +181,4 @@ public class TestAnalyzer extends MalTest {
     };
     assertErrLines(expected);
   }
-
-  @Test
-  public void testNaming() {
-    assertAnalyzeClassPathError("analyzer/naming.mal");
-    assertEmptyOut();
-    String[] expected = {
-      "[ANALYZER ERROR] <naming.mal:5:7> Attack step 'a1' shares name with asset 'A1' defined at <naming.mal:4:9>",
-      "[ANALYZER ERROR] <naming.mal:9:7> Attack step 'A2' shares name with asset 'A2' defined at <naming.mal:7:9>",
-      ""
-    };
-    assertErrLines(expected);
-  }
 }

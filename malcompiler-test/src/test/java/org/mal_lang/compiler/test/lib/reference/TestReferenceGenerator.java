@@ -273,4 +273,14 @@ public class TestReferenceGenerator extends JavaGeneratorTest {
   public void testAttackStepSet() {
     assertLangGenerated("generator/attack-step-set.mal");
   }
+
+  @Test
+  public void testNaming() {
+    String[] expectedErrors = {
+      "[GENERATOR ERROR] Attack step 'a1' shares name with its asset 'A1'",
+      "[GENERATOR ERROR] Attack step 'A2' shares name with its asset 'A2'",
+      ""
+    };
+    assertLangNotGenerated("generator/naming.mal", expectedErrors);
+  }
 }

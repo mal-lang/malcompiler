@@ -1,6 +1,6 @@
 #id: "naming"
 #version: "1.0.0"
-category cat {
+category System {
   asset A1 {
     | a1
   }
