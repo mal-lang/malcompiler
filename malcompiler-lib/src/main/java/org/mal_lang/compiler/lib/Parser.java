@@ -29,7 +29,6 @@ public class Parser {
   private MalLogger LOGGER;
   private Lexer lex;
   private Token tok;
-  private Token nextTok;
   private Set<File> included;
   private File currentFile;
   private Path originPath;
@@ -96,12 +95,7 @@ public class Parser {
   };
 
   private void _next() throws CompilerException {
-    if (tok == null) {
-      tok = lex.next();
-    } else {
-      tok = nextTok;
-    }
-    nextTok = lex.next();
+    tok = lex.next();
   }
 
   private void _expect(TokenType type) throws CompilerException {
@@ -177,22 +171,23 @@ public class Parser {
     return new AST.Define(firstToken, key, value);
   }
 
-  // <meta> ::= ID INFO COLON STRING
-  private AST.Meta _parseMeta() throws CompilerException {
-    var firstToken = tok;
-
+  private AST.Meta _parseMeta1() throws CompilerException {
     var type = _parseID();
+    return _parseMeta2(type);
+  }
+
+  private AST.Meta _parseMeta2(AST.ID type) throws CompilerException {
     _expect(TokenType.INFO);
     _expect(TokenType.COLON);
     var value = _parseString();
-    return new AST.Meta(firstToken, type, value);
+    return new AST.Meta(type, type, value);
   }
 
-  // <meta>*
-  private List<AST.Meta> _parseMetaList() throws CompilerException {
+  // <meta1>*
+  private List<AST.Meta> _parseMeta1List() throws CompilerException {
     var meta = new ArrayList<AST.Meta>();
-    while (tok.type == TokenType.ID && nextTok.type == TokenType.INFO) {
-      meta.add(_parseMeta());
+    while (tok.type == TokenType.ID) {
+      meta.add(_parseMeta1());
     }
     return meta;
   }
@@ -243,17 +238,17 @@ public class Parser {
     }
   }
 
-  // <category> ::= CATEGORY ID <meta>* LCURLY <asset>* RCURLY
+  // <category> ::= CATEGORY ID <meta1>* LCURLY <asset>* RCURLY
   private AST.Category _parseCategory() throws CompilerException {
     var firstToken = tok;
 
     _expect(TokenType.CATEGORY);
     var name = _parseID();
-    var meta = _parseMetaList();
+    var meta = _parseMeta1List();
     if (tok.type == TokenType.LCURLY) {
       _next();
     } else {
-      throw exception(TokenType.INFO, TokenType.LCURLY);
+      throw exception(TokenType.ID, TokenType.LCURLY);
     }
     var assets = _parseAssetList();
     if (tok.type == TokenType.RCURLY) {
@@ -264,7 +259,8 @@ public class Parser {
     return new AST.Category(firstToken, name, meta, assets);
   }
 
-  // <asset> ::= ABSTRACT? ASSET ID (EXTENDS ID)? <meta>* LCURLY (<attackstep> | <variable>)* RCURLY
+  // <asset> ::= ABSTRACT? ASSET ID (EXTENDS ID)? <meta1>* LCURLY (<attackstep> | <variable>)*
+  // RCURLY
   private AST.Asset _parseAsset() throws CompilerException {
     var firstToken = tok;
 
@@ -280,7 +276,7 @@ public class Parser {
       _next();
       parent = Optional.of(_parseID());
     }
-    var meta = _parseMetaList();
+    var meta = _parseMeta1List();
     if (tok.type == TokenType.LCURLY) {
       _next();
     } else {
@@ -326,7 +322,7 @@ public class Parser {
     }
   }
 
-  // <attackstep> ::= <astype> ID <tag>* <cia>? <ttc>? <meta>* <existence>? <reaches>?
+  // <attackstep> ::= <astype> ID <tag>* <cia>? <ttc>? <meta1>* <existence>? <reaches>?
   private AST.AttackStep _parseAttackStep() throws CompilerException {
     var firstToken = tok;
 
@@ -344,7 +340,7 @@ public class Parser {
     if (tok.type == TokenType.LBRACKET) {
       ttc = _parseTTC();
     }
-    var meta = _parseMetaList();
+    var meta = _parseMeta1List();
     Optional<AST.Requires> requires = Optional.empty();
     if (tok.type == TokenType.REQUIRE) {
       requires = Optional.of(_parseExistence());
@@ -657,24 +653,40 @@ public class Parser {
     }
   }
 
-  // <associations> ::= ASSOCIATIONS LCURLY <association>* RCURLY
+  // <associations> ::= ASSOCIATIONS LCURLY <associations1>? RCURLY
   private List<AST.Association> _parseAssociations() throws CompilerException {
     _expect(TokenType.ASSOCIATIONS);
     _expect(TokenType.LCURLY);
-    var assocs = _parseAssociationList();
-    if (tok.type == TokenType.RCURLY) {
-      _next();
-    } else {
-      throw exception(TokenType.ID, TokenType.RCURLY);
+    List<AST.Association> assocs = new ArrayList<>();
+    if (tok.type == TokenType.ID) {
+      assocs = _parseAssociations1();
     }
+    _expect(TokenType.RCURLY);
     return assocs;
   }
 
-  // <association> ::= ID <type> <mult> LARROW ID RARROW <mult> <type> ID <meta>*
-  private AST.Association _parseAssociation() throws CompilerException {
-    var firstToken = tok;
-
+  // <associations1> ::= ID <association> (ID (<meta2> | <association>))*
+  private List<AST.Association> _parseAssociations1() throws CompilerException {
+    var assocs = new ArrayList<AST.Association>();
     var leftAsset = _parseID();
+    var assoc = _parseAssociation(leftAsset);
+    while (tok.type == TokenType.ID) {
+      var id = _parseID();
+      if (tok.type == TokenType.INFO) {
+        assoc.meta.add(_parseMeta2(id));
+      } else if (tok.type == TokenType.LBRACKET) {
+        assocs.add(assoc);
+        assoc = _parseAssociation(id);
+      } else {
+        throw exception(TokenType.INFO, TokenType.LBRACKET);
+      }
+    }
+    assocs.add(assoc);
+    return assocs;
+  }
+
+  // <association> ::= <type> <mult> LARROW ID RARROW <mult> <type> ID
+  private AST.Association _parseAssociation(AST.ID leftAsset) throws CompilerException {
     var leftField = _parseType();
     var leftMult = _parseMultiplicity();
     _expect(TokenType.LARROW);
@@ -683,9 +695,8 @@ public class Parser {
     var rightMult = _parseMultiplicity();
     var rightField = _parseType();
     var rightAsset = _parseID();
-    var meta = _parseMetaList();
     return new AST.Association(
-        firstToken,
+        leftAsset,
         leftAsset,
         leftField,
         leftMult,
@@ -693,16 +704,7 @@ public class Parser {
         rightMult,
         rightField,
         rightAsset,
-        meta);
-  }
-
-  // <association>*
-  private List<AST.Association> _parseAssociationList() throws CompilerException {
-    var assocs = new ArrayList<AST.Association>();
-    while (tok.type == TokenType.ID) {
-      assocs.add(_parseAssociation());
-    }
-    return assocs;
+        new ArrayList<>());
   }
 
   // <mult> ::= <mult-unit> (RANGE <mult-unit>)?

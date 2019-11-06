@@ -105,8 +105,8 @@ public class TestParserFail extends MalTest {
   public void testBadMeta() {
     assertSyntaxError(
         "parser/bad-meta1.mal",
-        new Position(BAD_META1_MAL, 2, 3),
-        "expected 'info' or '{', found identifier");
+        new Position(BAD_META1_MAL, 2, 8),
+        "expected 'info', found identifier");
     assertSyntaxError(
         "parser/bad-meta2.mal", new Position(BAD_META2_MAL, 2, 13), "expected ':', found '='");
     assertSyntaxError(
