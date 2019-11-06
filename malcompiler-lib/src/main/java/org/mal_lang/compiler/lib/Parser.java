@@ -171,11 +171,13 @@ public class Parser {
     return new AST.Define(firstToken, key, value);
   }
 
+  // <meta1> ::= ID <meta2>
   private AST.Meta _parseMeta1() throws CompilerException {
     var type = _parseID();
     return _parseMeta2(type);
   }
 
+  // <meta2> ::= INFO COLON STRING
   private AST.Meta _parseMeta2(AST.ID type) throws CompilerException {
     _expect(TokenType.INFO);
     _expect(TokenType.COLON);
@@ -259,8 +261,8 @@ public class Parser {
     return new AST.Category(firstToken, name, meta, assets);
   }
 
-  // <asset> ::= ABSTRACT? ASSET ID (EXTENDS ID)? <meta1>* LCURLY (<attackstep> | <variable>)*
-  // RCURLY
+  // <asset> ::=
+  //           ABSTRACT? ASSET ID (EXTENDS ID)? <meta1>* LCURLY (<attackstep> | <variable>)* RCURLY
   private AST.Asset _parseAsset() throws CompilerException {
     var firstToken = tok;
 
