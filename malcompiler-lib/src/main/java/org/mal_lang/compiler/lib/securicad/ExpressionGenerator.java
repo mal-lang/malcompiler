@@ -71,7 +71,7 @@ public class ExpressionGenerator extends JavaGenerator {
       end.addStatement("tmpCache.add($L)", end.prefix);
       af.build(builder);
     }
-    builder.addStatement("$N = Set.copyOf(tmpCache)", cacheName);
+    builder.addStatement("$N = $T.copyOf(tmpCache)", cacheName, set);
     builder.endControlFlow();
 
     builder.addStatement("return $N", cacheName);
