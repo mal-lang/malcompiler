@@ -94,16 +94,19 @@ public class AttackStepGenerator extends JavaGenerator {
       hasParentCache = true;
     }
 
-    if(hasChildCache || hasParentCache) {
+    if (hasChildCache || hasParentCache) {
       createClearCache(builder, hasChildCache, childCacheName, hasParentCache, parentCacheName);
     }
 
     parentBuilder.addType(builder.build());
   }
 
-  private void createClearCache(TypeSpec.Builder parentBuilder,
-                                boolean hasChildCache, String childCacheName,
-                                boolean hasParentCache, String parentCacheName) {
+  private void createClearCache(
+      TypeSpec.Builder parentBuilder,
+      boolean hasChildCache,
+      String childCacheName,
+      boolean hasParentCache,
+      String parentCacheName) {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
