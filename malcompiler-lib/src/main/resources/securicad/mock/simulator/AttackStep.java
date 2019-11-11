@@ -26,6 +26,8 @@ public abstract class AttackStep extends FClass implements ModelElement {
     return 0.0;
   }
 
+  public void clearGraphCache() { }
+
   @Override
   public void setEvidenceDistribution(FDistribution<?> evidence) {}
 

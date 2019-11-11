@@ -61,19 +61,20 @@ public class ExpressionGenerator extends JavaGenerator {
 
     builder.beginControlFlow("if ($N == null)", cacheName);
     if (attackStep.inheritsReaches()) {
-      builder.addStatement("$L = new $T<>(super.getAttackStepChildren())", cacheName, hashSet);
+      builder.addStatement("HashSet<AttackStep> tmpCache = new $T<>(super.getAttackStepChildren())", hashSet);
     } else {
-      builder.addStatement("$L = new $T<>()", cacheName, hashSet);
+      builder.addStatement("HashSet<AttackStep> tmpCache = new $T<>()", hashSet);
     }
     for (StepExpr expr : attackStep.getReaches()) {
       AutoFlow af = new AutoFlow();
       AutoFlow end = generate(af, expr, attackStep.getAsset(), "(null)");
-      end.addStatement("$L.add($L)", cacheName, end.prefix);
+      end.addStatement("tmpCache.add($L)", end.prefix);
       af.build(builder);
     }
+    builder.addCode("$N = Set.copyOf(tmpCache);\n", cacheName);
     builder.endControlFlow();
 
-    builder.addStatement("return new $T<>($L)", HashSet.class, cacheName);
+    builder.addStatement("return $N", cacheName);
     parentBuilder.addMethod(builder.build());
   }
 
