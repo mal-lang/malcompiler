@@ -61,10 +61,9 @@ public class ExpressionGenerator extends JavaGenerator {
 
     builder.beginControlFlow("if ($N == null)", cacheName);
     if (attackStep.inheritsReaches()) {
-      builder.addStatement(
-          "HashSet<AttackStep> tmpCache = new $T<>(super.getAttackStepChildren())", hashSet);
+      builder.addStatement("$T tmpCache = new $T<>(super.getAttackStepChildren())", asSet, hashSet);
     } else {
-      builder.addStatement("HashSet<AttackStep> tmpCache = new $T<>()", hashSet);
+      builder.addStatement("$T tmpCache = new $T<>()", asSet, hashSet);
     }
     for (StepExpr expr : attackStep.getReaches()) {
       AutoFlow af = new AutoFlow();
@@ -72,7 +71,7 @@ public class ExpressionGenerator extends JavaGenerator {
       end.addStatement("tmpCache.add($L)", end.prefix);
       af.build(builder);
     }
-    builder.addCode("$N = Set.copyOf(tmpCache);\n", cacheName);
+    builder.addStatement("$N = Set.copyOf(tmpCache);", cacheName);
     builder.endControlFlow();
 
     builder.addStatement("return $N", cacheName);
