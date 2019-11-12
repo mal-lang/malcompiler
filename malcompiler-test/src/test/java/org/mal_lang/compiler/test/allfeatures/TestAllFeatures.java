@@ -1899,14 +1899,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a1Defense2"
     attackStep =
         assertGetLangAttackStep(
-            asset,
-            "a1Defense2",
-            Lang.AttackStepType.DEFENSE,
-            false,
-            true,
-            false,
-            false,
-            Map.of());
+            asset, "a1Defense2", Lang.AttackStepType.DEFENSE, false, true, false, false, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Disabled()));
@@ -1928,14 +1921,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a1Exist1"
     attackStep =
         assertGetLangAttackStep(
-            asset,
-            "a1Exist1",
-            Lang.AttackStepType.EXIST,
-            false,
-            false,
-            true,
-            false,
-            Map.of());
+            asset, "a1Exist1", Lang.AttackStepType.EXIST, false, false, true, false, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2193,14 +2179,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a1Attack1"
     var attackStep =
         assertGetLangAttackStep(
-            asset,
-            "a1Attack1",
-            Lang.AttackStepType.ANY,
-            false,
-            false,
-            false,
-            true,
-            Map.of());
+            asset, "a1Attack1", Lang.AttackStepType.ANY, false, false, false, true, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(false, false, false));
     assertLangTTC(attackStep, null);
@@ -2291,14 +2270,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a1Defense1"
     attackStep =
         assertGetLangAttackStep(
-            asset,
-            "a1Defense1",
-            Lang.AttackStepType.DEFENSE,
-            false,
-            true,
-            false,
-            true,
-            Map.of());
+            asset, "a1Defense1", Lang.AttackStepType.DEFENSE, false, true, false, true, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Enabled()));
@@ -2350,14 +2322,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a1Defense2"
     attackStep =
         assertGetLangAttackStep(
-            asset,
-            "a1Defense2",
-            Lang.AttackStepType.DEFENSE,
-            true,
-            true,
-            false,
-            true,
-            Map.of());
+            asset, "a1Defense2", Lang.AttackStepType.DEFENSE, true, true, false, true, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2387,14 +2352,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a1Exist2"
     attackStep =
         assertGetLangAttackStep(
-            asset,
-            "a1Exist2",
-            Lang.AttackStepType.EXIST,
-            false,
-            false,
-            true,
-            true,
-            Map.of());
+            asset, "a1Exist2", Lang.AttackStepType.EXIST, false, false, true, true, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2426,14 +2384,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a1NotExist1"
     attackStep =
         assertGetLangAttackStep(
-            asset,
-            "a1NotExist1",
-            Lang.AttackStepType.NOTEXIST,
-            true,
-            false,
-            true,
-            true,
-            Map.of());
+            asset, "a1NotExist1", Lang.AttackStepType.NOTEXIST, true, false, true, true, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2476,14 +2427,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a3Attack"
     var attackStep =
         assertGetLangAttackStep(
-            asset,
-            "a3Attack",
-            Lang.AttackStepType.ANY,
-            false,
-            false,
-            false,
-            false,
-            Map.of());
+            asset, "a3Attack", Lang.AttackStepType.ANY, false, false, false, false, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, true));
     assertLangTTC(attackStep, null);
@@ -2666,14 +2610,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a7Attack"
     var attackStep =
         assertGetLangAttackStep(
-            asset,
-            "a7Attack",
-            Lang.AttackStepType.ANY,
-            false,
-            false,
-            false,
-            false,
-            Map.of());
+            asset, "a7Attack", Lang.AttackStepType.ANY, false, false, false, false, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2752,14 +2689,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "otherAttack"
     attackStep =
         assertGetLangAttackStep(
-            asset,
-            "otherAttack",
-            Lang.AttackStepType.ANY,
-            false,
-            false,
-            false,
-            false,
-            Map.of());
+            asset, "otherAttack", Lang.AttackStepType.ANY, false, false, false, false, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);

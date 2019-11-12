@@ -112,9 +112,36 @@ public class Generator extends JavaGenerator {
       }
     }
 
+    removeDebugSteps(this.lang);
     validateNames(this.lang, this.pkg);
     validateCategories();
     checkSteps(this.lang);
+  }
+
+  private static Lang.AttackStep getTargetStep(Lang.StepExpr expr) {
+    if (expr instanceof Lang.StepAttackStep) {
+      return ((Lang.StepAttackStep) expr).attackStep;
+    } else if (expr instanceof Lang.StepCollect) {
+      return getTargetStep(((Lang.StepCollect) expr).rhs);
+    }
+    throw new RuntimeException("Invalid step expression");
+  }
+
+  private static void removeDebugSteps(Lang lang) {
+    for (var asset : lang.getAssets().values()) {
+      for (var attackStep : asset.getAttackSteps().values()) {
+        if (attackStep.hasInheritedTag("debug")) {
+          asset.removeAttackStep(attackStep);
+        } else {
+          for (var reaches : attackStep.getReaches()) {
+            var targetStep = getTargetStep(reaches);
+            if (targetStep.hasInheritedTag("debug")) {
+              attackStep.removeReaches(reaches);
+            }
+          }
+        }
+      }
+    }
   }
 
   private void validateCategories() throws CompilerException {
