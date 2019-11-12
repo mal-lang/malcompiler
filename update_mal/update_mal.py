@@ -224,8 +224,17 @@ class MalUpdater():
                     self.write('E')
                     if self.in_asset:
                         self.in_attackstep = True
-                elif identifier == 'info' or identifier == 'rationale' or identifier == 'assumptions':
-                    self.write(identifier)
+                elif identifier == 'info':
+                    # Keyword 'info' has changed to 'user info'
+                    self.write('user info')
+                    self.in_attackstep = False
+                elif identifier == 'rationale':
+                    # Keyword 'rationale' has changed to 'developer info'
+                    self.write('developer info')
+                    self.in_attackstep = False
+                elif identifier == 'assumptions':
+                    # Keyword 'assumptions' has changed to 'modeler info'
+                    self.write('modeler info')
                     self.in_attackstep = False
                 elif identifier == 'include':
                     self.write('include')

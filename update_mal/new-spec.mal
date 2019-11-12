@@ -14,7 +14,7 @@ category C1 {
 }
 
 category C2
-  info: "info"
+  user info: "info"
 {
   asset A1 {
     & At1
@@ -25,7 +25,7 @@ category C2
   }
 
   asset A2
-    info: "info"
+    user info: "info"
   {
     & At1 [Bernoulli(0.7)]
     & At2 [Binomial(0.5, 0.6)]
@@ -41,26 +41,26 @@ category C2
   }
 
   asset A3
-    rationale: "rationale"
+    developer info: "rationale"
   {
     & At1
     & At2
-      info: "info"
+      user info: "info"
     & At3
-      rationale: "rationale"
+      developer info: "rationale"
     & At4
-      assumptions: "assumptions"
+      modeler info: "assumptions"
     & At5
-      info: "info"
-      assumptions: "assumptions"
+      user info: "info"
+      modeler info: "assumptions"
     & At6
-      info: "info"
-      rationale: "rationale"
-      assumptions: "assumptions"
+      user info: "info"
+      developer info: "rationale"
+      modeler info: "assumptions"
   }
 
   asset A4
-    assumptions: "assumptions"
+    modeler info: "assumptions"
   {
     & A1
       <- A
@@ -69,8 +69,8 @@ category C2
   }
 
   asset A5
-    info: "info"
-    assumptions: "assumptions"
+    user info: "info"
+    modeler info: "assumptions"
   {
     & A1
       -> let v1 = a,
@@ -88,39 +88,39 @@ category C2
   }
 
   asset A6
-    info: "info"
-    rationale: "rationale"
-    assumptions: "assumptions"
+    user info: "info"
+    developer info: "rationale"
+    modeler info: "assumptions"
   {
   }
 }
 
 category C3
-  rationale: "rationale"
+  developer info: "rationale"
 {
   asset A1 extends A1 {
   }
 }
 
 category C4
-  assumptions: "assumptions"
+  modeler info: "assumptions"
 {
   abstract asset A1 {
   }
 }
 
 category C5
-  info: "info"
-  assumptions: "assumptions"
+  user info: "info"
+  modeler info: "assumptions"
 {
   asset distribution {
   }
 }
 
 category C6
-  info: "info"
-  rationale: "rationale"
-  assumptions: "assumptions"
+  user info: "info"
+  developer info: "rationale"
+  modeler info: "assumptions"
 {
 }
 
@@ -131,18 +131,18 @@ associations {
 
 assocations {
   A  [a]  1   <-- A  --> 1   [a]  A
-    info: "info"
+    user info: "info"
   A  [a]  1   <-- A  --> 1   [a]  A
-    rationale: "rationale"
+    developer info: "rationale"
   A  [a]  1   <-- A  --> 1   [a]  A
-    assumptions: "assumptions"
+    modeler info: "assumptions"
   A  [a]  1   <-- A  --> 1   [a]  A
-    info: "info"
-    assumptions: "assumptions"
+    user info: "info"
+    modeler info: "assumptions"
   A  [a]  1   <-- A  --> 1   [a]  A
-    info: "info"
-    rationale: "rationale"
-    assumptions: "assumptions"
+    user info: "info"
+    developer info: "rationale"
+    modeler info: "assumptions"
 }
 
 // Comment
