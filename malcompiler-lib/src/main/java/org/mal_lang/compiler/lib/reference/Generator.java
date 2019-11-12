@@ -31,6 +31,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -53,6 +54,7 @@ import org.mal_lang.compiler.lib.Lang.StepField;
 import org.mal_lang.compiler.lib.Lang.StepIntersection;
 import org.mal_lang.compiler.lib.Lang.StepTransitive;
 import org.mal_lang.compiler.lib.Lang.StepUnion;
+import org.mal_lang.compiler.lib.Lang.StepVar;
 import org.mal_lang.compiler.lib.Lang.TTCExpr;
 import org.mal_lang.compiler.lib.Lang.TTCFunc;
 
@@ -272,7 +274,15 @@ public class Generator extends JavaGenerator {
         // Create new instance of attack step
         constructor.addStatement("$N = new $T(name)", attackStep.getName(), type);
       }
-      builder.addType(createAttackStep(attackStep).build());
+      Map<String, MethodSpec> variables = new LinkedHashMap<>();
+      createAttackStep(builder, attackStep, variables);
+
+      // Create the functions for variables (and sets) defined for the asset
+      for (var variable : variables.entrySet()) {
+        MethodSpec method = variable.getValue();
+        builder.addField(method.returnType, variable.getKey(), Modifier.PRIVATE);
+        builder.addMethod(method);
+      }
     }
     // Add all parameters as booleans to constructor
     for (String param : params) {
@@ -368,7 +378,11 @@ public class Generator extends JavaGenerator {
     return builder.build();
   }
 
-  private MethodSpec.Builder createUpdateChildren(AttackStep attackStep, String cacheName) {
+  private void createUpdateChildren(
+      TypeSpec.Builder parentBuilder,
+      AttackStep attackStep,
+      String cacheName,
+      Map<String, MethodSpec> assetVariables) {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("updateChildren");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
@@ -380,21 +394,29 @@ public class Generator extends JavaGenerator {
       builder.addStatement("super.updateChildren(attackSteps)");
     }
 
+    Map<String, MethodSpec> variables = new LinkedHashMap<>();
     builder.beginControlFlow("if ($N == null)", cacheName);
     builder.addStatement("$N = new $T<>()", cacheName, HashSet.class);
     for (StepExpr expr : attackStep.getReaches()) {
       AutoFlow af = new AutoFlow();
-      AutoFlow end = createExpr(af, expr, attackStep.getAsset());
+      AutoFlow end = createExpr(af, expr, attackStep.getAsset(), assetVariables, variables);
       end.addStatement("$N.add($N)", cacheName, end.prefix);
       af.build(builder);
     }
     builder.endControlFlow();
 
+    // Create the functions for variables (and sets), this may be for attackSteps or defenses
+    for (var variable : variables.entrySet()) {
+      MethodSpec method = variable.getValue();
+      parentBuilder.addField(method.returnType, variable.getKey(), Modifier.PRIVATE);
+      parentBuilder.addMethod(method);
+    }
+
     builder.beginControlFlow("for($T attackStep : $N)", as, cacheName);
     builder.addStatement("attackStep.updateTtc(this, ttc, attackSteps)");
     builder.endControlFlow();
 
-    return builder;
+    parentBuilder.addMethod(builder.build());
   }
 
   private MethodSpec.Builder createSetExpectedParents(AttackStep attackStep, String cacheName) {
@@ -407,7 +429,7 @@ public class Generator extends JavaGenerator {
     builder.addStatement("$N = new $T<>()", cacheName, HashSet.class);
     for (StepExpr expr : attackStep.getParentSteps()) {
       AutoFlow af = new AutoFlow();
-      AutoFlow end = createExpr(af, expr, attackStep.getAsset());
+      AutoFlow end = createExpr(af, expr, attackStep.getAsset(), Map.of(), Map.of());
       end.addStatement("$N.add($N)", cacheName, end.prefix);
       af.build(builder);
     }
@@ -439,7 +461,7 @@ public class Generator extends JavaGenerator {
     return builder;
   }
 
-  private TypeSpec.Builder createDisable(AttackStep attackStep) {
+  private TypeSpec.Builder createDisable(AttackStep attackStep, Map<String, MethodSpec> variables) {
     TypeSpec.Builder builder = TypeSpec.classBuilder("Disable");
     builder.addModifiers(Modifier.PUBLIC);
     if (attackStep.hasParent()) {
@@ -460,7 +482,7 @@ public class Generator extends JavaGenerator {
     if (!attackStep.getReaches().isEmpty()) {
       String name = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
       createSetField(builder, name);
-      builder.addMethod(createUpdateChildren(attackStep, name).build());
+      createUpdateChildren(builder, attackStep, name, variables);
     }
     if (!attackStep.getParentSteps().isEmpty()) {
       String name = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
@@ -505,7 +527,8 @@ public class Generator extends JavaGenerator {
     builder.addMethod(constructor.build());
   }
 
-  private void createConditionalDefense(TypeSpec.Builder builder, AttackStep attackStep) {
+  private void createConditionalDefense(
+      TypeSpec.Builder builder, AttackStep attackStep, Map<String, MethodSpec> assetVariables) {
     LOGGER.debug(String.format("Creating conditional defense '%s'", ucFirst(attackStep.getName())));
     // Conditional defense constructor with only (name)
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder();
@@ -523,10 +546,13 @@ public class Generator extends JavaGenerator {
     method.addAnnotation(Override.class);
     method.addModifiers(Modifier.PUBLIC);
     method.returns(boolean.class);
+    Map<String, MethodSpec> variables = new LinkedHashMap<>();
     if (attackStep.getType() == AttackStepType.EXIST) {
+      // something
       for (StepExpr expr : attackStep.getRequires()) {
         AutoFlow af = new AutoFlow();
-        AutoFlow end = createExpr(af, expr, attackStep.getAsset());
+        // TODO FIX
+        AutoFlow end = createExpr(af, expr, attackStep.getAsset(), assetVariables, variables);
         end.addStatement("return false");
         af.build(method);
       }
@@ -535,7 +561,7 @@ public class Generator extends JavaGenerator {
       method.addStatement("int count = $L", attackStep.getRequires().size());
       for (StepExpr expr : attackStep.getRequires()) {
         AutoFlow af = new AutoFlow();
-        AutoFlow end = createExpr(af, expr, attackStep.getAsset());
+        AutoFlow end = createExpr(af, expr, attackStep.getAsset(), assetVariables, variables);
         end.addStatement("count--");
         if (end.isLoop()) {
           end.addStatement("break");
@@ -544,10 +570,19 @@ public class Generator extends JavaGenerator {
       }
       method.addStatement("return count == 0");
     }
+
+    // create variables used as requires
+    for (var variable : variables.entrySet()) {
+      MethodSpec varMethod = variable.getValue();
+      builder.addField(varMethod.returnType, variable.getKey(), Modifier.PRIVATE);
+      builder.addMethod(varMethod);
+    }
+
     builder.addMethod(method.build());
   }
 
-  private TypeSpec.Builder createAttackStep(AttackStep attackStep) {
+  private void createAttackStep(
+      TypeSpec.Builder parentBuilder, AttackStep attackStep, Map<String, MethodSpec> variables) {
     Name.reset();
     TypeSpec.Builder builder = TypeSpec.classBuilder(ucFirst(attackStep.getName()));
     builder.addModifiers(Modifier.PUBLIC);
@@ -561,10 +596,10 @@ public class Generator extends JavaGenerator {
 
     if (attackStep.isDefense()) {
       createDefense(builder, attackStep);
-      builder.addType(createDisable(attackStep).build());
+      builder.addType(createDisable(attackStep, variables).build());
     } else if (attackStep.isConditionalDefense()) {
-      createConditionalDefense(builder, attackStep);
-      builder.addType(createDisable(attackStep).build());
+      createConditionalDefense(builder, attackStep, variables);
+      builder.addType(createDisable(attackStep, variables).build());
     } else {
       LOGGER.debug(String.format("Creating attack step '%s'", ucFirst(attackStep.getName())));
       // Attack step constructor with only (name)
@@ -577,8 +612,9 @@ public class Generator extends JavaGenerator {
       if (!attackStep.getReaches().isEmpty()) {
         String name = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
         createSetField(builder, name);
-        builder.addMethod(createUpdateChildren(attackStep, name).build());
+        createUpdateChildren(builder, attackStep, name, variables);
       }
+
       if (!attackStep.getParentSteps().isEmpty()) {
         String name = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
         createSetField(builder, name);
@@ -588,7 +624,7 @@ public class Generator extends JavaGenerator {
           createLocalTtc(attackStep.getAsset().getName(), attackStep.getName()).build());
     }
 
-    return builder;
+    parentBuilder.addType(builder.build());
   }
 
   /**
@@ -632,7 +668,12 @@ public class Generator extends JavaGenerator {
     }
   }
 
-  private AutoFlow createStepTransitive(AutoFlow af, StepTransitive expr, Asset asset) {
+  private AutoFlow createStepTransitive(
+      AutoFlow af,
+      StepTransitive expr,
+      Asset asset,
+      Map<String, MethodSpec> assetVariables,
+      Map<String, MethodSpec> variables) {
     ClassName targetType = ClassName.get(pkg, expr.target.getName());
     ClassName list = ClassName.get(List.class);
     ClassName arrayList = ClassName.get(ArrayList.class);
@@ -659,14 +700,19 @@ public class Generator extends JavaGenerator {
     String name3 = Name.get();
     AutoFlow naf = af.addStatement(new AutoFlow(name3, true, "while (!$N.isEmpty())", name2));
     naf.addStatement("$T $N = $N.remove(0)", targetType, name3, name2);
-    AutoFlow deep = createExpr(naf, expr.e, asset);
+    AutoFlow deep = createExpr(naf, expr.e, asset, assetVariables, variables);
     deep.addStatement("$N.add($N)", name1, deep.prefix);
     deep.addStatement("$N.add($N)", name2, deep.prefix);
     String name4 = Name.get();
     return af.addStatement(new AutoFlow(name4, true, "for ($T $N : $N)", targetType, name4, name1));
   }
 
-  private AutoFlow createStepSet(AutoFlow af, StepExpr expr, Asset asset) {
+  private AutoFlow createStepSet(
+      AutoFlow af,
+      StepExpr expr,
+      Asset asset,
+      Map<String, MethodSpec> assetVariables,
+      Map<String, MethodSpec> variables) {
     StepBinOp binop = (StepBinOp) expr;
     String targetName = binop.target.getName();
     ClassName targetType = ClassName.get(pkg, targetName);
@@ -678,9 +724,9 @@ public class Generator extends JavaGenerator {
     af.addStatement("$T $N = new $T<>()", targetSet, name1, hashSet);
     af.addStatement("$T $N = new $T<>()", targetSet, name2, hashSet);
 
-    AutoFlow deep1 = createExpr(af, binop.lhs, asset);
+    AutoFlow deep1 = createExpr(af, binop.lhs, asset, assetVariables, variables);
     deep1.addStatement("$N.add($N)", name1, deep1.prefix);
-    AutoFlow deep2 = createExpr(af, binop.rhs, asset);
+    AutoFlow deep2 = createExpr(af, binop.rhs, asset, assetVariables, variables);
     deep2.addStatement("$N.add($N)", name2, deep2.prefix);
 
     if (expr instanceof StepUnion) {
@@ -705,6 +751,42 @@ public class Generator extends JavaGenerator {
     return af.addStatement(new AutoFlow(name));
   }
 
+  private AutoFlow createStepVar(
+      AutoFlow af,
+      StepVar expr,
+      Asset asset,
+      Map<String, MethodSpec> assetVariables,
+      Map<String, MethodSpec> variables) {
+    String setName = String.format("_cache%s%s", expr.name, expr.inAsset ? "Asset" : "");
+    String methodName = String.format("_%s", expr.name);
+
+    MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName);
+    builder.addModifiers(Modifier.PRIVATE);
+    ClassName targetType = ClassName.get(pkg, expr.e.subTarget.getName());
+    ClassName set = ClassName.get(Set.class);
+    TypeName targetSet = ParameterizedTypeName.get(set, targetType);
+    ClassName hashSet = ClassName.get(HashSet.class);
+    builder.returns(targetSet);
+
+    builder.beginControlFlow("if ($N == null)", setName);
+    builder.addStatement("$N = new $T<>()", setName, hashSet);
+    AutoFlow varFlow = new AutoFlow();
+    AutoFlow end = createExpr(varFlow, expr.e, asset, assetVariables, variables);
+    end.addStatement("$N.add($N)", setName, end.prefix);
+    varFlow.build(builder);
+    builder.endControlFlow();
+    builder.addStatement("return $N", setName);
+
+    if (expr.inAsset) {
+      assetVariables.put(setName, builder.build());
+    } else {
+      variables.put(setName, builder.build());
+    }
+
+    String prefix = Name.get();
+    return af.addStatement(new AutoFlow(prefix, true, "for (var $N : $N())", prefix, methodName));
+  }
+
   private AutoFlow subType(AutoFlow af, Asset source, Asset subSource, Asset asset) {
     if (source != null && subSource != null && !source.equals(subSource)) {
       ClassName type = ClassName.get(pkg, subSource.getName());
@@ -721,23 +803,30 @@ public class Generator extends JavaGenerator {
     return af;
   }
 
-  private AutoFlow createExpr(AutoFlow af, StepExpr expr, Asset asset) {
+  private AutoFlow createExpr(
+      AutoFlow af,
+      StepExpr expr,
+      Asset asset,
+      Map<String, MethodSpec> assetVariables,
+      Map<String, MethodSpec> variables) {
     if (!af.hasPrefix()) {
       af = subType(af, expr.src, expr.subSrc, asset);
     }
     if (expr instanceof StepCollect) {
-      af = createExpr(af, ((StepCollect) expr).lhs, asset);
-      af = createExpr(af, ((StepCollect) expr).rhs, asset);
+      af = createExpr(af, ((StepCollect) expr).lhs, asset, assetVariables, variables);
+      af = createExpr(af, ((StepCollect) expr).rhs, asset, assetVariables, variables);
     } else if (expr instanceof StepField) {
       af = createStepField(af, (StepField) expr);
     } else if (expr instanceof StepTransitive) {
-      af = createStepTransitive(af, (StepTransitive) expr, asset);
+      af = createStepTransitive(af, (StepTransitive) expr, asset, assetVariables, variables);
     } else if (expr instanceof StepUnion
         || expr instanceof StepIntersection
         || expr instanceof StepDifference) {
-      af = createStepSet(af, expr, asset);
+      af = createStepSet(af, expr, asset, assetVariables, variables);
     } else if (expr instanceof StepAttackStep) {
       af = createStepAttackStep(af, (StepAttackStep) expr);
+    } else if (expr instanceof StepVar) {
+      af = createStepVar(af, (StepVar) expr, asset, assetVariables, variables);
     } else {
       throw new RuntimeException(String.format("unknown expression '%s'", expr));
     }

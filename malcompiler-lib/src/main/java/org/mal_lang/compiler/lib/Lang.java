@@ -586,4 +586,24 @@ public class Lang {
       this.attackStep = attackStep;
     }
   }
+
+  public static class StepVar extends StepExpr {
+    public final StepExpr e;
+    public final String name;
+    public final boolean inAsset;
+
+    public StepVar(
+        Asset subSrc,
+        Asset src,
+        Asset target,
+        Asset subTarget,
+        StepExpr e,
+        String name,
+        boolean inAsset) {
+      super(subSrc, src, target, subTarget);
+      this.e = e;
+      this.name = name;
+      this.inAsset = inAsset;
+    }
+  }
 }

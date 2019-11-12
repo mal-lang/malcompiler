@@ -420,12 +420,42 @@ public class LangConverter {
     } else if (expr instanceof AST.IDExpr) {
       var idExpr = (AST.IDExpr) expr;
       if (attackStepVars.containsKey(idExpr.id.id)) {
-        return _convertExprToAsset(
-            attackStepVars.get(idExpr.id.id), asset, assets, assetVars, attackStepVars, subTarget);
+        //        return _convertExprToAsset(
+        //            attackStepVars.get(idExpr.id.id), asset, assets, assetVars, attackStepVars,
+        // subTarget);
+        var varExpr =
+            _convertExprToAsset(
+                attackStepVars.get(idExpr.id.id),
+                asset,
+                assets,
+                assetVars,
+                attackStepVars,
+                subTarget);
+        return new Lang.StepVar(
+            varExpr.subSrc,
+            varExpr.src,
+            varExpr.target,
+            varExpr.subTarget,
+            varExpr,
+            idExpr.id.id,
+            false);
       }
+      // TODO: separate asset and attackstep vars, we can override variables in different scopes
       if (assetVars.containsKey(idExpr.id.id)) {
-        return _convertExprToAsset(
-            assetVars.get(idExpr.id.id), asset, assets, assetVars, new HashMap<>(), subTarget);
+        //        return _convertExprToAsset(
+        //            assetVars.get(idExpr.id.id), asset, assets, assetVars, new HashMap<>(),
+        // subTarget);
+        var varExpr =
+            _convertExprToAsset(
+                assetVars.get(idExpr.id.id), asset, assets, assetVars, new HashMap<>(), subTarget);
+        return new Lang.StepVar(
+            varExpr.subSrc,
+            varExpr.src,
+            varExpr.target,
+            varExpr.subTarget,
+            varExpr,
+            idExpr.id.id,
+            true);
       }
       var field = asset.getField(idExpr.id.id);
       var target = field.getTarget().getAsset();
@@ -557,6 +587,9 @@ public class LangConverter {
           step.src,
           step.subSrc,
           stepField.field.getTarget());
+    } else if (step instanceof Lang.StepVar) {
+      var stepVar = (Lang.StepVar) step;
+      return reverseStep(stepVar.e, src);
     }
     throw new RuntimeException("reverseStep: Invalid Lang.StepExpr subtype");
   }

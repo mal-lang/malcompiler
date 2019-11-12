@@ -685,7 +685,7 @@ public class Analyzer {
       }
     } else if (expr instanceof AST.StepExpr) {
       AST.StepExpr step = (AST.StepExpr) expr;
-      AST.Asset target = checkToAsset(asset, step.lhs, scope);
+      AST.Asset target = checkToAsset(asset, step.lhs, scope, true);
       if (target != null) {
         return checkToStep(target, step.rhs, scope);
       } else {
@@ -698,18 +698,23 @@ public class Analyzer {
   }
 
   private AST.Asset checkToAsset(AST.Asset asset, AST.Expr expr, Scope<AST.Variable> scope) {
+    return checkToAsset(asset, expr, scope, false);
+  }
+
+  private AST.Asset checkToAsset(
+      AST.Asset asset, AST.Expr expr, Scope<AST.Variable> scope, boolean first) {
     if (expr instanceof AST.StepExpr) {
-      return checkStepExpr(asset, (AST.StepExpr) expr, scope);
+      return checkStepExpr(asset, (AST.StepExpr) expr, scope, first);
     } else if (expr instanceof AST.IDExpr) {
-      return checkIDExpr(asset, (AST.IDExpr) expr, scope);
+      return checkIDExpr(asset, (AST.IDExpr) expr, scope, first);
     } else if (expr instanceof AST.IntersectionExpr
         || expr instanceof AST.UnionExpr
         || expr instanceof AST.DifferenceExpr) {
-      return checkSetExpr(asset, (AST.BinaryExpr) expr, scope);
+      return checkSetExpr(asset, (AST.BinaryExpr) expr, scope, first);
     } else if (expr instanceof AST.TransitiveExpr) {
-      return checkTransitiveExpr(asset, (AST.TransitiveExpr) expr, scope);
+      return checkTransitiveExpr(asset, (AST.TransitiveExpr) expr, scope, first);
     } else if (expr instanceof AST.SubTypeExpr) {
-      return checkSubTypeExpr(asset, (AST.SubTypeExpr) expr, scope);
+      return checkSubTypeExpr(asset, (AST.SubTypeExpr) expr, scope, first);
     } else {
       error(expr, String.format("Unexpected expression '%s'", expr.toString()));
       System.exit(1);
@@ -717,8 +722,9 @@ public class Analyzer {
     }
   }
 
-  private AST.Asset checkStepExpr(AST.Asset asset, AST.StepExpr expr, Scope<AST.Variable> scope) {
-    AST.Asset leftTarget = checkToAsset(asset, expr.lhs, scope);
+  private AST.Asset checkStepExpr(
+      AST.Asset asset, AST.StepExpr expr, Scope<AST.Variable> scope, boolean first) {
+    AST.Asset leftTarget = checkToAsset(asset, expr.lhs, scope, first);
     if (leftTarget != null) {
       AST.Asset rightTarget = checkToAsset(leftTarget, expr.rhs, scope);
       return rightTarget;
@@ -758,9 +764,12 @@ public class Analyzer {
   }
 
   private AST.Asset variableToAsset(
-      AST.Asset asset, AST.Variable variable, Scope<AST.Variable> scope) {
+      AST.Asset asset, AST.Variable variable, Scope<AST.Variable> scope, boolean first) {
     if (evalVariableBegin(variable)) {
-      AST.Asset res = checkToAsset(asset, variable.expr, scope);
+      if (!first) {
+        error(variable.name, "VARIABLE NOT FIRST");
+      }
+      AST.Asset res = checkToAsset(asset, variable.expr, scope, first);
       evalVariableEnd(variable);
       return res;
     } else {
@@ -768,7 +777,8 @@ public class Analyzer {
     }
   }
 
-  private AST.Asset checkIDExpr(AST.Asset asset, AST.IDExpr expr, Scope<AST.Variable> scope) {
+  private AST.Asset checkIDExpr(
+      AST.Asset asset, AST.IDExpr expr, Scope<AST.Variable> scope, boolean first) {
     var variableScope = scope.getScopeFor(expr.id.id);
     var variable = variableScope == null ? null : variableScope.look(expr.id.id);
     AST.ID target = hasTarget(asset, expr.id.id);
@@ -779,19 +789,20 @@ public class Analyzer {
           String.format(
               "Step '%s' defined as variable at %s and field at %s",
               expr.id.id, variable.name.posString(), target.posString()));
-      return variableToAsset(asset, variable, variableScope);
+      return variableToAsset(asset, variable, variableScope, first);
     } else if (variable != null) {
       // ID defined as variable only
-      return variableToAsset(asset, variable, variableScope);
+      return variableToAsset(asset, variable, variableScope, first);
     } else {
       // ID defined as target (or invalid, getTarget() will print error)
       return getTarget(asset, expr.id);
     }
   }
 
-  private AST.Asset checkSetExpr(AST.Asset asset, AST.BinaryExpr expr, Scope<AST.Variable> scope) {
-    AST.Asset leftTarget = checkToAsset(asset, expr.lhs, scope);
-    AST.Asset rightTarget = checkToAsset(asset, expr.rhs, scope);
+  private AST.Asset checkSetExpr(
+      AST.Asset asset, AST.BinaryExpr expr, Scope<AST.Variable> scope, boolean first) {
+    AST.Asset leftTarget = checkToAsset(asset, expr.lhs, scope, first);
+    AST.Asset rightTarget = checkToAsset(asset, expr.rhs, scope, first);
     if (leftTarget == null || rightTarget == null) {
       return null;
     }
@@ -809,8 +820,8 @@ public class Analyzer {
   }
 
   private AST.Asset checkTransitiveExpr(
-      AST.Asset asset, AST.TransitiveExpr expr, Scope<AST.Variable> scope) {
-    AST.Asset res = checkToAsset(asset, expr.e, scope);
+      AST.Asset asset, AST.TransitiveExpr expr, Scope<AST.Variable> scope, boolean first) {
+    AST.Asset res = checkToAsset(asset, expr.e, scope, first);
     if (res == null) {
       return null;
     }
@@ -825,8 +836,8 @@ public class Analyzer {
   }
 
   private AST.Asset checkSubTypeExpr(
-      AST.Asset asset, AST.SubTypeExpr expr, Scope<AST.Variable> scope) {
-    AST.Asset target = checkToAsset(asset, expr.e, scope);
+      AST.Asset asset, AST.SubTypeExpr expr, Scope<AST.Variable> scope, boolean first) {
+    AST.Asset target = checkToAsset(asset, expr.e, scope, first);
     if (target == null) {
       return null;
     }
