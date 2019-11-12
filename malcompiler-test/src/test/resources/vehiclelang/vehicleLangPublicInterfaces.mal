@@ -1,24 +1,24 @@
 category System {
 
     asset InfotainmentSystem extends Machine
-        info: "Represents the information & entertainment system found on all modern cars. It is a machine which can be connected to one or more networks."
-        rationale: "It has the same functionality as a machine plus one additional attack step that is reached only when the NetworkAccessService is compromised."
+        user info: "Represents the information & entertainment system found on all modern cars. It is a machine which can be connected to one or more networks."
+        developer info: "It has the same functionality as a machine plus one additional attack step that is reached only when the NetworkAccessService is compromised."
         {
         | access
-                rationale: "Adding one new connected attack step"
+                developer info: "Adding one new connected attack step"
                 +>  engineerNetworkAccess
 
         | gainNetworkAccess
-                info: "If this attack step is reached then full network layer access is gained by the attacker."
+                user info: "If this attack step is reached then full network layer access is gained by the attacker."
                 ->	connectedNetworks.accessNetworkLayer
 
         | engineerNetworkAccess [Exponential(10.0)]
-                info: "This attack step is another way to reach full network access if there is no network access service on the infotainment system, but it requires effort!"
+                user info: "This attack step is another way to reach full network access if there is no network access service on the infotainment system, but it requires effort!"
                 ->	connectedNetworks.accessNetworkLayer
         }
 
     asset NetworkAccessService extends NetworkService
-        info: "This service might run on an infotainment system and if compromised allows the attacker to access the networks connected to it."
+        user info: "This service might run on an infotainment system and if compromised allows the attacker to access the networks connected to it."
         {
         | access
                 +>	executor.gainNetworkAccess
@@ -28,10 +28,10 @@ category System {
 category Communication {
 
     asset OBD2Connector
-        info: "Represents the OBD-II connector available in all modern cars and most vehicles in general."
+        user info: "Represents the OBD-II connector available in all modern cars and most vehicles in general."
         {
         | physicalAccess
-                info: "Physical access to the connector leads to access on the network layer."
+                user info: "Physical access to the connector leads to access on the network layer."
                 ->	interfacingNetworks.accessNetworkLayer
 
         | connect
@@ -39,39 +39,39 @@ category Communication {
                 _connectNoProtection
 
         | bypassConnectorProtection [Exponential(20.0)]
-                info: "Remove or bypass objects blocking the OBD connector, for example ripping of protective plate or ganining access to driver cabin. Requires effort"
+                user info: "Remove or bypass objects blocking the OBD connector, for example ripping of protective plate or ganining access to driver cabin. Requires effort"
                 ->	physicalAccess
 
         & _connectNoProtection
                 -> 	physicalAccess
 
         # connectorAccessProtection
-                info: "Any type of physical entity blocking attackers from physically connecting to the OBD-II port. For example a protective plate covering the port or port being placed where it's difficult to access."
+                user info: "Any type of physical entity blocking attackers from physically connecting to the OBD-II port. For example a protective plate covering the port or port being placed where it's difficult to access."
                 ->	_connectNoProtection
         }
 
     asset ChargingPlugConnector
-        info: "The charging plug on many electric vehicles provides direct CAN bus access, while on others is only connected to the same network as the Battery Management System (BMS) ECU."
-        rationale: "Florian Sagstetter, Security Challenges in Automotive Hardware/Software Architecture Design (2013)"
+        user info: "The charging plug on many electric vehicles provides direct CAN bus access, while on others is only connected to the same network as the Battery Management System (BMS) ECU."
+        developer info: "Florian Sagstetter, Security Challenges in Automotive Hardware/Software Architecture Design (2013)"
         {
         | physicalAccess
-                info: "No matter the case, physical access to the connector leads to access on the network layer of the connected network."
+                user info: "No matter the case, physical access to the connector leads to access on the network layer of the connected network."
                 ->	connectedNetwork.accessNetworkLayer
         }
 
     asset AftermarketDongle
-        info: "An aftermarket dongle is a device that connects to the OBD-II port and provides some additional functionality to the vehicle's owner (e.g. error log reading, vehicle configuration, etc."
+        user info: "An aftermarket dongle is a device that connects to the OBD-II port and provides some additional functionality to the vehicle's owner (e.g. error log reading, vehicle configuration, etc."
         {
         | connectDongle
-                info: "When a dongle is connected, the connect attack step is reached on OBD-II connector."
+                user info: "When a dongle is connected, the connect attack step is reached on OBD-II connector."
                 ->	_connectToNetwork
 
         & _connectToNetwork
                 ->	connector.connect
 
         # dongleIsHardened
-                info: "If the firmware on the connected dongle cannot be modified by the attacker, then access on the network layer cannto be achieved."
-                rationale: "This defense might look more logical in the future where an external attacker will be able to use the dongle as an entry point in the vehicle."
+                user info: "If the firmware on the connected dongle cannot be modified by the attacker, then access on the network layer cannto be achieved."
+                developer info: "This defense might look more logical in the future where an external attacker will be able to use the dongle as an entry point in the vehicle."
                 ->	_connectToNetwork
         }
 }

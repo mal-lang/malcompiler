@@ -114,28 +114,11 @@ public class AST {
     }
   }
 
-  public enum MetaType {
-    INFO("'info'"),
-    ASSUMPTIONS("'assumptions'"),
-    RATIONALE("'rationale'");
-
-    String string;
-
-    private MetaType(String string) {
-      this.string = string;
-    }
-
-    @Override
-    public String toString() {
-      return string;
-    }
-  }
-
   public static class Meta extends Position {
-    public final MetaType type;
+    public final ID type;
     public final String string;
 
-    public Meta(Position pos, MetaType type, String string) {
+    public Meta(Position pos, ID type, String string) {
       super(pos);
       this.type = type;
       this.string = string;
@@ -143,7 +126,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("Meta(%s, %s, \"%s\")", posString(), type.name(), string);
+      return String.format("Meta(%s, %s, \"%s\")", posString(), type.toString(), string);
     }
 
     public static String listToString(List<Meta> meta, int spaces) {

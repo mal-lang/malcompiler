@@ -20,8 +20,6 @@ public enum TokenType {
 
   INCLUDE("'include'"),
   INFO("'info'"),
-  ASSUMPTIONS("'assumptions'"),
-  RATIONALE("'rationale'"),
   CATEGORY("'category'"),
   ABSTRACT("'abstract'"),
   ASSET("'asset'"),

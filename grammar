@@ -1,14 +1,14 @@
 ; rules
 <mal>           ::= (<category> | <associations> | <include> | <define>)* EOF
 <define>        ::= HASH ID COLON STRING
-<meta>          ::= <meta-type> COLON STRING
-<meta-type>     ::= INFO | ASSUMPTIONS | RATIONALE
+<meta1>         ::= ID <meta2>
+<meta2>         ::= INFO COLON STRING
 <include>       ::= INCLUDE STRING
 <number>        ::= INT | FLOAT
 
-<category>      ::= CATEGORY ID <meta>* LCURLY <asset>* RCURLY
-<asset>         ::= ABSTRACT? ASSET ID (EXTENDS ID)? <meta>* LCURLY (<attackstep> | <variable>)* RCURLY
-<attackstep>    ::= <astype> ID <tag>* <cia>? <ttc>? <meta>* <existence>? <reaches>?
+<category>      ::= CATEGORY ID <meta1>* LCURLY <asset>* RCURLY
+<asset>         ::= ABSTRACT? ASSET ID (EXTENDS ID)? <meta1>* LCURLY (<attackstep> | <variable>)* RCURLY
+<attackstep>    ::= <astype> ID <tag>* <cia>? <ttc>? <meta1>* <existence>? <reaches>?
 <astype>        ::= ALL | ANY | HASH | EXIST | NOTEXIST
 <tag>           ::= AT ID
 <cia>           ::= LCURLY <cia-list>? RCURLY
@@ -29,8 +29,9 @@
 <subtype>       ::= <prim> <type>?
 <prim>          ::= ID | LPAREN <expr> RPAREN
 
-<associations>  ::= ASSOCIATIONS LCURLY <association>* RCURLY
-<association>   ::= ID <type> <mult> LARROW ID RARROW <mult> <type> ID <meta>*
+<associations>  ::= ASSOCIATIONS LCURLY <associations1>? RCURLY
+<associations1> ::= ID <association> (ID (<meta2> | <association>))*
+<association>   ::= <type> <mult> LARROW ID RARROW <mult> <type> ID
 <mult>          ::= <mult-unit> (RANGE <mult-unit>)?
 <mult-unit>     ::= INT | STAR
 <type>          ::= LBRACKET ID LBRACKET
@@ -39,8 +40,6 @@
 ; keywords
 INCLUDE         ::= "include"
 INFO            ::= "info"
-ASSUMPTIONS     ::= "assumptions"
-RATIONALE       ::= "rationale"
 CATEGORY        ::= "category"
 ABSTRACT        ::= "abstract"
 ASSET           ::= "asset"

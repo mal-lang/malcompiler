@@ -45,7 +45,7 @@ associations {
 associations {
   // With meta
   A1 [b] 1    <-- L --> 1    [a] A2
-     info: "testing"
-     rationale: "hej"
-     assumptions: "\"!\"!\"!\""
+     user info: "testing"
+     developer info: "hej"
+     modeler info: "\"!\"!\"!\""
 }

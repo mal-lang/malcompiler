@@ -28,6 +28,7 @@ import static org.mal_lang.compiler.test.lib.AssertLang.assertLangStepExpr;
 import static org.mal_lang.compiler.test.lib.AssertLang.assertLangTTC;
 import static org.mal_lang.compiler.test.lib.AssertLang.assertLangTags;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ public class TestLangConverter extends MalTest {
   public void testReverse() {
     var lang = assertGetLangClassPath("lang-converter/reverse.mal");
     // localaction
-    var asset = assertGetLangAsset(lang, "LocalAction", false, "CAT", "Action", new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "LocalAction", false, "CAT", "Action", new HashMap<>());
     // compromise
     var attackstep =
         assertGetLangAttackStep(
@@ -51,7 +52,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             true,
-            new Lang.Meta());
+            new HashMap<>());
     // -> (a.ga /\ a.la).compromise
     var step =
         new Lang.StepCollect(
@@ -105,7 +106,7 @@ public class TestLangConverter extends MalTest {
     assertLangStepExpr(step, attackstep.getReaches().get(0));
 
     // action
-    asset = assertGetLangAsset(lang, "Action", false, "CAT", null, new Lang.Meta());
+    asset = assertGetLangAsset(lang, "Action", false, "CAT", null, new HashMap<>());
     // compromise
     attackstep =
         assertGetLangAttackStep(
@@ -116,7 +117,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     step =
         new Lang.StepCollect(
             asset,
@@ -187,12 +188,12 @@ public class TestLangConverter extends MalTest {
   private static void assertCategories(Lang lang) {
     assertEquals(2, lang.getCategories().size());
     assertLangCategory(
-        lang, "Person", new String[] {"User", "Student", "Teacher"}, new Lang.Meta());
+        lang, "Person", new String[] {"User", "Student", "Teacher"}, new HashMap<>());
     assertLangCategory(
         lang,
         "Hardware",
         new String[] {"Computer", "Firewall", "Harddrive", "SecretFolder"},
-        new Lang.Meta());
+        new HashMap<>());
   }
 
   private static void assertAssets(Lang lang) {
@@ -207,7 +208,7 @@ public class TestLangConverter extends MalTest {
   }
 
   private static void assertAssetUser(Lang lang) {
-    var asset = assertGetLangAsset(lang, "User", true, "Person", null, new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "User", true, "Person", null, new HashMap<>());
     // Check fields
     assertEquals(2, asset.getFields().size());
     assertLangField(asset, "firewall", 1, 1);
@@ -225,7 +226,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of("hidden"));
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -292,7 +293,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -344,7 +345,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -399,7 +400,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -441,7 +442,7 @@ public class TestLangConverter extends MalTest {
   }
 
   private static void assertAssetStudent(Lang lang) {
-    var asset = assertGetLangAsset(lang, "Student", false, "Person", "User", new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "Student", false, "Person", "User", new HashMap<>());
     // Check fields
     assertEquals(1, asset.getFields().size());
     assertLangField(asset, "studentComputer", 1, Integer.MAX_VALUE);
@@ -450,7 +451,7 @@ public class TestLangConverter extends MalTest {
   }
 
   private static void assertAssetTeacher(Lang lang) {
-    var asset = assertGetLangAsset(lang, "Teacher", false, "Person", "User", new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "Teacher", false, "Person", "User", new HashMap<>());
     // Check fields
     assertEquals(1, asset.getFields().size());
     assertLangField(asset, "teacherComputer", 1, 1);
@@ -467,9 +468,10 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta()
-                .setInfo(
-                    "An extra level of protection, their school computer must be used to impersonate them."));
+            Map.ofEntries(
+                Map.entry(
+                    "user",
+                    "An extra level of protection, their school computer must be used to impersonate them.")));
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -487,7 +489,7 @@ public class TestLangConverter extends MalTest {
   }
 
   private static void assertAssetComputer(Lang lang) {
-    var asset = assertGetLangAsset(lang, "Computer", false, "Hardware", null, new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "Computer", false, "Hardware", null, new HashMap<>());
     // Check fields
     assertEquals(6, asset.getFields().size());
     assertLangField(asset, "student", 1, 1);
@@ -509,7 +511,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -535,7 +537,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -583,8 +585,9 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta()
-                .setInfo("Retrieval of password is only possible if password is unencrypted"));
+            Map.ofEntries(
+                Map.entry(
+                    "user", "Retrieval of password is only possible if password is unencrypted")));
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -647,7 +650,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     // ExponentialDistribution(0.05) * GammaDistribution(1.2, 1.7)
@@ -693,7 +696,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -759,7 +762,7 @@ public class TestLangConverter extends MalTest {
             true,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -784,7 +787,7 @@ public class TestLangConverter extends MalTest {
             false,
             true,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -826,7 +829,7 @@ public class TestLangConverter extends MalTest {
   }
 
   private static void assertAssetFirewall(Lang lang) {
-    var asset = assertGetLangAsset(lang, "Firewall", false, "Hardware", null, new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "Firewall", false, "Hardware", null, new HashMap<>());
     // Check fields
     assertEquals(2, asset.getFields().size());
     assertLangField(asset, "computer", 0, Integer.MAX_VALUE);
@@ -844,7 +847,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -952,7 +955,7 @@ public class TestLangConverter extends MalTest {
   }
 
   private static void assertAssetHarddrive(Lang lang) {
-    var asset = assertGetLangAsset(lang, "Harddrive", false, "Hardware", null, new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "Harddrive", false, "Hardware", null, new HashMap<>());
     // Check fields
     assertEquals(3, asset.getFields().size());
     assertLangField(asset, "extHDComputer", 1, 1);
@@ -971,7 +974,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -1052,7 +1055,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -1130,7 +1133,7 @@ public class TestLangConverter extends MalTest {
   }
 
   private static void assertAssetSecretFolder(Lang lang) {
-    var asset = assertGetLangAsset(lang, "SecretFolder", false, "Hardware", null, new Lang.Meta());
+    var asset = assertGetLangAsset(lang, "SecretFolder", false, "Hardware", null, new HashMap<>());
     // Check fields
     assertEquals(3, asset.getFields().size());
     assertLangField(asset, "internalHD", 1, 1);
@@ -1149,7 +1152,7 @@ public class TestLangConverter extends MalTest {
             false,
             false,
             false,
-            new Lang.Meta());
+            new HashMap<>());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -1194,15 +1197,15 @@ public class TestLangConverter extends MalTest {
   private static void assertLinks(Lang lang) {
     assertEquals(9, lang.getLinks().size());
     assertLangLink(
-        lang, "Computer", "student", "Student", "studentComputer", 0, "Use", new Lang.Meta());
+        lang, "Computer", "student", "Student", "studentComputer", 0, "Use", new HashMap<>());
     assertLangLink(
-        lang, "Computer", "teacher", "Teacher", "teacherComputer", 1, "Use", new Lang.Meta());
+        lang, "Computer", "teacher", "Teacher", "teacherComputer", 1, "Use", new HashMap<>());
     assertLangLink(
-        lang, "Computer", "firewall", "Firewall", "computer", 2, "Protect", new Lang.Meta());
-    assertLangLink(lang, "Firewall", "user", "User", "firewall", 3, "Protect", new Lang.Meta());
-    assertLangLink(lang, "Computer", "user", "User", "computer", 4, "Storage", new Lang.Meta());
+        lang, "Computer", "firewall", "Firewall", "computer", 2, "Protect", new HashMap<>());
+    assertLangLink(lang, "Firewall", "user", "User", "firewall", 3, "Protect", new HashMap<>());
+    assertLangLink(lang, "Computer", "user", "User", "computer", 4, "Storage", new HashMap<>());
     assertLangLink(
-        lang, "Computer", "externalHD", "Harddrive", "extHDComputer", 5, "Use", new Lang.Meta());
+        lang, "Computer", "externalHD", "Harddrive", "extHDComputer", 5, "Use", new HashMap<>());
     assertLangLink(
         lang,
         "Computer",
@@ -1211,10 +1214,10 @@ public class TestLangConverter extends MalTest {
         "intHDComputer",
         6,
         "Contain",
-        new Lang.Meta());
+        new HashMap<>());
     assertLangLink(
-        lang, "Harddrive", "folder", "SecretFolder", "internalHD", 7, "Contain", new Lang.Meta());
+        lang, "Harddrive", "folder", "SecretFolder", "internalHD", 7, "Contain", new HashMap<>());
     assertLangLink(
-        lang, "SecretFolder", "subFolder", "SecretFolder", "folder", 8, "Contain", new Lang.Meta());
+        lang, "SecretFolder", "subFolder", "SecretFolder", "folder", 8, "Contain", new HashMap<>());
   }
 }

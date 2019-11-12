@@ -196,23 +196,9 @@ public class LangConverter {
     return new Lang(langDefines, langCategories, langAssets, langLinks);
   }
 
-  private void _convertMetaList(Lang.Meta meta, List<AST.Meta> astMetaList) {
+  private void _convertMetaList(Map<String, String> meta, List<AST.Meta> astMetaList) {
     for (var astMeta : astMetaList) {
-      _convertMeta(meta, astMeta);
-    }
-  }
-
-  private void _convertMeta(Lang.Meta meta, AST.Meta astMeta) {
-    switch (astMeta.type) {
-      case INFO:
-        meta.setInfo(astMeta.string);
-        break;
-      case ASSUMPTIONS:
-        meta.setAssumptions(astMeta.string);
-        break;
-      case RATIONALE:
-        meta.setRationale(astMeta.string);
-        break;
+      meta.put(astMeta.type.id, astMeta.string);
     }
   }
 

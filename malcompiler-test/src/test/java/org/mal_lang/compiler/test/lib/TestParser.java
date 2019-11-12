@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mal_lang.compiler.lib.AST;
+import org.mal_lang.compiler.lib.AST.ID;
 import org.mal_lang.compiler.lib.Position;
 import org.mal_lang.compiler.test.MalTest;
 
@@ -115,7 +116,10 @@ public class TestParser extends MalTest {
             new Position(CATEGORIES_MAL, 6, 1),
             new AST.ID(new Position(CATEGORIES_MAL, 6, 10), "C2"),
             Arrays.asList(
-                new AST.Meta(new Position(CATEGORIES_MAL, 7, 3), AST.MetaType.ASSUMPTIONS, "none")),
+                new AST.Meta(
+                    new Position(CATEGORIES_MAL, 7, 3),
+                    new ID(new Position(CATEGORIES_MAL, 7, 3), "modeler"),
+                    "none")),
             Arrays.asList(
                 new AST.Asset(
                     new Position(CATEGORIES_MAL, 9, 3),
@@ -140,14 +144,20 @@ public class TestParser extends MalTest {
             new AST.ID(new Position(CATEGORIES_MAL, 13, 10), "C3"),
             Arrays.asList(
                 new AST.Meta(
-                    new Position(CATEGORIES_MAL, 14, 3), AST.MetaType.INFO, "this is first C3"),
+                    new Position(CATEGORIES_MAL, 14, 3),
+                    new ID(new Position(CATEGORIES_MAL, 14, 3), "user"),
+                    "this is first C3"),
                 new AST.Meta(
-                    new Position(CATEGORIES_MAL, 15, 3), AST.MetaType.INFO, "another info"),
+                    new Position(CATEGORIES_MAL, 15, 3),
+                    new ID(new Position(CATEGORIES_MAL, 15, 3), "user"),
+                    "another info"),
                 new AST.Meta(
-                    new Position(CATEGORIES_MAL, 16, 3), AST.MetaType.RATIONALE, "just to test"),
+                    new Position(CATEGORIES_MAL, 16, 3),
+                    new ID(new Position(CATEGORIES_MAL, 16, 3), "developer"),
+                    "just to test"),
                 new AST.Meta(
                     new Position(CATEGORIES_MAL, 17, 3),
-                    AST.MetaType.ASSUMPTIONS,
+                    new ID(new Position(CATEGORIES_MAL, 17, 3), "developer"),
                     "will not run through the analyzer")),
             new ArrayList<AST.Asset>()),
         categories.get(2));
@@ -211,11 +221,17 @@ public class TestParser extends MalTest {
             new AST.ID(new Position(ASSOCIATIONS_MAL, 47, 31), "a"),
             new AST.ID(new Position(ASSOCIATIONS_MAL, 47, 34), "A2"),
             Arrays.asList(
-                new AST.Meta(new Position(ASSOCIATIONS_MAL, 48, 6), AST.MetaType.INFO, "testing"),
-                new AST.Meta(new Position(ASSOCIATIONS_MAL, 49, 6), AST.MetaType.RATIONALE, "hej"),
+                new AST.Meta(
+                    new Position(ASSOCIATIONS_MAL, 48, 6),
+                    new ID(new Position(ASSOCIATIONS_MAL, 48, 6), "user"),
+                    "testing"),
+                new AST.Meta(
+                    new Position(ASSOCIATIONS_MAL, 49, 6),
+                    new ID(new Position(ASSOCIATIONS_MAL, 49, 6), "developer"),
+                    "hej"),
                 new AST.Meta(
                     new Position(ASSOCIATIONS_MAL, 50, 6),
-                    AST.MetaType.ASSUMPTIONS,
+                    new ID(new Position(ASSOCIATIONS_MAL, 50, 6), "modeler"),
                     "\"!\"!\"!\""))),
         associations.get(36));
     assertEquals(0, ast.getDefines().size());
@@ -273,11 +289,18 @@ public class TestParser extends MalTest {
                     new AST.ID(new Position(ASSETS_MAL, 2, 9), "A1"),
                     Optional.empty(),
                     Arrays.asList(
-                        new AST.Meta(new Position(ASSETS_MAL, 3, 5), AST.MetaType.INFO, "Info1"),
                         new AST.Meta(
-                            new Position(ASSETS_MAL, 4, 5), AST.MetaType.RATIONALE, "Reason1"),
+                            new Position(ASSETS_MAL, 3, 5),
+                            new ID(new Position(ASSETS_MAL, 3, 5), "user"),
+                            "Info1"),
                         new AST.Meta(
-                            new Position(ASSETS_MAL, 5, 5), AST.MetaType.ASSUMPTIONS, "None1")),
+                            new Position(ASSETS_MAL, 4, 5),
+                            new ID(new Position(ASSETS_MAL, 4, 5), "developer"),
+                            "Reason1"),
+                        new AST.Meta(
+                            new Position(ASSETS_MAL, 5, 5),
+                            new ID(new Position(ASSETS_MAL, 5, 5), "modeler"),
+                            "None1")),
                     new ArrayList<AST.AttackStep>(),
                     new ArrayList<AST.Variable>()),
                 new AST.Asset(
@@ -286,11 +309,18 @@ public class TestParser extends MalTest {
                     new AST.ID(new Position(ASSETS_MAL, 9, 18), "A2"),
                     Optional.empty(),
                     Arrays.asList(
-                        new AST.Meta(new Position(ASSETS_MAL, 10, 5), AST.MetaType.INFO, "Info2"),
                         new AST.Meta(
-                            new Position(ASSETS_MAL, 11, 5), AST.MetaType.RATIONALE, "Reason2"),
+                            new Position(ASSETS_MAL, 10, 5),
+                            new ID(new Position(ASSETS_MAL, 10, 5), "user"),
+                            "Info2"),
                         new AST.Meta(
-                            new Position(ASSETS_MAL, 12, 5), AST.MetaType.ASSUMPTIONS, "None2")),
+                            new Position(ASSETS_MAL, 11, 5),
+                            new ID(new Position(ASSETS_MAL, 11, 5), "developer"),
+                            "Reason2"),
+                        new AST.Meta(
+                            new Position(ASSETS_MAL, 12, 5),
+                            new ID(new Position(ASSETS_MAL, 12, 5), "modeler"),
+                            "None2")),
                     new ArrayList<AST.AttackStep>(),
                     Arrays.asList(
                         new AST.Variable(
@@ -305,11 +335,18 @@ public class TestParser extends MalTest {
                     new AST.ID(new Position(ASSETS_MAL, 17, 9), "A3"),
                     Optional.of(new AST.ID(new Position(ASSETS_MAL, 17, 20), "A1")),
                     Arrays.asList(
-                        new AST.Meta(new Position(ASSETS_MAL, 18, 5), AST.MetaType.INFO, "Info3"),
                         new AST.Meta(
-                            new Position(ASSETS_MAL, 19, 5), AST.MetaType.RATIONALE, "Reason3"),
+                            new Position(ASSETS_MAL, 18, 5),
+                            new ID(new Position(ASSETS_MAL, 18, 5), "user"),
+                            "Info3"),
                         new AST.Meta(
-                            new Position(ASSETS_MAL, 20, 5), AST.MetaType.ASSUMPTIONS, "None3")),
+                            new Position(ASSETS_MAL, 19, 5),
+                            new ID(new Position(ASSETS_MAL, 19, 5), "developer"),
+                            "Reason3"),
+                        new AST.Meta(
+                            new Position(ASSETS_MAL, 20, 5),
+                            new ID(new Position(ASSETS_MAL, 20, 5), "modeler"),
+                            "None3")),
                     Arrays.asList(
                         new AST.AttackStep(
                             new Position(ASSETS_MAL, 22, 5),
@@ -338,11 +375,18 @@ public class TestParser extends MalTest {
                     new AST.ID(new Position(ASSETS_MAL, 26, 18), "A4"),
                     Optional.of(new AST.ID(new Position(ASSETS_MAL, 26, 29), "A2")),
                     Arrays.asList(
-                        new AST.Meta(new Position(ASSETS_MAL, 27, 5), AST.MetaType.INFO, "Info4"),
                         new AST.Meta(
-                            new Position(ASSETS_MAL, 28, 5), AST.MetaType.RATIONALE, "Reason4"),
+                            new Position(ASSETS_MAL, 27, 5),
+                            new ID(new Position(ASSETS_MAL, 27, 5), "user"),
+                            "Info4"),
                         new AST.Meta(
-                            new Position(ASSETS_MAL, 29, 5), AST.MetaType.ASSUMPTIONS, "None4")),
+                            new Position(ASSETS_MAL, 28, 5),
+                            new ID(new Position(ASSETS_MAL, 28, 5), "developer"),
+                            "Reason4"),
+                        new AST.Meta(
+                            new Position(ASSETS_MAL, 29, 5),
+                            new ID(new Position(ASSETS_MAL, 29, 5), "modeler"),
+                            "None4")),
                     Arrays.asList(
                         new AST.AttackStep(
                             new Position(ASSETS_MAL, 31, 5),
@@ -860,7 +904,7 @@ public class TestParser extends MalTest {
                             Arrays.asList(
                                 new AST.Meta(
                                     new Position(ATTACKSTEPS_MAL, 37, 7),
-                                    AST.MetaType.INFO,
+                                    new ID(new Position(ATTACKSTEPS_MAL, 37, 7), "user"),
                                     "Info")),
                             Optional.empty(),
                             Optional.empty()),
@@ -874,11 +918,11 @@ public class TestParser extends MalTest {
                             Arrays.asList(
                                 new AST.Meta(
                                     new Position(ATTACKSTEPS_MAL, 39, 7),
-                                    AST.MetaType.INFO,
+                                    new ID(new Position(ATTACKSTEPS_MAL, 39, 7), "user"),
                                     "Info"),
                                 new AST.Meta(
                                     new Position(ATTACKSTEPS_MAL, 40, 7),
-                                    AST.MetaType.RATIONALE,
+                                    new ID(new Position(ATTACKSTEPS_MAL, 40, 7), "developer"),
                                     "Reason")),
                             Optional.empty(),
                             Optional.empty()),
@@ -896,7 +940,7 @@ public class TestParser extends MalTest {
                             Arrays.asList(
                                 new AST.Meta(
                                     new Position(ATTACKSTEPS_MAL, 42, 7),
-                                    AST.MetaType.INFO,
+                                    new ID(new Position(ATTACKSTEPS_MAL, 42, 7), "user"),
                                     "Info")),
                             Optional.empty(),
                             Optional.empty())),
@@ -1127,7 +1171,7 @@ public class TestParser extends MalTest {
                             Arrays.asList(
                                 new AST.Meta(
                                     new Position(ATTACKSTEPS_MAL, 72, 7),
-                                    AST.MetaType.INFO,
+                                    new ID(new Position(ATTACKSTEPS_MAL, 72, 7), "user"),
                                     "Info")),
                             Optional.of(
                                 new AST.Requires(

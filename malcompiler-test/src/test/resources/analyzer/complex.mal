@@ -23,7 +23,7 @@ category Person {
   asset Student extends User {}
   asset Teacher extends User {
     | accessSchoolComputer
-      info: "An extra level of protection, their school computer must be used to impersonate them."
+      user info: "An extra level of protection, their school computer must be used to impersonate them."
       -> compromise
   }
 }
@@ -35,7 +35,7 @@ category Hardware {
     | interceptTraffic
       -> retrievePassword
     & retrievePassword
-      info: "Retrieval of password is only possible if password is unencrypted"
+      user info: "Retrieval of password is only possible if password is unencrypted"
       -> user.impersonate
     | bypassFirewall [Exponential(0.05) * Gamma(1.2, 1.7)]
       -> firewall.bypassFirewall

@@ -1,7 +1,5 @@
 include
 info
-assumptions
-rationale
 category
 abstract
 asset

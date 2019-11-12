@@ -94,7 +94,7 @@ categories = {
             cia = {},
             ttc = [],
             meta = {
-              Meta(<complex.mal:26:7>, INFO, "An extra level of protection, their school computer must be used to impersonate them.")
+              Meta(<complex.mal:26:7>, ID(<complex.mal:26:7>, "user"), "An extra level of protection, their school computer must be used to impersonate them.")
             },
             NO_REQUIRES,
             Reaches(<complex.mal:27:7>, OVERRIDES,
@@ -154,7 +154,7 @@ categories = {
             cia = {},
             ttc = [],
             meta = {
-              Meta(<complex.mal:38:7>, INFO, "Retrieval of password is only possible if password is unencrypted")
+              Meta(<complex.mal:38:7>, ID(<complex.mal:38:7>, "user"), "Retrieval of password is only possible if password is unencrypted")
             },
             NO_REQUIRES,
             Reaches(<complex.mal:39:7>, OVERRIDES,

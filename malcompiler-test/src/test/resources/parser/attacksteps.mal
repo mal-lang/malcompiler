@@ -34,12 +34,12 @@ category Cat {
   // Testing meta
   asset A3 {
     & a
-      info: "Info"
+      user info: "Info"
     | b
-      info: "Info"
-      rationale: "Reason"
+      user info: "Info"
+      developer info: "Reason"
     # c [TTC]
-      info: "Info"
+      user info: "Info"
   }
 
   // Testing existence
@@ -69,7 +69,7 @@ category Cat {
       <- x
       +> y
     E d {C} [t]
-      info: "Info"
+      user info: "Info"
       <- x
       -> y
   }

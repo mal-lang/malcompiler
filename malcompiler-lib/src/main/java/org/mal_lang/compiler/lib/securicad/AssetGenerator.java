@@ -342,7 +342,7 @@ public class AssetGenerator extends JavaGenerator {
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
     builder.returns(String.class);
-    String info = asset.getMeta().getInfo();
+    String info = asset.getMeta().get("user");
     builder.addStatement("return $S", info != null ? info : "");
     parentBuilder.addMethod(builder.build());
   }

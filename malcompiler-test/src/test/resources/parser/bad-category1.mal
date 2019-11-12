@@ -1,3 +1,3 @@
 category Cat {
-  info: "Info"
+  user info: "Info"
 }

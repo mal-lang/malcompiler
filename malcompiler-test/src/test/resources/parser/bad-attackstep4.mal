@@ -2,6 +2,6 @@ category Cat {
   asset A1 {
     & a
       ->
-        info: "Info"
+        user info: "Info"
   }
 }

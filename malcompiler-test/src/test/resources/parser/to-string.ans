@@ -5,7 +5,7 @@ defines = {
 categories = {
   Category(<to-string.mal:3:10>, ID(<to-string.mal:3:19>, "CAT"),
     meta = {
-      Meta(<to-string.mal:4:12>, INFO, "meta")
+      Meta(<to-string.mal:4:12>, ID(<to-string.mal:4:12>, "user"), "meta")
     },
     assets = {
       Asset(<to-string.mal:5:13>, NOT_ABSTRACT, ID(<to-string.mal:5:19>, "A1"), PARENT(ID(<to-string.mal:5:30>, "A1")),
@@ -18,7 +18,7 @@ categories = {
       ),
       Asset(<to-string.mal:7:13>, ABSTRACT, ID(<to-string.mal:7:28>, "A2"), NO_PARENT,
         meta = {
-          Meta(<to-string.mal:8:15>, INFO, "info")
+          Meta(<to-string.mal:8:15>, ID(<to-string.mal:8:15>, "user"), "info")
         },
         attacksteps = {
           AttackStep(<to-string.mal:9:15>, ALL, ID(<to-string.mal:9:17>, "at"),
@@ -47,7 +47,7 @@ categories = {
             cia = {},
             ttc = [TTCFuncExpr(<to-string.mal:12:22>, ID(<to-string.mal:12:22>, "a"))],
             meta = {
-              Meta(<to-string.mal:13:17>, INFO, "at2")
+              Meta(<to-string.mal:13:17>, ID(<to-string.mal:13:17>, "user"), "at2")
             },
             NO_REQUIRES,
             Reaches(<to-string.mal:14:17>, INHERITS,
@@ -70,13 +70,13 @@ categories = {
 associations = {
   Association(<to-string.mal:22:5>, ID(<to-string.mal:22:5>, "A1"), ID(<to-string.mal:22:9>, "a"), ZERO_OR_ONE, ID(<to-string.mal:22:21>, "L"), ONE_OR_MORE, ID(<to-string.mal:22:33>, "b"), ID(<to-string.mal:22:36>, "A2"),
     meta = {
-      Meta(<to-string.mal:23:8>, INFO, "Info")
+      Meta(<to-string.mal:23:8>, ID(<to-string.mal:23:8>, "user"), "Info")
     }
   ),
   Association(<to-string.mal:24:5>, ID(<to-string.mal:24:5>, "A2"), ID(<to-string.mal:24:9>, "b"), ZERO_OR_MORE, ID(<to-string.mal:24:21>, "L"), ZERO_OR_MORE, ID(<to-string.mal:24:33>, "a"), ID(<to-string.mal:24:36>, "A1"),
     meta = {
-      Meta(<to-string.mal:25:8>, INFO, "info"),
-      Meta(<to-string.mal:26:8>, INFO, "info2")
+      Meta(<to-string.mal:25:8>, ID(<to-string.mal:25:8>, "user"), "info"),
+      Meta(<to-string.mal:26:8>, ID(<to-string.mal:26:8>, "user"), "info2")
     }
   ),
   Association(<to-string.mal:27:5>, ID(<to-string.mal:27:5>, "A1"), ID(<to-string.mal:27:9>, "a"), ONE, ID(<to-string.mal:27:21>, "L"), ONE, ID(<to-string.mal:27:33>, "b"), ID(<to-string.mal:27:36>, "A2"),
