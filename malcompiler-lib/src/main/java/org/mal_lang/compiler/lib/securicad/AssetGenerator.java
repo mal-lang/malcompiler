@@ -347,25 +347,30 @@ public class AssetGenerator extends JavaGenerator {
     parentBuilder.addMethod(builder.build());
   }
 
-  private void createGetIcon(TypeSpec.Builder parentBuilder, Asset asset) throws IOException {
-    String svgName = String.format("%s.svg", asset.getName());
-    String pngName = String.format("%s.png", asset.getName());
-    boolean isSvg = false;
-    File icon = null;
-    for (File file : this.icons.listFiles()) {
-      if (file.getName().equals(svgName)) {
-        isSvg = true;
-        icon = file;
-        break;
-      } else if (file.getName().equals(pngName)) {
-        isSvg = false;
-        icon = file;
-        break;
+  private File getAssetIcon(Asset asset, String type) {
+    var name = String.format("%s.%s", asset.getName(), type);
+    for (var file : this.icons.listFiles()) {
+      if (file.getName().equals(name)) {
+        return file;
       }
     }
+    if (asset.hasSuperAsset()) {
+      return getAssetIcon(asset.getSuperAsset(), type);
+    } else {
+      return null;
+    }
+  }
+
+  private void createGetIcon(TypeSpec.Builder parentBuilder, Asset asset) throws IOException {
+    var icon = getAssetIcon(asset, "svg");
+    boolean isSvg = true;
     if (icon == null) {
-      LOGGER.warning(String.format("No icon found for asset '%s'", asset.getName()));
-      return;
+      icon = getAssetIcon(asset, "png");
+      isSvg = false;
+      if (icon == null) {
+        LOGGER.warning(String.format("No icon found for asset '%s'", asset.getName()));
+        return;
+      }
     }
     byte[] pngBytes = null;
     byte[] svgBytes = null;
