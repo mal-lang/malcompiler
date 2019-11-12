@@ -36,7 +36,6 @@ import static org.mal_lang.compiler.test.lib.AssertToken.assertTokens;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -1626,7 +1625,7 @@ public class TestAllFeatures extends MalTest {
         new String[] {"A4", "A5", "A6"},
         Map.ofEntries(
             Map.entry("modeler", "None for C2"), Map.entry("developer", "Reasoning for C2")));
-    assertLangCategory(lang, "C3", new String[] {"A7", "A8", "A9"}, new HashMap<>());
+    assertLangCategory(lang, "C3", new String[] {"A7", "A8", "A9"}, Map.of());
   }
 
   private static void assertAssets(Lang lang) {
@@ -1643,7 +1642,7 @@ public class TestAllFeatures extends MalTest {
   }
 
   private static void assertAssetA1(Lang lang) {
-    var asset = assertGetLangAsset(lang, "A1", false, "C1", null, new HashMap<>());
+    var asset = assertGetLangAsset(lang, "A1", false, "C1", null, Map.of());
     // Check fields
     assertEquals(5, asset.getFields().size());
     assertLangField(asset, "a4", 1, Integer.MAX_VALUE);
@@ -1907,7 +1906,7 @@ public class TestAllFeatures extends MalTest {
             true,
             false,
             false,
-            new HashMap<>());
+            Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Disabled()));
@@ -1936,7 +1935,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             false,
-            new HashMap<>());
+            Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2065,7 +2064,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             false,
-            new HashMap<>());
+            Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2123,7 +2122,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             false,
-            new HashMap<>());
+            Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2185,7 +2184,7 @@ public class TestAllFeatures extends MalTest {
   }
 
   private static void assertAssetA2(Lang lang) {
-    var asset = assertGetLangAsset(lang, "A2", false, "C1", "A1", new HashMap<>());
+    var asset = assertGetLangAsset(lang, "A2", false, "C1", "A1", Map.of());
     // Check fields
     assertEquals(0, asset.getFields().size());
     // Check attack steps
@@ -2201,7 +2200,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             true,
-            new HashMap<>());
+            Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(false, false, false));
     assertLangTTC(attackStep, null);
@@ -2251,7 +2250,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a1Attack2"
     attackStep =
         assertGetLangAttackStep(
-            asset, "a1Attack2", Lang.AttackStepType.ALL, true, false, false, true, new HashMap<>());
+            asset, "a1Attack2", Lang.AttackStepType.ALL, true, false, false, true, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, true));
     assertLangTTC(attackStep, null);
@@ -2299,7 +2298,7 @@ public class TestAllFeatures extends MalTest {
             true,
             false,
             true,
-            new HashMap<>());
+            Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Enabled()));
@@ -2358,7 +2357,7 @@ public class TestAllFeatures extends MalTest {
             true,
             false,
             true,
-            new HashMap<>());
+            Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2395,7 +2394,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             true,
-            new HashMap<>());
+            Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2434,7 +2433,7 @@ public class TestAllFeatures extends MalTest {
             false,
             true,
             true,
-            new HashMap<>());
+            Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2484,7 +2483,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             false,
-            new HashMap<>());
+            Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, true));
     assertLangTTC(attackStep, null);
@@ -2498,7 +2497,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "AT"
     attackStep =
         assertGetLangAttackStep(
-            asset, "AT", Lang.AttackStepType.ALL, false, false, false, false, new HashMap<>());
+            asset, "AT", Lang.AttackStepType.ALL, false, false, false, false, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2551,7 +2550,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "a"
     var attackStep =
         assertGetLangAttackStep(
-            asset, "a", Lang.AttackStepType.ANY, false, false, false, false, new HashMap<>());
+            asset, "a", Lang.AttackStepType.ANY, false, false, false, false, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2657,7 +2656,7 @@ public class TestAllFeatures extends MalTest {
   }
 
   private static void assertAssetA7(Lang lang) {
-    var asset = assertGetLangAsset(lang, "A7", false, "C3", "A3", new HashMap<>());
+    var asset = assertGetLangAsset(lang, "A7", false, "C3", "A3", Map.of());
     // Check fields
     assertEquals(1, asset.getFields().size());
     assertLangField(asset, "a1", 1, 1);
@@ -2674,7 +2673,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             false,
-            new HashMap<>());
+            Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2760,7 +2759,7 @@ public class TestAllFeatures extends MalTest {
             false,
             false,
             false,
-            new HashMap<>());
+            Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
     assertLangTTC(attackStep, null);
@@ -2773,7 +2772,7 @@ public class TestAllFeatures extends MalTest {
   }
 
   private static void assertAssetA8(Lang lang) {
-    var asset = assertGetLangAsset(lang, "A8", false, "C3", null, new HashMap<>());
+    var asset = assertGetLangAsset(lang, "A8", false, "C3", null, Map.of());
     // Check fields
     assertEquals(4, asset.getFields().size());
     assertLangField(asset, "a1", 0, Integer.MAX_VALUE);
@@ -2786,7 +2785,7 @@ public class TestAllFeatures extends MalTest {
     // Check attack step "destroy"
     var attackStep =
         assertGetLangAttackStep(
-            asset, "destroy", Lang.AttackStepType.ALL, false, false, false, false, new HashMap<>());
+            asset, "destroy", Lang.AttackStepType.ALL, false, false, false, false, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, true));
     assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Exponential(5)));
@@ -2875,7 +2874,7 @@ public class TestAllFeatures extends MalTest {
   }
 
   private static void assertAssetA9(Lang lang) {
-    var asset = assertGetLangAsset(lang, "A9", false, "C3", null, new HashMap<>());
+    var asset = assertGetLangAsset(lang, "A9", false, "C3", null, Map.of());
     // Check fields
     assertEquals(0, asset.getFields().size());
     // Check attack steps
@@ -2884,13 +2883,13 @@ public class TestAllFeatures extends MalTest {
 
   private static void assertLinks(Lang lang) {
     assertEquals(8, lang.getLinks().size());
-    assertLangLink(lang, "A1", "a4", "A4", "a1", 0, "L1", new HashMap<>());
-    assertLangLink(lang, "A5", "a6", "A6", "a5", 1, "L2", new HashMap<>());
-    assertLangLink(lang, "A1", "a1Sub", "A1", "a1Super", 2, "L3", new HashMap<>());
-    assertLangLink(lang, "A3", "a6", "A6", "a3", 3, "L3", new HashMap<>());
-    assertLangLink(lang, "A7", "a1", "A1", "a7", 4, "L3", new HashMap<>());
-    assertLangLink(lang, "A8", "a1", "A1", "a8", 5, "L4", new HashMap<>());
-    assertLangLink(lang, "A8", "a4", "A4", "a8", 6, "L4", new HashMap<>());
-    assertLangLink(lang, "A8", "a8Super", "A8", "a8Sub", 7, "L4", new HashMap<>());
+    assertLangLink(lang, "A1", "a4", "A4", "a1", 0, "L1", Map.of());
+    assertLangLink(lang, "A5", "a6", "A6", "a5", 1, "L2", Map.of());
+    assertLangLink(lang, "A1", "a1Sub", "A1", "a1Super", 2, "L3", Map.of());
+    assertLangLink(lang, "A3", "a6", "A6", "a3", 3, "L3", Map.of());
+    assertLangLink(lang, "A7", "a1", "A1", "a7", 4, "L3", Map.of());
+    assertLangLink(lang, "A8", "a1", "A1", "a8", 5, "L4", Map.of());
+    assertLangLink(lang, "A8", "a4", "A4", "a8", 6, "L4", Map.of());
+    assertLangLink(lang, "A8", "a8Super", "A8", "a8Sub", 7, "L4", Map.of());
   }
 }
