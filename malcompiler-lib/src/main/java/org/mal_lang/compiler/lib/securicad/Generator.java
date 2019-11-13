@@ -157,6 +157,12 @@ public class Generator extends JavaGenerator {
             attackStep.removeReaches(reaches);
           }
         }
+        for (var parentStep : attackStep.getParentSteps()) {
+          var targetStep = getTargetStep(parentStep);
+          if (targetStep.hasInheritedTag("debug")) {
+            attackStep.removeParentStep(parentStep);
+          }
+        }
       }
     }
     for (var asset : lang.getAssets().values()) {

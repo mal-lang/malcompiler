@@ -421,6 +421,10 @@ public class Lang {
       this.parentSteps.add(expr);
     }
 
+    public boolean removeParentStep(StepExpr expr) {
+      return this.parentSteps.remove(expr);
+    }
+
     public boolean isDefense() {
       return this.type == AttackStepType.DEFENSE;
     }
