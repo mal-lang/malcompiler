@@ -77,21 +77,48 @@ public class AttackStepGenerator extends JavaGenerator {
       createDefaultLocalTtc(builder, attackStep);
     }
 
+    // graph caches
+    boolean hasChildCache = false;
+    String childCacheName = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
     if (!attackStep.getReaches().isEmpty()) {
-      String name = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
-      createSetField(builder, name);
-      exprGen.createGetAttackStepChildren(builder, attackStep, name);
+      createSetField(builder, childCacheName);
+      exprGen.createGetAttackStepChildren(builder, attackStep, childCacheName);
+      hasChildCache = true;
     }
 
+    boolean hasParentCache = false;
+    String parentCacheName = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
     if (!attackStep.getParentSteps().isEmpty()) {
-      String name = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
-      createSetField(builder, name);
-      exprGen.createSetExpectedParents(builder, attackStep, name);
+      createSetField(builder, parentCacheName);
+      exprGen.createSetExpectedParents(builder, attackStep, parentCacheName);
+      hasParentCache = true;
+    }
+
+    if (hasChildCache || hasParentCache) {
+      createClearCache(builder, hasChildCache, childCacheName, hasParentCache, parentCacheName);
     }
 
     createTraceabilityHelper(builder, attackStep);
 
     parentBuilder.addType(builder.build());
+  }
+
+  private void createClearCache(
+      TypeSpec.Builder parentBuilder,
+      boolean hasChildCache,
+      String childCacheName,
+      boolean hasParentCache,
+      String parentCacheName) {
+    MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
+    builder.addAnnotation(Override.class);
+    builder.addModifiers(Modifier.PUBLIC);
+    if (hasChildCache) {
+      builder.addStatement("$N = null", childCacheName);
+    }
+    if (hasParentCache) {
+      builder.addStatement("$N = null", parentCacheName);
+    }
+    parentBuilder.addMethod(builder.build());
   }
 
   ////////////////////
