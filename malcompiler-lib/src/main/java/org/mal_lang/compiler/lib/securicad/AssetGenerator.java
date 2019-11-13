@@ -120,21 +120,17 @@ public class AssetGenerator extends JavaGenerator {
     createLocalStep(builder, asset, "Defense");
 
     for (AttackStep attackStep : asset.getAttackSteps().values()) {
-      if (!attackStep.hasInheritedTag("debug")) {
-        if (attackStep.isDefense() || attackStep.isConditionalDefense()) {
-          defGen.generate(builder, asset, attackStep);
-        } else {
-          asGen.generate(builder, asset, attackStep);
-        }
+      if (attackStep.isDefense() || attackStep.isConditionalDefense()) {
+        defGen.generate(builder, asset, attackStep);
+      } else {
+        asGen.generate(builder, asset, attackStep);
       }
     }
 
     var file = JavaFile.builder(this.pkg, builder.build());
     for (var a : lang.getAssets().values()) {
       for (var b : a.getAttackSteps().values()) {
-        if (!b.hasInheritedTag("debug")) {
-          file.alwaysQualify(ucFirst(b.getName()));
-        }
+        file.alwaysQualify(ucFirst(b.getName()));
       }
     }
     file.skipJavaLangImports(true);

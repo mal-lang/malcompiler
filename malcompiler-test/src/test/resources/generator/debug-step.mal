@@ -1,0 +1,18 @@
+#id: "dist"
+#version: "1.0.0"
+category System {
+  asset Alpha {
+    | access @debug
+    -> charlies.compromise
+  }
+  asset Bravo extends Alpha {
+    | access
+  }
+  asset Charlie {
+    | compromise
+      -> alphas.access
+  }
+}
+associations {
+  Alpha [alphas] * <-- _ --> * [charlies] Charlie
+}

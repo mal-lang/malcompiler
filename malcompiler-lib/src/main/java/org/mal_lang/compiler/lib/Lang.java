@@ -203,6 +203,10 @@ public class Lang {
     public void addAttackStep(AttackStep attackStep) {
       this.attackSteps.put(attackStep.getName(), attackStep);
     }
+
+    public AttackStep removeAttackStep(AttackStep attackStep) {
+      return this.attackSteps.remove(attackStep.getName());
+    }
   }
 
   public static class Link {
@@ -405,12 +409,20 @@ public class Lang {
       this.reaches.add(expr);
     }
 
+    public boolean removeReaches(StepExpr expr) {
+      return this.reaches.remove(expr);
+    }
+
     public List<StepExpr> getParentSteps() {
       return List.copyOf(this.parentSteps);
     }
 
     public void addParentStep(StepExpr expr) {
       this.parentSteps.add(expr);
+    }
+
+    public boolean removeParentStep(StepExpr expr) {
+      return this.parentSteps.remove(expr);
     }
 
     public boolean isDefense() {
