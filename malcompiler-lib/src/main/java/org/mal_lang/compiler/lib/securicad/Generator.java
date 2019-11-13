@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -45,7 +45,7 @@ import org.mal_lang.compiler.lib.MalInfo;
 
 public class Generator extends JavaGenerator {
   private static final List<String> CATEGORIES =
-      Arrays.asList(
+      List.of(
           "Attacker",
           "Communication",
           "Container",
@@ -127,18 +127,42 @@ public class Generator extends JavaGenerator {
     throw new RuntimeException("Invalid step expression");
   }
 
+  private static List<Lang.Asset> getSubAssets(Lang lang, Lang.Asset asset) {
+    var subAssets = new ArrayList<Lang.Asset>();
+    subAssets.add(asset);
+    for (var subAsset : lang.getAssets().values()) {
+      if (subAsset.hasSuperAsset() && subAsset.getSuperAsset() == asset) {
+        subAssets.addAll(getSubAssets(lang, subAsset));
+      }
+    }
+    return subAssets;
+  }
+
+  private static void removeSubAttackSteps(Lang lang, Lang.AttackStep attackStep) {
+    var subAssets = getSubAssets(lang, attackStep.getAsset());
+    for (var asset : subAssets) {
+      var attackSteps = asset.getAttackSteps();
+      if (attackSteps.containsKey(attackStep.getName())) {
+        asset.removeAttackStep(attackSteps.get(attackStep.getName()));
+      }
+    }
+  }
+
   private static void removeDebugSteps(Lang lang) {
     for (var asset : lang.getAssets().values()) {
       for (var attackStep : asset.getAttackSteps().values()) {
-        if (attackStep.hasInheritedTag("debug")) {
-          asset.removeAttackStep(attackStep);
-        } else {
-          for (var reaches : attackStep.getReaches()) {
-            var targetStep = getTargetStep(reaches);
-            if (targetStep.hasInheritedTag("debug")) {
-              attackStep.removeReaches(reaches);
-            }
+        for (var reaches : attackStep.getReaches()) {
+          var targetStep = getTargetStep(reaches);
+          if (targetStep.hasInheritedTag("debug")) {
+            attackStep.removeReaches(reaches);
           }
+        }
+      }
+    }
+    for (var asset : lang.getAssets().values()) {
+      for (var attackStep : asset.getAttackSteps().values()) {
+        if (attackStep.hasTag("debug")) {
+          removeSubAttackSteps(lang, attackStep);
         }
       }
     }
