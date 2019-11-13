@@ -71,6 +71,7 @@ public class ExpressionGenerator extends JavaGenerator {
       end.addStatement("tmpCache.add($L)", end.prefix);
       af.build(builder);
     }
+    // copyOf returns an immutable set
     builder.addStatement("$N = $T.copyOf(tmpCache)", cacheName, set);
     builder.endControlFlow();
 

@@ -112,9 +112,11 @@ public class AttackStepGenerator extends JavaGenerator {
     builder.addModifiers(Modifier.PUBLIC);
     if (hasChildCache) {
       builder.addStatement("$N.clear()", childCacheName);
+      builder.addStatement("$N = null", childCacheName);
     }
     if (hasParentCache) {
       builder.addStatement("$N.clear()", parentCacheName);
+      builder.addStatement("$N = null", parentCacheName);
     }
     parentBuilder.addMethod(builder.build());
   }
