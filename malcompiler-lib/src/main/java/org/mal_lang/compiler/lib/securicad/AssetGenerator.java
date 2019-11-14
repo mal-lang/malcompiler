@@ -52,6 +52,7 @@ public class AssetGenerator extends JavaGenerator {
   private final Lang lang;
   private final AttackStepGenerator asGen;
   private final DefenseGenerator defGen;
+  private final VariableGenerator varGen;
 
   protected AssetGenerator(MalLogger LOGGER, String pkg, File output, File icons, Lang lang) {
     super(LOGGER);
@@ -61,6 +62,7 @@ public class AssetGenerator extends JavaGenerator {
     this.lang = lang;
     asGen = new AttackStepGenerator(LOGGER, pkg);
     defGen = new DefenseGenerator(LOGGER, pkg);
+    varGen = new VariableGenerator(LOGGER, pkg);
   }
 
   protected void generate(Asset asset) throws IOException {
@@ -125,6 +127,14 @@ public class AssetGenerator extends JavaGenerator {
       } else {
         asGen.generate(builder, asset, attackStep);
       }
+    }
+
+    // Generate variables
+    for (var variable : asset.getVariables().entrySet()) {
+      varGen.generate(builder, variable.getKey(), variable.getValue(), asset);
+    }
+    for (var variable : asset.getReverseVariables().entrySet()) {
+      varGen.generate(builder, variable.getKey(), variable.getValue(), asset);
     }
 
     var file = JavaFile.builder(this.pkg, builder.build());

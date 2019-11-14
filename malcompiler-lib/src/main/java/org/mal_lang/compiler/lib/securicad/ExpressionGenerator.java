@@ -22,9 +22,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.JavaGenerator;
@@ -68,10 +66,9 @@ public class ExpressionGenerator extends JavaGenerator {
     } else {
       builder.addStatement("$T tmpCache = new $T<>()", asSet, hashSet);
     }
-    Map<String, MethodSpec.Builder> variables = new LinkedHashMap<>();
     for (StepExpr expr : attackStep.getReaches()) {
       AutoFlow af = new AutoFlow();
-      AutoFlow end = generate(af, expr, attackStep.getAsset(), "(null)", variables);
+      AutoFlow end = generate(af, expr, attackStep.getAsset(), "(null)");
       end.addStatement("tmpCache.add($L)", end.prefix);
       af.build(builder);
     }
@@ -79,13 +76,6 @@ public class ExpressionGenerator extends JavaGenerator {
     builder.addStatement("$N = $T.copyOf(tmpCache)", cacheName, set);
     builder.endControlFlow();
 
-    for (var variable : variables.entrySet()) {
-      // TODO: YES
-      MethodSpec method = variable.getValue().build();
-      parentBuilder.addField(
-          method.returnType, String.format("_cache%s", variable.getKey()), Modifier.PRIVATE);
-      parentBuilder.addMethod(method);
-    }
     builder.addStatement("return $N", cacheName);
     parentBuilder.addMethod(builder.build());
   }
@@ -104,7 +94,7 @@ public class ExpressionGenerator extends JavaGenerator {
     builder.addStatement("$N = new $T<>()", cacheName, HashSet.class);
     for (StepExpr expr : attackStep.getParentSteps()) {
       AutoFlow af = new AutoFlow();
-      AutoFlow end = generate(af, expr, attackStep.getAsset(), "(sample)", Map.of());
+      AutoFlow end = generate(af, expr, attackStep.getAsset(), "(sample)");
       end.addStatement("$N.add($N)", cacheName, end.prefix);
       af.build(builder);
     }
@@ -121,30 +111,25 @@ public class ExpressionGenerator extends JavaGenerator {
   ////////////////////
   // GENERATE
 
-  protected AutoFlow generate(
-      AutoFlow af,
-      StepExpr expr,
-      Asset asset,
-      String nameSuffix,
-      Map<String, MethodSpec.Builder> variables) {
+  protected AutoFlow generate(AutoFlow af, StepExpr expr, Asset asset, String nameSuffix) {
     if (!af.hasPrefix()) {
       af = subType(af, expr.src, expr.subSrc, asset);
     }
     if (expr instanceof StepCollect) {
-      af = generate(af, ((StepCollect) expr).lhs, asset, nameSuffix, variables);
-      af = generate(af, ((StepCollect) expr).rhs, asset, nameSuffix, variables);
+      af = generate(af, ((StepCollect) expr).lhs, asset, nameSuffix);
+      af = generate(af, ((StepCollect) expr).rhs, asset, nameSuffix);
     } else if (expr instanceof StepField) {
       af = createStepField(af, (StepField) expr, nameSuffix);
     } else if (expr instanceof StepTransitive) {
-      af = createStepTransitive(af, (StepTransitive) expr, asset, nameSuffix, variables);
+      af = createStepTransitive(af, (StepTransitive) expr, asset, nameSuffix);
     } else if (expr instanceof StepUnion
         || expr instanceof StepIntersection
         || expr instanceof StepDifference) {
-      af = createStepSet(af, expr, asset, nameSuffix, variables);
+      af = createStepSet(af, expr, asset, nameSuffix);
     } else if (expr instanceof StepAttackStep) {
       af = createStepAttackStep(af, (StepAttackStep) expr);
     } else if (expr instanceof StepVar) {
-      af = createStepVar(af, (StepVar) expr, asset, nameSuffix, variables);
+      af = createStepVar(af, (StepVar) expr);
     } else {
       throw new RuntimeException(String.format("unknown expression '%s'", expr));
     }
@@ -186,11 +171,7 @@ public class ExpressionGenerator extends JavaGenerator {
   }
 
   private AutoFlow createStepTransitive(
-      AutoFlow af,
-      StepTransitive expr,
-      Asset asset,
-      String nameSuffix,
-      Map<String, MethodSpec.Builder> variables) {
+      AutoFlow af, StepTransitive expr, Asset asset, String nameSuffix) {
     ClassName targetType = ClassName.get(pkg, expr.target.getName());
     ClassName list = ClassName.get(List.class);
     ClassName arrayList = ClassName.get(ArrayList.class);
@@ -217,19 +198,14 @@ public class ExpressionGenerator extends JavaGenerator {
     String name3 = Name.get();
     AutoFlow naf = af.addStatement(new AutoFlow(name3, true, "while (!$N.isEmpty())", name2));
     naf.addStatement("$T $N = $N.remove(0)", targetType, name3, name2);
-    AutoFlow deep = generate(naf, expr.e, asset, nameSuffix, variables);
+    AutoFlow deep = generate(naf, expr.e, asset, nameSuffix);
     deep.addStatement("$N.add($N)", name1, deep.prefix);
     deep.addStatement("$N.add($N)", name2, deep.prefix);
     String name4 = Name.get();
     return af.addStatement(new AutoFlow(name4, true, "for ($T $N : $N)", targetType, name4, name1));
   }
 
-  private AutoFlow createStepSet(
-      AutoFlow af,
-      StepExpr expr,
-      Asset asset,
-      String nameSuffix,
-      Map<String, MethodSpec.Builder> variables) {
+  private AutoFlow createStepSet(AutoFlow af, StepExpr expr, Asset asset, String nameSuffix) {
     StepBinOp binop = (StepBinOp) expr;
     String targetName = binop.target.getName();
     ClassName targetType = ClassName.get(pkg, targetName);
@@ -241,9 +217,9 @@ public class ExpressionGenerator extends JavaGenerator {
     af.addStatement("$T $N = new $T<>()", targetSet, name1, hashSet);
     af.addStatement("$T $N = new $T<>()", targetSet, name2, hashSet);
 
-    AutoFlow deep1 = generate(af, binop.lhs, asset, nameSuffix, variables);
+    AutoFlow deep1 = generate(af, binop.lhs, asset, nameSuffix);
     deep1.addStatement("$N.add($N)", name1, deep1.prefix);
-    AutoFlow deep2 = generate(af, binop.rhs, asset, nameSuffix, variables);
+    AutoFlow deep2 = generate(af, binop.rhs, asset, nameSuffix);
     deep2.addStatement("$N.add($N)", name2, deep2.prefix);
 
     if (expr instanceof StepUnion) {
@@ -268,35 +244,13 @@ public class ExpressionGenerator extends JavaGenerator {
     return af.addStatement(new AutoFlow(name));
   }
 
-  private AutoFlow createStepVar(
-      AutoFlow af,
-      StepVar expr,
-      Asset asset,
-      String nameSuffix,
-      Map<String, MethodSpec.Builder> variables) {
-    String methodName = String.format("_%s", expr.name);
-    String setName = String.format("_cache%s", expr.name);
-    if (!variables.containsKey(expr.name)) {
-      MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName);
-      builder.addModifiers(Modifier.PRIVATE);
-      ClassName targetType = ClassName.get(pkg, expr.e.subTarget.getName());
-      ClassName set = ClassName.get(Set.class);
-      TypeName targetSet = ParameterizedTypeName.get(set, targetType);
-      ClassName hashSet = ClassName.get(HashSet.class);
-      builder.returns(targetSet);
-
-      builder.beginControlFlow("if ($N == null)", setName);
-      builder.addStatement("$N = new $T<>()", setName, hashSet);
-      AutoFlow varFlow = new AutoFlow();
-      AutoFlow end = generate(varFlow, expr.e, asset, nameSuffix, variables);
-      end.addStatement("$N.add($N)", setName, end.prefix);
-      varFlow.build(builder);
-      builder.endControlFlow();
-
-      builder.addStatement("return $N", setName);
-      variables.put(expr.name, builder);
+  private AutoFlow createStepVar(AutoFlow af, StepVar expr) {
+    String name = String.format("_%s", expr.name);
+    if (af.hasPrefix()) {
+      name = String.format("%s.%s", af.prefix, name);
     }
+
     String prefix = Name.get();
-    return af.addStatement(new AutoFlow(prefix, true, "for (var $N : $N())", prefix, methodName));
+    return af.addStatement(new AutoFlow(prefix, true, "for (var $N : $N())", prefix, name));
   }
 }

@@ -22,8 +22,6 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.JavaGenerator;
 import org.mal_lang.compiler.lib.Lang.Asset;
@@ -117,11 +115,10 @@ public class DefenseGenerator extends JavaGenerator {
     method.returns(boolean.class);
     ClassName concreteSample = ClassName.get("com.foreseeti.simulator", "ConcreteSample");
     method.addParameter(concreteSample, "sample");
-    Map<String, MethodSpec.Builder> variables = new LinkedHashMap<>();
     if (attackStep.getType() == AttackStepType.EXIST) {
       for (StepExpr expr : attackStep.getRequires()) {
         AutoFlow af = new AutoFlow();
-        AutoFlow end = exprGen.generate(af, expr, attackStep.getAsset(), "(sample)", variables);
+        AutoFlow end = exprGen.generate(af, expr, attackStep.getAsset(), "(sample)");
         end.addStatement("return false");
         af.build(method);
       }
@@ -130,7 +127,7 @@ public class DefenseGenerator extends JavaGenerator {
       method.addStatement("int count = $L", attackStep.getRequires().size());
       for (StepExpr expr : attackStep.getRequires()) {
         AutoFlow af = new AutoFlow();
-        AutoFlow end = exprGen.generate(af, expr, attackStep.getAsset(), "(sample)", variables);
+        AutoFlow end = exprGen.generate(af, expr, attackStep.getAsset(), "(sample)");
         end.addStatement("count--");
         if (end.isLoop()) {
           end.addStatement("break");
@@ -140,14 +137,6 @@ public class DefenseGenerator extends JavaGenerator {
       method.addStatement("return count == 0");
     }
 
-    for (var variable : variables.entrySet()) {
-      MethodSpec variableMethod = variable.getValue().build();
-      parentBuilder.addField(
-          variableMethod.returnType,
-          String.format("_cache%s", variable.getKey()),
-          Modifier.PRIVATE);
-      parentBuilder.addMethod(variableMethod);
-    }
     parentBuilder.addMethod(method.build());
   }
 

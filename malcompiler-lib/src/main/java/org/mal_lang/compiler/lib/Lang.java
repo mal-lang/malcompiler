@@ -155,6 +155,8 @@ public class Lang {
     private Asset superAsset;
     private Map<String, Field> fields;
     private Map<String, AttackStep> attackSteps;
+    private Map<String, StepExpr> variables;
+    private Map<String, StepExpr> reverseVariables;
 
     public Asset(String name, boolean isAbstract, Category category) {
       this.name = name;
@@ -163,6 +165,24 @@ public class Lang {
       this.meta = new Meta();
       this.fields = new LinkedHashMap<>();
       this.attackSteps = new LinkedHashMap<>();
+      this.variables = new LinkedHashMap<>();
+      this.reverseVariables = new LinkedHashMap<>();
+    }
+
+    public void addVariable(String name, StepExpr expr) {
+      this.variables.put(name, expr);
+    }
+
+    public Map<String, StepExpr> getVariables() {
+      return this.variables;
+    }
+
+    public void addReverseVariable(String name, StepExpr expr) {
+      this.reverseVariables.put(name, expr);
+    }
+
+    public Map<String, StepExpr> getReverseVariables() {
+      return this.reverseVariables;
     }
 
     public String getName() {
@@ -344,6 +364,7 @@ public class Lang {
     private List<StepExpr> requires;
     private List<StepExpr> reaches;
     private List<StepExpr> parentSteps;
+    private Map<String, StepExpr> variables;
 
     public AttackStep(
         String name, AttackStepType type, Asset asset, boolean inheritsReaches, CIA cia) {
@@ -356,6 +377,15 @@ public class Lang {
       this.requires = new ArrayList<>();
       this.reaches = new ArrayList<>();
       this.parentSteps = new ArrayList<>();
+      this.variables = new LinkedHashMap<>();
+    }
+
+    public void addVariable(String name, StepExpr expr) {
+      this.variables.put(name, expr);
+    }
+
+    public Map<String, StepExpr> getVariables() {
+      return this.variables;
     }
 
     public String getName() {
@@ -588,22 +618,11 @@ public class Lang {
   }
 
   public static class StepVar extends StepExpr {
-    public final StepExpr e;
     public final String name;
-    public final boolean inAsset;
 
-    public StepVar(
-        Asset subSrc,
-        Asset src,
-        Asset target,
-        Asset subTarget,
-        StepExpr e,
-        String name,
-        boolean inAsset) {
+    public StepVar(Asset subSrc, Asset src, Asset target, Asset subTarget, String name) {
       super(subSrc, src, target, subTarget);
-      this.e = e;
       this.name = name;
-      this.inAsset = inAsset;
     }
   }
 }
