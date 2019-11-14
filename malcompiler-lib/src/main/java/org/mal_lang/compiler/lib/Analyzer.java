@@ -643,38 +643,12 @@ public class Analyzer {
     }
   }
 
-  private AST.AttackStep variableToStep(
-      AST.Asset asset, AST.Variable variable, Scope<AST.Variable> scope) {
-    if (evalVariableBegin(variable)) {
-      AST.AttackStep res = checkToStep(asset, variable.expr, scope);
-      evalVariableEnd(variable);
-      return res;
-    } else {
-      return null;
-    }
-  }
-
   private AST.AttackStep checkToStep(AST.Asset asset, AST.Expr expr, Scope<AST.Variable> scope) {
     if (expr instanceof AST.IDExpr) {
       AST.IDExpr step = (AST.IDExpr) expr;
       AST.Asset target = asset;
-      var variableScope = scope.getScopeFor(step.id.id);
-      var variable = variableScope == null ? null : variableScope.look(step.id.id);
       AST.AttackStep attackStep = steps.get(target.name.id).lookup(step.id.id);
-      if (variable != null && attackStep != null) {
-        // ID is both variable and attack step. We assume the variable is desired but print a
-        // warning.
-        LOGGER.warning(
-            step.id,
-            String.format(
-                "Step '%s' defined as variable at %s and attack step at %s",
-                step.id.id, variable.name.posString(), attackStep.name.posString()));
-        return variableToStep(target, variable, variableScope);
-      } else if (variable != null) {
-        // Only defined as a variable
-        return variableToStep(target, variable, variableScope);
-      } else if (attackStep != null) {
-        // Only defined as an attack step
+      if (attackStep != null) {
         return attackStep;
       } else {
         error(
@@ -734,8 +708,8 @@ public class Analyzer {
   }
 
   /**
-   * When evaluating a variable (variableToAsset() or varialeToStep()), a record must be kept to
-   * check for cyclic usage of variables.
+   * When evaluating a variable (variableToAsset()), a record must be kept to check for cyclic usage
+   * of variables.
    *
    * @param variable Variable evaluated
    * @return True if variable is not being evaluated, false otherwise
@@ -764,10 +738,14 @@ public class Analyzer {
   }
 
   private AST.Asset variableToAsset(
-      AST.Asset asset, AST.Variable variable, Scope<AST.Variable> scope, boolean first) {
+      AST.Asset asset, AST.Variable variable, Scope<AST.Variable> scope, boolean first, AST.ID id) {
     if (evalVariableBegin(variable)) {
       if (!first) {
-        error(variable.name, "VARIABLE NOT FIRST");
+        error(
+            id,
+            String.format(
+                "Variable '%s', defined at %s, is not used as first step",
+                variable.name.id, variable.name.posString()));
       }
       AST.Asset res = checkToAsset(asset, variable.expr, scope, first);
       evalVariableEnd(variable);
@@ -789,10 +767,10 @@ public class Analyzer {
           String.format(
               "Step '%s' defined as variable at %s and field at %s",
               expr.id.id, variable.name.posString(), target.posString()));
-      return variableToAsset(asset, variable, variableScope, first);
+      return variableToAsset(asset, variable, variableScope, first, expr.id);
     } else if (variable != null) {
       // ID defined as variable only
-      return variableToAsset(asset, variable, variableScope, first);
+      return variableToAsset(asset, variable, variableScope, first, expr.id);
     } else {
       // ID defined as target (or invalid, getTarget() will print error)
       return getTarget(asset, expr.id);

@@ -403,210 +403,170 @@ public class TestAllFeatures extends MalTest {
       new Token(TokenType.ANY, CORE_MAL, 114, 5),
       new Token(TokenType.ID, CORE_MAL, 114, 7, "a7Attack"),
       new Token(TokenType.OVERRIDE, CORE_MAL, 115, 7),
-      new Token(TokenType.ID, CORE_MAL, 115, 10, "a3Attack"),
-      new Token(TokenType.COMMA, CORE_MAL, 115, 18),
-      new Token(TokenType.ID, CORE_MAL, 116, 10, "otherAttack"),
-      new Token(TokenType.COMMA, CORE_MAL, 116, 21),
-      new Token(TokenType.ID, CORE_MAL, 117, 10, "a1"),
-      new Token(TokenType.DOT, CORE_MAL, 117, 12),
-      new Token(TokenType.ID, CORE_MAL, 117, 13, "destroy"),
-      new Token(TokenType.ANY, CORE_MAL, 118, 5),
-      new Token(TokenType.ID, CORE_MAL, 118, 7, "otherAttack"),
-      new Token(TokenType.LET, CORE_MAL, 120, 5),
-      new Token(TokenType.ID, CORE_MAL, 120, 9, "a3Attack"),
-      new Token(TokenType.ASSIGN, CORE_MAL, 120, 18),
-      new Token(TokenType.ID, CORE_MAL, 120, 20, "a1Attack1"),
-      new Token(TokenType.LET, CORE_MAL, 122, 5),
-      new Token(TokenType.ID, CORE_MAL, 122, 9, "otherAttack"),
-      new Token(TokenType.ASSIGN, CORE_MAL, 122, 21),
-      new Token(TokenType.ID, CORE_MAL, 122, 23, "a7Attack"),
-      new Token(TokenType.LET, CORE_MAL, 124, 5),
-      new Token(TokenType.ID, CORE_MAL, 124, 9, "a6"),
-      new Token(TokenType.ASSIGN, CORE_MAL, 124, 12),
-      new Token(TokenType.ID, CORE_MAL, 124, 14, "a1Super"),
-      new Token(TokenType.DOT, CORE_MAL, 124, 21),
-      new Token(TokenType.ID, CORE_MAL, 124, 22, "a8"),
-      new Token(TokenType.LET, CORE_MAL, 126, 5),
-      new Token(TokenType.ID, CORE_MAL, 126, 9, "a1"),
-      new Token(TokenType.ASSIGN, CORE_MAL, 126, 12),
-      new Token(TokenType.ID, CORE_MAL, 126, 14, "a6"),
-      new Token(TokenType.DOT, CORE_MAL, 126, 16),
-      new Token(TokenType.ID, CORE_MAL, 126, 17, "a8Super"),
-      new Token(TokenType.RCURLY, CORE_MAL, 127, 3),
-      new Token(TokenType.ASSET, CORE_MAL, 129, 3),
-      new Token(TokenType.ID, CORE_MAL, 129, 9, "A8"),
-      new Token(TokenType.LCURLY, CORE_MAL, 129, 12),
-      new Token(TokenType.ALL, CORE_MAL, 130, 5),
-      new Token(TokenType.ID, CORE_MAL, 130, 7, "destroy"),
-      new Token(TokenType.LCURLY, CORE_MAL, 130, 15),
-      new Token(TokenType.C, CORE_MAL, 130, 16),
-      new Token(TokenType.COMMA, CORE_MAL, 130, 17),
-      new Token(TokenType.I, CORE_MAL, 130, 19),
-      new Token(TokenType.COMMA, CORE_MAL, 130, 20),
-      new Token(TokenType.A, CORE_MAL, 130, 22),
-      new Token(TokenType.RCURLY, CORE_MAL, 130, 23),
-      new Token(TokenType.LBRACKET, CORE_MAL, 130, 25),
-      new Token(TokenType.ID, CORE_MAL, 130, 26, "Exponential"),
-      new Token(TokenType.LPAREN, CORE_MAL, 130, 37),
-      new Token(TokenType.INT, CORE_MAL, 130, 38, 5),
-      new Token(TokenType.RPAREN, CORE_MAL, 130, 39),
-      new Token(TokenType.RBRACKET, CORE_MAL, 130, 40),
-      new Token(TokenType.RCURLY, CORE_MAL, 131, 3),
-      new Token(TokenType.ASSET, CORE_MAL, 133, 3),
-      new Token(TokenType.ID, CORE_MAL, 133, 9, "A9"),
-      new Token(TokenType.LCURLY, CORE_MAL, 133, 12),
-      new Token(TokenType.RCURLY, CORE_MAL, 136, 3),
-      new Token(TokenType.RCURLY, CORE_MAL, 137, 1),
-
-      // 139: associations { /* No associations here */ }
-      new Token(TokenType.ASSOCIATIONS, CORE_MAL, 139, 1),
-      new Token(TokenType.LCURLY, CORE_MAL, 139, 14),
-      new Token(TokenType.RCURLY, CORE_MAL, 139, 43),
-
-      // 141: associations {
-      new Token(TokenType.ASSOCIATIONS, CORE_MAL, 141, 1),
-      new Token(TokenType.LCURLY, CORE_MAL, 141, 14),
-
-      // 143:   A1 [a1]      1    <-- L1 --> 1..* [a4]    A4
-      new Token(TokenType.ID, CORE_MAL, 143, 3, "A1"),
+      new Token(TokenType.ID, CORE_MAL, 115, 10, "a1"),
+      new Token(TokenType.DOT, CORE_MAL, 115, 12),
+      new Token(TokenType.ID, CORE_MAL, 115, 13, "destroy"),
+      new Token(TokenType.LET, CORE_MAL, 117, 5),
+      new Token(TokenType.ID, CORE_MAL, 117, 9, "a6"),
+      new Token(TokenType.ASSIGN, CORE_MAL, 117, 12),
+      new Token(TokenType.ID, CORE_MAL, 117, 14, "a1Super"),
+      new Token(TokenType.DOT, CORE_MAL, 117, 21),
+      new Token(TokenType.ID, CORE_MAL, 117, 22, "a8"),
+      new Token(TokenType.LET, CORE_MAL, 119, 5),
+      new Token(TokenType.ID, CORE_MAL, 119, 9, "a1"),
+      new Token(TokenType.ASSIGN, CORE_MAL, 119, 12),
+      new Token(TokenType.ID, CORE_MAL, 119, 14, "a6"),
+      new Token(TokenType.DOT, CORE_MAL, 119, 16),
+      new Token(TokenType.ID, CORE_MAL, 119, 17, "a8Super"),
+      new Token(TokenType.RCURLY, CORE_MAL, 120, 3),
+      new Token(TokenType.ASSET, CORE_MAL, 122, 3),
+      new Token(TokenType.ID, CORE_MAL, 122, 9, "A8"),
+      new Token(TokenType.LCURLY, CORE_MAL, 122, 12),
+      new Token(TokenType.ALL, CORE_MAL, 123, 5),
+      new Token(TokenType.ID, CORE_MAL, 123, 7, "destroy"),
+      new Token(TokenType.LCURLY, CORE_MAL, 123, 15),
+      new Token(TokenType.C, CORE_MAL, 123, 16),
+      new Token(TokenType.COMMA, CORE_MAL, 123, 17),
+      new Token(TokenType.I, CORE_MAL, 123, 19),
+      new Token(TokenType.COMMA, CORE_MAL, 123, 20),
+      new Token(TokenType.A, CORE_MAL, 123, 22),
+      new Token(TokenType.RCURLY, CORE_MAL, 123, 23),
+      new Token(TokenType.LBRACKET, CORE_MAL, 123, 25),
+      new Token(TokenType.ID, CORE_MAL, 123, 26, "Exponential"),
+      new Token(TokenType.LPAREN, CORE_MAL, 123, 37),
+      new Token(TokenType.INT, CORE_MAL, 123, 38, 5),
+      new Token(TokenType.RPAREN, CORE_MAL, 123, 39),
+      new Token(TokenType.RBRACKET, CORE_MAL, 123, 40),
+      new Token(TokenType.RCURLY, CORE_MAL, 124, 3),
+      new Token(TokenType.ASSET, CORE_MAL, 126, 3),
+      new Token(TokenType.ID, CORE_MAL, 126, 9, "A9"),
+      new Token(TokenType.LCURLY, CORE_MAL, 126, 12),
+      new Token(TokenType.RCURLY, CORE_MAL, 129, 3),
+      new Token(TokenType.RCURLY, CORE_MAL, 130, 1),
+      new Token(TokenType.ASSOCIATIONS, CORE_MAL, 132, 1),
+      new Token(TokenType.LCURLY, CORE_MAL, 132, 14),
+      new Token(TokenType.RCURLY, CORE_MAL, 132, 43),
+      new Token(TokenType.ASSOCIATIONS, CORE_MAL, 134, 1),
+      new Token(TokenType.LCURLY, CORE_MAL, 134, 14),
+      new Token(TokenType.ID, CORE_MAL, 136, 3, "A1"),
+      new Token(TokenType.LBRACKET, CORE_MAL, 136, 6),
+      new Token(TokenType.ID, CORE_MAL, 136, 7, "a1"),
+      new Token(TokenType.RBRACKET, CORE_MAL, 136, 9),
+      new Token(TokenType.INT, CORE_MAL, 136, 16, 1),
+      new Token(TokenType.LARROW, CORE_MAL, 136, 21),
+      new Token(TokenType.ID, CORE_MAL, 136, 25, "L1"),
+      new Token(TokenType.RARROW, CORE_MAL, 136, 28),
+      new Token(TokenType.INT, CORE_MAL, 136, 32, 1),
+      new Token(TokenType.RANGE, CORE_MAL, 136, 33),
+      new Token(TokenType.STAR, CORE_MAL, 136, 35),
+      new Token(TokenType.LBRACKET, CORE_MAL, 136, 37),
+      new Token(TokenType.ID, CORE_MAL, 136, 38, "a4"),
+      new Token(TokenType.RBRACKET, CORE_MAL, 136, 40),
+      new Token(TokenType.ID, CORE_MAL, 136, 45, "A4"),
+      new Token(TokenType.ID, CORE_MAL, 137, 3, "A5"),
+      new Token(TokenType.LBRACKET, CORE_MAL, 137, 6),
+      new Token(TokenType.ID, CORE_MAL, 137, 7, "a5"),
+      new Token(TokenType.RBRACKET, CORE_MAL, 137, 9),
+      new Token(TokenType.INT, CORE_MAL, 137, 16, 1),
+      new Token(TokenType.RANGE, CORE_MAL, 137, 17),
+      new Token(TokenType.INT, CORE_MAL, 137, 19, 1),
+      new Token(TokenType.LARROW, CORE_MAL, 137, 21),
+      new Token(TokenType.ID, CORE_MAL, 137, 25, "L2"),
+      new Token(TokenType.RARROW, CORE_MAL, 137, 28),
+      new Token(TokenType.INT, CORE_MAL, 137, 32, 0),
+      new Token(TokenType.RANGE, CORE_MAL, 137, 33),
+      new Token(TokenType.STAR, CORE_MAL, 137, 35),
+      new Token(TokenType.LBRACKET, CORE_MAL, 137, 37),
+      new Token(TokenType.ID, CORE_MAL, 137, 38, "a6"),
+      new Token(TokenType.RBRACKET, CORE_MAL, 137, 40),
+      new Token(TokenType.ID, CORE_MAL, 137, 45, "A6"),
+      new Token(TokenType.RCURLY, CORE_MAL, 138, 1),
+      new Token(TokenType.ASSOCIATIONS, CORE_MAL, 140, 1),
+      new Token(TokenType.LCURLY, CORE_MAL, 140, 14),
+      new Token(TokenType.ID, CORE_MAL, 142, 3, "A1"),
+      new Token(TokenType.LBRACKET, CORE_MAL, 142, 6),
+      new Token(TokenType.ID, CORE_MAL, 142, 7, "a1Super"),
+      new Token(TokenType.RBRACKET, CORE_MAL, 142, 14),
+      new Token(TokenType.INT, CORE_MAL, 142, 16, 0),
+      new Token(TokenType.RANGE, CORE_MAL, 142, 17),
+      new Token(TokenType.INT, CORE_MAL, 142, 19, 1),
+      new Token(TokenType.LARROW, CORE_MAL, 142, 21),
+      new Token(TokenType.ID, CORE_MAL, 142, 25, "L3"),
+      new Token(TokenType.RARROW, CORE_MAL, 142, 28),
+      new Token(TokenType.STAR, CORE_MAL, 142, 32),
+      new Token(TokenType.LBRACKET, CORE_MAL, 142, 37),
+      new Token(TokenType.ID, CORE_MAL, 142, 38, "a1Sub"),
+      new Token(TokenType.RBRACKET, CORE_MAL, 142, 43),
+      new Token(TokenType.ID, CORE_MAL, 142, 47, "A1"),
+      new Token(TokenType.ID, CORE_MAL, 143, 3, "A3"),
       new Token(TokenType.LBRACKET, CORE_MAL, 143, 6),
-      new Token(TokenType.ID, CORE_MAL, 143, 7, "a1"),
+      new Token(TokenType.ID, CORE_MAL, 143, 7, "a3"),
       new Token(TokenType.RBRACKET, CORE_MAL, 143, 9),
-      new Token(TokenType.INT, CORE_MAL, 143, 16, 1),
+      new Token(TokenType.STAR, CORE_MAL, 143, 16),
       new Token(TokenType.LARROW, CORE_MAL, 143, 21),
-      new Token(TokenType.ID, CORE_MAL, 143, 25, "L1"),
+      new Token(TokenType.ID, CORE_MAL, 143, 25, "L3"),
       new Token(TokenType.RARROW, CORE_MAL, 143, 28),
-      new Token(TokenType.INT, CORE_MAL, 143, 32, 1),
-      new Token(TokenType.RANGE, CORE_MAL, 143, 33),
-      new Token(TokenType.STAR, CORE_MAL, 143, 35),
+      new Token(TokenType.STAR, CORE_MAL, 143, 32),
       new Token(TokenType.LBRACKET, CORE_MAL, 143, 37),
-      new Token(TokenType.ID, CORE_MAL, 143, 38, "a4"),
+      new Token(TokenType.ID, CORE_MAL, 143, 38, "a6"),
       new Token(TokenType.RBRACKET, CORE_MAL, 143, 40),
-      new Token(TokenType.ID, CORE_MAL, 143, 45, "A4"),
-
-      // 144:   A5 [a5]      1..1 <-- L2 --> 0..* [a6]    A6
-      new Token(TokenType.ID, CORE_MAL, 144, 3, "A5"),
+      new Token(TokenType.ID, CORE_MAL, 143, 47, "A6"),
+      new Token(TokenType.ID, CORE_MAL, 144, 3, "A7"),
       new Token(TokenType.LBRACKET, CORE_MAL, 144, 6),
-      new Token(TokenType.ID, CORE_MAL, 144, 7, "a5"),
+      new Token(TokenType.ID, CORE_MAL, 144, 7, "a7"),
       new Token(TokenType.RBRACKET, CORE_MAL, 144, 9),
-      new Token(TokenType.INT, CORE_MAL, 144, 16, 1),
+      new Token(TokenType.INT, CORE_MAL, 144, 16, 0),
       new Token(TokenType.RANGE, CORE_MAL, 144, 17),
       new Token(TokenType.INT, CORE_MAL, 144, 19, 1),
       new Token(TokenType.LARROW, CORE_MAL, 144, 21),
-      new Token(TokenType.ID, CORE_MAL, 144, 25, "L2"),
+      new Token(TokenType.ID, CORE_MAL, 144, 25, "L3"),
       new Token(TokenType.RARROW, CORE_MAL, 144, 28),
-      new Token(TokenType.INT, CORE_MAL, 144, 32, 0),
-      new Token(TokenType.RANGE, CORE_MAL, 144, 33),
-      new Token(TokenType.STAR, CORE_MAL, 144, 35),
+      new Token(TokenType.INT, CORE_MAL, 144, 32, 1),
       new Token(TokenType.LBRACKET, CORE_MAL, 144, 37),
-      new Token(TokenType.ID, CORE_MAL, 144, 38, "a6"),
+      new Token(TokenType.ID, CORE_MAL, 144, 38, "a1"),
       new Token(TokenType.RBRACKET, CORE_MAL, 144, 40),
-      new Token(TokenType.ID, CORE_MAL, 144, 45, "A6"),
-
-      // 145: }
-      new Token(TokenType.RCURLY, CORE_MAL, 145, 1),
-
-      // 147: associations {
-      new Token(TokenType.ASSOCIATIONS, CORE_MAL, 147, 1),
-      new Token(TokenType.LCURLY, CORE_MAL, 147, 14),
-
-      // 149:   A1 [a1Super] 0..1 <-- L3 --> *    [a1Sub]   A1
-      new Token(TokenType.ID, CORE_MAL, 149, 3, "A1"),
-      new Token(TokenType.LBRACKET, CORE_MAL, 149, 6),
-      new Token(TokenType.ID, CORE_MAL, 149, 7, "a1Super"),
-      new Token(TokenType.RBRACKET, CORE_MAL, 149, 14),
-      new Token(TokenType.INT, CORE_MAL, 149, 16, 0),
-      new Token(TokenType.RANGE, CORE_MAL, 149, 17),
-      new Token(TokenType.INT, CORE_MAL, 149, 19, 1),
-      new Token(TokenType.LARROW, CORE_MAL, 149, 21),
-      new Token(TokenType.ID, CORE_MAL, 149, 25, "L3"),
-      new Token(TokenType.RARROW, CORE_MAL, 149, 28),
-      new Token(TokenType.STAR, CORE_MAL, 149, 32),
-      new Token(TokenType.LBRACKET, CORE_MAL, 149, 37),
-      new Token(TokenType.ID, CORE_MAL, 149, 38, "a1Sub"),
-      new Token(TokenType.RBRACKET, CORE_MAL, 149, 43),
-      new Token(TokenType.ID, CORE_MAL, 149, 47, "A1"),
-
-      // 150:   A3 [a3]      *    <-- L3 --> *    [a6]      A6
-      new Token(TokenType.ID, CORE_MAL, 150, 3, "A3"),
-      new Token(TokenType.LBRACKET, CORE_MAL, 150, 6),
-      new Token(TokenType.ID, CORE_MAL, 150, 7, "a3"),
-      new Token(TokenType.RBRACKET, CORE_MAL, 150, 9),
-      new Token(TokenType.STAR, CORE_MAL, 150, 16),
-      new Token(TokenType.LARROW, CORE_MAL, 150, 21),
-      new Token(TokenType.ID, CORE_MAL, 150, 25, "L3"),
-      new Token(TokenType.RARROW, CORE_MAL, 150, 28),
-      new Token(TokenType.STAR, CORE_MAL, 150, 32),
-      new Token(TokenType.LBRACKET, CORE_MAL, 150, 37),
-      new Token(TokenType.ID, CORE_MAL, 150, 38, "a6"),
-      new Token(TokenType.RBRACKET, CORE_MAL, 150, 40),
-      new Token(TokenType.ID, CORE_MAL, 150, 47, "A6"),
-
-      // 151:   A7 [a7]      0..1 <-- L3 --> 1    [a1]      A1
-      new Token(TokenType.ID, CORE_MAL, 151, 3, "A7"),
-      new Token(TokenType.LBRACKET, CORE_MAL, 151, 6),
-      new Token(TokenType.ID, CORE_MAL, 151, 7, "a7"),
-      new Token(TokenType.RBRACKET, CORE_MAL, 151, 9),
-      new Token(TokenType.INT, CORE_MAL, 151, 16, 0),
-      new Token(TokenType.RANGE, CORE_MAL, 151, 17),
-      new Token(TokenType.INT, CORE_MAL, 151, 19, 1),
-      new Token(TokenType.LARROW, CORE_MAL, 151, 21),
-      new Token(TokenType.ID, CORE_MAL, 151, 25, "L3"),
-      new Token(TokenType.RARROW, CORE_MAL, 151, 28),
-      new Token(TokenType.INT, CORE_MAL, 151, 32, 1),
-      new Token(TokenType.LBRACKET, CORE_MAL, 151, 37),
-      new Token(TokenType.ID, CORE_MAL, 151, 38, "a1"),
-      new Token(TokenType.RBRACKET, CORE_MAL, 151, 40),
-      new Token(TokenType.ID, CORE_MAL, 151, 47, "A1"),
-
-      // 152:   A8 [a8]      *    <-- L4 --> *    [a1]      A1
-      new Token(TokenType.ID, CORE_MAL, 152, 3, "A8"),
-      new Token(TokenType.LBRACKET, CORE_MAL, 152, 6),
-      new Token(TokenType.ID, CORE_MAL, 152, 7, "a8"),
-      new Token(TokenType.RBRACKET, CORE_MAL, 152, 9),
-      new Token(TokenType.STAR, CORE_MAL, 152, 16),
-      new Token(TokenType.LARROW, CORE_MAL, 152, 21),
-      new Token(TokenType.ID, CORE_MAL, 152, 25, "L4"),
-      new Token(TokenType.RARROW, CORE_MAL, 152, 28),
-      new Token(TokenType.STAR, CORE_MAL, 152, 32),
-      new Token(TokenType.LBRACKET, CORE_MAL, 152, 37),
-      new Token(TokenType.ID, CORE_MAL, 152, 38, "a1"),
-      new Token(TokenType.RBRACKET, CORE_MAL, 152, 40),
-      new Token(TokenType.ID, CORE_MAL, 152, 47, "A1"),
-
-      // 153:   A8 [a8]      *    <-- L4 --> *    [a4]      A4
-      new Token(TokenType.ID, CORE_MAL, 153, 3, "A8"),
-      new Token(TokenType.LBRACKET, CORE_MAL, 153, 6),
-      new Token(TokenType.ID, CORE_MAL, 153, 7, "a8"),
-      new Token(TokenType.RBRACKET, CORE_MAL, 153, 9),
-      new Token(TokenType.STAR, CORE_MAL, 153, 16),
-      new Token(TokenType.LARROW, CORE_MAL, 153, 21),
-      new Token(TokenType.ID, CORE_MAL, 153, 25, "L4"),
-      new Token(TokenType.RARROW, CORE_MAL, 153, 28),
-      new Token(TokenType.STAR, CORE_MAL, 153, 32),
-      new Token(TokenType.LBRACKET, CORE_MAL, 153, 37),
-      new Token(TokenType.ID, CORE_MAL, 153, 38, "a4"),
-      new Token(TokenType.RBRACKET, CORE_MAL, 153, 40),
-      new Token(TokenType.ID, CORE_MAL, 153, 47, "A4"),
-
-      // 154:   A8 [a8Sub]   *    <-- L4 --> *    [a8Super] A8
-      new Token(TokenType.ID, CORE_MAL, 154, 3, "A8"),
-      new Token(TokenType.LBRACKET, CORE_MAL, 154, 6),
-      new Token(TokenType.ID, CORE_MAL, 154, 7, "a8Sub"),
-      new Token(TokenType.RBRACKET, CORE_MAL, 154, 12),
-      new Token(TokenType.STAR, CORE_MAL, 154, 16),
-      new Token(TokenType.LARROW, CORE_MAL, 154, 21),
-      new Token(TokenType.ID, CORE_MAL, 154, 25, "L4"),
-      new Token(TokenType.RARROW, CORE_MAL, 154, 28),
-      new Token(TokenType.STAR, CORE_MAL, 154, 32),
-      new Token(TokenType.LBRACKET, CORE_MAL, 154, 37),
-      new Token(TokenType.ID, CORE_MAL, 154, 38, "a8Super"),
-      new Token(TokenType.RBRACKET, CORE_MAL, 154, 45),
-      new Token(TokenType.ID, CORE_MAL, 154, 47, "A8"),
-
-      // 155: }
-      new Token(TokenType.RCURLY, CORE_MAL, 155, 1),
-      new Token(TokenType.EOF, CORE_MAL, 156, 1)
+      new Token(TokenType.ID, CORE_MAL, 144, 47, "A1"),
+      new Token(TokenType.ID, CORE_MAL, 145, 3, "A8"),
+      new Token(TokenType.LBRACKET, CORE_MAL, 145, 6),
+      new Token(TokenType.ID, CORE_MAL, 145, 7, "a8"),
+      new Token(TokenType.RBRACKET, CORE_MAL, 145, 9),
+      new Token(TokenType.STAR, CORE_MAL, 145, 16),
+      new Token(TokenType.LARROW, CORE_MAL, 145, 21),
+      new Token(TokenType.ID, CORE_MAL, 145, 25, "L4"),
+      new Token(TokenType.RARROW, CORE_MAL, 145, 28),
+      new Token(TokenType.STAR, CORE_MAL, 145, 32),
+      new Token(TokenType.LBRACKET, CORE_MAL, 145, 37),
+      new Token(TokenType.ID, CORE_MAL, 145, 38, "a1"),
+      new Token(TokenType.RBRACKET, CORE_MAL, 145, 40),
+      new Token(TokenType.ID, CORE_MAL, 145, 47, "A1"),
+      new Token(TokenType.ID, CORE_MAL, 146, 3, "A8"),
+      new Token(TokenType.LBRACKET, CORE_MAL, 146, 6),
+      new Token(TokenType.ID, CORE_MAL, 146, 7, "a8"),
+      new Token(TokenType.RBRACKET, CORE_MAL, 146, 9),
+      new Token(TokenType.STAR, CORE_MAL, 146, 16),
+      new Token(TokenType.LARROW, CORE_MAL, 146, 21),
+      new Token(TokenType.ID, CORE_MAL, 146, 25, "L4"),
+      new Token(TokenType.RARROW, CORE_MAL, 146, 28),
+      new Token(TokenType.STAR, CORE_MAL, 146, 32),
+      new Token(TokenType.LBRACKET, CORE_MAL, 146, 37),
+      new Token(TokenType.ID, CORE_MAL, 146, 38, "a4"),
+      new Token(TokenType.RBRACKET, CORE_MAL, 146, 40),
+      new Token(TokenType.ID, CORE_MAL, 146, 47, "A4"),
+      new Token(TokenType.ID, CORE_MAL, 147, 3, "A8"),
+      new Token(TokenType.LBRACKET, CORE_MAL, 147, 6),
+      new Token(TokenType.ID, CORE_MAL, 147, 7, "a8Sub"),
+      new Token(TokenType.RBRACKET, CORE_MAL, 147, 12),
+      new Token(TokenType.STAR, CORE_MAL, 147, 16),
+      new Token(TokenType.LARROW, CORE_MAL, 147, 21),
+      new Token(TokenType.ID, CORE_MAL, 147, 25, "L4"),
+      new Token(TokenType.RARROW, CORE_MAL, 147, 28),
+      new Token(TokenType.STAR, CORE_MAL, 147, 32),
+      new Token(TokenType.LBRACKET, CORE_MAL, 147, 37),
+      new Token(TokenType.ID, CORE_MAL, 147, 38, "a8Super"),
+      new Token(TokenType.RBRACKET, CORE_MAL, 147, 45),
+      new Token(TokenType.ID, CORE_MAL, 147, 47, "A8"),
+      new Token(TokenType.RCURLY, CORE_MAL, 148, 1),
+      new Token(TokenType.EOF, CORE_MAL, 149, 1)
     };
     assertTokens(tokens, "all-features/core.mal");
   }
@@ -1322,93 +1282,64 @@ public class TestAllFeatures extends MalTest {
                                     false,
                                     new ArrayList<AST.Variable>(),
                                     Arrays.asList(
-                                        new AST.IDExpr(
-                                            new Position(CORE_MAL, 115, 10),
-                                            new AST.ID(
-                                                new Position(CORE_MAL, 115, 10), "a3Attack")),
-                                        new AST.IDExpr(
-                                            new Position(CORE_MAL, 116, 10),
-                                            new AST.ID(
-                                                new Position(CORE_MAL, 116, 10), "otherAttack")),
                                         new AST.StepExpr(
-                                            new Position(CORE_MAL, 117, 10),
+                                            new Position(CORE_MAL, 115, 10),
                                             new AST.IDExpr(
-                                                new Position(CORE_MAL, 117, 10),
-                                                new AST.ID(new Position(CORE_MAL, 117, 10), "a1")),
+                                                new Position(CORE_MAL, 115, 10),
+                                                new AST.ID(new Position(CORE_MAL, 115, 10), "a1")),
                                             new AST.IDExpr(
-                                                new Position(CORE_MAL, 117, 13),
+                                                new Position(CORE_MAL, 115, 13),
                                                 new AST.ID(
-                                                    new Position(CORE_MAL, 117, 13),
-                                                    "destroy"))))))),
-                        new AST.AttackStep(
-                            new Position(CORE_MAL, 118, 5),
-                            AST.AttackStepType.ANY,
-                            new AST.ID(new Position(CORE_MAL, 118, 7), "otherAttack"),
-                            Optional.empty(),
-                            Optional.empty(),
-                            new ArrayList<AST.Meta>(),
-                            Optional.empty(),
-                            Optional.empty())),
+                                                    new Position(CORE_MAL, 115, 13),
+                                                    "destroy")))))))),
                     Arrays.asList(
                         new AST.Variable(
-                            new Position(CORE_MAL, 120, 5),
-                            new AST.ID(new Position(CORE_MAL, 120, 9), "a3Attack"),
-                            new AST.IDExpr(
-                                new Position(CORE_MAL, 120, 20),
-                                new AST.ID(new Position(CORE_MAL, 120, 20), "a1Attack1"))),
-                        new AST.Variable(
-                            new Position(CORE_MAL, 122, 5),
-                            new AST.ID(new Position(CORE_MAL, 122, 9), "otherAttack"),
-                            new AST.IDExpr(
-                                new Position(CORE_MAL, 122, 23),
-                                new AST.ID(new Position(CORE_MAL, 122, 23), "a7Attack"))),
-                        new AST.Variable(
-                            new Position(CORE_MAL, 124, 5),
-                            new AST.ID(new Position(CORE_MAL, 124, 9), "a6"),
+                            new Position(CORE_MAL, 117, 5),
+                            new AST.ID(new Position(CORE_MAL, 117, 9), "a6"),
                             new AST.StepExpr(
-                                new Position(CORE_MAL, 124, 14),
+                                new Position(CORE_MAL, 117, 14),
                                 new AST.IDExpr(
-                                    new Position(CORE_MAL, 124, 14),
-                                    new AST.ID(new Position(CORE_MAL, 124, 14), "a1Super")),
+                                    new Position(CORE_MAL, 117, 14),
+                                    new AST.ID(new Position(CORE_MAL, 117, 14), "a1Super")),
                                 new AST.IDExpr(
-                                    new Position(CORE_MAL, 124, 22),
-                                    new AST.ID(new Position(CORE_MAL, 124, 22), "a8")))),
+                                    new Position(CORE_MAL, 117, 22),
+                                    new AST.ID(new Position(CORE_MAL, 117, 22), "a8")))),
                         new AST.Variable(
-                            new Position(CORE_MAL, 126, 5),
-                            new AST.ID(new Position(CORE_MAL, 126, 9), "a1"),
+                            new Position(CORE_MAL, 119, 5),
+                            new AST.ID(new Position(CORE_MAL, 119, 9), "a1"),
                             new AST.StepExpr(
-                                new Position(CORE_MAL, 126, 14),
+                                new Position(CORE_MAL, 119, 14),
                                 new AST.IDExpr(
-                                    new Position(CORE_MAL, 126, 14),
-                                    new AST.ID(new Position(CORE_MAL, 126, 14), "a6")),
+                                    new Position(CORE_MAL, 119, 14),
+                                    new AST.ID(new Position(CORE_MAL, 119, 14), "a6")),
                                 new AST.IDExpr(
-                                    new Position(CORE_MAL, 126, 17),
-                                    new AST.ID(new Position(CORE_MAL, 126, 17), "a8Super")))))),
+                                    new Position(CORE_MAL, 119, 17),
+                                    new AST.ID(new Position(CORE_MAL, 119, 17), "a8Super")))))),
                 new AST.Asset(
-                    new Position(CORE_MAL, 129, 3),
+                    new Position(CORE_MAL, 122, 3),
                     false,
-                    new AST.ID(new Position(CORE_MAL, 129, 9), "A8"),
+                    new AST.ID(new Position(CORE_MAL, 122, 9), "A8"),
                     Optional.empty(),
                     new ArrayList<AST.Meta>(),
                     Arrays.asList(
                         new AST.AttackStep(
-                            new Position(CORE_MAL, 130, 5),
+                            new Position(CORE_MAL, 123, 5),
                             AST.AttackStepType.ALL,
-                            new AST.ID(new Position(CORE_MAL, 130, 7), "destroy"),
+                            new AST.ID(new Position(CORE_MAL, 123, 7), "destroy"),
                             Optional.of(Arrays.asList(AST.CIA.C, AST.CIA.I, AST.CIA.A)),
                             Optional.of(
                                 new AST.TTCFuncExpr(
-                                    new Position(CORE_MAL, 130, 26),
-                                    new AST.ID(new Position(CORE_MAL, 130, 26), "Exponential"),
+                                    new Position(CORE_MAL, 123, 26),
+                                    new AST.ID(new Position(CORE_MAL, 123, 26), "Exponential"),
                                     Arrays.asList(Double.valueOf(5)))),
                             new ArrayList<AST.Meta>(),
                             Optional.empty(),
                             Optional.empty())),
                     new ArrayList<AST.Variable>()),
                 new AST.Asset(
-                    new Position(CORE_MAL, 133, 3),
+                    new Position(CORE_MAL, 126, 3),
                     false,
-                    new AST.ID(new Position(CORE_MAL, 133, 9), "A9"),
+                    new AST.ID(new Position(CORE_MAL, 126, 9), "A9"),
                     Optional.empty(),
                     new ArrayList<AST.Meta>(),
                     new ArrayList<AST.AttackStep>(),
@@ -1418,98 +1349,98 @@ public class TestAllFeatures extends MalTest {
     assertEquals(8, associations.size());
     assertAssociation(
         new AST.Association(
-            new Position(CORE_MAL, 143, 3),
-            new AST.ID(new Position(CORE_MAL, 143, 3), "A1"),
-            new AST.ID(new Position(CORE_MAL, 143, 7), "a1"),
+            new Position(CORE_MAL, 136, 3),
+            new AST.ID(new Position(CORE_MAL, 136, 3), "A1"),
+            new AST.ID(new Position(CORE_MAL, 136, 7), "a1"),
             AST.Multiplicity.ONE,
-            new AST.ID(new Position(CORE_MAL, 143, 25), "L1"),
+            new AST.ID(new Position(CORE_MAL, 136, 25), "L1"),
             AST.Multiplicity.ONE_OR_MORE,
-            new AST.ID(new Position(CORE_MAL, 143, 38), "a4"),
-            new AST.ID(new Position(CORE_MAL, 143, 45), "A4"),
+            new AST.ID(new Position(CORE_MAL, 136, 38), "a4"),
+            new AST.ID(new Position(CORE_MAL, 136, 45), "A4"),
             new ArrayList<AST.Meta>()),
         associations.get(0));
     assertAssociation(
         new AST.Association(
-            new Position(CORE_MAL, 144, 3),
-            new AST.ID(new Position(CORE_MAL, 144, 3), "A5"),
-            new AST.ID(new Position(CORE_MAL, 144, 7), "a5"),
+            new Position(CORE_MAL, 137, 3),
+            new AST.ID(new Position(CORE_MAL, 137, 3), "A5"),
+            new AST.ID(new Position(CORE_MAL, 137, 7), "a5"),
             AST.Multiplicity.ONE,
-            new AST.ID(new Position(CORE_MAL, 144, 25), "L2"),
+            new AST.ID(new Position(CORE_MAL, 137, 25), "L2"),
             AST.Multiplicity.ZERO_OR_MORE,
-            new AST.ID(new Position(CORE_MAL, 144, 38), "a6"),
-            new AST.ID(new Position(CORE_MAL, 144, 45), "A6"),
+            new AST.ID(new Position(CORE_MAL, 137, 38), "a6"),
+            new AST.ID(new Position(CORE_MAL, 137, 45), "A6"),
             new ArrayList<AST.Meta>()),
         associations.get(1));
     assertAssociation(
         new AST.Association(
-            new Position(CORE_MAL, 149, 3),
-            new AST.ID(new Position(CORE_MAL, 149, 3), "A1"),
-            new AST.ID(new Position(CORE_MAL, 149, 7), "a1Super"),
+            new Position(CORE_MAL, 142, 3),
+            new AST.ID(new Position(CORE_MAL, 142, 3), "A1"),
+            new AST.ID(new Position(CORE_MAL, 142, 7), "a1Super"),
             AST.Multiplicity.ZERO_OR_ONE,
-            new AST.ID(new Position(CORE_MAL, 149, 25), "L3"),
+            new AST.ID(new Position(CORE_MAL, 142, 25), "L3"),
             AST.Multiplicity.ZERO_OR_MORE,
-            new AST.ID(new Position(CORE_MAL, 149, 38), "a1Sub"),
-            new AST.ID(new Position(CORE_MAL, 149, 47), "A1"),
+            new AST.ID(new Position(CORE_MAL, 142, 38), "a1Sub"),
+            new AST.ID(new Position(CORE_MAL, 142, 47), "A1"),
             new ArrayList<AST.Meta>()),
         associations.get(2));
     assertAssociation(
         new AST.Association(
-            new Position(CORE_MAL, 150, 3),
-            new AST.ID(new Position(CORE_MAL, 150, 3), "A3"),
-            new AST.ID(new Position(CORE_MAL, 150, 7), "a3"),
+            new Position(CORE_MAL, 143, 3),
+            new AST.ID(new Position(CORE_MAL, 143, 3), "A3"),
+            new AST.ID(new Position(CORE_MAL, 143, 7), "a3"),
             AST.Multiplicity.ZERO_OR_MORE,
-            new AST.ID(new Position(CORE_MAL, 150, 25), "L3"),
+            new AST.ID(new Position(CORE_MAL, 143, 25), "L3"),
             AST.Multiplicity.ZERO_OR_MORE,
-            new AST.ID(new Position(CORE_MAL, 150, 38), "a6"),
-            new AST.ID(new Position(CORE_MAL, 150, 47), "A6"),
+            new AST.ID(new Position(CORE_MAL, 143, 38), "a6"),
+            new AST.ID(new Position(CORE_MAL, 143, 47), "A6"),
             new ArrayList<AST.Meta>()),
         associations.get(3));
     assertAssociation(
         new AST.Association(
-            new Position(CORE_MAL, 151, 3),
-            new AST.ID(new Position(CORE_MAL, 151, 3), "A7"),
-            new AST.ID(new Position(CORE_MAL, 151, 7), "a7"),
+            new Position(CORE_MAL, 144, 3),
+            new AST.ID(new Position(CORE_MAL, 144, 3), "A7"),
+            new AST.ID(new Position(CORE_MAL, 144, 7), "a7"),
             AST.Multiplicity.ZERO_OR_ONE,
-            new AST.ID(new Position(CORE_MAL, 151, 25), "L3"),
+            new AST.ID(new Position(CORE_MAL, 144, 25), "L3"),
             AST.Multiplicity.ONE,
-            new AST.ID(new Position(CORE_MAL, 151, 38), "a1"),
-            new AST.ID(new Position(CORE_MAL, 151, 47), "A1"),
+            new AST.ID(new Position(CORE_MAL, 144, 38), "a1"),
+            new AST.ID(new Position(CORE_MAL, 144, 47), "A1"),
             new ArrayList<AST.Meta>()),
         associations.get(4));
     assertAssociation(
         new AST.Association(
-            new Position(CORE_MAL, 152, 3),
-            new AST.ID(new Position(CORE_MAL, 152, 3), "A8"),
-            new AST.ID(new Position(CORE_MAL, 152, 7), "a8"),
+            new Position(CORE_MAL, 145, 3),
+            new AST.ID(new Position(CORE_MAL, 145, 3), "A8"),
+            new AST.ID(new Position(CORE_MAL, 145, 7), "a8"),
             AST.Multiplicity.ZERO_OR_MORE,
-            new AST.ID(new Position(CORE_MAL, 152, 25), "L4"),
+            new AST.ID(new Position(CORE_MAL, 145, 25), "L4"),
             AST.Multiplicity.ZERO_OR_MORE,
-            new AST.ID(new Position(CORE_MAL, 152, 38), "a1"),
-            new AST.ID(new Position(CORE_MAL, 152, 47), "A1"),
+            new AST.ID(new Position(CORE_MAL, 145, 38), "a1"),
+            new AST.ID(new Position(CORE_MAL, 145, 47), "A1"),
             new ArrayList<AST.Meta>()),
         associations.get(5));
     assertAssociation(
         new AST.Association(
-            new Position(CORE_MAL, 153, 3),
-            new AST.ID(new Position(CORE_MAL, 153, 3), "A8"),
-            new AST.ID(new Position(CORE_MAL, 153, 7), "a8"),
+            new Position(CORE_MAL, 146, 3),
+            new AST.ID(new Position(CORE_MAL, 146, 3), "A8"),
+            new AST.ID(new Position(CORE_MAL, 146, 7), "a8"),
             AST.Multiplicity.ZERO_OR_MORE,
-            new AST.ID(new Position(CORE_MAL, 153, 25), "L4"),
+            new AST.ID(new Position(CORE_MAL, 146, 25), "L4"),
             AST.Multiplicity.ZERO_OR_MORE,
-            new AST.ID(new Position(CORE_MAL, 153, 38), "a4"),
-            new AST.ID(new Position(CORE_MAL, 153, 47), "A4"),
+            new AST.ID(new Position(CORE_MAL, 146, 38), "a4"),
+            new AST.ID(new Position(CORE_MAL, 146, 47), "A4"),
             new ArrayList<AST.Meta>()),
         associations.get(6));
     assertAssociation(
         new AST.Association(
-            new Position(CORE_MAL, 154, 3),
-            new AST.ID(new Position(CORE_MAL, 154, 3), "A8"),
-            new AST.ID(new Position(CORE_MAL, 154, 7), "a8Sub"),
+            new Position(CORE_MAL, 147, 3),
+            new AST.ID(new Position(CORE_MAL, 147, 3), "A8"),
+            new AST.ID(new Position(CORE_MAL, 147, 7), "a8Sub"),
             AST.Multiplicity.ZERO_OR_MORE,
-            new AST.ID(new Position(CORE_MAL, 154, 25), "L4"),
+            new AST.ID(new Position(CORE_MAL, 147, 25), "L4"),
             AST.Multiplicity.ZERO_OR_MORE,
-            new AST.ID(new Position(CORE_MAL, 154, 38), "a8Super"),
-            new AST.ID(new Position(CORE_MAL, 154, 47), "A8"),
+            new AST.ID(new Position(CORE_MAL, 147, 38), "a8Super"),
+            new AST.ID(new Position(CORE_MAL, 147, 47), "A8"),
             new ArrayList<AST.Meta>()),
         associations.get(7));
     var defines = ast.getDefines();
@@ -1548,12 +1479,10 @@ public class TestAllFeatures extends MalTest {
       "[ANALYZER WARNING] <core.mal:66:9> Variable 'unused' is never used",
       "[ANALYZER WARNING] <core.mal:78:10> Category 'C2' contains no assets or metadata",
       "[ANALYZER WARNING] <core.mal:105:18> Asset 'A6' is abstract but never extended to",
-      "[ANALYZER WARNING] <core.mal:115:10> Step 'a3Attack' defined as variable at <core.mal:120:9> and attack step at <core.mal:67:7>",
-      "[ANALYZER WARNING] <core.mal:116:10> Step 'otherAttack' defined as variable at <core.mal:122:9> and attack step at <core.mal:118:7>",
-      "[ANALYZER WARNING] <core.mal:117:10> Step 'a1' defined as variable at <core.mal:126:9> and field at <core.mal:151:38>",
-      "[ANALYZER WARNING] <core.mal:126:14> Step 'a6' defined as variable at <core.mal:124:9> and field at <core.mal:150:38>",
-      "[ANALYZER WARNING] <core.mal:144:3> Association 'A5 [a5] <-- L2 --> A6 [a6]' is never used",
-      "[ANALYZER WARNING] <core.mal:150:3> Association 'A3 [a3] <-- L3 --> A6 [a6]' is never used",
+      "[ANALYZER WARNING] <core.mal:115:10> Step 'a1' defined as variable at <core.mal:119:9> and field at <core.mal:144:38>",
+      "[ANALYZER WARNING] <core.mal:119:14> Step 'a6' defined as variable at <core.mal:117:9> and field at <core.mal:143:38>",
+      "[ANALYZER WARNING] <core.mal:137:3> Association 'A5 [a5] <-- L2 --> A6 [a6]' is never used",
+      "[ANALYZER WARNING] <core.mal:143:3> Association 'A3 [a3] <-- L3 --> A6 [a6]' is never used",
       ""
     };
     assertErrLines(lines);
@@ -1642,7 +1571,7 @@ public class TestAllFeatures extends MalTest {
     var parentSteps = attackStep.getParentSteps();
     assertEquals(0, requires.size());
     assertEquals(0, reaches.size());
-    assertEquals(5, parentSteps.size());
+    assertEquals(4, parentSteps.size());
 
     // Auto-generated parent step 1
     Lang.StepExpr step =
@@ -1718,45 +1647,21 @@ public class TestAllFeatures extends MalTest {
                 lang.getAsset("A1"),
                 lang.getAsset("A4"),
                 lang.getAsset("A4"),
-                new Lang.StepCollect(
+                new Lang.StepVar(
                     lang.getAsset("A3"),
                     lang.getAsset("A1"),
                     lang.getAsset("A4"),
                     lang.getAsset("A4"),
-                    new Lang.StepTransitive(
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        new Lang.StepField(
-                            lang.getAsset("A1"),
-                            lang.getAsset("A1"),
-                            lang.getAsset("A1"),
-                            lang.getAsset("A1"),
-                            lang.getAsset("A1").getField("a1Super"))),
-                    new Lang.StepField(
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A4"),
-                        lang.getAsset("A4"),
-                        lang.getAsset("A1").getField("a4"))),
-                new Lang.StepField(
+                    "reversevar2"),
+                new Lang.StepVar(
                     lang.getAsset("A2"),
                     lang.getAsset("A1"),
                     lang.getAsset("A4"),
                     lang.getAsset("A4"),
-                    lang.getAsset("A1").getField("a4"))),
+                    "reversevar")),
             new Lang.StepAttackStep(
                 lang.getAsset("A4"), lang.getAsset("A4"), lang.getAsset("A4").getAttackStep("a")));
     assertLangStepExpr(step, parentSteps.get(3));
-
-    // Auto-generated parent step 5
-    step =
-        new Lang.StepAttackStep(
-            lang.getAsset("A7"),
-            lang.getAsset("A1"),
-            lang.getAsset("A7").getAttackStep("a7Attack"));
-    assertLangStepExpr(step, parentSteps.get(4));
 
     // Check attack step "a1Attack2"
     attackStep =
@@ -2195,12 +2100,12 @@ public class TestAllFeatures extends MalTest {
             lang.getAsset("A2"),
             null,
             null,
-            new Lang.StepField(
+            new Lang.StepVar(
+                lang.getAsset("A2"),
                 lang.getAsset("A2"),
                 lang.getAsset("A1"),
-                lang.getAsset("A1"),
                 lang.getAsset("A3"),
-                lang.getAsset("A1").getField("a1Super")),
+                "reverseV1"),
             new Lang.StepAttackStep(
                 lang.getAsset("A3"), lang.getAsset("A3"), lang.getAsset("A3").getAttackStep("AT")));
     assertLangStepExpr(step, parentSteps.get(0));
@@ -2465,12 +2370,12 @@ public class TestAllFeatures extends MalTest {
             lang.getAsset("A3"),
             null,
             null,
-            new Lang.StepField(
+            new Lang.StepVar(
                 lang.getAsset("A3"),
                 lang.getAsset("A1"),
                 lang.getAsset("A1"),
                 lang.getAsset("A2"),
-                lang.getAsset("A1").getField("a1Sub")),
+                "V1"),
             new Lang.StepAttackStep(
                 lang.getAsset("A2"),
                 lang.getAsset("A2"),
@@ -2522,34 +2427,18 @@ public class TestAllFeatures extends MalTest {
                 lang.getAsset("A4"),
                 lang.getAsset("A1"),
                 lang.getAsset("A1"),
-                new Lang.StepField(
+                new Lang.StepVar(
                     lang.getAsset("A4"),
                     lang.getAsset("A4"),
                     lang.getAsset("A1"),
                     lang.getAsset("A2"),
-                    lang.getAsset("A4").getField("a1")),
-                new Lang.StepCollect(
+                    "var"),
+                new Lang.StepVar(
                     lang.getAsset("A4"),
                     lang.getAsset("A4"),
                     lang.getAsset("A1"),
                     lang.getAsset("A3"),
-                    new Lang.StepField(
-                        lang.getAsset("A4"),
-                        lang.getAsset("A4"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A4").getField("a1")),
-                    new Lang.StepTransitive(
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        new Lang.StepField(
-                            lang.getAsset("A1"),
-                            lang.getAsset("A1"),
-                            lang.getAsset("A1"),
-                            lang.getAsset("A1"),
-                            lang.getAsset("A1").getField("a1Sub"))))),
+                    "var2")),
             new Lang.StepAttackStep(
                 lang.getAsset("A1"),
                 lang.getAsset("A1"),
@@ -2605,7 +2494,7 @@ public class TestAllFeatures extends MalTest {
     assertEquals(1, asset.getFields().size());
     assertLangField(asset, "a1", 1, 1);
     // Check attack steps
-    assertEquals(2, asset.getAttackSteps().size());
+    assertEquals(1, asset.getAttackSteps().size());
 
     // Check attack step "a7Attack"
     var attackStep =
@@ -2624,93 +2513,27 @@ public class TestAllFeatures extends MalTest {
     var reaches = attackStep.getReaches();
     var parentSteps = attackStep.getParentSteps();
     assertEquals(0, requires.size());
-    assertEquals(3, reaches.size());
-    assertEquals(1, parentSteps.size());
+    assertEquals(1, reaches.size());
+    assertEquals(0, parentSteps.size());
 
     // Auto-generated reaches step 1
     Lang.StepExpr step =
-        new Lang.StepAttackStep(
-            lang.getAsset("A7"),
-            lang.getAsset("A1"),
-            lang.getAsset("A1").getAttackStep("a1Attack1"));
-    assertLangStepExpr(step, reaches.get(0));
-
-    // Auto-generated reaches step 2
-    step =
-        new Lang.StepAttackStep(
-            lang.getAsset("A7"),
-            lang.getAsset("A7"),
-            lang.getAsset("A7").getAttackStep("a7Attack"));
-    assertLangStepExpr(step, reaches.get(1));
-
-    // Auto-generated reaches step 3
-    step =
         new Lang.StepCollect(
             lang.getAsset("A7"),
             lang.getAsset("A7"),
             null,
             null,
-            new Lang.StepCollect(
+            new Lang.StepVar(
                 lang.getAsset("A7"),
                 lang.getAsset("A7"),
                 lang.getAsset("A8"),
                 lang.getAsset("A8"),
-                new Lang.StepCollect(
-                    lang.getAsset("A7"),
-                    lang.getAsset("A7"),
-                    lang.getAsset("A8"),
-                    lang.getAsset("A8"),
-                    new Lang.StepField(
-                        lang.getAsset("A7"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1").getField("a1Super")),
-                    new Lang.StepField(
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A8"),
-                        lang.getAsset("A8"),
-                        lang.getAsset("A1").getField("a8"))),
-                new Lang.StepField(
-                    lang.getAsset("A8"),
-                    lang.getAsset("A8"),
-                    lang.getAsset("A8"),
-                    lang.getAsset("A8"),
-                    lang.getAsset("A8").getField("a8Super"))),
+                "a1"),
             new Lang.StepAttackStep(
                 lang.getAsset("A8"),
                 lang.getAsset("A8"),
                 lang.getAsset("A8").getAttackStep("destroy")));
-    assertLangStepExpr(step, reaches.get(2));
-
-    // Auto-generated parent step 1
-    step =
-        new Lang.StepAttackStep(
-            lang.getAsset("A7"),
-            lang.getAsset("A7"),
-            lang.getAsset("A7").getAttackStep("a7Attack"));
-    assertLangStepExpr(step, parentSteps.get(0));
-
-    // Check attack step "otherAttack"
-    attackStep =
-        assertGetLangAttackStep(
-            asset,
-            "otherAttack",
-            Lang.AttackStepType.ANY,
-            false,
-            false,
-            false,
-            false,
-            new Lang.Meta());
-    assertLangCIA(attackStep, null);
-    assertLangTTC(attackStep, null);
-    requires = attackStep.getRequires();
-    reaches = attackStep.getReaches();
-    parentSteps = attackStep.getParentSteps();
-    assertEquals(0, requires.size());
-    assertEquals(0, reaches.size());
-    assertEquals(0, parentSteps.size());
+    assertLangStepExpr(step, reaches.get(0));
   }
 
   private static void assertAssetA8(Lang lang) {
@@ -2779,34 +2602,12 @@ public class TestAllFeatures extends MalTest {
             lang.getAsset("A8"),
             null,
             null,
-            new Lang.StepCollect(
+            new Lang.StepVar(
                 lang.getAsset("A8"),
                 lang.getAsset("A8"),
                 lang.getAsset("A7"),
                 lang.getAsset("A7"),
-                new Lang.StepField(
-                    lang.getAsset("A8"),
-                    lang.getAsset("A8"),
-                    lang.getAsset("A8"),
-                    lang.getAsset("A8"),
-                    lang.getAsset("A8").getField("a8Sub")),
-                new Lang.StepCollect(
-                    lang.getAsset("A8"),
-                    lang.getAsset("A8"),
-                    lang.getAsset("A7"),
-                    lang.getAsset("A7"),
-                    new Lang.StepField(
-                        lang.getAsset("A8"),
-                        lang.getAsset("A8"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A8").getField("a1")),
-                    new Lang.StepField(
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A1"),
-                        lang.getAsset("A7"),
-                        lang.getAsset("A1").getField("a1Sub")))),
+                "reversea1"),
             new Lang.StepAttackStep(
                 lang.getAsset("A7"),
                 lang.getAsset("A7"),

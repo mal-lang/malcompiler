@@ -451,9 +451,10 @@ public class LangConverter {
       var isAttackVar = attackStepVars.containsKey(idExpr.id.id);
       var isAssetVar = assetVars.containsKey(idExpr.id.id) && !isAttackVar;
       if (isAttackVar || isAssetVar) {
-        var varExpr =
+        var varExpr = isAttackVar ? attackStepVars.get(idExpr.id.id) : assetVars.get(idExpr.id.id);
+        var varStep =
             _convertExprToAsset(
-                attackStepVars.get(idExpr.id.id),
+                varExpr,
                 asset,
                 attackStep,
                 assets,
@@ -461,15 +462,15 @@ public class LangConverter {
                 isAttackVar ? attackStepVars : Map.of(),
                 subTarget);
         if (isAttackVar) {
-          attackStep.addVariable(idExpr.id.id, varExpr);
+          attackStep.addVariable(idExpr.id.id, varStep);
         } else {
-          attackStep.getAsset().addVariable(idExpr.id.id, varExpr);
+          attackStep.getAsset().addVariable(idExpr.id.id, varStep);
         }
-        var reverse = reverseStep(varExpr, varExpr.subTarget);
-        varExpr.subTarget.addReverseVariable(String.format("reverse%s", idExpr.id.id), reverse);
+        var reverse = reverseStep(varStep, varStep.subTarget);
+        varStep.subTarget.addReverseVariable(String.format("reverse%s", idExpr.id.id), reverse);
 
         return new Lang.StepVar(
-            varExpr.subSrc, varExpr.src, varExpr.target, varExpr.subTarget, idExpr.id.id);
+            varStep.subSrc, varStep.src, varStep.target, varStep.subTarget, idExpr.id.id);
       }
 
       var field = asset.getField(idExpr.id.id);

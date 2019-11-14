@@ -21,10 +21,8 @@ category cat
       c.compromise
     | compromise <- a // duplicate attack step AND invalid require
     & invalidate ->
-      let invalidate = a.compromise, // variable as step (warning)
       (c \/ a).compromise, // invalid types
-      c[_A].compromise, // invalid typeof
-      invalidate
+      c[_A].compromise // invalid typeof
   }
   abstract asset AA extends _A { // abstract but never used (warning)
     & compromise // types differ from parent

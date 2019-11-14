@@ -62,10 +62,10 @@ categories = {
             NO_REQUIRES,
             Reaches(<complex.mal:20:7>, OVERRIDES,
               variables = {
-                Variable(<complex.mal:20:10>, ID(<complex.mal:20:14>, "MYVAR"), StepExpr(<complex.mal:20:22>, IDExpr(<complex.mal:20:22>, ID(<complex.mal:20:22>, "externalHD")), IDExpr(<complex.mal:20:33>, ID(<complex.mal:20:33>, "stealFolder"))))
+                Variable(<complex.mal:20:10>, ID(<complex.mal:20:14>, "MYVAR"), StepExpr(<complex.mal:20:22>, IDExpr(<complex.mal:20:22>, ID(<complex.mal:20:22>, "computer")), IDExpr(<complex.mal:20:31>, ID(<complex.mal:20:31>, "externalHD"))))
               },
               reaches = {
-                StepExpr(<complex.mal:21:7>, IDExpr(<complex.mal:21:7>, ID(<complex.mal:21:7>, "computer")), IDExpr(<complex.mal:21:16>, ID(<complex.mal:21:16>, "MYVAR")))
+                StepExpr(<complex.mal:21:7>, IDExpr(<complex.mal:21:7>, ID(<complex.mal:21:7>, "MYVAR")), IDExpr(<complex.mal:21:13>, ID(<complex.mal:21:13>, "stealFolder")))
               }
             )
           )

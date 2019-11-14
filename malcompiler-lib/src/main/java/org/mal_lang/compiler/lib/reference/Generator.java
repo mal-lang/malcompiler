@@ -562,10 +562,8 @@ public class Generator extends JavaGenerator {
     method.addModifiers(Modifier.PUBLIC);
     method.returns(boolean.class);
     if (attackStep.getType() == AttackStepType.EXIST) {
-      // something
       for (StepExpr expr : attackStep.getRequires()) {
         AutoFlow af = new AutoFlow();
-        // TODO FIX
         AutoFlow end = createExpr(af, expr, attackStep.getAsset());
         end.addStatement("return false");
         af.build(method);

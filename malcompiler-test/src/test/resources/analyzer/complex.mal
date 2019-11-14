@@ -17,8 +17,8 @@ category Person {
       -> computer.internalHD.stealHDSecrets
     | stealFolder
       //varible example, declaring a variable to be valid within an attack step.
-      -> let MYVAR = externalHD.stealFolder,
-      computer.MYVAR
+      -> let MYVAR = computer.externalHD,
+      MYVAR.stealFolder
   }
   asset Student extends User {}
   asset Teacher extends User {

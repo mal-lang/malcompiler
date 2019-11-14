@@ -112,14 +112,7 @@ category C2
 category C3 {
   asset A7 extends A3 {
     | a7Attack
-      -> a3Attack,
-         otherAttack,
-         a1.destroy
-    | otherAttack
-    // Shadows attack step in parent
-    let a3Attack = a1Attack1
-    // Shadows attack step in this asset
-    let otherAttack = a7Attack
+      -> a1.destroy
     // Shadows field in parent
     let a6 = a1Super.a8
     // Shadows field in this asset
