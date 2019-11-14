@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import javax.imageio.ImageIO;
@@ -137,6 +138,13 @@ public class AssetGenerator extends JavaGenerator {
       varGen.generate(builder, variable.getKey(), variable.getValue(), asset);
     }
 
+    Set<String> variables = new LinkedHashSet<>();
+    variables.addAll(asset.getVariables().keySet());
+    variables.addAll(asset.getReverseVariables().keySet());
+    if (!variables.isEmpty()) {
+      createClearCache(builder, variables);
+    }
+
     var file = JavaFile.builder(this.pkg, builder.build());
     for (var a : lang.getAssets().values()) {
       for (var b : a.getAttackSteps().values()) {
@@ -145,6 +153,16 @@ public class AssetGenerator extends JavaGenerator {
     }
     file.skipJavaLangImports(true);
     file.build().writeTo(this.output);
+  }
+
+  private void createClearCache(TypeSpec.Builder parentBuilder, Set<String> variables) {
+    MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
+    builder.addAnnotation(Override.class);
+    builder.addModifiers(Modifier.PUBLIC);
+    for (var variable : variables) {
+      builder.addStatement("_cache$NAsset = null", variable);
+    }
+    parentBuilder.addMethod(builder.build());
   }
 
   private void createAssetAnnotations(TypeSpec.Builder parentBuilder, Asset asset) {

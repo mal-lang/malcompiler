@@ -22,6 +22,8 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.Distributions;
 import org.mal_lang.compiler.lib.JavaGenerator;
@@ -80,48 +82,41 @@ public class AttackStepGenerator extends JavaGenerator {
     }
 
     // graph caches
-    boolean hasChildCache = false;
-    String childCacheName = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
+    Set<String> caches = new LinkedHashSet<>();
+
     if (!attackStep.getReaches().isEmpty()) {
+      String childCacheName = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
       createSetField(builder, childCacheName);
       exprGen.createGetAttackStepChildren(builder, attackStep, childCacheName);
-      hasChildCache = true;
+      caches.add(childCacheName);
     }
 
-    boolean hasParentCache = false;
-    String parentCacheName = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
     if (!attackStep.getParentSteps().isEmpty()) {
+      String parentCacheName = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
       createSetField(builder, parentCacheName);
       exprGen.createSetExpectedParents(builder, attackStep, parentCacheName);
-      hasParentCache = true;
-    }
-
-    if (hasChildCache || hasParentCache) {
-      createClearCache(builder, hasChildCache, childCacheName, hasParentCache, parentCacheName);
+      caches.add(parentCacheName);
     }
 
     // Generate variables
     for (var variable : attackStep.getVariables().entrySet()) {
       varGen.generate(builder, variable.getKey(), variable.getValue(), asset);
+      caches.add(String.format("_cache%s", variable.getKey()));
+    }
+
+    if (!caches.isEmpty()) {
+      createClearCache(builder, caches);
     }
 
     parentBuilder.addType(builder.build());
   }
 
-  private void createClearCache(
-      TypeSpec.Builder parentBuilder,
-      boolean hasChildCache,
-      String childCacheName,
-      boolean hasParentCache,
-      String parentCacheName) {
+  private void createClearCache(TypeSpec.Builder parentBuilder, Set<String> caches) {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
-    if (hasChildCache) {
-      builder.addStatement("$N = null", childCacheName);
-    }
-    if (hasParentCache) {
-      builder.addStatement("$N = null", parentCacheName);
+    for (var cache : caches) {
+      builder.addStatement("$N = null", cache);
     }
     parentBuilder.addMethod(builder.build());
   }

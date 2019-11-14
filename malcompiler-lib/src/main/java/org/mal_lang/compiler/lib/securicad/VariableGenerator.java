@@ -39,12 +39,15 @@ public class VariableGenerator extends JavaGenerator {
     parentBuilder.addField(targetSet, setName, Modifier.PRIVATE);
 
     builder.beginControlFlow("if ($N == null)", setName);
-    builder.addStatement("$N = new $T<>()", setName, hashSet);
+    builder.addStatement("$T tmpCache = new $T<>()", targetSet, hashSet);
     AutoFlow varFlow = new AutoFlow();
     AutoFlow end = this.exprGen.generate(varFlow, expr, asset, "(null)");
-    end.addStatement("$N.add($N)", setName, end.prefix);
+    end.addStatement("tmpCache.add($N)", end.prefix);
     varFlow.build(builder);
+    // copyOf returns an immutable set
+    builder.addStatement("$N = $T.copyOf(tmpCache)", setName, set);
     builder.endControlFlow();
+
     builder.addStatement("return $N", setName);
 
     parentBuilder.addMethod(builder.build());
