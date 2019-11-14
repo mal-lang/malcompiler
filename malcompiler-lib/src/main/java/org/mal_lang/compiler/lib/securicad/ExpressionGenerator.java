@@ -92,6 +92,14 @@ public class ExpressionGenerator extends JavaGenerator {
     parentBuilder.addMethod(builder.build());
   }
 
+  protected void createTraceabilityHelper(TypeSpec.Builder parentBuilder, boolean isTrace) {
+    MethodSpec.Builder builder = MethodSpec.methodBuilder("isTrace");
+    builder.addModifiers(Modifier.PUBLIC);
+    builder.returns(TypeName.BOOLEAN);
+    builder.addStatement("return $L", isTrace);
+    parentBuilder.addMethod(builder.build());
+  }
+
   ////////////////////
   // GENERATE
 
