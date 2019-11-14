@@ -82,7 +82,7 @@ public class AttackStepGenerator extends JavaGenerator {
       exprGen.createSetExpectedParents(builder, attackStep);
     }
 
-    exprGen.createTraceabilityHelper(builder, attackStep.isTrace());
+    exprGen.createTraceabilityHelper(builder, attackStep);
 
     parentBuilder.addType(builder.build());
   }

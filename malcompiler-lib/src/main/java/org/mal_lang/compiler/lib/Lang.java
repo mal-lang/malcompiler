@@ -316,15 +316,13 @@ public class Lang {
     private List<StepExpr> requires;
     private List<StepExpr> reaches;
     private List<StepExpr> parentSteps;
-    private boolean isTrace;
 
     public AttackStep(
         String name,
         AttackStepType type,
         Asset asset,
         boolean inheritsReaches,
-        CIA cia,
-        boolean isTrace) {
+        CIA cia) {
       this.name = name;
       this.type = type;
       this.asset = asset;
@@ -335,15 +333,10 @@ public class Lang {
       this.requires = new ArrayList<>();
       this.reaches = new ArrayList<>();
       this.parentSteps = new ArrayList<>();
-      this.isTrace = isTrace;
     }
 
     public String getName() {
       return this.name;
-    }
-
-    public boolean isTrace() {
-      return this.isTrace;
     }
 
     public AttackStepType getType() {

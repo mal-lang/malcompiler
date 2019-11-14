@@ -140,20 +140,13 @@ public class LangConverter {
           for (var astAttackStep : astAsset.attackSteps) {
             var langAttackStepType = _convertAttackStepType(astAttackStep.type);
             var inheritsReaches = _convertInheritsReaches(astAttackStep);
-            boolean isTrace = false;
-            for (var tag : astAttackStep.tags) {
-              if (tag.id.equals("trace")) {
-                isTrace = true;
-              }
-            }
             var langAttackStep =
                 new Lang.AttackStep(
                     astAttackStep.name.id,
                     langAttackStepType,
                     langAsset,
                     inheritsReaches,
-                    _convertCIA(astAttackStep.cia),
-                    isTrace);
+                    _convertCIA(astAttackStep.cia));
             _convertMetaList(langAttackStep.getMeta(), astAttackStep.meta);
             for (var tag : astAttackStep.tags) {
               langAttackStep.addTag(tag.id);
