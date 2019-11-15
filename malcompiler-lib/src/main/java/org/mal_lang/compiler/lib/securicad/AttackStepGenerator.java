@@ -18,6 +18,7 @@ package org.mal_lang.compiler.lib.securicad;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.Distributions;
@@ -81,6 +82,8 @@ public class AttackStepGenerator extends JavaGenerator {
     if (!attackStep.getParentSteps().isEmpty()) {
       exprGen.createSetExpectedParents(builder, attackStep);
     }
+
+    createTraceabilityHelper(builder, attackStep);
 
     parentBuilder.addType(builder.build());
   }
@@ -276,5 +279,13 @@ public class AttackStepGenerator extends JavaGenerator {
         throw new RuntimeException(
             String.format("unknown attack step type '%s'", attackStep.getType()));
     }
+  }
+
+  private void createTraceabilityHelper(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
+    MethodSpec.Builder builder = MethodSpec.methodBuilder("isTrace");
+    builder.addModifiers(Modifier.PUBLIC);
+    builder.returns(TypeName.BOOLEAN);
+    builder.addStatement("return $L", attackStep.hasTag("trace"));
+    parentBuilder.addMethod(builder.build());
   }
 }
