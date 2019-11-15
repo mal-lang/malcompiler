@@ -18,8 +18,8 @@ package org.mal_lang.compiler.lib.securicad;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.Distributions;
 import org.mal_lang.compiler.lib.JavaGenerator;
@@ -288,5 +288,4 @@ public class AttackStepGenerator extends JavaGenerator {
     builder.addStatement("return $L", attackStep.hasTag("trace"));
     parentBuilder.addMethod(builder.build());
   }
-
 }
