@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
 Copyright 2019 Foreseeti AB
 
@@ -15,11 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.mal-lang</groupId>
@@ -30,7 +25,6 @@ limitations under the License.
   <name>${project.groupId}:${project.artifactId}</name>
   <description>Compiler for the Meta Attack Language</description>
   <url>https://mal-lang.org/</url>
-
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -59,12 +53,19 @@ limitations under the License.
     </developer>
   </developers>
 
+  <modules>
+    <module>malcompiler-lib</module>
+    <module>malcompiler-cli</module>
+    <module>malcompiler-test</module>
+    <module>malcompiler-jlink</module>
+    <module>mal-maven-plugin</module>
+  </modules>
+
   <scm>
     <connection>scm:git:git://github.com/mal-lang/malcompiler.git</connection>
     <developerConnection>scm:git:ssh://github.com:mal-lang/malcompiler.git</developerConnection>
     <url>https://github.com/mal-lang/malcompiler/tree/master</url>
   </scm>
-
   <distributionManagement>
     <repository>
       <id>ossrh</id>
@@ -75,14 +76,6 @@ limitations under the License.
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
-
-  <modules>
-    <module>malcompiler-lib</module>
-    <module>malcompiler-cli</module>
-    <module>malcompiler-test</module>
-    <module>malcompiler-jlink</module>
-    <module>mal-maven-plugin</module>
-  </modules>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -133,7 +126,7 @@ limitations under the License.
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore></ignore>
+                    <ignore/>
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -233,6 +226,16 @@ limitations under the License.
           <artifactId>sonar-maven-plugin</artifactId>
           <version>3.6.1.1688</version>
         </plugin>
+        <plugin>
+          <groupId>com.coveo</groupId>
+          <artifactId>fmt-maven-plugin</artifactId>
+          <version>2.9</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>tidy-maven-plugin</artifactId>
+          <version>1.1.0</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -244,6 +247,32 @@ limitations under the License.
             <id>prepare-agent</id>
             <goals>
               <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.coveo</groupId>
+        <artifactId>fmt-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>check-java-formatting</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>tidy-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>check-pom-formatting</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
             </goals>
           </execution>
         </executions>

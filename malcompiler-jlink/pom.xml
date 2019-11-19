@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
 Copyright 2019 Foreseeti AB
 
@@ -15,11 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -33,7 +28,6 @@ limitations under the License.
   <name>${project.groupId}:${project.artifactId}</name>
   <description>jlink packaging of the compiler for the Meta Attack Language</description>
   <url>https://mal-lang.org/</url>
-
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -177,7 +171,7 @@ limitations under the License.
             <configuration>
               <target>
                 <copy todir="${jlink.dependencies}">
-                  <fileset dir="${dependencies.output}" />
+                  <fileset dir="${dependencies.output}"/>
                 </copy>
               </target>
             </configuration>
@@ -234,8 +228,8 @@ limitations under the License.
                 </goals>
                 <configuration>
                   <target>
-                    <copy file="${project.basedir}/src/main/resources/malc" todir="${jlink.output}/bin" />
-                    <chmod file="${jlink.output}/bin/malc" perm="775" />
+                    <copy file="${project.basedir}/src/main/resources/malc" todir="${jlink.output}/bin"/>
+                    <chmod file="${jlink.output}/bin/malc" perm="775"/>
                   </target>
                 </configuration>
               </execution>
@@ -270,8 +264,8 @@ limitations under the License.
                 </goals>
                 <configuration>
                   <target>
-                    <copy file="${project.basedir}/src/main/resources/malc" todir="${jlink.output}/bin" />
-                    <chmod file="${jlink.output}/bin/malc" perm="775" />
+                    <copy file="${project.basedir}/src/main/resources/malc" todir="${jlink.output}/bin"/>
+                    <chmod file="${jlink.output}/bin/malc" perm="775"/>
                   </target>
                 </configuration>
               </execution>
@@ -306,8 +300,8 @@ limitations under the License.
                 </goals>
                 <configuration>
                   <target>
-                    <copy file="${project.basedir}/src/main/resources/malc" todir="${jlink.output}/bin" />
-                    <copy file="${project.basedir}/src/main/resources/malc.bat" todir="${jlink.output}/bin" />
+                    <copy file="${project.basedir}/src/main/resources/malc" todir="${jlink.output}/bin"/>
+                    <copy file="${project.basedir}/src/main/resources/malc.bat" todir="${jlink.output}/bin"/>
                   </target>
                 </configuration>
               </execution>

@@ -1,0 +1,108 @@
+#!/bin/bash
+
+set -e
+
+OLD_PWD="$PWD"
+cd "$(dirname "$0")/../.."
+CWD="$PWD"
+cd "$OLD_PWD"
+
+FMT_DIR="$CWD/.formatting"
+
+if [ ! -d "$FMT_DIR" ]; then
+  >&2 echo "$FMT_DIR: no such directory"
+  exit 1
+fi
+
+EXCEPTIONS_FILE="$FMT_DIR/exceptions"
+
+FORMATTER="google-java-format"
+RELEASE="${FORMATTER}-1.7"
+JAR="${RELEASE}-all-deps.jar"
+URL="https://github.com/google/$FORMATTER/releases/download/$RELEASE/$JAR"
+
+if [ ! -f "$FMT_DIR/$JAR" ]; then
+  echo "Downloading $JAR"
+  wget -q "$URL" -O "$FMT_DIR/$JAR"
+fi
+
+CHANGED_FILES="$(git diff --cached --name-only --diff-filter=ACMR || true)"
+CHANGED_JAVA="$(echo "$CHANGED_FILES" | grep '\.java$' || true)"
+CHANGED_JAVA="$(echo "$CHANGED_FILES" | grep '\.java$' || true)"
+CHANGED_POM="$(echo "$CHANGED_FILES" | grep 'pom\.xml$' || true)"
+CHANGED_PY="$(echo "$CHANGED_FILES" | grep '\.py$' || true)"
+
+if [ -f "$EXCEPTIONS_FILE" ]; then
+  EXCEPTIONS="$(cat "$EXCEPTIONS_FILE")"
+else
+  EXCEPTIONS=""
+fi
+
+#
+# Format java
+#
+
+FORMAT=""
+
+while IFS= read -r f && [ "$f" ]; do
+  IS_EXCEPTED=0
+  while IFS= read -r e && [ "$e" ]; do
+    if [ "$f" = "$e" ]; then
+      IS_EXCEPTED=1
+      break
+    fi
+  done <<< "$EXCEPTIONS"
+  if [ $IS_EXCEPTED -eq 0 ]; then
+    if [ "$FORMAT" ]; then
+      FORMAT="$FORMAT"$'\n'"$f"
+    else
+      FORMAT="$f"
+    fi
+  fi
+done <<< "$CHANGED_JAVA"
+
+if [ "$FORMAT" ]; then
+  echo "Formatting"
+  while IFS= read -r f && [ "$f" ]; do
+    echo "  $f"
+  done <<< "$FORMAT"
+  echo -n "$FORMAT" | tr '\n' '\0' | xargs -0 java -jar "$FMT_DIR/$JAR" -i
+  echo -n "$FORMAT" | tr '\n' '\0' | xargs -0 git add
+fi
+
+#
+# Format pom.xml
+#
+
+FORMAT=""
+
+while IFS= read -r f && [ "$f" ]; do
+  IS_EXCEPTED=0
+  while IFS= read -r e && [ "$e" ]; do
+    if [ "$f" = "$e" ]; then
+      IS_EXCEPTED=1
+      break
+    fi
+  done <<< "$EXCEPTIONS"
+  if [ $IS_EXCEPTED -eq 0 ]; then
+    if [ "$FORMAT" ]; then
+      FORMAT="$FORMAT"$'\n'"$f"
+    else
+      FORMAT="$f"
+    fi
+  fi
+done <<< "$CHANGED_POM"
+
+while IFS= read -r f && [ "$f" ]; do
+  POM="$(basename "$f")"
+  if [ "$POM" != "pom.xml" ]; then
+    continue
+  fi
+  echo "Formatting $f"
+  OLD_PWD="$PWD"
+  cd "$(dirname "$f")"
+  mvn --quiet --batch-mode --projects='.' au.com.acegi:xml-format-maven-plugin:3.1.1:xml-format -Dincludes="pom.xml"
+  mvn --quiet --batch-mode --projects='.' tidy:pom
+  cd "$OLD_PWD"
+  git add "$f"
+done <<< "$FORMAT"
