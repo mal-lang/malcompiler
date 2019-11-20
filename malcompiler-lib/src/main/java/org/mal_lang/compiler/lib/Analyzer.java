@@ -34,6 +34,7 @@ public class Analyzer {
   private Set<AST.Variable> currentVariables = new LinkedHashSet<>();
   private Map<AST.Variable, Integer> variableReferenceCount = new HashMap<>();
   private Map<AST.Association, Map<String, Integer>> fieldReferenceCount = new HashMap<>();
+  private Map<AST.Asset, Set<AST.Variable>> assetVariables = new LinkedHashMap<>();
 
   private AST ast;
   private boolean failed;
@@ -243,6 +244,7 @@ public class Analyzer {
                   "Asset '%s' previously defined at %s", asset.name.id, prevDef.name.posString()));
         } else {
           assets.put(asset.name.id, asset);
+          assetVariables.put(asset, new HashSet<>());
         }
       }
     }
@@ -738,14 +740,30 @@ public class Analyzer {
   }
 
   private AST.Asset variableToAsset(
-      AST.Asset asset, AST.Variable variable, Scope<AST.Variable> scope, boolean first, AST.ID id) {
+      AST.Asset asset,
+      AST.Variable variable,
+      Scope<AST.Variable> scope,
+      boolean isAssetVar,
+      boolean first,
+      AST.ID id) {
     if (evalVariableBegin(variable)) {
-      if (!first) {
-        error(
-            id,
-            String.format(
-                "Variable '%s', defined at %s, is not used as first step",
-                variable.name.id, variable.name.posString()));
+      if (isAssetVar || !first) {
+        // we are outside attackstep scope (variable is (or should be) defined in asset)
+        var variables = assetVariables.get(asset);
+        if (!variables.contains(variable)) {
+          // not contains because a reused variable is of no interest
+          for (var astVar : variables) {
+            if (astVar.name.id.equals(variable.name.id)) {
+              error(
+                  id,
+                  String.format(
+                      "Variable '%s' previously defined for asset '%s' at %s",
+                      variable.name.id, asset.name.id, astVar.posString()));
+              return null;
+            }
+          }
+        }
+        variables.add(variable);
       }
       AST.Asset res = checkToAsset(asset, variable.expr, scope, first);
       evalVariableEnd(variable);
@@ -767,10 +785,12 @@ public class Analyzer {
           String.format(
               "Step '%s' defined as variable at %s and field at %s",
               expr.id.id, variable.name.posString(), target.posString()));
-      return variableToAsset(asset, variable, variableScope, first, expr.id);
+      return variableToAsset(
+          asset, variable, variableScope, variableScope != scope, first, expr.id);
     } else if (variable != null) {
       // ID defined as variable only
-      return variableToAsset(asset, variable, variableScope, first, expr.id);
+      return variableToAsset(
+          asset, variable, variableScope, variableScope != scope, first, expr.id);
     } else {
       // ID defined as target (or invalid, getTarget() will print error)
       return getTarget(asset, expr.id);

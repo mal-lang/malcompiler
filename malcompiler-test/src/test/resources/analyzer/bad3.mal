@@ -1,0 +1,27 @@
+#id: "badvar"
+#version: "1.0.0"
+category System {
+  asset Alpha {
+    | compromise
+      -> let VAR = charlies.alphas,
+      VAR.deltas.write,
+      bravos.VAR.deltas.write
+  }
+  asset Bravo {
+    let VAR = charlies
+    | access
+      -> VAR.read
+  }
+  asset Charlie {
+    | read
+  }
+  asset Delta {
+    | write
+  }
+}
+associations {
+  Alpha [alphas] * <-- _ --> * [bravos] Bravo
+  Alpha [alphas] * <-- _ --> * [deltas] Delta
+  Alpha [alphas] * <-- _ --> * [charlies] Charlie
+  Charlie [charlies] * <-- _ --> * [bravos] Bravo
+}

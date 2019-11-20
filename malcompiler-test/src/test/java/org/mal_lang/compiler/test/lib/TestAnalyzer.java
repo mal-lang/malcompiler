@@ -76,6 +76,17 @@ public class TestAnalyzer extends MalTest {
   }
 
   @Test
+  public void testBad3() {
+    assertAnalyzeClassPathError("analyzer/bad3.mal");
+    assertEmptyOut();
+    String[] expected = {
+      "[ANALYZER ERROR] <bad3.mal:13:10> Variable 'VAR' previously defined for asset 'Bravo' at <bad3.mal:6:10>",
+      ""
+    };
+    assertErrLines(expected);
+  }
+
+  @Test
   public void testScope() {
     assertAnalyzeClassPath("analyzer/scope.mal");
     assertEmptyOut();

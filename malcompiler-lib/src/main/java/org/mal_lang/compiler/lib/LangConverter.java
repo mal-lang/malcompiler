@@ -461,10 +461,10 @@ public class LangConverter {
                 assetVars,
                 isAttackVar ? attackStepVars : Map.of(),
                 subTarget);
-        if (isAttackVar) {
+        if (asset == attackStep.getAsset() && isAttackVar) {
           attackStep.addVariable(idExpr.id.id, varStep);
         } else {
-          attackStep.getAsset().addVariable(idExpr.id.id, varStep);
+          asset.addVariable(idExpr.id.id, varStep);
         }
         var reverse = reverseStep(varStep, varStep.subTarget);
         varStep.subTarget.addReverseVariable(String.format("reverse%s", idExpr.id.id), reverse);
