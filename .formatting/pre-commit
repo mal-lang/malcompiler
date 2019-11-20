@@ -23,7 +23,7 @@ URL="https://github.com/google/$FORMATTER/releases/download/$RELEASE/$JAR"
 
 if [ ! -f "$FMT_DIR/$JAR" ]; then
   echo "Downloading $JAR"
-  wget -q "$URL" -O "$FMT_DIR/$JAR"
+  curl -sSL "$URL" -o "$FMT_DIR/$JAR"
 fi
 
 CHANGED_FILES="$(git diff --cached --name-only --diff-filter=ACMR || true)"
