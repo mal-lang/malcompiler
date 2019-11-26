@@ -16,7 +16,6 @@ category cat
     rationale: "asset" // duplicate rationale
     {
     | compromise ->
-      let c = a, // variable as field (warning)
       (a /\ a), // not attack step
       c.compromise
     | compromise <- a // duplicate attack step AND invalid require
@@ -34,11 +33,10 @@ category cat
   asset _C {
     let var1 = var1
     let var1 = a // duplicate variable
+    let aaa = a
     | compromise {C, C} -> // duplicate CIA
-      let aaa = a,
-      let aaa = c, // duplicate variable
       var1, // cyclic variable
-      aaa*.compromise // invalid previous type
+      aaa()*.compromise // invalid previous type
     E e {C} // defense with CIA
       <- a
   }

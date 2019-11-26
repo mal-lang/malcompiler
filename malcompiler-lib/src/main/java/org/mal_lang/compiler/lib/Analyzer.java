@@ -855,7 +855,16 @@ public class Analyzer {
         return getAsset(assoc.rightAsset);
       }
     } else {
-      error(name, String.format("Field '%s' not defined for asset '%s'", name.id, asset.name.id));
+      String extra = "";
+      var varScope = assetVariables.get(asset.name.id).lookdown(name.id);
+      if (varScope != null) {
+        extra =
+            String.format(
+                ", did you mean the variable '%s()' defined at %s", name.id, varScope.posString());
+      }
+      error(
+          name,
+          String.format("Field '%s' not defined for asset '%s'%s", name.id, asset.name.id, extra));
       return null;
     }
   }

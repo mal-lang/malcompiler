@@ -7,6 +7,7 @@ be semantically and syntactically correct as well as have more features.
 #version: "1.0.0"
 category Person {
   abstract asset User {
+  	let MYVAR = computer.externalHD
     | impersonate
       -> compromise,
       stealInformation
@@ -17,8 +18,7 @@ category Person {
       -> computer.internalHD.stealHDSecrets
     | stealFolder
       //varible example, declaring a variable to be valid within an attack step.
-      -> let MYVAR = computer.externalHD,
-      MYVAR.stealFolder
+      -> MYVAR().stealFolder
   }
   asset Student extends User {}
   asset Teacher extends User {
@@ -41,7 +41,7 @@ category Hardware {
       -> firewall.bypassFirewall
     | stealSecret
       //Set example, only when the external and internal HD have their secrets stolen do we have stolen secrets.
-      -> HDDs.stealHDSecrets
+      -> HDDs().stealHDSecrets
     # passwordEncrypted
       -> retrievePassword
     E firewallProtected

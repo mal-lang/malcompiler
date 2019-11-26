@@ -2,15 +2,16 @@
 #version: "1.0.0"
 category System {
   asset Alpha {
+  	let VAR = charlies.alphas
     | compromise
-      -> let VAR = charlies.alphas,
-      VAR.deltas.write,
-      bravos.VAR.deltas.write
+      -> VAR().deltas.write
+  }
+  asset SubAlpha extends Alpha {
+  	let VAR = charlies.alphas
+  	| access
   }
   asset Bravo {
-    let VAR = charlies
     | access
-      -> VAR.read
   }
   asset Charlie {
     | read

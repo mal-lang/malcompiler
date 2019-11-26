@@ -44,10 +44,11 @@ category Cat {
 
   // Testing existence
   asset A4 {
+  	let x = y
+  	let a = b
     E a
-      <- let x = y,
+      <- 
          a.y,
-         let a = b,
          b,
          c \/ d,
          a.(b[D])*
@@ -55,10 +56,11 @@ category Cat {
 
   // Testing reaches
   asset A5 {
+  	let x = y
+    let a = b
     & a {I}
-      -> let x = y,
+      -> 
          a.y,
-         let a = b,
          b,
          c \/ d,
          a.(b[D])*

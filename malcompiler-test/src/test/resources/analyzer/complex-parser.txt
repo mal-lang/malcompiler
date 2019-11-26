@@ -11,66 +11,58 @@ categories = {
         meta = {
         },
         attacksteps = {
-          AttackStep(<complex.mal:10:5>, ANY, ID(<complex.mal:10:7>, "impersonate"),
+          AttackStep(<complex.mal:11:5>, ANY, ID(<complex.mal:11:7>, "impersonate"),
             cia = {},
             ttc = [],
             meta = {
             },
             NO_REQUIRES,
-            Reaches(<complex.mal:11:7>, OVERRIDES,
-              variables = {
-              },
+            Reaches(<complex.mal:12:7>, OVERRIDES,
               reaches = {
-                IDExpr(<complex.mal:11:10>, ID(<complex.mal:11:10>, "compromise")),
-                IDExpr(<complex.mal:12:7>, ID(<complex.mal:12:7>, "stealInformation"))
+                IDExpr(<complex.mal:12:10>, ID(<complex.mal:12:10>, "compromise")),
+                IDExpr(<complex.mal:13:7>, ID(<complex.mal:13:7>, "stealInformation"))
               }
             )
           ),
-          AttackStep(<complex.mal:13:5>, ANY, ID(<complex.mal:13:7>, "compromise"),
+          AttackStep(<complex.mal:14:5>, ANY, ID(<complex.mal:14:7>, "compromise"),
             cia = {},
             ttc = [],
             meta = {
             },
             NO_REQUIRES,
-            Reaches(<complex.mal:14:7>, OVERRIDES,
-              variables = {
-              },
+            Reaches(<complex.mal:15:7>, OVERRIDES,
               reaches = {
-                StepExpr(<complex.mal:14:10>, IDExpr(<complex.mal:14:10>, ID(<complex.mal:14:10>, "computer")), IDExpr(<complex.mal:14:19>, ID(<complex.mal:14:19>, "stealSecret")))
+                StepExpr(<complex.mal:15:10>, IDExpr(<complex.mal:15:10>, ID(<complex.mal:15:10>, "computer")), IDExpr(<complex.mal:15:19>, ID(<complex.mal:15:19>, "stealSecret")))
               }
             )
           ),
-          AttackStep(<complex.mal:15:5>, ANY, ID(<complex.mal:15:7>, "stealInformation"),
+          AttackStep(<complex.mal:16:5>, ANY, ID(<complex.mal:16:7>, "stealInformation"),
             cia = {},
             ttc = [],
             meta = {
             },
             NO_REQUIRES,
-            Reaches(<complex.mal:17:7>, OVERRIDES,
-              variables = {
-              },
+            Reaches(<complex.mal:18:7>, OVERRIDES,
               reaches = {
-                StepExpr(<complex.mal:17:10>, StepExpr(<complex.mal:17:10>, IDExpr(<complex.mal:17:10>, ID(<complex.mal:17:10>, "computer")), IDExpr(<complex.mal:17:19>, ID(<complex.mal:17:19>, "internalHD"))), IDExpr(<complex.mal:17:30>, ID(<complex.mal:17:30>, "stealHDSecrets")))
+                StepExpr(<complex.mal:18:10>, StepExpr(<complex.mal:18:10>, IDExpr(<complex.mal:18:10>, ID(<complex.mal:18:10>, "computer")), IDExpr(<complex.mal:18:19>, ID(<complex.mal:18:19>, "internalHD"))), IDExpr(<complex.mal:18:30>, ID(<complex.mal:18:30>, "stealHDSecrets")))
               }
             )
           ),
-          AttackStep(<complex.mal:18:5>, ANY, ID(<complex.mal:18:7>, "stealFolder"),
+          AttackStep(<complex.mal:19:5>, ANY, ID(<complex.mal:19:7>, "stealFolder"),
             cia = {},
             ttc = [],
             meta = {
             },
             NO_REQUIRES,
-            Reaches(<complex.mal:20:7>, OVERRIDES,
-              variables = {
-                Variable(<complex.mal:20:10>, ID(<complex.mal:20:14>, "MYVAR"), StepExpr(<complex.mal:20:22>, IDExpr(<complex.mal:20:22>, ID(<complex.mal:20:22>, "computer")), IDExpr(<complex.mal:20:31>, ID(<complex.mal:20:31>, "externalHD"))))
-              },
+            Reaches(<complex.mal:21:7>, OVERRIDES,
               reaches = {
-                StepExpr(<complex.mal:21:7>, IDExpr(<complex.mal:21:7>, ID(<complex.mal:21:7>, "MYVAR")), IDExpr(<complex.mal:21:13>, ID(<complex.mal:21:13>, "stealFolder")))
+                StepExpr(<complex.mal:21:10>, CallExpr(<complex.mal:21:10>, ID(<complex.mal:21:10>, "MYVAR")), IDExpr(<complex.mal:21:18>, ID(<complex.mal:21:18>, "stealFolder")))
               }
             )
           )
         },
         variables = {
+          Variable(<complex.mal:10:4>, ID(<complex.mal:10:8>, "MYVAR"), StepExpr(<complex.mal:10:16>, IDExpr(<complex.mal:10:16>, ID(<complex.mal:10:16>, "computer")), IDExpr(<complex.mal:10:25>, ID(<complex.mal:10:25>, "externalHD"))))
         }
       ),
       Asset(<complex.mal:23:3>, NOT_ABSTRACT, ID(<complex.mal:23:9>, "Student"), PARENT(ID(<complex.mal:23:25>, "User")),
@@ -93,8 +85,6 @@ categories = {
             },
             NO_REQUIRES,
             Reaches(<complex.mal:27:7>, OVERRIDES,
-              variables = {
-              },
               reaches = {
                 IDExpr(<complex.mal:27:10>, ID(<complex.mal:27:10>, "compromise"))
               }
@@ -121,8 +111,6 @@ categories = {
             },
             NO_REQUIRES,
             Reaches(<complex.mal:34:7>, OVERRIDES,
-              variables = {
-              },
               reaches = {
                 IDExpr(<complex.mal:34:10>, ID(<complex.mal:34:10>, "interceptTraffic"))
               }
@@ -135,8 +123,6 @@ categories = {
             },
             NO_REQUIRES,
             Reaches(<complex.mal:36:7>, OVERRIDES,
-              variables = {
-              },
               reaches = {
                 IDExpr(<complex.mal:36:10>, ID(<complex.mal:36:10>, "retrievePassword"))
               }
@@ -150,8 +136,6 @@ categories = {
             },
             NO_REQUIRES,
             Reaches(<complex.mal:39:7>, OVERRIDES,
-              variables = {
-              },
               reaches = {
                 StepExpr(<complex.mal:39:10>, IDExpr(<complex.mal:39:10>, ID(<complex.mal:39:10>, "user")), IDExpr(<complex.mal:39:15>, ID(<complex.mal:39:15>, "impersonate")))
               }
@@ -164,8 +148,6 @@ categories = {
             },
             NO_REQUIRES,
             Reaches(<complex.mal:41:7>, OVERRIDES,
-              variables = {
-              },
               reaches = {
                 StepExpr(<complex.mal:41:10>, IDExpr(<complex.mal:41:10>, ID(<complex.mal:41:10>, "firewall")), IDExpr(<complex.mal:41:19>, ID(<complex.mal:41:19>, "bypassFirewall")))
               }
@@ -178,10 +160,8 @@ categories = {
             },
             NO_REQUIRES,
             Reaches(<complex.mal:44:7>, OVERRIDES,
-              variables = {
-              },
               reaches = {
-                StepExpr(<complex.mal:44:10>, IDExpr(<complex.mal:44:10>, ID(<complex.mal:44:10>, "HDDs")), IDExpr(<complex.mal:44:15>, ID(<complex.mal:44:15>, "stealHDSecrets")))
+                StepExpr(<complex.mal:44:10>, CallExpr(<complex.mal:44:10>, ID(<complex.mal:44:10>, "HDDs")), IDExpr(<complex.mal:44:17>, ID(<complex.mal:44:17>, "stealHDSecrets")))
               }
             )
           ),
@@ -192,8 +172,6 @@ categories = {
             },
             NO_REQUIRES,
             Reaches(<complex.mal:46:7>, OVERRIDES,
-              variables = {
-              },
               reaches = {
                 IDExpr(<complex.mal:46:10>, ID(<complex.mal:46:10>, "retrievePassword"))
               }
@@ -205,15 +183,11 @@ categories = {
             meta = {
             },
             Requires(<complex.mal:48:7>,
-              variables = {
-              },
               requires = {
                 IDExpr(<complex.mal:48:10>, ID(<complex.mal:48:10>, "firewall"))
               }
             ),
             Reaches(<complex.mal:49:7>, OVERRIDES,
-              variables = {
-              },
               reaches = {
                 StepExpr(<complex.mal:49:10>, IDExpr(<complex.mal:49:10>, ID(<complex.mal:49:10>, "firewall")), IDExpr(<complex.mal:49:19>, ID(<complex.mal:49:19>, "bypassFirewall")))
               }
@@ -235,8 +209,6 @@ categories = {
             },
             NO_REQUIRES,
             Reaches(<complex.mal:53:7>, OVERRIDES,
-              variables = {
-              },
               reaches = {
                 StepExpr(<complex.mal:53:10>, IDExpr(<complex.mal:53:10>, ID(<complex.mal:53:10>, "computer")), IDExpr(<complex.mal:53:19>, ID(<complex.mal:53:19>, "retrievePassword"))),
                 StepExpr(<complex.mal:54:7>, IDExpr(<complex.mal:54:7>, ID(<complex.mal:54:7>, "computer")), IDExpr(<complex.mal:54:16>, ID(<complex.mal:54:16>, "interceptTraffic"))),
@@ -267,8 +239,6 @@ categories = {
             },
             NO_REQUIRES,
             Reaches(<complex.mal:62:7>, OVERRIDES,
-              variables = {
-              },
               reaches = {
                 StepExpr(<complex.mal:62:11>, StepExpr(<complex.mal:62:12>, IDExpr(<complex.mal:62:12>, ID(<complex.mal:62:12>, "folder")), TransitiveExpr(<complex.mal:62:19>, IDExpr(<complex.mal:62:20>, ID(<complex.mal:62:20>, "subFolder")))), IDExpr(<complex.mal:62:33>, ID(<complex.mal:62:33>, "accessFolder")))
               }

@@ -13,39 +13,40 @@ identifier, <complex.mal:8:10>, Person
 'asset', <complex.mal:9:12>
 identifier, <complex.mal:9:18>, User
 '{', <complex.mal:9:23>
-'|', <complex.mal:10:5>
-identifier, <complex.mal:10:7>, impersonate
-'->', <complex.mal:11:7>
-identifier, <complex.mal:11:10>, compromise
-',', <complex.mal:11:20>
-identifier, <complex.mal:12:7>, stealInformation
-'|', <complex.mal:13:5>
-identifier, <complex.mal:13:7>, compromise
-'->', <complex.mal:14:7>
-identifier, <complex.mal:14:10>, computer
-'.', <complex.mal:14:18>
-identifier, <complex.mal:14:19>, stealSecret
-'|', <complex.mal:15:5>
-identifier, <complex.mal:15:7>, stealInformation
-'->', <complex.mal:17:7>
-identifier, <complex.mal:17:10>, computer
-'.', <complex.mal:17:18>
-identifier, <complex.mal:17:19>, internalHD
-'.', <complex.mal:17:29>
-identifier, <complex.mal:17:30>, stealHDSecrets
-'|', <complex.mal:18:5>
-identifier, <complex.mal:18:7>, stealFolder
-'->', <complex.mal:20:7>
-'let', <complex.mal:20:10>
-identifier, <complex.mal:20:14>, MYVAR
-'=', <complex.mal:20:20>
-identifier, <complex.mal:20:22>, computer
-'.', <complex.mal:20:30>
-identifier, <complex.mal:20:31>, externalHD
-',', <complex.mal:20:41>
-identifier, <complex.mal:21:7>, MYVAR
-'.', <complex.mal:21:12>
-identifier, <complex.mal:21:13>, stealFolder
+'let', <complex.mal:10:4>
+identifier, <complex.mal:10:8>, MYVAR
+'=', <complex.mal:10:14>
+identifier, <complex.mal:10:16>, computer
+'.', <complex.mal:10:24>
+identifier, <complex.mal:10:25>, externalHD
+'|', <complex.mal:11:5>
+identifier, <complex.mal:11:7>, impersonate
+'->', <complex.mal:12:7>
+identifier, <complex.mal:12:10>, compromise
+',', <complex.mal:12:20>
+identifier, <complex.mal:13:7>, stealInformation
+'|', <complex.mal:14:5>
+identifier, <complex.mal:14:7>, compromise
+'->', <complex.mal:15:7>
+identifier, <complex.mal:15:10>, computer
+'.', <complex.mal:15:18>
+identifier, <complex.mal:15:19>, stealSecret
+'|', <complex.mal:16:5>
+identifier, <complex.mal:16:7>, stealInformation
+'->', <complex.mal:18:7>
+identifier, <complex.mal:18:10>, computer
+'.', <complex.mal:18:18>
+identifier, <complex.mal:18:19>, internalHD
+'.', <complex.mal:18:29>
+identifier, <complex.mal:18:30>, stealHDSecrets
+'|', <complex.mal:19:5>
+identifier, <complex.mal:19:7>, stealFolder
+'->', <complex.mal:21:7>
+identifier, <complex.mal:21:10>, MYVAR
+'(', <complex.mal:21:15>
+')', <complex.mal:21:16>
+'.', <complex.mal:21:17>
+identifier, <complex.mal:21:18>, stealFolder
 '}', <complex.mal:22:3>
 'asset', <complex.mal:23:3>
 identifier, <complex.mal:23:9>, Student
@@ -119,8 +120,10 @@ identifier, <complex.mal:41:19>, bypassFirewall
 identifier, <complex.mal:42:7>, stealSecret
 '->', <complex.mal:44:7>
 identifier, <complex.mal:44:10>, HDDs
-'.', <complex.mal:44:14>
-identifier, <complex.mal:44:15>, stealHDSecrets
+'(', <complex.mal:44:14>
+')', <complex.mal:44:15>
+'.', <complex.mal:44:16>
+identifier, <complex.mal:44:17>, stealHDSecrets
 '#', <complex.mal:45:5>
 identifier, <complex.mal:45:7>, passwordEncrypted
 '->', <complex.mal:46:7>

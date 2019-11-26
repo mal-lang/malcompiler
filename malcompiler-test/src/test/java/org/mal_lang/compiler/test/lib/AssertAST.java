@@ -222,14 +222,12 @@ public final class AssertAST {
 
   private static void assertRequires(AST.Requires expected, AST.Requires actual) {
     assertPosition(expected, actual);
-    assertVariableList(expected.variables, actual.variables);
     assertExprList(expected.requires, actual.requires);
   }
 
   private static void assertReaches(AST.Reaches expected, AST.Reaches actual) {
     assertPosition(expected, actual);
     assertEqualsPos(expected.inherits, actual.inherits, actual);
-    assertVariableList(expected.variables, actual.variables);
     assertExprList(expected.reaches, actual.reaches);
   }
 
@@ -266,6 +264,9 @@ public final class AssertAST {
     } else if (expected instanceof AST.IDExpr) {
       assertTruePos(actual instanceof AST.IDExpr, actual);
       assertIDExpr((AST.IDExpr) expected, (AST.IDExpr) actual);
+    } else if (expected instanceof AST.CallExpr) {
+      assertTruePos(actual instanceof AST.CallExpr, actual);
+      assertCallExpr((AST.CallExpr) expected, (AST.CallExpr) actual);
     } else {
       failPos("Invalid expected subtype of Expr", expected);
     }
@@ -293,6 +294,10 @@ public final class AssertAST {
   }
 
   private static void assertIDExpr(AST.IDExpr expected, AST.IDExpr actual) {
+    assertID(expected.id, actual.id);
+  }
+
+  private static void assertCallExpr(AST.CallExpr expected, AST.CallExpr actual) {
     assertID(expected.id, actual.id);
   }
 

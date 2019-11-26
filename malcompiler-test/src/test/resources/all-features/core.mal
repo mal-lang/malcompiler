@@ -67,11 +67,9 @@ category C1 {
     | a3Attack {A, I, C}
     let used = a1Sub[A2]
     // False cycle
-    let V1 = used
-    let V2 = V1
+    let V1 = used()
     & AT
-      -> let V1 = V2,
-         V1.a1Attack1
+      -> V1().a1Attack1
   }
 }
 
@@ -87,11 +85,8 @@ category C2
   {
     let var = a1.a1Sub*
     | a
-      -> (var \/ var2).a1Attack1,
-         /* This variable shadows an asset variable */
-         let var = a1[A2]
-    // This variable escapes the attack step scope for variable 'var'
-    let var2 = var[A3]
+      -> (var() \/ var2()).a1Attack1
+    let var2 = var()[A3]
   }
 }
 
@@ -112,11 +107,9 @@ category C2
 category C3 {
   asset A7 extends A3 {
     | a7Attack
-      -> a1.destroy
-    // Shadows field in parent
+      -> a1().destroy
     let a6 = a1Super.a8
-    // Shadows field in this asset
-    let a1 = a6.a8Super
+    let a1 = a6().a8Super
   }
 
   asset A8 {
