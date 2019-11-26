@@ -364,7 +364,6 @@ public class Lang {
     private List<StepExpr> requires;
     private List<StepExpr> reaches;
     private List<StepExpr> parentSteps;
-    private Map<String, StepExpr> variables;
 
     public AttackStep(
         String name, AttackStepType type, Asset asset, boolean inheritsReaches, CIA cia) {
@@ -377,15 +376,6 @@ public class Lang {
       this.requires = new ArrayList<>();
       this.reaches = new ArrayList<>();
       this.parentSteps = new ArrayList<>();
-      this.variables = new LinkedHashMap<>();
-    }
-
-    public void addVariable(String name, StepExpr expr) {
-      this.variables.put(name, expr);
-    }
-
-    public Map<String, StepExpr> getVariables() {
-      return this.variables;
     }
 
     public String getName() {
@@ -617,10 +607,10 @@ public class Lang {
     }
   }
 
-  public static class StepVar extends StepExpr {
+  public static class StepCall extends StepExpr {
     public final String name;
 
-    public StepVar(Asset subSrc, Asset src, Asset target, Asset subTarget, String name) {
+    public StepCall(Asset subSrc, Asset src, Asset target, Asset subTarget, String name) {
       super(subSrc, src, target, subTarget);
       this.name = name;
     }

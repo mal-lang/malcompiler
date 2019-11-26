@@ -470,12 +470,10 @@ public class AST {
   }
 
   public static class Requires extends Position {
-    public final List<Variable> variables;
     public final List<Expr> requires;
 
-    public Requires(Position pos, List<Variable> variables, List<Expr> requires) {
+    public Requires(Position pos, List<Expr> requires) {
       super(pos);
-      this.variables = variables;
       this.requires = requires;
     }
 
@@ -483,7 +481,6 @@ public class AST {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
       sb.append(String.format("%sRequires(%s,%n", indent, posString()));
-      sb.append(String.format("%s,%n", Variable.listToString(variables, spaces + 2)));
       sb.append(String.format("%s%n", Expr.listToString(requires, "requires", spaces + 2)));
       sb.append(String.format("%s)", indent));
       return sb.toString();
@@ -492,13 +489,11 @@ public class AST {
 
   public static class Reaches extends Position {
     public final boolean inherits;
-    public final List<Variable> variables;
     public final List<Expr> reaches;
 
-    public Reaches(Position pos, boolean inherits, List<Variable> variables, List<Expr> reaches) {
+    public Reaches(Position pos, boolean inherits, List<Expr> reaches) {
       super(pos);
       this.inherits = inherits;
-      this.variables = variables;
       this.reaches = reaches;
     }
 
@@ -508,7 +503,6 @@ public class AST {
       sb.append(
           String.format(
               "%sReaches(%s, %s,%n", indent, posString(), inherits ? "INHERITS" : "OVERRIDES"));
-      sb.append(String.format("%s,%n", Variable.listToString(variables, spaces + 2)));
       sb.append(String.format("%s%n", Expr.listToString(reaches, "reaches", spaces + 2)));
       sb.append(String.format("%s)", indent));
       return sb.toString();
@@ -670,6 +664,20 @@ public class AST {
     @Override
     public String toString() {
       return String.format("IDExpr(%s, %s)", posString(), id.toString());
+    }
+  }
+
+  public static class CallExpr extends Expr {
+    public final ID id;
+
+    public CallExpr(Position pos, ID id) {
+      super(pos);
+      this.id = id;
+    }
+
+    @Override
+    public String toString() {
+      return String.format("CallExpr(%s, %s)", posString(), id.toString());
     }
   }
 

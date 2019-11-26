@@ -46,6 +46,7 @@ import org.mal_lang.compiler.lib.Lang.AttackStepType;
 import org.mal_lang.compiler.lib.Lang.Field;
 import org.mal_lang.compiler.lib.Lang.StepAttackStep;
 import org.mal_lang.compiler.lib.Lang.StepBinOp;
+import org.mal_lang.compiler.lib.Lang.StepCall;
 import org.mal_lang.compiler.lib.Lang.StepCollect;
 import org.mal_lang.compiler.lib.Lang.StepDifference;
 import org.mal_lang.compiler.lib.Lang.StepExpr;
@@ -53,7 +54,6 @@ import org.mal_lang.compiler.lib.Lang.StepField;
 import org.mal_lang.compiler.lib.Lang.StepIntersection;
 import org.mal_lang.compiler.lib.Lang.StepTransitive;
 import org.mal_lang.compiler.lib.Lang.StepUnion;
-import org.mal_lang.compiler.lib.Lang.StepVar;
 import org.mal_lang.compiler.lib.Lang.TTCExpr;
 import org.mal_lang.compiler.lib.Lang.TTCFunc;
 
@@ -278,10 +278,10 @@ public class Generator extends JavaGenerator {
 
     // Create all asset variables
     for (var variable : asset.getVariables().entrySet()) {
-      createVariable(builder, variable.getKey(), variable.getValue(), asset, true);
+      createVariable(builder, variable.getKey(), variable.getValue(), asset);
     }
     for (var variable : asset.getReverseVariables().entrySet()) {
-      createVariable(builder, variable.getKey(), variable.getValue(), asset, true);
+      createVariable(builder, variable.getKey(), variable.getValue(), asset);
     }
 
     // Add all parameters as booleans to constructor
@@ -379,8 +379,8 @@ public class Generator extends JavaGenerator {
   }
 
   private void createVariable(
-      TypeSpec.Builder parentBuilder, String name, StepExpr expr, Asset asset, boolean inAsset) {
-    String setName = String.format("_cache%s%s", name, inAsset ? "Asset" : "");
+      TypeSpec.Builder parentBuilder, String name, StepExpr expr, Asset asset) {
+    String setName = String.format("_cache%s", name);
     String methodName = String.format("_%s", name);
 
     MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName);
@@ -628,10 +628,6 @@ public class Generator extends JavaGenerator {
           createLocalTtc(attackStep.getAsset().getName(), attackStep.getName()).build());
     }
 
-    for (var variable : attackStep.getVariables().entrySet()) {
-      createVariable(builder, variable.getKey(), variable.getValue(), attackStep.getAsset(), false);
-    }
-
     parentBuilder.addType(builder.build());
   }
 
@@ -749,7 +745,7 @@ public class Generator extends JavaGenerator {
     return af.addStatement(new AutoFlow(name));
   }
 
-  private AutoFlow createStepVar(AutoFlow af, StepVar expr) {
+  private AutoFlow createStepVar(AutoFlow af, StepCall expr) {
     String name = String.format("_%s", expr.name);
     if (af.hasPrefix()) {
       name = String.format("%s.%s", af.prefix, name);
@@ -792,8 +788,8 @@ public class Generator extends JavaGenerator {
       af = createStepSet(af, expr, asset);
     } else if (expr instanceof StepAttackStep) {
       af = createStepAttackStep(af, (StepAttackStep) expr);
-    } else if (expr instanceof StepVar) {
-      af = createStepVar(af, (StepVar) expr);
+    } else if (expr instanceof StepCall) {
+      af = createStepVar(af, (StepCall) expr);
     } else {
       throw new RuntimeException(String.format("unknown expression '%s'", expr));
     }

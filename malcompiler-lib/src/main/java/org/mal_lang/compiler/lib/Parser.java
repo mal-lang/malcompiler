@@ -528,30 +528,21 @@ public class Parser {
     }
   }
 
-  // <existence> ::= REQUIRE (<variable> | <expr>) (COMMA (<variable> | <expr>))*
+  // <existence> ::= REQUIRE <expr> (COMMA <expr>)*
   private AST.Requires _parseExistence() throws CompilerException {
     var firstToken = tok;
 
     _expect(TokenType.REQUIRE);
-    var variables = new ArrayList<AST.Variable>();
     var requires = new ArrayList<AST.Expr>();
-    if (tok.type == TokenType.LET) {
-      variables.add(_parseVariable());
-    } else {
-      requires.add(_parseExpr());
-    }
+    requires.add(_parseExpr());
     while (tok.type == TokenType.COMMA) {
       _next();
-      if (tok.type == TokenType.LET) {
-        variables.add(_parseVariable());
-      } else {
-        requires.add(_parseExpr());
-      }
+      requires.add(_parseExpr());
     }
-    return new AST.Requires(firstToken, variables, requires);
+    return new AST.Requires(firstToken, requires);
   }
 
-  // <reaches> ::= (INHERIT | OVERRIDE) (<variable> | <expr>) (COMMA (<variable> | <expr>))*
+  // <reaches> ::= (INHERIT | OVERRIDE) <expr> (COMMA <expr>)*
   private AST.Reaches _parseReaches() throws CompilerException {
     var firstToken = tok;
 
@@ -564,22 +555,13 @@ public class Parser {
       throw exception(TokenType.INHERIT, TokenType.OVERRIDE);
     }
     _next();
-    var variables = new ArrayList<AST.Variable>();
     var reaches = new ArrayList<AST.Expr>();
-    if (tok.type == TokenType.LET) {
-      variables.add(_parseVariable());
-    } else {
-      reaches.add(_parseExpr());
-    }
+    reaches.add(_parseExpr());
     while (tok.type == TokenType.COMMA) {
       _next();
-      if (tok.type == TokenType.LET) {
-        variables.add(_parseVariable());
-      } else {
-        reaches.add(_parseExpr());
-      }
+      reaches.add(_parseExpr());
     }
-    return new AST.Reaches(firstToken, inherits, variables, reaches);
+    return new AST.Reaches(firstToken, inherits, reaches);
   }
 
   // <variable> ::= LET ID ASSIGN <expr>
@@ -652,13 +634,19 @@ public class Parser {
     return e;
   }
 
-  // <prim> ::= ID | LPAREN <expr> RPAREN
+  // <prim> ::= ID (LPAREN RPAREN)? | LPAREN <expr> RPAREN
   private AST.Expr _parsePrim() throws CompilerException {
     var firstToken = tok;
 
     if (tok.type == TokenType.ID) {
       var id = _parseID();
-      return new AST.IDExpr(firstToken, id);
+      if (tok.type == TokenType.LPAREN) {
+        _next();
+        _expect(TokenType.RPAREN);
+        return new AST.CallExpr(firstToken, id);
+      } else {
+        return new AST.IDExpr(firstToken, id);
+      }
     } else if (tok.type == TokenType.LPAREN) {
       _next();
       var e = _parseExpr();

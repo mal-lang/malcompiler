@@ -403,7 +403,7 @@ public final class AssertLang {
             fieldToString(expected.field), fieldToString(actual.field)));
   }
 
-  private static void assertLangStepVar(Lang.StepVar expected, Lang.StepVar actual) {
+  private static void assertLangStepVar(Lang.StepCall expected, Lang.StepCall actual) {
     assertEquals(expected.name, actual.name);
   }
 
@@ -435,8 +435,8 @@ public final class AssertLang {
       assertLangStepExpr(((Lang.StepTransitive) expected).e, ((Lang.StepTransitive) actual).e);
     } else if (expected instanceof Lang.StepField) {
       assertLangStepField((Lang.StepField) expected, (Lang.StepField) actual);
-    } else if (expected instanceof Lang.StepVar) {
-      assertLangStepVar((Lang.StepVar) expected, (Lang.StepVar) actual);
+    } else if (expected instanceof Lang.StepCall) {
+      assertLangStepVar((Lang.StepCall) expected, (Lang.StepCall) actual);
     } else if (expected instanceof Lang.StepAttackStep) {
       assertLangStepAttackStep((Lang.StepAttackStep) expected, (Lang.StepAttackStep) actual);
     } else {

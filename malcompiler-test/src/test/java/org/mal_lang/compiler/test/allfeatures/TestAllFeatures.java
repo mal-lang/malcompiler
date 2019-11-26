@@ -1647,13 +1647,13 @@ public class TestAllFeatures extends MalTest {
                 lang.getAsset("A1"),
                 lang.getAsset("A4"),
                 lang.getAsset("A4"),
-                new Lang.StepVar(
+                new Lang.StepCall(
                     lang.getAsset("A3"),
                     lang.getAsset("A1"),
                     lang.getAsset("A4"),
                     lang.getAsset("A4"),
                     "reversevar2"),
-                new Lang.StepVar(
+                new Lang.StepCall(
                     lang.getAsset("A2"),
                     lang.getAsset("A1"),
                     lang.getAsset("A4"),
@@ -2100,7 +2100,7 @@ public class TestAllFeatures extends MalTest {
             lang.getAsset("A2"),
             null,
             null,
-            new Lang.StepVar(
+            new Lang.StepCall(
                 lang.getAsset("A2"),
                 lang.getAsset("A2"),
                 lang.getAsset("A1"),
@@ -2370,7 +2370,7 @@ public class TestAllFeatures extends MalTest {
             lang.getAsset("A3"),
             null,
             null,
-            new Lang.StepVar(
+            new Lang.StepCall(
                 lang.getAsset("A3"),
                 lang.getAsset("A1"),
                 lang.getAsset("A1"),
@@ -2427,13 +2427,13 @@ public class TestAllFeatures extends MalTest {
                 lang.getAsset("A4"),
                 lang.getAsset("A1"),
                 lang.getAsset("A1"),
-                new Lang.StepVar(
+                new Lang.StepCall(
                     lang.getAsset("A4"),
                     lang.getAsset("A4"),
                     lang.getAsset("A1"),
                     lang.getAsset("A2"),
                     "var"),
-                new Lang.StepVar(
+                new Lang.StepCall(
                     lang.getAsset("A4"),
                     lang.getAsset("A4"),
                     lang.getAsset("A1"),
@@ -2523,7 +2523,7 @@ public class TestAllFeatures extends MalTest {
             lang.getAsset("A7"),
             null,
             null,
-            new Lang.StepVar(
+            new Lang.StepCall(
                 lang.getAsset("A7"),
                 lang.getAsset("A7"),
                 lang.getAsset("A8"),
@@ -2602,7 +2602,7 @@ public class TestAllFeatures extends MalTest {
             lang.getAsset("A8"),
             null,
             null,
-            new Lang.StepVar(
+            new Lang.StepCall(
                 lang.getAsset("A8"),
                 lang.getAsset("A8"),
                 lang.getAsset("A7"),

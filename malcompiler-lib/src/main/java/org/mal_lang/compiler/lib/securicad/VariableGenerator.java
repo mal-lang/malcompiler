@@ -40,7 +40,7 @@ public class VariableGenerator extends JavaGenerator {
   }
 
   protected void generate(TypeSpec.Builder parentBuilder, String name, StepExpr expr, Asset asset) {
-    String setName = String.format("_cache%sAsset", name);
+    String setName = String.format("_cache%s", name);
     String methodName = String.format("_%s", name);
 
     MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName);

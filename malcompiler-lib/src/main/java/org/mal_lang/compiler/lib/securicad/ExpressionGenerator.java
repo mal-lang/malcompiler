@@ -30,6 +30,7 @@ import org.mal_lang.compiler.lib.Lang.Asset;
 import org.mal_lang.compiler.lib.Lang.AttackStep;
 import org.mal_lang.compiler.lib.Lang.StepAttackStep;
 import org.mal_lang.compiler.lib.Lang.StepBinOp;
+import org.mal_lang.compiler.lib.Lang.StepCall;
 import org.mal_lang.compiler.lib.Lang.StepCollect;
 import org.mal_lang.compiler.lib.Lang.StepDifference;
 import org.mal_lang.compiler.lib.Lang.StepExpr;
@@ -37,7 +38,6 @@ import org.mal_lang.compiler.lib.Lang.StepField;
 import org.mal_lang.compiler.lib.Lang.StepIntersection;
 import org.mal_lang.compiler.lib.Lang.StepTransitive;
 import org.mal_lang.compiler.lib.Lang.StepUnion;
-import org.mal_lang.compiler.lib.Lang.StepVar;
 import org.mal_lang.compiler.lib.MalLogger;
 
 public class ExpressionGenerator extends JavaGenerator {
@@ -128,8 +128,8 @@ public class ExpressionGenerator extends JavaGenerator {
       af = createStepSet(af, expr, asset, nameSuffix);
     } else if (expr instanceof StepAttackStep) {
       af = createStepAttackStep(af, (StepAttackStep) expr);
-    } else if (expr instanceof StepVar) {
-      af = createStepVar(af, (StepVar) expr);
+    } else if (expr instanceof StepCall) {
+      af = createStepVar(af, (StepCall) expr);
     } else {
       throw new RuntimeException(String.format("unknown expression '%s'", expr));
     }
@@ -244,7 +244,7 @@ public class ExpressionGenerator extends JavaGenerator {
     return af.addStatement(new AutoFlow(name));
   }
 
-  private AutoFlow createStepVar(AutoFlow af, StepVar expr) {
+  private AutoFlow createStepVar(AutoFlow af, StepCall expr) {
     String name = String.format("_%s", expr.name);
     if (af.hasPrefix()) {
       name = String.format("%s.%s", af.prefix, name);

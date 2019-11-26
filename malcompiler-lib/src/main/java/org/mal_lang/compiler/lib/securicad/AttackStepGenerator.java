@@ -98,12 +98,6 @@ public class AttackStepGenerator extends JavaGenerator {
       caches.add(parentCacheName);
     }
 
-    // Generate variables
-    for (var variable : attackStep.getVariables().entrySet()) {
-      varGen.generate(builder, variable.getKey(), variable.getValue(), asset);
-      caches.add(String.format("_cache%s", variable.getKey()));
-    }
-
     if (!caches.isEmpty()) {
       createClearCache(builder, caches);
     }
