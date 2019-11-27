@@ -160,7 +160,7 @@ public class AssetGenerator extends JavaGenerator {
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
     for (var variable : variables) {
-      builder.addStatement("_cache$NAsset = null", variable);
+      builder.addStatement("_cache$N = null", variable);
     }
     parentBuilder.addMethod(builder.build());
   }

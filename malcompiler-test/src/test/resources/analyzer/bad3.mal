@@ -11,7 +11,9 @@ category System {
   	| access
   }
   asset Bravo {
+    let VAR1 = alphas
     | access
+      -> VAR1.compromise
   }
   asset Charlie {
     | read

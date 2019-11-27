@@ -78,7 +78,9 @@ public class TestAnalyzer extends MalTest {
     assertAnalyzeClassPathError("analyzer/bad3.mal");
     assertEmptyOut();
     String[] expected = {
-      "[ANALYZER ERROR] <bad3.mal:10:8> Variable 'VAR' previously defined at <bad3.mal:5:8>", ""
+      "[ANALYZER ERROR] <bad3.mal:10:8> Variable 'VAR' previously defined at <bad3.mal:5:8>",
+      "[ANALYZER ERROR] <bad3.mal:16:10> Field 'VAR1' not defined for asset 'Bravo', did you mean the variable 'VAR1()' defined at <bad3.mal:14:4>",
+      ""
     };
     assertErrLines(expected);
   }

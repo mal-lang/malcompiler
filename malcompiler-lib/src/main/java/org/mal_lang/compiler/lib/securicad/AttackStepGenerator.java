@@ -43,13 +43,11 @@ import org.mal_lang.compiler.lib.MalLogger;
 public class AttackStepGenerator extends JavaGenerator {
   private final String pkg;
   private final ExpressionGenerator exprGen;
-  private final VariableGenerator varGen;
 
   protected AttackStepGenerator(MalLogger LOGGER, String pkg) {
     super(LOGGER);
     this.pkg = pkg;
     this.exprGen = new ExpressionGenerator(LOGGER, pkg);
-    varGen = new VariableGenerator(LOGGER, pkg);
   }
 
   protected void generate(TypeSpec.Builder parentBuilder, Asset asset, AttackStep attackStep) {

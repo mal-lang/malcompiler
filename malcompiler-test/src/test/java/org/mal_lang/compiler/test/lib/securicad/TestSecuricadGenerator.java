@@ -392,4 +392,9 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
   public void testDist() {
     assertLangGenerated("generator/dist.mal");
   }
+
+  @Test
+  public void testVariable() {
+    assertLangGenerated("generator/variable.mal");
+  }
 }

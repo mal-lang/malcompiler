@@ -129,7 +129,7 @@ public class ExpressionGenerator extends JavaGenerator {
     } else if (expr instanceof StepAttackStep) {
       af = createStepAttackStep(af, (StepAttackStep) expr);
     } else if (expr instanceof StepCall) {
-      af = createStepVar(af, (StepCall) expr);
+      af = createStepCall(af, (StepCall) expr);
     } else {
       throw new RuntimeException(String.format("unknown expression '%s'", expr));
     }
@@ -244,7 +244,7 @@ public class ExpressionGenerator extends JavaGenerator {
     return af.addStatement(new AutoFlow(name));
   }
 
-  private AutoFlow createStepVar(AutoFlow af, StepCall expr) {
+  private AutoFlow createStepCall(AutoFlow af, StepCall expr) {
     String name = String.format("_%s", expr.name);
     if (af.hasPrefix()) {
       name = String.format("%s.%s", af.prefix, name);

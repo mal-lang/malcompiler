@@ -446,12 +446,6 @@ public class LangConverter {
           expression.target,
           subTarget == null ? expression.subTarget : subTarget,
           varExpr.id.id);
-    } else if (expr instanceof AST.IDExpr) {
-      var idExpr = (AST.IDExpr) expr;
-      var field = asset.getField(idExpr.id.id);
-      var target = field.getTarget().getAsset();
-      return new Lang.StepField(
-          asset, field.getAsset(), target, subTarget == null ? target : subTarget, field);
     }
     throw new RuntimeException("_convertExprToAsset: Invalid AST.Expr subtype");
   }
