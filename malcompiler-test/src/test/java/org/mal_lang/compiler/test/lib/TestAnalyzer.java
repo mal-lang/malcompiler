@@ -45,6 +45,7 @@ public class TestAnalyzer extends MalTest {
       "[ANALYZER ERROR] <bad1.mal:29:7> Attack step 'authorize' not defined for asset 'AA'",
       "[ANALYZER ERROR] <bad1.mal:30:7> Field 'b' not defined for asset 'AA'",
       "[ANALYZER ERROR] <bad1.mal:32:9> Asset 'AA' previously defined at <bad1.mal:26:18>",
+      "[ANALYZER ERROR] <bad1.mal:34:16> Field 'var1' not defined for asset '_C', did you mean the variable 'var1()' defined at <bad1.mal:34:5>",
       "[ANALYZER ERROR] <bad1.mal:35:9> Variable 'var1' previously defined at <bad1.mal:34:9>",
       "[ANALYZER WARNING] <bad1.mal:37:7> Attack step _C.compromise contains duplicate classification {C}",
       "[ANALYZER ERROR] <bad1.mal:38:7> Attack step 'var1' not defined for asset '_C'",

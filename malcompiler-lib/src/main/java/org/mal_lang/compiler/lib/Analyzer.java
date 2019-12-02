@@ -85,6 +85,10 @@ public class Analyzer {
     checkAssociations(); // might throw
 
     checkUnused();
+
+    if (failed) {
+      throw exception();
+    }
   }
 
   private void collectAssociations() {
@@ -508,6 +512,14 @@ public class Analyzer {
       Scope<AST.Variable> scope = new Scope<>();
       assetVariables.put(asset.name.id, scope);
       readVariables(scope, asset);
+    }
+
+    for (AST.Asset asset : assets.values()) {
+      var scope = assetVariables.get(asset.name.id);
+      for (var variable : scope.getSymbols().entrySet()) {
+        variableToAsset(asset, variable.getValue());
+        variableReferenceCount.put(variable.getValue(), 0);
+      }
     }
   }
 
