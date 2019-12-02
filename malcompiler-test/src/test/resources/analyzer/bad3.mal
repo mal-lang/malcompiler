@@ -7,13 +7,13 @@ category System {
       -> VAR().deltas.write
   }
   asset SubAlpha extends Alpha {
-  	let VAR = charlies.alphas
+    let VAR = charlies.alphas // variable already defined in parent
   	| access
   }
   asset Bravo {
     let VAR1 = alphas
     | access
-      -> VAR1.compromise
+      -> VAR1.compromise // trying to use VAR1 without parentheses ()
   }
   asset Charlie {
     | read

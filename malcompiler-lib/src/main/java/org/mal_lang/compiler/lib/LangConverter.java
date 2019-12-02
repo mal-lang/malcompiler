@@ -325,8 +325,7 @@ public class LangConverter {
       Map<String, Map<String, AST.Variable>> assetVars) {
     for (var astExpr : astRequires.requires) {
       langAttackStep.addRequires(
-          _convertExprToAsset(
-              astExpr, langAttackStep.getAsset(), langAttackStep, assets, assetVars));
+          _convertExprToAsset(astExpr, langAttackStep.getAsset(), assets, assetVars));
     }
   }
 
@@ -337,8 +336,7 @@ public class LangConverter {
       Map<String, Map<String, AST.Variable>> assetVars) {
     for (var astExpr : astReaches.reaches) {
       langAttackStep.addReaches(
-          _convertExprToAttackStep(
-              astExpr, langAttackStep.getAsset(), langAttackStep, assets, assetVars));
+          _convertExprToAttackStep(astExpr, langAttackStep.getAsset(), assets, assetVars));
     }
   }
 
@@ -369,55 +367,53 @@ public class LangConverter {
   private Lang.StepExpr _convertExprToAsset(
       AST.Expr expr,
       Lang.Asset asset,
-      Lang.AttackStep attackStep,
       Map<String, Lang.Asset> assets,
       Map<String, Map<String, AST.Variable>> assetVars) {
-    return _convertExprToAsset(expr, asset, attackStep, assets, null, assetVars);
+    return _convertExprToAsset(expr, asset, assets, null, assetVars);
   }
 
   private Lang.StepExpr _convertExprToAsset(
       AST.Expr expr,
       Lang.Asset asset,
-      Lang.AttackStep attackStep,
       Map<String, Lang.Asset> assets,
       Lang.Asset subTarget,
       Map<String, Map<String, AST.Variable>> assetVars) {
     if (expr instanceof AST.UnionExpr) {
       var unionExpr = (AST.UnionExpr) expr;
-      var lhs = _convertExprToAsset(unionExpr.lhs, asset, attackStep, assets, assetVars);
-      var rhs = _convertExprToAsset(unionExpr.rhs, asset, attackStep, assets, assetVars);
+      var lhs = _convertExprToAsset(unionExpr.lhs, asset, assets, assetVars);
+      var rhs = _convertExprToAsset(unionExpr.rhs, asset, assets, assetVars);
       var target = leastUpperBound(lhs.subTarget, rhs.subTarget);
       return new Lang.StepUnion(
           asset, asset, target, subTarget == null ? target : subTarget, lhs, rhs);
     } else if (expr instanceof AST.IntersectionExpr) {
       var intersectionExpr = (AST.IntersectionExpr) expr;
-      var lhs = _convertExprToAsset(intersectionExpr.lhs, asset, attackStep, assets, assetVars);
-      var rhs = _convertExprToAsset(intersectionExpr.rhs, asset, attackStep, assets, assetVars);
+      var lhs = _convertExprToAsset(intersectionExpr.lhs, asset, assets, assetVars);
+      var rhs = _convertExprToAsset(intersectionExpr.rhs, asset, assets, assetVars);
       var target = leastUpperBound(lhs.subTarget, rhs.subTarget);
       return new Lang.StepIntersection(
           asset, asset, target, subTarget == null ? target : subTarget, lhs, rhs);
     } else if (expr instanceof AST.DifferenceExpr) {
       var differenceExpr = (AST.DifferenceExpr) expr;
-      var lhs = _convertExprToAsset(differenceExpr.lhs, asset, attackStep, assets, assetVars);
-      var rhs = _convertExprToAsset(differenceExpr.rhs, asset, attackStep, assets, assetVars);
+      var lhs = _convertExprToAsset(differenceExpr.lhs, asset, assets, assetVars);
+      var rhs = _convertExprToAsset(differenceExpr.rhs, asset, assets, assetVars);
       var target = leastUpperBound(lhs.subTarget, rhs.subTarget);
       return new Lang.StepDifference(
           asset, asset, target, subTarget == null ? target : subTarget, lhs, rhs);
     } else if (expr instanceof AST.StepExpr) {
       var stepExpr = (AST.StepExpr) expr;
-      var lhs = _convertExprToAsset(stepExpr.lhs, asset, attackStep, assets, assetVars);
-      var rhs = _convertExprToAsset(stepExpr.rhs, lhs.subTarget, attackStep, assets, assetVars);
+      var lhs = _convertExprToAsset(stepExpr.lhs, asset, assets, assetVars);
+      var rhs = _convertExprToAsset(stepExpr.rhs, lhs.subTarget, assets, assetVars);
       return new Lang.StepCollect(
           asset, asset, rhs.subTarget, subTarget == null ? rhs.subTarget : subTarget, lhs, rhs);
     } else if (expr instanceof AST.TransitiveExpr) {
       var transitiveExpr = (AST.TransitiveExpr) expr;
-      var e = _convertExprToAsset(transitiveExpr.e, asset, attackStep, assets, assetVars);
+      var e = _convertExprToAsset(transitiveExpr.e, asset, assets, assetVars);
       return new Lang.StepTransitive(
           asset, asset, e.subTarget, subTarget == null ? e.subTarget : subTarget, e);
     } else if (expr instanceof AST.SubTypeExpr) {
       var subTypeExpr = (AST.SubTypeExpr) expr;
       var subType = assets.get(subTypeExpr.subType.id);
-      return _convertExprToAsset(subTypeExpr.e, asset, attackStep, assets, subType, assetVars);
+      return _convertExprToAsset(subTypeExpr.e, asset, assets, subType, assetVars);
     } else if (expr instanceof AST.IDExpr) {
       var idExpr = (AST.IDExpr) expr;
       var field = asset.getField(idExpr.id.id);
@@ -431,9 +427,9 @@ public class LangConverter {
         AST.Variable astVar = null;
         while (astVar == null) {
           astVar = assetVars.get(parent.getName()).get(varExpr.id.id);
-          parent = asset.getSuperAsset();
+          parent = parent.getSuperAsset();
         }
-        var expression = _convertExprToAsset(astVar.expr, asset, attackStep, assets, assetVars);
+        var expression = _convertExprToAsset(astVar.expr, asset, assets, assetVars);
         asset.addVariable(varExpr.id.id, expression);
         var reverse = reverseStep(expression, expression.subTarget);
         expression.subTarget.addReverseVariable(String.format("reverse%s", varExpr.id.id), reverse);
@@ -453,14 +449,12 @@ public class LangConverter {
   private Lang.StepExpr _convertExprToAttackStep(
       AST.Expr expr,
       Lang.Asset asset,
-      Lang.AttackStep attackStep,
       Map<String, Lang.Asset> assets,
       Map<String, Map<String, AST.Variable>> assetVars) {
     if (expr instanceof AST.StepExpr) {
       var stepExpr = (AST.StepExpr) expr;
-      var lhs = _convertExprToAsset(stepExpr.lhs, asset, attackStep, assets, assetVars);
-      var rhs =
-          _convertExprToAttackStep(stepExpr.rhs, lhs.subTarget, attackStep, assets, assetVars);
+      var lhs = _convertExprToAsset(stepExpr.lhs, asset, assets, assetVars);
+      var rhs = _convertExprToAttackStep(stepExpr.rhs, lhs.subTarget, assets, assetVars);
       return new Lang.StepCollect(asset, asset, null, null, lhs, rhs);
     } else if (expr instanceof AST.IDExpr) {
       var idExpr = (AST.IDExpr) expr;

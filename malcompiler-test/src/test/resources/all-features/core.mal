@@ -66,7 +66,7 @@ category C1 {
     let unused = a1Sub
     | a3Attack {A, I, C}
     let used = a1Sub[A2]
-    // False cycle
+    // Variable using variable
     let V1 = used()
     & AT
       -> V1().a1Attack1

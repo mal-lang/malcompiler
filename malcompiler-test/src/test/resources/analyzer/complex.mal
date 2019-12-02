@@ -17,7 +17,7 @@ category Person {
       //collect example, a reference to attack step stolenSecrets via 2 steps.
       -> computer.internalHD.stealHDSecrets
     | stealFolder
-      //varible example, declaring a variable to be valid within an attack step.
+      //varible example, using a variable declared in the asset.
       -> MYVAR().stealFolder
   }
   asset Student extends User {}

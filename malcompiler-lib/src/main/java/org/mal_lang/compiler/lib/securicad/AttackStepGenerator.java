@@ -79,38 +79,38 @@ public class AttackStepGenerator extends JavaGenerator {
       createDefaultLocalTtc(builder, attackStep);
     }
 
-    // graph caches
+    createSteps(builder, exprGen, attackStep);
+
+    parentBuilder.addType(builder.build());
+  }
+
+  protected static void createSteps(
+      TypeSpec.Builder parentBuilder, ExpressionGenerator exprGen, AttackStep attackStep) {
     Set<String> caches = new LinkedHashSet<>();
 
     if (!attackStep.getReaches().isEmpty()) {
       String childCacheName = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
-      createSetField(builder, childCacheName);
-      exprGen.createGetAttackStepChildren(builder, attackStep, childCacheName);
+      createSetField(parentBuilder, childCacheName);
+      exprGen.createGetAttackStepChildren(parentBuilder, attackStep, childCacheName);
       caches.add(childCacheName);
     }
 
     if (!attackStep.getParentSteps().isEmpty()) {
       String parentCacheName = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
-      createSetField(builder, parentCacheName);
-      exprGen.createSetExpectedParents(builder, attackStep, parentCacheName);
+      createSetField(parentBuilder, parentCacheName);
+      exprGen.createSetExpectedParents(parentBuilder, attackStep, parentCacheName);
       caches.add(parentCacheName);
     }
 
     if (!caches.isEmpty()) {
-      createClearCache(builder, caches);
+      MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
+      builder.addAnnotation(Override.class);
+      builder.addModifiers(Modifier.PUBLIC);
+      for (var cache : caches) {
+        builder.addStatement("$N = null", cache);
+      }
+      parentBuilder.addMethod(builder.build());
     }
-
-    parentBuilder.addType(builder.build());
-  }
-
-  private void createClearCache(TypeSpec.Builder parentBuilder, Set<String> caches) {
-    MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
-    builder.addAnnotation(Override.class);
-    builder.addModifiers(Modifier.PUBLIC);
-    for (var cache : caches) {
-      builder.addStatement("$N = null", cache);
-    }
-    parentBuilder.addMethod(builder.build());
   }
 
   ////////////////////
@@ -306,7 +306,7 @@ public class AttackStepGenerator extends JavaGenerator {
     }
   }
 
-  private void createSetField(TypeSpec.Builder parentBuilder, String name) {
+  private static void createSetField(TypeSpec.Builder parentBuilder, String name) {
     ClassName set = ClassName.get("java.util", "Set");
     ClassName attackStep = ClassName.get("com.foreseeti.simulator", "AttackStep");
     TypeName type = ParameterizedTypeName.get(set, attackStep);

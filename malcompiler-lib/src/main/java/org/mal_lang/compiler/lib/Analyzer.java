@@ -746,7 +746,7 @@ public class Analyzer {
     currentVariables.remove(variable);
   }
 
-  private AST.Asset variableToAsset(AST.Asset asset, AST.Variable variable, AST.ID id) {
+  private AST.Asset variableToAsset(AST.Asset asset, AST.Variable variable) {
     if (evalVariableBegin(variable)) {
 
       AST.Asset res = checkToAsset(asset, variable.expr);
@@ -763,7 +763,7 @@ public class Analyzer {
     if (variableScope != null) {
       var variable = variableScope.look(expr.id.id);
       if (variable != null) {
-        return variableToAsset(asset, variable, expr.id);
+        return variableToAsset(asset, variable);
       }
     }
     error(expr, String.format("Variable '%s' is not defined", expr.id.id));

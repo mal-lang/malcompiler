@@ -17,10 +17,7 @@ package org.mal_lang.compiler.lib.securicad;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.JavaGenerator;
@@ -166,27 +163,8 @@ public class DefenseGenerator extends JavaGenerator {
     method.addStatement("return $T.this", parent);
     builder.addMethod(method.build());
 
-    if (!attackStep.getReaches().isEmpty()) {
-      String name = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
-      createSetField(builder, name);
-      exprGen.createGetAttackStepChildren(builder, attackStep, name);
-    }
-
-    if (!attackStep.getParentSteps().isEmpty()) {
-      String name = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
-      createSetField(builder, name);
-      exprGen.createSetExpectedParents(builder, attackStep, name);
-    }
+    AttackStepGenerator.createSteps(builder, exprGen, attackStep);
 
     parentBuilder.addType(builder.build());
-  }
-
-  private void createSetField(TypeSpec.Builder parentBuilder, String name) {
-    ClassName set = ClassName.get("java.util", "Set");
-    ClassName attackStep = ClassName.get("com.foreseeti.simulator", "AttackStep");
-    TypeName type = ParameterizedTypeName.get(set, attackStep);
-    FieldSpec.Builder builder = FieldSpec.builder(type, name);
-    builder.addModifiers(Modifier.PRIVATE);
-    parentBuilder.addField(builder.build());
   }
 }

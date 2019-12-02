@@ -141,8 +141,8 @@ public class AssetGenerator extends JavaGenerator {
     Set<String> variables = new LinkedHashSet<>();
     variables.addAll(asset.getVariables().keySet());
     variables.addAll(asset.getReverseVariables().keySet());
-    if (!variables.isEmpty()) {
-      createClearCache(builder, variables);
+    if (!variables.isEmpty() || !asset.getAttackSteps().isEmpty()) {
+      createClearCache(builder, asset, variables);
     }
 
     var file = JavaFile.builder(this.pkg, builder.build());
@@ -155,12 +155,20 @@ public class AssetGenerator extends JavaGenerator {
     file.build().writeTo(this.output);
   }
 
-  private void createClearCache(TypeSpec.Builder parentBuilder, Set<String> variables) {
+  private void createClearCache(
+      TypeSpec.Builder parentBuilder, Asset asset, Set<String> variables) {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
     for (var variable : variables) {
       builder.addStatement("_cache$N = null", variable);
+    }
+    for (var attackStep : asset.getAttackSteps().values()) {
+      if (attackStep.isDefense() || attackStep.isConditionalDefense()) {
+        builder.addStatement("$N.disable.clearGraphCache()", attackStep.getName());
+      } else {
+        builder.addStatement("$N.clearGraphCache()", attackStep.getName());
+      }
     }
     parentBuilder.addMethod(builder.build());
   }

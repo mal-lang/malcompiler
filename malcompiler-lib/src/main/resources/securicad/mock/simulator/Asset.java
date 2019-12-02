@@ -9,5 +9,5 @@ public interface Asset {
 
   public void fillElementMap();
 
-  public void clearGraphCache();
+  public default void clearGraphCache() {}
 }

@@ -13,6 +13,4 @@ public abstract class SingleParentAsset extends FClass implements Asset {
 
   @Override
   public void fillElementMap() {}
-
-  public void clearGraphCache() {}
 }
