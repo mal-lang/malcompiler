@@ -422,22 +422,26 @@ public class LangConverter {
           asset, field.getAsset(), target, subTarget == null ? target : subTarget, field);
     } else if (expr instanceof AST.CallExpr) {
       var varExpr = (AST.CallExpr) expr;
-      if (!asset.getVariables().containsKey(varExpr.id.id)) {
-        var parent = asset;
-        AST.Variable astVar = null;
-        while (astVar == null) {
-          astVar = assetVars.get(parent.getName()).get(varExpr.id.id);
-          parent = parent.getSuperAsset();
-        }
-        var expression = _convertExprToAsset(astVar.expr, asset, assets, assetVars);
-        asset.addVariable(varExpr.id.id, expression);
-        var reverse = reverseStep(expression, expression.subTarget);
-        expression.subTarget.addReverseVariable(String.format("reverse%s", varExpr.id.id), reverse);
-      }
       var expression = asset.getVariables().get(varExpr.id.id);
+      if (expression == null) {
+        AST.Variable astVar = assetVars.get(asset.getName()).get(varExpr.id.id);
+        var parent = asset;
+        while (astVar == null) {
+          parent = parent.getSuperAsset();
+          astVar = assetVars.get(parent.getName()).get(varExpr.id.id);
+        }
+        expression = parent.getVariables().get(varExpr.id.id);
+        if (expression == null) {
+          expression = _convertExprToAsset(astVar.expr, parent, assets, assetVars);
+          parent.addVariable(varExpr.id.id, expression);
+          var reverse = reverseStep(expression, expression.subTarget);
+          expression.subTarget.addReverseVariable(
+              String.format("reverse%s", varExpr.id.id), reverse);
+        }
+      }
 
       return new Lang.StepCall(
-          expression.subSrc,
+          asset,
           expression.src,
           expression.target,
           subTarget == null ? expression.subTarget : subTarget,
