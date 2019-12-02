@@ -122,6 +122,8 @@ public class Lang {
     private Asset superAsset;
     private Map<String, Field> fields;
     private Map<String, AttackStep> attackSteps;
+    private Map<String, StepExpr> variables;
+    private Map<String, StepExpr> reverseVariables;
 
     public Asset(String name, boolean isAbstract, Category category) {
       this.name = name;
@@ -130,6 +132,24 @@ public class Lang {
       this.meta = new LinkedHashMap<>();
       this.fields = new LinkedHashMap<>();
       this.attackSteps = new LinkedHashMap<>();
+      this.variables = new LinkedHashMap<>();
+      this.reverseVariables = new LinkedHashMap<>();
+    }
+
+    public void addVariable(String name, StepExpr expr) {
+      this.variables.put(name, expr);
+    }
+
+    public Map<String, StepExpr> getVariables() {
+      return this.variables;
+    }
+
+    public void addReverseVariable(String name, StepExpr expr) {
+      this.reverseVariables.put(name, expr);
+    }
+
+    public Map<String, StepExpr> getReverseVariables() {
+      return this.reverseVariables;
     }
 
     public String getName() {
@@ -587,6 +607,15 @@ public class Lang {
     public StepAttackStep(Asset subSrc, Asset src, AttackStep attackStep) {
       super(subSrc, src, null, null);
       this.attackStep = attackStep;
+    }
+  }
+
+  public static class StepCall extends StepExpr {
+    public final String name;
+
+    public StepCall(Asset subSrc, Asset src, Asset target, Asset subTarget, String name) {
+      super(subSrc, src, target, subTarget);
+      this.name = name;
     }
   }
 }

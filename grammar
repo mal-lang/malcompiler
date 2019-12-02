@@ -19,15 +19,15 @@
 <ttc-term>      ::= <ttc-fact> ((STAR | DIVIDE) <ttc-fact>)*
 <ttc-fact>      ::= <ttc-prim> (POWER <ttc-fact>)?
 <ttc-prim>      ::= ID (LPAREN (<number> (COMMA <number>)*)? RPAREN)? | LPAREN <ttc-expr> RPAREN | <number>
-<existence>     ::= REQUIRE (<variable> | <expr>) (COMMA (<variable> | <expr>))*
-<reaches>       ::= (INHERIT | OVERRIDE) (<variable> | <expr>) (COMMA (<variable> | <expr>))*
+<existence>     ::= REQUIRE <expr> (COMMA <expr>)*
+<reaches>       ::= (INHERIT | OVERRIDE) <expr> (COMMA <expr>)*
 
 <variable>      ::= LET ID ASSIGN <expr>
 <expr>          ::= <step> ((UNION | INTERSECT | MINUS) <step>)*
 <step>          ::= <transitive> (DOT <transitive>)*
 <transitive>    ::= <subtype> STAR?
 <subtype>       ::= <prim> <type>?
-<prim>          ::= ID | LPAREN <expr> RPAREN
+<prim>          ::= ID (LPAREN RPAREN)? | LPAREN <expr> RPAREN
 
 <associations>  ::= ASSOCIATIONS LCURLY <associations1>? RCURLY
 <associations1> ::= ID <association> (ID (<meta2> | <association>))*

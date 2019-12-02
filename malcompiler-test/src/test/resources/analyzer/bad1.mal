@@ -16,15 +16,12 @@ category cat
     developer info: "asset" // duplicate rationale
     {
     | compromise ->
-      let c = a, // variable as field (warning)
       (a /\ a), // not attack step
       c.compromise
     | compromise <- a // duplicate attack step AND invalid require
     & invalidate ->
-      let invalidate = a.compromise, // variable as step (warning)
       (c \/ a).compromise, // invalid types
-      c[_A].compromise, // invalid typeof
-      invalidate
+      c[_A].compromise // invalid typeof
   }
   abstract asset AA extends _A { // abstract but never used (warning)
     & compromise // types differ from parent
@@ -36,11 +33,10 @@ category cat
   asset _C {
     let var1 = var1
     let var1 = a // duplicate variable
+    let aaa = a
     | compromise {C, C} -> // duplicate CIA
-      let aaa = a,
-      let aaa = c, // duplicate variable
       var1, // cyclic variable
-      aaa*.compromise // invalid previous type
+      aaa()*.compromise // invalid previous type
     E e {C} // defense with CIA
       <- a
   }

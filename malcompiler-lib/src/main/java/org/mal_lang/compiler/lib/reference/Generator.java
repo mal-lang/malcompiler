@@ -46,6 +46,7 @@ import org.mal_lang.compiler.lib.Lang.AttackStepType;
 import org.mal_lang.compiler.lib.Lang.Field;
 import org.mal_lang.compiler.lib.Lang.StepAttackStep;
 import org.mal_lang.compiler.lib.Lang.StepBinOp;
+import org.mal_lang.compiler.lib.Lang.StepCall;
 import org.mal_lang.compiler.lib.Lang.StepCollect;
 import org.mal_lang.compiler.lib.Lang.StepDifference;
 import org.mal_lang.compiler.lib.Lang.StepExpr;
@@ -273,8 +274,17 @@ public class Generator extends JavaGenerator {
         // Create new instance of attack step
         constructor.addStatement("$N = new $T(name)", attackStep.getName(), type);
       }
-      builder.addType(createAttackStep(attackStep).build());
+      createAttackStep(builder, attackStep);
     }
+
+    // Create all asset variables
+    for (var variable : asset.getVariables().entrySet()) {
+      createVariable(builder, variable.getKey(), variable.getValue(), asset);
+    }
+    for (var variable : asset.getReverseVariables().entrySet()) {
+      createVariable(builder, variable.getKey(), variable.getValue(), asset);
+    }
+
     // Add all parameters as booleans to constructor
     for (String param : params) {
       constructor.addParameter(boolean.class, param);
@@ -369,7 +379,35 @@ public class Generator extends JavaGenerator {
     return builder.build();
   }
 
-  private MethodSpec.Builder createUpdateChildren(AttackStep attackStep, String cacheName) {
+  private void createVariable(
+      TypeSpec.Builder parentBuilder, String name, StepExpr expr, Asset asset) {
+    String setName = String.format("_cache%s", name);
+    String methodName = String.format("_%s", name);
+
+    MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName);
+    builder.addModifiers(Modifier.PROTECTED);
+    ClassName targetType = ClassName.get(pkg, expr.subTarget.getName());
+    ClassName set = ClassName.get(Set.class);
+    TypeName targetSet = ParameterizedTypeName.get(set, targetType);
+    ClassName hashSet = ClassName.get(HashSet.class);
+    builder.returns(targetSet);
+
+    parentBuilder.addField(targetSet, setName, Modifier.PRIVATE);
+
+    builder.beginControlFlow("if ($N == null)", setName);
+    builder.addStatement("$N = new $T<>()", setName, hashSet);
+    AutoFlow varFlow = new AutoFlow();
+    AutoFlow end = createExpr(varFlow, expr, asset);
+    end.addStatement("$N.add($N)", setName, end.prefix);
+    varFlow.build(builder);
+    builder.endControlFlow();
+    builder.addStatement("return $N", setName);
+
+    parentBuilder.addMethod(builder.build());
+  }
+
+  private void createUpdateChildren(
+      TypeSpec.Builder parentBuilder, AttackStep attackStep, String cacheName) {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("updateChildren");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
@@ -395,7 +433,7 @@ public class Generator extends JavaGenerator {
     builder.addStatement("attackStep.updateTtc(this, ttc, attackSteps)");
     builder.endControlFlow();
 
-    return builder;
+    parentBuilder.addMethod(builder.build());
   }
 
   private MethodSpec.Builder createSetExpectedParents(AttackStep attackStep, String cacheName) {
@@ -461,7 +499,7 @@ public class Generator extends JavaGenerator {
     if (!attackStep.getReaches().isEmpty()) {
       String name = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
       createSetField(builder, name);
-      builder.addMethod(createUpdateChildren(attackStep, name).build());
+      createUpdateChildren(builder, attackStep, name);
     }
     if (!attackStep.getParentSteps().isEmpty()) {
       String name = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
@@ -545,10 +583,11 @@ public class Generator extends JavaGenerator {
       }
       method.addStatement("return count == 0");
     }
+
     builder.addMethod(method.build());
   }
 
-  private TypeSpec.Builder createAttackStep(AttackStep attackStep) {
+  private void createAttackStep(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
     Name.reset();
     TypeSpec.Builder builder = TypeSpec.classBuilder(ucFirst(attackStep.getName()));
     builder.addModifiers(Modifier.PUBLIC);
@@ -578,8 +617,9 @@ public class Generator extends JavaGenerator {
       if (!attackStep.getReaches().isEmpty()) {
         String name = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
         createSetField(builder, name);
-        builder.addMethod(createUpdateChildren(attackStep, name).build());
+        createUpdateChildren(builder, attackStep, name);
       }
+
       if (!attackStep.getParentSteps().isEmpty()) {
         String name = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
         createSetField(builder, name);
@@ -589,7 +629,7 @@ public class Generator extends JavaGenerator {
           createLocalTtc(attackStep.getAsset().getName(), attackStep.getName()).build());
     }
 
-    return builder;
+    parentBuilder.addType(builder.build());
   }
 
   /**
@@ -706,6 +746,16 @@ public class Generator extends JavaGenerator {
     return af.addStatement(new AutoFlow(name));
   }
 
+  private AutoFlow createStepCall(AutoFlow af, StepCall expr) {
+    String name = String.format("_%s", expr.name);
+    if (af.hasPrefix()) {
+      name = String.format("%s.%s", af.prefix, name);
+    }
+
+    String prefix = Name.get();
+    return af.addStatement(new AutoFlow(prefix, true, "for (var $N : $N())", prefix, name));
+  }
+
   private AutoFlow subType(AutoFlow af, Asset source, Asset subSource, Asset asset) {
     if (source != null && subSource != null && !source.equals(subSource)) {
       ClassName type = ClassName.get(pkg, subSource.getName());
@@ -739,6 +789,8 @@ public class Generator extends JavaGenerator {
       af = createStepSet(af, expr, asset);
     } else if (expr instanceof StepAttackStep) {
       af = createStepAttackStep(af, (StepAttackStep) expr);
+    } else if (expr instanceof StepCall) {
+      af = createStepCall(af, (StepCall) expr);
     } else {
       throw new RuntimeException(String.format("unknown expression '%s'", expr));
     }

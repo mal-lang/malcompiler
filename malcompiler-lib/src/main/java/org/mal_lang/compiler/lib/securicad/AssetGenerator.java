@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import javax.imageio.ImageIO;
@@ -52,6 +53,7 @@ public class AssetGenerator extends JavaGenerator {
   private final Lang lang;
   private final AttackStepGenerator asGen;
   private final DefenseGenerator defGen;
+  private final VariableGenerator varGen;
 
   protected AssetGenerator(MalLogger LOGGER, String pkg, File output, File icons, Lang lang) {
     super(LOGGER);
@@ -61,6 +63,7 @@ public class AssetGenerator extends JavaGenerator {
     this.lang = lang;
     asGen = new AttackStepGenerator(LOGGER, pkg);
     defGen = new DefenseGenerator(LOGGER, pkg);
+    varGen = new VariableGenerator(LOGGER, pkg);
   }
 
   protected void generate(Asset asset) throws IOException {
@@ -127,6 +130,21 @@ public class AssetGenerator extends JavaGenerator {
       }
     }
 
+    // Generate variables
+    for (var variable : asset.getVariables().entrySet()) {
+      varGen.generate(builder, variable.getKey(), variable.getValue(), asset);
+    }
+    for (var variable : asset.getReverseVariables().entrySet()) {
+      varGen.generate(builder, variable.getKey(), variable.getValue(), asset);
+    }
+
+    Set<String> variables = new LinkedHashSet<>();
+    variables.addAll(asset.getVariables().keySet());
+    variables.addAll(asset.getReverseVariables().keySet());
+    if (!variables.isEmpty() || !asset.getAttackSteps().isEmpty()) {
+      createClearCache(builder, asset, variables);
+    }
+
     var file = JavaFile.builder(this.pkg, builder.build());
     for (var a : lang.getAssets().values()) {
       for (var b : a.getAttackSteps().values()) {
@@ -135,6 +153,24 @@ public class AssetGenerator extends JavaGenerator {
     }
     file.skipJavaLangImports(true);
     file.build().writeTo(this.output);
+  }
+
+  private void createClearCache(
+      TypeSpec.Builder parentBuilder, Asset asset, Set<String> variables) {
+    MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
+    builder.addAnnotation(Override.class);
+    builder.addModifiers(Modifier.PUBLIC);
+    for (var variable : variables) {
+      builder.addStatement("_cache$N = null", variable);
+    }
+    for (var attackStep : asset.getAttackSteps().values()) {
+      if (attackStep.isDefense() || attackStep.isConditionalDefense()) {
+        builder.addStatement("$N.disable.clearGraphCache()", attackStep.getName());
+      } else {
+        builder.addStatement("$N.clearGraphCache()", attackStep.getName());
+      }
+    }
+    parentBuilder.addMethod(builder.build());
   }
 
   private void createAssetAnnotations(TypeSpec.Builder parentBuilder, Asset asset) {

@@ -28,15 +28,11 @@ categories = {
             meta = {
             },
             Requires(<to-string.mal:10:17>,
-              variables = {
-              },
               requires = {
                 IDExpr(<to-string.mal:10:20>, ID(<to-string.mal:10:20>, "a"))
               }
             ),
             Reaches(<to-string.mal:11:17>, OVERRIDES,
-              variables = {
-              },
               reaches = {
                 IDExpr(<to-string.mal:11:20>, ID(<to-string.mal:11:20>, "a"))
               }
@@ -51,8 +47,6 @@ categories = {
             },
             NO_REQUIRES,
             Reaches(<to-string.mal:14:17>, INHERITS,
-              variables = {
-              },
               reaches = {
                 IDExpr(<to-string.mal:14:20>, ID(<to-string.mal:14:20>, "a")),
                 IDExpr(<to-string.mal:14:23>, ID(<to-string.mal:14:23>, "b"))

@@ -407,4 +407,9 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
     };
     assertLangNotGenerated("generator/naming.mal", expectedErrors);
   }
+
+  @Test
+  public void testVariable() {
+    assertLangGenerated("generator/variable.mal");
+  }
 }

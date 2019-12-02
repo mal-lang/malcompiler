@@ -1,0 +1,17 @@
+#id: "variable"
+#version: "0.0.0"
+
+category System {
+  asset Alpha {
+    | read
+      -> bravos.BRAVO_VAR().read
+  }
+  asset Bravo {
+  	let BRAVO_VAR = alphas
+  	| access
+  }
+}
+
+associations {
+  Alpha [alphas] * <-- _ --> * [bravos] Bravo
+}

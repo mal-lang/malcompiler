@@ -100,6 +100,10 @@ public class Scope<T> {
     symbols.put(key, value);
   }
 
+  public Map<String, T> getSymbols() {
+    return symbols;
+  }
+
   @Override
   public String toString() {
     if (parent != null) {

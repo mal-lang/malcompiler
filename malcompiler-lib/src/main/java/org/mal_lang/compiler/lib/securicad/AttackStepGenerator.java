@@ -22,6 +22,8 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.Distributions;
 import org.mal_lang.compiler.lib.JavaGenerator;
@@ -77,48 +79,39 @@ public class AttackStepGenerator extends JavaGenerator {
       createDefaultLocalTtc(builder, attackStep);
     }
 
-    // graph caches
-    boolean hasChildCache = false;
-    String childCacheName = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
-    if (!attackStep.getReaches().isEmpty()) {
-      createSetField(builder, childCacheName);
-      exprGen.createGetAttackStepChildren(builder, attackStep, childCacheName);
-      hasChildCache = true;
-    }
-
-    boolean hasParentCache = false;
-    String parentCacheName = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
-    if (!attackStep.getParentSteps().isEmpty()) {
-      createSetField(builder, parentCacheName);
-      exprGen.createSetExpectedParents(builder, attackStep, parentCacheName);
-      hasParentCache = true;
-    }
-
-    if (hasChildCache || hasParentCache) {
-      createClearCache(builder, hasChildCache, childCacheName, hasParentCache, parentCacheName);
-    }
-
+    createSteps(builder, exprGen, attackStep);
     createTraceabilityHelper(builder, attackStep);
 
     parentBuilder.addType(builder.build());
   }
 
-  private void createClearCache(
-      TypeSpec.Builder parentBuilder,
-      boolean hasChildCache,
-      String childCacheName,
-      boolean hasParentCache,
-      String parentCacheName) {
-    MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
-    builder.addAnnotation(Override.class);
-    builder.addModifiers(Modifier.PUBLIC);
-    if (hasChildCache) {
-      builder.addStatement("$N = null", childCacheName);
+  protected static void createSteps(
+      TypeSpec.Builder parentBuilder, ExpressionGenerator exprGen, AttackStep attackStep) {
+    Set<String> caches = new LinkedHashSet<>();
+
+    if (!attackStep.getReaches().isEmpty()) {
+      String childCacheName = String.format("_cacheChildren%s", ucFirst(attackStep.getName()));
+      createSetField(parentBuilder, childCacheName);
+      exprGen.createGetAttackStepChildren(parentBuilder, attackStep, childCacheName);
+      caches.add(childCacheName);
     }
-    if (hasParentCache) {
-      builder.addStatement("$N = null", parentCacheName);
+
+    if (!attackStep.getParentSteps().isEmpty()) {
+      String parentCacheName = String.format("_cacheParent%s", ucFirst(attackStep.getName()));
+      createSetField(parentBuilder, parentCacheName);
+      exprGen.createSetExpectedParents(parentBuilder, attackStep, parentCacheName);
+      caches.add(parentCacheName);
     }
-    parentBuilder.addMethod(builder.build());
+
+    if (!caches.isEmpty()) {
+      MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
+      builder.addAnnotation(Override.class);
+      builder.addModifiers(Modifier.PUBLIC);
+      for (var cache : caches) {
+        builder.addStatement("$N = null", cache);
+      }
+      parentBuilder.addMethod(builder.build());
+    }
   }
 
   ////////////////////
@@ -322,7 +315,7 @@ public class AttackStepGenerator extends JavaGenerator {
     parentBuilder.addMethod(builder.build());
   }
 
-  private void createSetField(TypeSpec.Builder parentBuilder, String name) {
+  private static void createSetField(TypeSpec.Builder parentBuilder, String name) {
     ClassName set = ClassName.get("java.util", "Set");
     ClassName attackStep = ClassName.get("com.foreseeti.simulator", "AttackStep");
     TypeName type = ParameterizedTypeName.get(set, attackStep);

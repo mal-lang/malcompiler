@@ -30,6 +30,7 @@ import org.mal_lang.compiler.lib.Lang.Asset;
 import org.mal_lang.compiler.lib.Lang.AttackStep;
 import org.mal_lang.compiler.lib.Lang.StepAttackStep;
 import org.mal_lang.compiler.lib.Lang.StepBinOp;
+import org.mal_lang.compiler.lib.Lang.StepCall;
 import org.mal_lang.compiler.lib.Lang.StepCollect;
 import org.mal_lang.compiler.lib.Lang.StepDifference;
 import org.mal_lang.compiler.lib.Lang.StepExpr;
@@ -127,6 +128,8 @@ public class ExpressionGenerator extends JavaGenerator {
       af = createStepSet(af, expr, asset, nameSuffix);
     } else if (expr instanceof StepAttackStep) {
       af = createStepAttackStep(af, (StepAttackStep) expr);
+    } else if (expr instanceof StepCall) {
+      af = createStepCall(af, (StepCall) expr);
     } else {
       throw new RuntimeException(String.format("unknown expression '%s'", expr));
     }
@@ -239,5 +242,15 @@ public class ExpressionGenerator extends JavaGenerator {
       name = String.format("%s.disable", name);
     }
     return af.addStatement(new AutoFlow(name));
+  }
+
+  private AutoFlow createStepCall(AutoFlow af, StepCall expr) {
+    String name = String.format("_%s", expr.name);
+    if (af.hasPrefix()) {
+      name = String.format("%s.%s", af.prefix, name);
+    }
+
+    String prefix = Name.get();
+    return af.addStatement(new AutoFlow(prefix, true, "for (var $N : $N())", prefix, name));
   }
 }

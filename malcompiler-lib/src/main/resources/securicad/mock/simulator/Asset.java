@@ -8,4 +8,6 @@ public interface Asset {
   public abstract Set<Defense> getDefenses();
 
   public void fillElementMap();
+
+  public default void clearGraphCache() {}
 }

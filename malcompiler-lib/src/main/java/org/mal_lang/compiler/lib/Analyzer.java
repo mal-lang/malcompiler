@@ -29,6 +29,7 @@ import java.util.Set;
 public class Analyzer {
   private MalLogger LOGGER;
   private Map<String, AST.Asset> assets = new LinkedHashMap<>();
+  private Map<String, Scope<AST.Variable>> assetVariables = new LinkedHashMap<>();
   private Map<String, Scope<AST.Association>> fields = new LinkedHashMap<>();
   private Map<String, Scope<AST.AttackStep>> steps = new LinkedHashMap<>();
   private Set<AST.Variable> currentVariables = new LinkedHashSet<>();
@@ -78,11 +79,16 @@ public class Analyzer {
     checkCIA();
     checkTTC();
     checkFields();
+    checkVariables();
     checkReaches(); // might throw
 
     checkAssociations(); // might throw
 
     checkUnused();
+
+    if (failed) {
+      throw exception();
+    }
   }
 
   private void collectAssociations() {
@@ -513,6 +519,41 @@ public class Analyzer {
     }
   }
 
+  private void checkVariables() {
+    for (AST.Asset asset : assets.values()) {
+      Scope<AST.Variable> scope = new Scope<>();
+      assetVariables.put(asset.name.id, scope);
+      readVariables(scope, asset);
+    }
+
+    for (AST.Asset asset : assets.values()) {
+      var scope = assetVariables.get(asset.name.id);
+      for (var variable : scope.getSymbols().entrySet()) {
+        variableToAsset(asset, variable.getValue());
+        variableReferenceCount.put(variable.getValue(), 0);
+      }
+    }
+  }
+
+  /**
+   * Populate a scope with variable names from an asset and its parents
+   *
+   * @param scope
+   * @param asset
+   */
+  private void readVariables(Scope<AST.Variable> scope, AST.Asset asset) {
+    List<AST.Asset> parents = getParents(asset);
+    for (AST.Asset parent : parents) {
+      if (parent.parent.isPresent()) {
+        scope = new Scope<>(scope);
+        assetVariables.put(asset.name.id, scope);
+      }
+      for (AST.Variable variable : parent.variables) {
+        addVariable(scope, variable);
+      }
+    }
+  }
+
   private void checkFields() {
     for (AST.Asset asset : assets.values()) {
       Scope<AST.Association> scope = new Scope<>();
@@ -577,13 +618,13 @@ public class Analyzer {
       error(
           field,
           String.format(
-              "Field %s.%s previously defined at %s",
+              "Field %s.%s previously defined for asset at %s",
               parent.name.id, field.id, prevField.posString()));
     }
   }
 
   private void addVariable(Scope<AST.Variable> scope, AST.Variable variable) {
-    AST.Variable prevDef = scope.look(variable.name.id);
+    AST.Variable prevDef = scope.lookup(variable.name.id);
     if (prevDef == null) {
       variableReferenceCount.put(variable, 0);
       scope.add(variable.name.id, variable);
@@ -599,12 +640,6 @@ public class Analyzer {
   /** Evaluates each expression reached by an attack step. */
   private void checkReaches() throws CompilerException {
     for (AST.Asset asset : assets.values()) {
-      var scope = new Scope<AST.Variable>();
-
-      for (AST.Variable variable : asset.variables) {
-        addVariable(scope, variable);
-      }
-
       for (AST.AttackStep attackStep : asset.attackSteps) {
         if (attackStep.type == AST.AttackStepType.EXIST
             || attackStep.type == AST.AttackStepType.NOTEXIST) {
@@ -616,15 +651,10 @@ public class Analyzer {
           }
           if (attackStep.requires.isPresent()) {
             // Requires (<-)
-            scope = new Scope<>(scope);
-            for (AST.Variable variable : attackStep.requires.get().variables) {
-              addVariable(scope, variable);
-            }
             for (AST.Expr expr : attackStep.requires.get().requires) {
               // Requires only have expressions that ends in assets/fields, not attack steps.
-              checkToAsset(asset, expr, scope);
+              checkToAsset(asset, expr);
             }
-            scope = scope.parent;
           } else {
             error(
                 attackStep,
@@ -639,14 +669,9 @@ public class Analyzer {
         }
 
         if (attackStep.reaches.isPresent()) {
-          scope = new Scope<>(scope);
-          for (AST.Variable variable : attackStep.reaches.get().variables) {
-            addVariable(scope, variable);
-          }
           for (AST.Expr expr : attackStep.reaches.get().reaches) {
-            checkToStep(asset, expr, scope);
+            checkToStep(asset, expr);
           }
-          scope = scope.parent;
         }
       }
     }
@@ -655,38 +680,12 @@ public class Analyzer {
     }
   }
 
-  private AST.AttackStep variableToStep(
-      AST.Asset asset, AST.Variable variable, Scope<AST.Variable> scope) {
-    if (evalVariableBegin(variable)) {
-      AST.AttackStep res = checkToStep(asset, variable.expr, scope);
-      evalVariableEnd(variable);
-      return res;
-    } else {
-      return null;
-    }
-  }
-
-  private AST.AttackStep checkToStep(AST.Asset asset, AST.Expr expr, Scope<AST.Variable> scope) {
+  private AST.AttackStep checkToStep(AST.Asset asset, AST.Expr expr) {
     if (expr instanceof AST.IDExpr) {
       AST.IDExpr step = (AST.IDExpr) expr;
       AST.Asset target = asset;
-      var variableScope = scope.getScopeFor(step.id.id);
-      var variable = variableScope == null ? null : variableScope.look(step.id.id);
       AST.AttackStep attackStep = steps.get(target.name.id).lookup(step.id.id);
-      if (variable != null && attackStep != null) {
-        // ID is both variable and attack step. We assume the variable is desired but print a
-        // warning.
-        LOGGER.warning(
-            step.id,
-            String.format(
-                "Step '%s' defined as variable at %s and attack step at %s",
-                step.id.id, variable.name.posString(), attackStep.name.posString()));
-        return variableToStep(target, variable, variableScope);
-      } else if (variable != null) {
-        // Only defined as a variable
-        return variableToStep(target, variable, variableScope);
-      } else if (attackStep != null) {
-        // Only defined as an attack step
+      if (attackStep != null) {
         return attackStep;
       } else {
         error(
@@ -697,9 +696,9 @@ public class Analyzer {
       }
     } else if (expr instanceof AST.StepExpr) {
       AST.StepExpr step = (AST.StepExpr) expr;
-      AST.Asset target = checkToAsset(asset, step.lhs, scope);
+      AST.Asset target = checkToAsset(asset, step.lhs);
       if (target != null) {
-        return checkToStep(target, step.rhs, scope);
+        return checkToStep(target, step.rhs);
       } else {
         return null;
       }
@@ -709,19 +708,21 @@ public class Analyzer {
     }
   }
 
-  private AST.Asset checkToAsset(AST.Asset asset, AST.Expr expr, Scope<AST.Variable> scope) {
+  private AST.Asset checkToAsset(AST.Asset asset, AST.Expr expr) {
     if (expr instanceof AST.StepExpr) {
-      return checkStepExpr(asset, (AST.StepExpr) expr, scope);
+      return checkStepExpr(asset, (AST.StepExpr) expr);
     } else if (expr instanceof AST.IDExpr) {
-      return checkIDExpr(asset, (AST.IDExpr) expr, scope);
+      return checkIDExpr(asset, (AST.IDExpr) expr);
     } else if (expr instanceof AST.IntersectionExpr
         || expr instanceof AST.UnionExpr
         || expr instanceof AST.DifferenceExpr) {
-      return checkSetExpr(asset, (AST.BinaryExpr) expr, scope);
+      return checkSetExpr(asset, (AST.BinaryExpr) expr);
     } else if (expr instanceof AST.TransitiveExpr) {
-      return checkTransitiveExpr(asset, (AST.TransitiveExpr) expr, scope);
+      return checkTransitiveExpr(asset, (AST.TransitiveExpr) expr);
     } else if (expr instanceof AST.SubTypeExpr) {
-      return checkSubTypeExpr(asset, (AST.SubTypeExpr) expr, scope);
+      return checkSubTypeExpr(asset, (AST.SubTypeExpr) expr);
+    } else if (expr instanceof AST.CallExpr) {
+      return checkCallExpr(asset, (AST.CallExpr) expr);
     } else {
       error(expr, String.format("Unexpected expression '%s'", expr.toString()));
       System.exit(1);
@@ -729,10 +730,10 @@ public class Analyzer {
     }
   }
 
-  private AST.Asset checkStepExpr(AST.Asset asset, AST.StepExpr expr, Scope<AST.Variable> scope) {
-    AST.Asset leftTarget = checkToAsset(asset, expr.lhs, scope);
+  private AST.Asset checkStepExpr(AST.Asset asset, AST.StepExpr expr) {
+    AST.Asset leftTarget = checkToAsset(asset, expr.lhs);
     if (leftTarget != null) {
-      AST.Asset rightTarget = checkToAsset(leftTarget, expr.rhs, scope);
+      AST.Asset rightTarget = checkToAsset(leftTarget, expr.rhs);
       return rightTarget;
     } else {
       return null;
@@ -740,8 +741,8 @@ public class Analyzer {
   }
 
   /**
-   * When evaluating a variable (variableToAsset() or varialeToStep()), a record must be kept to
-   * check for cyclic usage of variables.
+   * When evaluating a variable (variableToAsset()), a record must be kept to check for cyclic usage
+   * of variables.
    *
    * @param variable Variable evaluated
    * @return True if variable is not being evaluated, false otherwise
@@ -769,10 +770,10 @@ public class Analyzer {
     currentVariables.remove(variable);
   }
 
-  private AST.Asset variableToAsset(
-      AST.Asset asset, AST.Variable variable, Scope<AST.Variable> scope) {
+  private AST.Asset variableToAsset(AST.Asset asset, AST.Variable variable) {
     if (evalVariableBegin(variable)) {
-      AST.Asset res = checkToAsset(asset, variable.expr, scope);
+
+      AST.Asset res = checkToAsset(asset, variable.expr);
       evalVariableEnd(variable);
       return res;
     } else {
@@ -780,30 +781,26 @@ public class Analyzer {
     }
   }
 
-  private AST.Asset checkIDExpr(AST.Asset asset, AST.IDExpr expr, Scope<AST.Variable> scope) {
+  private AST.Asset checkCallExpr(AST.Asset asset, AST.CallExpr expr) {
+    var scope = assetVariables.get(asset.name.id);
     var variableScope = scope.getScopeFor(expr.id.id);
-    var variable = variableScope == null ? null : variableScope.look(expr.id.id);
-    AST.ID target = hasTarget(asset, expr.id.id);
-    if (variable != null && target != null) {
-      // ID found as both variable and field
-      LOGGER.warning(
-          expr.id,
-          String.format(
-              "Step '%s' defined as variable at %s and field at %s",
-              expr.id.id, variable.name.posString(), target.posString()));
-      return variableToAsset(asset, variable, variableScope);
-    } else if (variable != null) {
-      // ID defined as variable only
-      return variableToAsset(asset, variable, variableScope);
-    } else {
-      // ID defined as target (or invalid, getTarget() will print error)
-      return getTarget(asset, expr.id);
+    if (variableScope != null) {
+      var variable = variableScope.look(expr.id.id);
+      if (variable != null) {
+        return variableToAsset(asset, variable);
+      }
     }
+    error(expr, String.format("Variable '%s' is not defined", expr.id.id));
+    return null;
   }
 
-  private AST.Asset checkSetExpr(AST.Asset asset, AST.BinaryExpr expr, Scope<AST.Variable> scope) {
-    AST.Asset leftTarget = checkToAsset(asset, expr.lhs, scope);
-    AST.Asset rightTarget = checkToAsset(asset, expr.rhs, scope);
+  private AST.Asset checkIDExpr(AST.Asset asset, AST.IDExpr expr) {
+    return getTarget(asset, expr.id);
+  }
+
+  private AST.Asset checkSetExpr(AST.Asset asset, AST.BinaryExpr expr) {
+    AST.Asset leftTarget = checkToAsset(asset, expr.lhs);
+    AST.Asset rightTarget = checkToAsset(asset, expr.rhs);
     if (leftTarget == null || rightTarget == null) {
       return null;
     }
@@ -820,9 +817,8 @@ public class Analyzer {
     }
   }
 
-  private AST.Asset checkTransitiveExpr(
-      AST.Asset asset, AST.TransitiveExpr expr, Scope<AST.Variable> scope) {
-    AST.Asset res = checkToAsset(asset, expr.e, scope);
+  private AST.Asset checkTransitiveExpr(AST.Asset asset, AST.TransitiveExpr expr) {
+    AST.Asset res = checkToAsset(asset, expr.e);
     if (res == null) {
       return null;
     }
@@ -836,9 +832,8 @@ public class Analyzer {
     }
   }
 
-  private AST.Asset checkSubTypeExpr(
-      AST.Asset asset, AST.SubTypeExpr expr, Scope<AST.Variable> scope) {
-    AST.Asset target = checkToAsset(asset, expr.e, scope);
+  private AST.Asset checkSubTypeExpr(AST.Asset asset, AST.SubTypeExpr expr) {
+    AST.Asset target = checkToAsset(asset, expr.e);
     if (target == null) {
       return null;
     }
@@ -873,20 +868,6 @@ public class Analyzer {
     }
   }
 
-  private AST.ID hasTarget(AST.Asset asset, String field) {
-    Scope<AST.Association> scope = fields.get(asset.name.id);
-    AST.Association assoc = scope.lookdown(field);
-    if (assoc != null) {
-      if (assoc.leftField.id.equals(field)) {
-        return assoc.leftField;
-      } else {
-        return assoc.rightField;
-      }
-    } else {
-      return null;
-    }
-  }
-
   private AST.Asset getTarget(AST.Asset asset, AST.ID name) {
     Scope<AST.Association> scope = fields.get(asset.name.id);
     AST.Association assoc = scope.lookdown(name.id);
@@ -898,7 +879,16 @@ public class Analyzer {
         return getAsset(assoc.rightAsset);
       }
     } else {
-      error(name, String.format("Field '%s' not defined for asset '%s'", name.id, asset.name.id));
+      String extra = "";
+      var varScope = assetVariables.get(asset.name.id).lookdown(name.id);
+      if (varScope != null) {
+        extra =
+            String.format(
+                ", did you mean the variable '%s()' defined at %s", name.id, varScope.posString());
+      }
+      error(
+          name,
+          String.format("Field '%s' not defined for asset '%s'%s", name.id, asset.name.id, extra));
       return null;
     }
   }

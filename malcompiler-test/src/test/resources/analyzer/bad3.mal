@@ -1,0 +1,30 @@
+#id: "badvar"
+#version: "1.0.0"
+category System {
+  asset Alpha {
+  	let VAR = charlies.alphas
+    | compromise
+      -> VAR().deltas.write
+  }
+  asset SubAlpha extends Alpha {
+    let VAR = charlies.alphas // variable already defined in parent
+  	| access
+  }
+  asset Bravo {
+    let VAR1 = alphas
+    | access
+      -> VAR1.compromise // trying to use VAR1 without parentheses ()
+  }
+  asset Charlie {
+    | read
+  }
+  asset Delta {
+    | write
+  }
+}
+associations {
+  Alpha [alphas] * <-- _ --> * [bravos] Bravo
+  Alpha [alphas] * <-- _ --> * [deltas] Delta
+  Alpha [alphas] * <-- _ --> * [charlies] Charlie
+  Charlie [charlies] * <-- _ --> * [bravos] Bravo
+}
