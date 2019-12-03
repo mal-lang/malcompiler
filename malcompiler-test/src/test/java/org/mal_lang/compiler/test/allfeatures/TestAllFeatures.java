@@ -1664,13 +1664,13 @@ public class TestAllFeatures extends MalTest {
                     lang.getAsset("A1"),
                     lang.getAsset("A4"),
                     lang.getAsset("A4"),
-                    "reversevar2"),
+                    "reversevar2A4"),
                 new Lang.StepCall(
                     lang.getAsset("A1"),
                     lang.getAsset("A1"),
                     lang.getAsset("A4"),
                     lang.getAsset("A4"),
-                    "reversevar")),
+                    "reversevarA4")),
             new Lang.StepAttackStep(
                 lang.getAsset("A4"), lang.getAsset("A4"), lang.getAsset("A4").getAttackStep("a")));
     assertLangStepExpr(step, parentSteps.get(3));
@@ -2105,7 +2105,7 @@ public class TestAllFeatures extends MalTest {
                 lang.getAsset("A2"),
                 lang.getAsset("A1"),
                 lang.getAsset("A3"),
-                "reverseV1"),
+                "reverseV1A3"),
             new Lang.StepAttackStep(
                 lang.getAsset("A3"), lang.getAsset("A3"), lang.getAsset("A3").getAttackStep("AT")));
     assertLangStepExpr(step, parentSteps.get(0));
@@ -2348,7 +2348,7 @@ public class TestAllFeatures extends MalTest {
                 lang.getAsset("A1"),
                 lang.getAsset("A1"),
                 lang.getAsset("A2"),
-                "V1"),
+                "V1A3"),
             new Lang.StepAttackStep(
                 lang.getAsset("A2"),
                 lang.getAsset("A2"),
@@ -2406,13 +2406,13 @@ public class TestAllFeatures extends MalTest {
                     lang.getAsset("A4"),
                     lang.getAsset("A1"),
                     lang.getAsset("A1"),
-                    "var"),
+                    "varA4"),
                 new Lang.StepCall(
                     lang.getAsset("A4"),
                     lang.getAsset("A4"),
                     lang.getAsset("A1"),
                     lang.getAsset("A3"),
-                    "var2")),
+                    "var2A4")),
             new Lang.StepAttackStep(
                 lang.getAsset("A1"),
                 lang.getAsset("A1"),
@@ -2501,7 +2501,7 @@ public class TestAllFeatures extends MalTest {
                 lang.getAsset("A7"),
                 lang.getAsset("A8"),
                 lang.getAsset("A8"),
-                "a1"),
+                "a1A7"),
             new Lang.StepAttackStep(
                 lang.getAsset("A8"),
                 lang.getAsset("A8"),
@@ -2581,7 +2581,7 @@ public class TestAllFeatures extends MalTest {
                 lang.getAsset("A8"),
                 lang.getAsset("A7"),
                 lang.getAsset("A7"),
-                "reversea1"),
+                "reversea1A7"),
             new Lang.StepAttackStep(
                 lang.getAsset("A7"),
                 lang.getAsset("A7"),
