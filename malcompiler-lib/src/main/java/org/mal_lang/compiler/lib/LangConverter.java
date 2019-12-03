@@ -420,6 +420,7 @@ public class LangConverter {
           parent = parent.getSuperAsset();
           astVar = assetVars.get(parent.getName()).get(varExpr.id.id);
         }
+        callName = String.format("%s%s", varExpr.id.id, parent.getName());
         expression = parent.getVariables().get(varExpr.id.id);
         if (expression == null) {
           expression = _convertExprToAsset(astVar.expr, parent, assets, assetVars);
