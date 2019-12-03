@@ -283,4 +283,9 @@ public class TestReferenceGenerator extends JavaGeneratorTest {
     };
     assertLangNotGenerated("generator/naming.mal", expectedErrors);
   }
+
+  @Test
+  public void testNested() {
+    assertLangGenerated("generator/nested.mal");
+  }
 }
