@@ -411,6 +411,7 @@ public class LangConverter {
           asset, field.getAsset(), target, subTarget == null ? target : subTarget, field);
     } else if (expr instanceof AST.CallExpr) {
       var varExpr = (AST.CallExpr) expr;
+      String callName = String.format("%s%s", varExpr.id.id, asset.getName());
       var expression = asset.getVariables().get(varExpr.id.id);
       if (expression == null) {
         AST.Variable astVar = assetVars.get(asset.getName()).get(varExpr.id.id);
@@ -419,13 +420,13 @@ public class LangConverter {
           parent = parent.getSuperAsset();
           astVar = assetVars.get(parent.getName()).get(varExpr.id.id);
         }
+        callName = String.format("%s%s", varExpr.id.id, parent.getName());
         expression = parent.getVariables().get(varExpr.id.id);
         if (expression == null) {
           expression = _convertExprToAsset(astVar.expr, parent, assets, assetVars);
-          parent.addVariable(varExpr.id.id, expression);
+          parent.addVariable(callName, expression);
           var reverse = reverseStep(expression, expression.subTarget);
-          expression.subTarget.addReverseVariable(
-              String.format("reverse%s", varExpr.id.id), reverse);
+          expression.subTarget.addReverseVariable(String.format("reverse%s", callName), reverse);
         }
       }
 
@@ -434,7 +435,7 @@ public class LangConverter {
           expression.src,
           expression.target,
           subTarget == null ? expression.subTarget : subTarget,
-          varExpr.id.id);
+          callName);
     }
     throw new RuntimeException("_convertExprToAsset: Invalid AST.Expr subtype");
   }

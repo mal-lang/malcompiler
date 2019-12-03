@@ -1,0 +1,27 @@
+#id: "nested"
+#version: "0.0.0"
+
+category System {
+  asset Interface {
+    let myNetworks = network.superNetwork*
+    let myRoutes = myNetworks().myRoutes()
+
+    | connect
+      -> myRoutes().use
+  }
+
+  asset Network {
+    let myRoutes = routes.subRoutes*
+  }
+
+  asset Route {
+    | use
+  }
+}
+
+associations {
+  Interface [interfaces] * <-- _ --> 1 [network] Network
+  Network [network] 1 <-- _ --> * [routes] Route
+  Network [superNetwork] 1 <-- _ --> * [subNetworks] Network
+  Route [superRoute] 1 <-- _ --> * [subRoutes] Route
+}

@@ -715,7 +715,11 @@ public class TestLangConverter extends MalTest {
             null,
             null,
             new Lang.StepCall(
-                asset, asset, lang.getAsset("Harddrive"), lang.getAsset("Harddrive"), "HDDs"),
+                asset,
+                asset,
+                lang.getAsset("Harddrive"),
+                lang.getAsset("Harddrive"),
+                "HDDsComputer"),
             new Lang.StepAttackStep(
                 lang.getAsset("Harddrive"),
                 lang.getAsset("Harddrive"),
@@ -1008,7 +1012,11 @@ public class TestLangConverter extends MalTest {
             null,
             null,
             new Lang.StepCall(
-                asset, asset, lang.getAsset("Computer"), lang.getAsset("Computer"), "reverseHDDs"),
+                asset,
+                asset,
+                lang.getAsset("Computer"),
+                lang.getAsset("Computer"),
+                "reverseHDDsComputer"),
             new Lang.StepAttackStep(
                 lang.getAsset("Computer"),
                 lang.getAsset("Computer"),
@@ -1079,7 +1087,7 @@ public class TestLangConverter extends MalTest {
             null,
             null,
             new Lang.StepCall(
-                asset, asset, lang.getAsset("User"), lang.getAsset("User"), "reverseMYVAR"),
+                asset, asset, lang.getAsset("User"), lang.getAsset("User"), "reverseMYVARUser"),
             new Lang.StepAttackStep(
                 lang.getAsset("User"),
                 lang.getAsset("User"),
