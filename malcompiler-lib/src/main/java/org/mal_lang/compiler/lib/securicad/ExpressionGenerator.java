@@ -68,7 +68,7 @@ public class ExpressionGenerator extends JavaGenerator {
     }
     for (StepExpr expr : attackStep.getReaches()) {
       AutoFlow af = new AutoFlow();
-      AutoFlow end = generate(af, expr, attackStep.getAsset(), "(null)");
+      AutoFlow end = generate(af, expr, attackStep.getAsset(), "");
       end.addStatement("tmpCache.add($L)", end.prefix);
       af.build(builder);
     }
@@ -94,7 +94,7 @@ public class ExpressionGenerator extends JavaGenerator {
     builder.addStatement("$N = new $T<>()", cacheName, HashSet.class);
     for (StepExpr expr : attackStep.getParentSteps()) {
       AutoFlow af = new AutoFlow();
-      AutoFlow end = generate(af, expr, attackStep.getAsset(), "(sample)");
+      AutoFlow end = generate(af, expr, attackStep.getAsset(), "");
       end.addStatement("$N.add($N)", cacheName, end.prefix);
       af.build(builder);
     }
