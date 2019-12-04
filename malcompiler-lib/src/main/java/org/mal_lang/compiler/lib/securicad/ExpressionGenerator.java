@@ -68,7 +68,7 @@ public class ExpressionGenerator extends JavaGenerator {
     }
     for (StepExpr expr : attackStep.getReaches()) {
       AutoFlow af = new AutoFlow();
-      AutoFlow end = generate(af, expr, attackStep.getAsset(), "");
+      AutoFlow end = generate(af, expr, attackStep.getAsset());
       end.addStatement("tmpCache.add($L)", end.prefix);
       af.build(builder);
     }
@@ -111,7 +111,7 @@ public class ExpressionGenerator extends JavaGenerator {
   ////////////////////
   // GENERATE
 
-  protected AutoFlow generate(AutoFlow af, StepExpr expr, Asset asset, String nameSuffix) {
+  protected AutoFlow generate(AutoFlow af, StepExpr expr, Asset asset) {
     if (!af.hasPrefix()) {
       af = subType(af, expr.src, expr.subSrc, asset);
     }

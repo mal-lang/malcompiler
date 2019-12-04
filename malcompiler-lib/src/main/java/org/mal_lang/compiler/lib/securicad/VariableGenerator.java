@@ -56,7 +56,7 @@ public class VariableGenerator extends JavaGenerator {
     builder.beginControlFlow("if ($N == null)", setName);
     builder.addStatement("$T tmpCache = new $T<>()", targetSet, hashSet);
     AutoFlow varFlow = new AutoFlow();
-    AutoFlow end = this.exprGen.generate(varFlow, expr, asset, "");
+    AutoFlow end = this.exprGen.generate(varFlow, expr, asset);
     end.addStatement("tmpCache.add($N)", end.prefix);
     varFlow.build(builder);
     // copyOf returns an immutable set

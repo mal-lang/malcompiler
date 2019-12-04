@@ -87,7 +87,7 @@ public class AssetGenerator extends JavaGenerator {
     }
 
     // class fields
-    boolean hasFieldCache = createFields(builder, asset);
+    createFields(builder, asset);
 
     // constructors
     createEmptyConstructor(builder);
@@ -141,7 +141,7 @@ public class AssetGenerator extends JavaGenerator {
     Set<String> variables = new LinkedHashSet<>();
     variables.addAll(asset.getVariables().keySet());
     variables.addAll(asset.getReverseVariables().keySet());
-    if (!variables.isEmpty() || !asset.getAttackSteps().isEmpty() || hasFieldCache) {
+    if (!variables.isEmpty() || !asset.getAttackSteps().isEmpty()) {
       createClearCache(builder, asset, variables);
     }
 
@@ -189,8 +189,7 @@ public class AssetGenerator extends JavaGenerator {
   ////////////////////
   // FIELDS
 
-  private boolean createFields(TypeSpec.Builder parentBuilder, Asset asset) {
-    boolean hasFieldCache = false;
+  private void createFields(TypeSpec.Builder parentBuilder, Asset asset) {
     if (!asset.hasSuperAsset()) {
       // if we extend something we will have these lists from our parent
       ClassName set = ClassName.get("java.util", "Set");
@@ -212,17 +211,15 @@ public class AssetGenerator extends JavaGenerator {
         createAttackStepField(parentBuilder, asset, attackStep, index++);
       }
     }
-
-    return hasFieldCache;
   }
 
   private void createField(TypeSpec.Builder parentBuilder, Field field, int index) {
-    ClassName hashSetType = ClassName.get("java.util", "HashSet");
+    ClassName setType = ClassName.get("java.util", "Set");
     ClassName targetType = ClassName.get(this.pkg, field.getTarget().getAsset().getName());
 
     TypeName type = null;
     if (field.getMax() > 1) {
-      type = ParameterizedTypeName.get(hashSetType, targetType);
+      type = ParameterizedTypeName.get(setType, targetType);
     } else {
       type = targetType;
     }
@@ -236,8 +233,8 @@ public class AssetGenerator extends JavaGenerator {
     builder.addModifiers(Modifier.PUBLIC);
 
     if (field.getMax() > 1) {
-      // only initialize if we are hashSetType, otherwise null is fine
-      builder.initializer("new $T<>()", hashSetType);
+      // only initialize if we are setType, otherwise null is fine
+      builder.initializer("new $T<>()", setType);
     }
 
     parentBuilder.addField(builder.build());
