@@ -94,7 +94,7 @@ public class ExpressionGenerator extends JavaGenerator {
     builder.addStatement("$N = new $T<>()", cacheName, HashSet.class);
     for (StepExpr expr : attackStep.getParentSteps()) {
       AutoFlow af = new AutoFlow();
-      AutoFlow end = generate(af, expr, attackStep.getAsset(), "");
+      AutoFlow end = generate(af, expr, attackStep.getAsset());
       end.addStatement("$N.add($N)", cacheName, end.prefix);
       af.build(builder);
     }
@@ -116,16 +116,16 @@ public class ExpressionGenerator extends JavaGenerator {
       af = subType(af, expr.src, expr.subSrc, asset);
     }
     if (expr instanceof StepCollect) {
-      af = generate(af, ((StepCollect) expr).lhs, asset, nameSuffix);
-      af = generate(af, ((StepCollect) expr).rhs, asset, nameSuffix);
+      af = generate(af, ((StepCollect) expr).lhs, asset);
+      af = generate(af, ((StepCollect) expr).rhs, asset);
     } else if (expr instanceof StepField) {
-      af = createStepField(af, (StepField) expr, nameSuffix);
+      af = createStepField(af, (StepField) expr);
     } else if (expr instanceof StepTransitive) {
-      af = createStepTransitive(af, (StepTransitive) expr, asset, nameSuffix);
+      af = createStepTransitive(af, (StepTransitive) expr, asset);
     } else if (expr instanceof StepUnion
         || expr instanceof StepIntersection
         || expr instanceof StepDifference) {
-      af = createStepSet(af, expr, asset, nameSuffix);
+      af = createStepSet(af, expr, asset);
     } else if (expr instanceof StepAttackStep) {
       af = createStepAttackStep(af, (StepAttackStep) expr);
     } else if (expr instanceof StepCall) {
@@ -153,7 +153,7 @@ public class ExpressionGenerator extends JavaGenerator {
     return af;
   }
 
-  private AutoFlow createStepField(AutoFlow af, StepField expr, String nameSuffix) {
+  private AutoFlow createStepField(AutoFlow af, StepField expr) {
     String name = expr.field.getName();
     if (af.hasPrefix()) {
       name = String.format("%s.%s", af.prefix, name);
@@ -163,15 +163,13 @@ public class ExpressionGenerator extends JavaGenerator {
       ClassName targetType = ClassName.get(pkg, expr.field.getTarget().getAsset().getName());
       String prefix = Name.get();
       return af.addStatement(
-          new AutoFlow(prefix, true, "for ($T $N : $N$L)", targetType, prefix, name, nameSuffix));
+          new AutoFlow(prefix, true, "for ($T $N : $N)", targetType, prefix, name));
     } else {
-      return af.addStatement(
-          new AutoFlow(String.format("%s%s", name, nameSuffix), "if ($L != null)", name));
+      return af.addStatement(new AutoFlow(name, "if ($L != null)", name));
     }
   }
 
-  private AutoFlow createStepTransitive(
-      AutoFlow af, StepTransitive expr, Asset asset, String nameSuffix) {
+  private AutoFlow createStepTransitive(AutoFlow af, StepTransitive expr, Asset asset) {
     ClassName targetType = ClassName.get(pkg, expr.target.getName());
     ClassName list = ClassName.get(List.class);
     ClassName arrayList = ClassName.get(ArrayList.class);
@@ -198,14 +196,14 @@ public class ExpressionGenerator extends JavaGenerator {
     String name3 = Name.get();
     AutoFlow naf = af.addStatement(new AutoFlow(name3, true, "while (!$N.isEmpty())", name2));
     naf.addStatement("$T $N = $N.remove(0)", targetType, name3, name2);
-    AutoFlow deep = generate(naf, expr.e, asset, nameSuffix);
+    AutoFlow deep = generate(naf, expr.e, asset);
     deep.addStatement("$N.add($N)", name1, deep.prefix);
     deep.addStatement("$N.add($N)", name2, deep.prefix);
     String name4 = Name.get();
     return af.addStatement(new AutoFlow(name4, true, "for ($T $N : $N)", targetType, name4, name1));
   }
 
-  private AutoFlow createStepSet(AutoFlow af, StepExpr expr, Asset asset, String nameSuffix) {
+  private AutoFlow createStepSet(AutoFlow af, StepExpr expr, Asset asset) {
     StepBinOp binop = (StepBinOp) expr;
     String targetName = binop.target.getName();
     ClassName targetType = ClassName.get(pkg, targetName);
@@ -217,9 +215,9 @@ public class ExpressionGenerator extends JavaGenerator {
     af.addStatement("$T $N = new $T<>()", targetSet, name1, hashSet);
     af.addStatement("$T $N = new $T<>()", targetSet, name2, hashSet);
 
-    AutoFlow deep1 = generate(af, binop.lhs, asset, nameSuffix);
+    AutoFlow deep1 = generate(af, binop.lhs, asset);
     deep1.addStatement("$N.add($N)", name1, deep1.prefix);
-    AutoFlow deep2 = generate(af, binop.rhs, asset, nameSuffix);
+    AutoFlow deep2 = generate(af, binop.rhs, asset);
     deep2.addStatement("$N.add($N)", name2, deep2.prefix);
 
     if (expr instanceof StepUnion) {
