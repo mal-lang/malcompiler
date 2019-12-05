@@ -391,13 +391,16 @@ public class AssetGenerator extends JavaGenerator {
   }
 
   private void createGetDescription(TypeSpec.Builder parentBuilder, Asset asset) {
-    MethodSpec.Builder builder = MethodSpec.methodBuilder("getDescription");
-    builder.addAnnotation(Override.class);
-    builder.addModifiers(Modifier.PUBLIC);
-    builder.returns(String.class);
-    String info = asset.getMeta().get("user");
-    builder.addStatement("return $S", info != null ? info : "");
-    parentBuilder.addMethod(builder.build());
+    String description = asset.getMeta().get("user");
+    if (description != null) {
+      parentBuilder.addMethod(
+          MethodSpec.methodBuilder("getDescription")
+              .addAnnotation(Override.class)
+              .addModifiers(Modifier.PUBLIC)
+              .returns(String.class)
+              .addStatement("return $S", description)
+              .build());
+    }
   }
 
   private File getAssetIcon(Asset asset, String type) {
