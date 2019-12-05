@@ -64,7 +64,7 @@ public class Generator extends JavaGenerator {
 
   private Generator(Lang lang, Map<String, String> args, boolean verbose, boolean debug)
       throws CompilerException {
-    super(verbose, debug, ""); // pkg is set later
+    super(verbose, debug);
     Locale.setDefault(Locale.ROOT);
     this.lang = lang;
     if (!args.containsKey("path") || args.get("path").isBlank()) {
@@ -73,9 +73,9 @@ public class Generator extends JavaGenerator {
     this.output = getOutputDirectory(args.get("path"));
     if (!args.containsKey("package") || args.get("package").isBlank()) {
       LOGGER.warning("Missing optional argument 'package', using default");
-      this.setPackage("auto");
+      this.pkg = "auto";
     } else {
-      this.setPackage(args.get("package"));
+      this.pkg = args.get("package");
     }
     if (!args.containsKey("core")) {
       this.core = true;

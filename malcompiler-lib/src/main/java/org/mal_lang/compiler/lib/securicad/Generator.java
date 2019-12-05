@@ -71,7 +71,7 @@ public class Generator extends JavaGenerator {
 
   private Generator(Lang lang, Map<String, String> args, boolean verbose, boolean debug)
       throws CompilerException {
-    super(verbose, debug, ""); // pkg set later
+    super(verbose, debug);
     // to not have svgSalamander flash a ghost window
     System.setProperty("java.awt.headless", "true");
     Locale.setDefault(Locale.ROOT);
@@ -82,9 +82,9 @@ public class Generator extends JavaGenerator {
     this.output = getOutputDirectory(args.get("path"));
     if (!args.containsKey("package") || args.get("package").isBlank()) {
       LOGGER.warning("Missing optional argument 'package', using default");
-      this.setPackage("auto");
+      this.pkg = "auto";
     } else {
-      this.setPackage(args.get("package"));
+      this.pkg = args.get("package");
     }
     if (args.containsKey("icons") && !args.get("icons").isBlank()) {
       this.icons = new File(args.get("icons"));

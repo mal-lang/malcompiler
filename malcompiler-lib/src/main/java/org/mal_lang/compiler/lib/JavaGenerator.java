@@ -40,6 +40,10 @@ public abstract class JavaGenerator extends Generator {
 
   protected String pkg;
 
+  protected JavaGenerator(boolean verbose, boolean debug) {
+    this(verbose, debug, "");
+  }
+
   protected JavaGenerator(boolean verbose, boolean debug, String pkg) {
     super(verbose, debug);
     this.pkg = pkg;
@@ -47,10 +51,6 @@ public abstract class JavaGenerator extends Generator {
 
   protected JavaGenerator(MalLogger LOGGER, String pkg) {
     super(LOGGER);
-    this.pkg = pkg;
-  }
-
-  protected void setPackage(String pkg) {
     this.pkg = pkg;
   }
 
