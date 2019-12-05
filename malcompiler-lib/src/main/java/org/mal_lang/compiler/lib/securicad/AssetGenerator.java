@@ -232,8 +232,7 @@ public class AssetGenerator extends JavaGenerator {
 
     if (field.getMax() > 1) {
       // only initialize if we are setType, otherwise null is fine
-      ClassName hashSetType = ClassName.get("java.util", "HashSet");
-      builder.initializer("new $T<>()", hashSetType);
+      builder.initializer("new $T<>()", HashSet.class);
     }
 
     parentBuilder.addField(builder.build());

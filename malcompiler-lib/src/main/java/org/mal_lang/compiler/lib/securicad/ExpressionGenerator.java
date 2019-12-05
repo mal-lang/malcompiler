@@ -86,7 +86,7 @@ public class ExpressionGenerator extends JavaGenerator {
     }
     builder.endControlFlow();
 
-    builder.beginControlFlow("if(sample != null)");
+    builder.beginControlFlow("if (sample != null)");
     ClassName as = ClassName.get("com.foreseeti.simulator", "AttackStep");
     builder.beginControlFlow("for ($T attackStep : $N)", as, cacheName);
     builder.addStatement("sample.addExpectedParent(this, attackStep)");
