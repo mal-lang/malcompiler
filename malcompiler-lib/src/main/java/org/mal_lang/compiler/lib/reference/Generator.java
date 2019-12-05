@@ -429,7 +429,7 @@ public class Generator extends JavaGenerator {
     }
     builder.endControlFlow();
 
-    builder.beginControlFlow("for($T attackStep : $N)", as, cacheName);
+    builder.beginControlFlow("for ($T attackStep : $N)", as, cacheName);
     builder.addStatement("attackStep.updateTtc(this, ttc, attackSteps)");
     builder.endControlFlow();
 
@@ -453,7 +453,7 @@ public class Generator extends JavaGenerator {
     builder.endControlFlow();
 
     ClassName as = ClassName.get("core", "AttackStep");
-    builder.beginControlFlow("for($T attackStep : $N)", as, cacheName);
+    builder.beginControlFlow("for ($T attackStep : $N)", as, cacheName);
     builder.addStatement("addExpectedParent(attackStep)");
     builder.endControlFlow();
 

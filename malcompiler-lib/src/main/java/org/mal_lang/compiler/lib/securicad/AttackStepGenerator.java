@@ -80,6 +80,7 @@ public class AttackStepGenerator extends JavaGenerator {
     }
 
     createSteps(builder, exprGen, attackStep);
+    createGetDescription(builder, attackStep);
     createTraceabilityHelper(builder, attackStep);
 
     parentBuilder.addType(builder.build());
@@ -305,6 +306,17 @@ public class AttackStepGenerator extends JavaGenerator {
         throw new RuntimeException(
             String.format("unknown attack step type '%s'", attackStep.getType()));
     }
+  }
+
+  private void createGetDescription(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
+    String description = attackStep.getMeta().get("user");
+    parentBuilder.addMethod(
+        MethodSpec.methodBuilder("getDescription")
+            .addAnnotation(Override.class)
+            .addModifiers(Modifier.PUBLIC)
+            .returns(String.class)
+            .addStatement("return $S", description != null ? description : "")
+            .build());
   }
 
   private void createTraceabilityHelper(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
