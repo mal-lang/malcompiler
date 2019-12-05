@@ -48,7 +48,6 @@ import org.mal_lang.compiler.lib.Lang.TTCExpr;
 import org.mal_lang.compiler.lib.Lang.TTCFunc;
 
 public class Generator extends JavaGenerator {
-  private final String pkg;
   private final File output;
   private final Lang lang;
   private final boolean core;
@@ -65,7 +64,7 @@ public class Generator extends JavaGenerator {
 
   private Generator(Lang lang, Map<String, String> args, boolean verbose, boolean debug)
       throws CompilerException {
-    super(verbose, debug);
+    super(verbose, debug, ""); // pkg is set later
     Locale.setDefault(Locale.ROOT);
     this.lang = lang;
     if (!args.containsKey("path") || args.get("path").isBlank()) {
@@ -74,9 +73,9 @@ public class Generator extends JavaGenerator {
     this.output = getOutputDirectory(args.get("path"));
     if (!args.containsKey("package") || args.get("package").isBlank()) {
       LOGGER.warning("Missing optional argument 'package', using default");
-      this.pkg = "auto";
+      this.setPackage("auto");
     } else {
-      this.pkg = args.get("package");
+      this.setPackage(args.get("package"));
     }
     if (!args.containsKey("core")) {
       this.core = true;
@@ -93,7 +92,7 @@ public class Generator extends JavaGenerator {
       }
     }
 
-    validateNames(this.lang, this.pkg);
+    validateNames(this.lang);
     checkSteps(this.lang);
   }
 
@@ -387,7 +386,7 @@ public class Generator extends JavaGenerator {
     builder.beginControlFlow("if ($N == null)", setName);
     builder.addStatement("$N = new $T<>()", setName, hashSet);
     AutoFlow varFlow = new AutoFlow();
-    AutoFlow end = generateExpr(pkg, varFlow, expr, asset);
+    AutoFlow end = generateExpr(varFlow, expr, asset);
     end.addStatement("$N.add($N)", setName, end.prefix);
     varFlow.build(builder);
     builder.endControlFlow();
@@ -413,7 +412,7 @@ public class Generator extends JavaGenerator {
     builder.addStatement("$N = new $T<>()", cacheName, HashSet.class);
     for (StepExpr expr : attackStep.getReaches()) {
       AutoFlow af = new AutoFlow();
-      AutoFlow end = generateExpr(pkg, af, expr, attackStep.getAsset());
+      AutoFlow end = generateExpr(af, expr, attackStep.getAsset());
       end.addStatement("$N.add($N)", cacheName, end.prefix);
       af.build(builder);
     }
@@ -436,7 +435,7 @@ public class Generator extends JavaGenerator {
     builder.addStatement("$N = new $T<>()", cacheName, HashSet.class);
     for (StepExpr expr : attackStep.getParentSteps()) {
       AutoFlow af = new AutoFlow();
-      AutoFlow end = generateExpr(pkg, af, expr, attackStep.getAsset());
+      AutoFlow end = generateExpr(af, expr, attackStep.getAsset());
       end.addStatement("$N.add($N)", cacheName, end.prefix);
       af.build(builder);
     }
@@ -555,7 +554,7 @@ public class Generator extends JavaGenerator {
     if (attackStep.getType() == AttackStepType.EXIST) {
       for (StepExpr expr : attackStep.getRequires()) {
         AutoFlow af = new AutoFlow();
-        AutoFlow end = generateExpr(pkg, af, expr, attackStep.getAsset());
+        AutoFlow end = generateExpr(af, expr, attackStep.getAsset());
         end.addStatement("return false");
         af.build(method);
       }
@@ -564,7 +563,7 @@ public class Generator extends JavaGenerator {
       method.addStatement("int count = $L", attackStep.getRequires().size());
       for (StepExpr expr : attackStep.getRequires()) {
         AutoFlow af = new AutoFlow();
-        AutoFlow end = generateExpr(pkg, af, expr, attackStep.getAsset());
+        AutoFlow end = generateExpr(af, expr, attackStep.getAsset());
         end.addStatement("count--");
         if (end.isLoop()) {
           end.addStatement("break");

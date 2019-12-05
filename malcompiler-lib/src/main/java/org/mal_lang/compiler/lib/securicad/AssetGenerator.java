@@ -47,7 +47,6 @@ import org.mal_lang.compiler.lib.Lang.Link;
 import org.mal_lang.compiler.lib.MalLogger;
 
 public class AssetGenerator extends JavaGenerator {
-  private final String pkg;
   private final File output;
   private final File icons;
   private final Lang lang;
@@ -56,8 +55,7 @@ public class AssetGenerator extends JavaGenerator {
   private final VariableGenerator varGen;
 
   protected AssetGenerator(MalLogger LOGGER, String pkg, File output, File icons, Lang lang) {
-    super(LOGGER);
-    this.pkg = pkg;
+    super(LOGGER, pkg);
     this.output = output;
     this.icons = icons;
     this.lang = lang;

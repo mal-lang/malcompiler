@@ -29,12 +29,10 @@ import org.mal_lang.compiler.lib.Lang.TTCFunc;
 import org.mal_lang.compiler.lib.MalLogger;
 
 public class DefenseGenerator extends JavaGenerator {
-  private final String pkg;
   private final ExpressionGenerator exprGen;
 
   protected DefenseGenerator(MalLogger LOGGER, String pkg) {
-    super(LOGGER);
-    this.pkg = pkg;
+    super(LOGGER, pkg);
     this.exprGen = new ExpressionGenerator(LOGGER, pkg);
   }
 
@@ -115,7 +113,7 @@ public class DefenseGenerator extends JavaGenerator {
     if (attackStep.getType() == AttackStepType.EXIST) {
       for (StepExpr expr : attackStep.getRequires()) {
         AutoFlow af = new AutoFlow();
-        AutoFlow end = exprGen.generateExpr(pkg, af, expr, attackStep.getAsset());
+        AutoFlow end = exprGen.generateExpr(af, expr, attackStep.getAsset());
         end.addStatement("return false");
         af.build(method);
       }
@@ -124,7 +122,7 @@ public class DefenseGenerator extends JavaGenerator {
       method.addStatement("int count = $L", attackStep.getRequires().size());
       for (StepExpr expr : attackStep.getRequires()) {
         AutoFlow af = new AutoFlow();
-        AutoFlow end = exprGen.generateExpr(pkg, af, expr, attackStep.getAsset());
+        AutoFlow end = exprGen.generateExpr(af, expr, attackStep.getAsset());
         end.addStatement("count--");
         if (end.isLoop()) {
           end.addStatement("break");

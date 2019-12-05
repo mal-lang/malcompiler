@@ -37,12 +37,21 @@ import org.mal_lang.compiler.lib.Lang.StepTransitive;
 import org.mal_lang.compiler.lib.Lang.StepUnion;
 
 public abstract class JavaGenerator extends Generator {
-  protected JavaGenerator(boolean verbose, boolean debug) {
+
+  protected String pkg;
+
+  protected JavaGenerator(boolean verbose, boolean debug, String pkg) {
     super(verbose, debug);
+    this.pkg = pkg;
   }
 
-  protected JavaGenerator(MalLogger LOGGER) {
+  protected JavaGenerator(MalLogger LOGGER, String pkg) {
     super(LOGGER);
+    this.pkg = pkg;
+  }
+
+  protected void setPackage(String pkg) {
+    this.pkg = pkg;
   }
 
   protected static String ucFirst(String str) {
@@ -135,7 +144,7 @@ public abstract class JavaGenerator extends Generator {
     }
   }
 
-  protected void validateNames(Lang lang, String pkg) throws CompilerException {
+  protected void validateNames(Lang lang) throws CompilerException {
     boolean err = false;
     if (!SourceVersion.isName(pkg)) {
       LOGGER.error(String.format("Package '%s' is not a valid package name", pkg));
@@ -187,21 +196,21 @@ public abstract class JavaGenerator extends Generator {
     }
   }
 
-  public AutoFlow generateExpr(String pkg, AutoFlow af, StepExpr expr, Asset asset) {
+  public AutoFlow generateExpr(AutoFlow af, StepExpr expr, Asset asset) {
     if (!af.hasPrefix()) {
-      af = subType(pkg, af, expr.src, expr.subSrc, asset);
+      af = subType(af, expr.src, expr.subSrc, asset);
     }
     if (expr instanceof StepCollect) {
-      af = generateExpr(pkg, af, ((StepCollect) expr).lhs, asset);
-      af = generateExpr(pkg, af, ((StepCollect) expr).rhs, asset);
+      af = generateExpr(af, ((StepCollect) expr).lhs, asset);
+      af = generateExpr(af, ((StepCollect) expr).rhs, asset);
     } else if (expr instanceof StepField) {
-      af = createStepField(pkg, af, (StepField) expr);
+      af = createStepField(af, (StepField) expr);
     } else if (expr instanceof StepTransitive) {
-      af = createStepTransitive(pkg, af, (StepTransitive) expr, asset);
+      af = createStepTransitive(af, (StepTransitive) expr, asset);
     } else if (expr instanceof StepUnion
         || expr instanceof StepIntersection
         || expr instanceof StepDifference) {
-      af = createStepSet(pkg, af, expr, asset);
+      af = createStepSet(af, expr, asset);
     } else if (expr instanceof StepAttackStep) {
       af = createStepAttackStep(af, (StepAttackStep) expr);
     } else if (expr instanceof StepCall) {
@@ -209,11 +218,11 @@ public abstract class JavaGenerator extends Generator {
     } else {
       throw new RuntimeException(String.format("unknown expression '%s'", expr));
     }
-    af = subType(pkg, af, expr.target, expr.subTarget, asset);
+    af = subType(af, expr.target, expr.subTarget, asset);
     return af;
   }
 
-  private AutoFlow createStepTransitive(String pkg, AutoFlow af, StepTransitive expr, Asset asset) {
+  private AutoFlow createStepTransitive(AutoFlow af, StepTransitive expr, Asset asset) {
     ClassName targetType = ClassName.get(pkg, expr.target.getName());
     ClassName list = ClassName.get(List.class);
     ClassName arrayList = ClassName.get(ArrayList.class);
@@ -226,7 +235,7 @@ public abstract class JavaGenerator extends Generator {
     af.addStatement("$T $N = new $T<>()", targetSet, name1, hashSet);
     af.addStatement("$T $N = new $T<>()", targetList, name2, arrayList);
     if (!expr.src.equals(expr.target)) {
-      af = subType(pkg, af, expr.src, expr.target, asset);
+      af = subType(af, expr.src, expr.target, asset);
     }
     if (af.hasPrefix()) {
       af.addStatement("$N.add($N)", name1, af.prefix);
@@ -240,14 +249,14 @@ public abstract class JavaGenerator extends Generator {
     String name3 = Name.get();
     AutoFlow naf = af.addStatement(new AutoFlow(name3, true, "while (!$N.isEmpty())", name2));
     naf.addStatement("$T $N = $N.remove(0)", targetType, name3, name2);
-    AutoFlow deep = generateExpr(pkg, naf, expr.e, asset);
+    AutoFlow deep = generateExpr(naf, expr.e, asset);
     deep.addStatement("$N.add($N)", name1, deep.prefix);
     deep.addStatement("$N.add($N)", name2, deep.prefix);
     String name4 = Name.get();
     return af.addStatement(new AutoFlow(name4, true, "for ($T $N : $N)", targetType, name4, name1));
   }
 
-  private AutoFlow createStepSet(String pkg, AutoFlow af, StepExpr expr, Asset asset) {
+  private AutoFlow createStepSet(AutoFlow af, StepExpr expr, Asset asset) {
     StepBinOp binop = (StepBinOp) expr;
     String targetName = binop.target.getName();
     ClassName targetType = ClassName.get(pkg, targetName);
@@ -259,9 +268,9 @@ public abstract class JavaGenerator extends Generator {
     af.addStatement("$T $N = new $T<>()", targetSet, name1, hashSet);
     af.addStatement("$T $N = new $T<>()", targetSet, name2, hashSet);
 
-    AutoFlow deep1 = generateExpr(pkg, af, binop.lhs, asset);
+    AutoFlow deep1 = generateExpr(af, binop.lhs, asset);
     deep1.addStatement("$N.add($N)", name1, deep1.prefix);
-    AutoFlow deep2 = generateExpr(pkg, af, binop.rhs, asset);
+    AutoFlow deep2 = generateExpr(af, binop.rhs, asset);
     deep2.addStatement("$N.add($N)", name2, deep2.prefix);
 
     if (expr instanceof StepUnion) {
@@ -275,7 +284,7 @@ public abstract class JavaGenerator extends Generator {
     return af.addStatement(new AutoFlow(name3, true, "for ($T $N : $N)", targetType, name3, name1));
   }
 
-  private AutoFlow createStepField(String pkg, AutoFlow af, StepField expr) {
+  private AutoFlow createStepField(AutoFlow af, StepField expr) {
     String name = expr.field.getName();
     if (af.hasPrefix()) {
       name = String.format("%s.%s", af.prefix, name);
@@ -291,7 +300,7 @@ public abstract class JavaGenerator extends Generator {
     }
   }
 
-  private AutoFlow subType(String pkg, AutoFlow af, Asset source, Asset subSource, Asset asset) {
+  private AutoFlow subType(AutoFlow af, Asset source, Asset subSource, Asset asset) {
     if (source != null && subSource != null && !source.equals(subSource)) {
       ClassName type = ClassName.get(pkg, subSource.getName());
       if (af.hasPrefix()) {

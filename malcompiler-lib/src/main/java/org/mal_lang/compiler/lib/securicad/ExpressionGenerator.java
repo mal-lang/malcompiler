@@ -29,11 +29,9 @@ import org.mal_lang.compiler.lib.Lang.StepExpr;
 import org.mal_lang.compiler.lib.MalLogger;
 
 public class ExpressionGenerator extends JavaGenerator {
-  private final String pkg;
 
   protected ExpressionGenerator(MalLogger LOGGER, String pkg) {
-    super(LOGGER);
-    this.pkg = pkg;
+    super(LOGGER, pkg);
   }
 
   protected void createGetAttackStepChildren(
@@ -56,7 +54,7 @@ public class ExpressionGenerator extends JavaGenerator {
     }
     for (StepExpr expr : attackStep.getReaches()) {
       AutoFlow af = new AutoFlow();
-      AutoFlow end = generateExpr(pkg, af, expr, attackStep.getAsset());
+      AutoFlow end = generateExpr(af, expr, attackStep.getAsset());
       end.addStatement("tmpCache.add($L)", end.prefix);
       af.build(builder);
     }
@@ -82,7 +80,7 @@ public class ExpressionGenerator extends JavaGenerator {
     builder.addStatement("$N = new $T<>()", cacheName, HashSet.class);
     for (StepExpr expr : attackStep.getParentSteps()) {
       AutoFlow af = new AutoFlow();
-      AutoFlow end = generateExpr(pkg, af, expr, attackStep.getAsset());
+      AutoFlow end = generateExpr(af, expr, attackStep.getAsset());
       end.addStatement("$N.add($N)", cacheName, end.prefix);
       af.build(builder);
     }
