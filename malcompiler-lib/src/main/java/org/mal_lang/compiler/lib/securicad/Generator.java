@@ -54,7 +54,6 @@ public class Generator extends JavaGenerator {
           "System",
           "User",
           "Zone");
-  private final String pkg;
   private final File output;
   private final Lang lang;
   private final File icons;
@@ -113,7 +112,7 @@ public class Generator extends JavaGenerator {
     }
 
     removeDebugSteps(this.lang);
-    validateNames(this.lang, this.pkg);
+    validateNames(this.lang);
     validateCategories();
     checkSteps(this.lang);
   }

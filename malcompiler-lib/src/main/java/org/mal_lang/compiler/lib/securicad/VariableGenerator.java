@@ -30,12 +30,10 @@ import org.mal_lang.compiler.lib.MalLogger;
 
 public class VariableGenerator extends JavaGenerator {
 
-  private final String pkg;
   private final ExpressionGenerator exprGen;
 
   protected VariableGenerator(MalLogger LOGGER, String pkg) {
-    super(LOGGER);
-    this.pkg = pkg;
+    super(LOGGER, pkg);
     this.exprGen = new ExpressionGenerator(LOGGER, pkg);
   }
 
@@ -56,7 +54,7 @@ public class VariableGenerator extends JavaGenerator {
     builder.beginControlFlow("if ($N == null)", setName);
     builder.addStatement("$T tmpCache = new $T<>()", targetSet, hashSet);
     AutoFlow varFlow = new AutoFlow();
-    AutoFlow end = this.exprGen.generate(varFlow, expr, asset, "(null)");
+    AutoFlow end = this.exprGen.generateExpr(varFlow, expr, asset);
     end.addStatement("tmpCache.add($N)", end.prefix);
     varFlow.build(builder);
     // copyOf returns an immutable set

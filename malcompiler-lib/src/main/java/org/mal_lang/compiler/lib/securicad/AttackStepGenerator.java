@@ -41,12 +41,10 @@ import org.mal_lang.compiler.lib.Lang.TTCSub;
 import org.mal_lang.compiler.lib.MalLogger;
 
 public class AttackStepGenerator extends JavaGenerator {
-  private final String pkg;
   private final ExpressionGenerator exprGen;
 
   protected AttackStepGenerator(MalLogger LOGGER, String pkg) {
-    super(LOGGER);
-    this.pkg = pkg;
+    super(LOGGER, pkg);
     this.exprGen = new ExpressionGenerator(LOGGER, pkg);
   }
 

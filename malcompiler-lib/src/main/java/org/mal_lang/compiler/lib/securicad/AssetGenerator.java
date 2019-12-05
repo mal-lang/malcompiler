@@ -47,7 +47,6 @@ import org.mal_lang.compiler.lib.Lang.Link;
 import org.mal_lang.compiler.lib.MalLogger;
 
 public class AssetGenerator extends JavaGenerator {
-  private final String pkg;
   private final File output;
   private final File icons;
   private final Lang lang;
@@ -56,8 +55,7 @@ public class AssetGenerator extends JavaGenerator {
   private final VariableGenerator varGen;
 
   protected AssetGenerator(MalLogger LOGGER, String pkg, File output, File icons, Lang lang) {
-    super(LOGGER);
-    this.pkg = pkg;
+    super(LOGGER, pkg);
     this.output = output;
     this.icons = icons;
     this.lang = lang;
@@ -87,7 +85,7 @@ public class AssetGenerator extends JavaGenerator {
     }
 
     // class fields
-    boolean hasFieldCache = createFields(builder, asset);
+    createFields(builder, asset);
 
     // constructors
     createEmptyConstructor(builder);
@@ -141,7 +139,7 @@ public class AssetGenerator extends JavaGenerator {
     Set<String> variables = new LinkedHashSet<>();
     variables.addAll(asset.getVariables().keySet());
     variables.addAll(asset.getReverseVariables().keySet());
-    if (!variables.isEmpty() || !asset.getAttackSteps().isEmpty() || hasFieldCache) {
+    if (!variables.isEmpty() || !asset.getAttackSteps().isEmpty()) {
       createClearCache(builder, asset, variables);
     }
 
@@ -160,11 +158,6 @@ public class AssetGenerator extends JavaGenerator {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
-    for (var field : asset.getFields().values()) {
-      if (field.getMax() > 1) {
-        builder.addStatement("_cacheField$N = null", ucFirst(field.getName()));
-      }
-    }
     for (var variable : variables) {
       builder.addStatement("_cache$N = null", variable);
     }
@@ -194,8 +187,7 @@ public class AssetGenerator extends JavaGenerator {
   ////////////////////
   // FIELDS
 
-  private boolean createFields(TypeSpec.Builder parentBuilder, Asset asset) {
-    boolean hasFieldCache = false;
+  private void createFields(TypeSpec.Builder parentBuilder, Asset asset) {
     if (!asset.hasSuperAsset()) {
       // if we extend something we will have these lists from our parent
       ClassName set = ClassName.get("java.util", "Set");
@@ -210,9 +202,6 @@ public class AssetGenerator extends JavaGenerator {
     int index = 1;
     for (Field field : asset.getFields().values()) {
       createField(parentBuilder, field, index++);
-      if (createFieldMethod(parentBuilder, field)) {
-        hasFieldCache = true;
-      }
     }
 
     for (AttackStep attackStep : asset.getAttackSteps().values()) {
@@ -220,20 +209,17 @@ public class AssetGenerator extends JavaGenerator {
         createAttackStepField(parentBuilder, asset, attackStep, index++);
       }
     }
-
-    return hasFieldCache;
   }
 
   private void createField(TypeSpec.Builder parentBuilder, Field field, int index) {
-    ClassName prob = ClassName.get("com.foreseeti.corelib.util", "FProb");
-    ClassName probSet = ClassName.get("com.foreseeti.corelib.util", "FProbSet");
+    ClassName setType = ClassName.get("java.util", "Set");
     ClassName targetType = ClassName.get(this.pkg, field.getTarget().getAsset().getName());
 
     TypeName type = null;
     if (field.getMax() > 1) {
-      type = ParameterizedTypeName.get(probSet, targetType);
+      type = ParameterizedTypeName.get(setType, targetType);
     } else {
-      type = ParameterizedTypeName.get(prob, targetType);
+      type = targetType;
     }
 
     FieldSpec.Builder builder = FieldSpec.builder(type, field.getName());
@@ -245,8 +231,8 @@ public class AssetGenerator extends JavaGenerator {
     builder.addModifiers(Modifier.PUBLIC);
 
     if (field.getMax() > 1) {
-      // only initialize if we are probset, otherwise null is fine
-      builder.initializer("new $T<>()", probSet);
+      // only initialize if we are setType, otherwise null is fine
+      builder.initializer("new $T<>()", HashSet.class);
     }
 
     parentBuilder.addField(builder.build());
@@ -258,41 +244,6 @@ public class AssetGenerator extends JavaGenerator {
     builder.addMember("index", "$L", index);
     builder.addMember("name", "$S", name);
     parentBuilder.addAnnotation(builder.build());
-  }
-
-  private boolean createFieldMethod(TypeSpec.Builder parentBuilder, Field field) {
-    boolean hasFieldCache = false;
-    ClassName baseSample = ClassName.get("com.foreseeti.corelib", "BaseSample");
-    MethodSpec.Builder builder = MethodSpec.methodBuilder(field.getName());
-
-    // modifiers
-    builder.addModifiers(Modifier.PUBLIC);
-
-    // parameters
-    builder.addParameter(baseSample, "sample");
-
-    // return type
-    TypeName type = ClassName.get(this.pkg, field.getTarget().getAsset().getName());
-    if (field.getMax() > 1) {
-      ClassName set = ClassName.get("java.util", "Set");
-      type = ParameterizedTypeName.get(set, type);
-      var cacheName = String.format("_cacheField%s", ucFirst(field.getName()));
-      parentBuilder.addField(
-          FieldSpec.builder(type, cacheName).addModifiers(Modifier.PRIVATE).build());
-      builder.beginControlFlow("if ($N == null)", cacheName);
-      builder.addStatement(
-          "$N = $T.copyOf(this.$L.getNonSampled())", cacheName, set, field.getName());
-      builder.endControlFlow();
-      builder.addStatement("return $N", cacheName);
-      hasFieldCache = true;
-    } else {
-      builder.addStatement("return this.$L.getNonSampled()", field.getName());
-    }
-    builder.returns(type);
-
-    parentBuilder.addMethod(builder.build());
-
-    return hasFieldCache;
   }
 
   private void createAttackStepField(
