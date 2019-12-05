@@ -115,7 +115,7 @@ public class DefenseGenerator extends JavaGenerator {
     if (attackStep.getType() == AttackStepType.EXIST) {
       for (StepExpr expr : attackStep.getRequires()) {
         AutoFlow af = new AutoFlow();
-        AutoFlow end = exprGen.generate(af, expr, attackStep.getAsset());
+        AutoFlow end = exprGen.generateExpr(pkg, af, expr, attackStep.getAsset());
         end.addStatement("return false");
         af.build(method);
       }
@@ -124,7 +124,7 @@ public class DefenseGenerator extends JavaGenerator {
       method.addStatement("int count = $L", attackStep.getRequires().size());
       for (StepExpr expr : attackStep.getRequires()) {
         AutoFlow af = new AutoFlow();
-        AutoFlow end = exprGen.generate(af, expr, attackStep.getAsset());
+        AutoFlow end = exprGen.generateExpr(pkg, af, expr, attackStep.getAsset());
         end.addStatement("count--");
         if (end.isLoop()) {
           end.addStatement("break");
