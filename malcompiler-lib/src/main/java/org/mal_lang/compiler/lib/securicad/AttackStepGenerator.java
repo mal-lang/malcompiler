@@ -310,13 +310,15 @@ public class AttackStepGenerator extends JavaGenerator {
 
   private void createGetDescription(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
     String description = attackStep.getMeta().get("user");
-    parentBuilder.addMethod(
-        MethodSpec.methodBuilder("getDescription")
-            .addAnnotation(Override.class)
-            .addModifiers(Modifier.PUBLIC)
-            .returns(String.class)
-            .addStatement("return $S", description != null ? description : "")
-            .build());
+    if (description != null) {
+      parentBuilder.addMethod(
+          MethodSpec.methodBuilder("getDescription")
+              .addAnnotation(Override.class)
+              .addModifiers(Modifier.PUBLIC)
+              .returns(String.class)
+              .addStatement("return $S", description)
+              .build());
+    }
   }
 
   private void createTraceabilityHelper(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
