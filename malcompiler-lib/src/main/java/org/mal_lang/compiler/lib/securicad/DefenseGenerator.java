@@ -36,6 +36,18 @@ public class DefenseGenerator extends JavaGenerator {
     this.exprGen = new ExpressionGenerator(LOGGER, pkg);
   }
 
+  private static String getDescription(AttackStep attackStep) {
+    String userInfo = attackStep.getMeta().get("user");
+    if (userInfo != null) {
+      return userInfo;
+    }
+    if (!attackStep.hasParent()) {
+      return null;
+    }
+    return getDescription(
+        attackStep.getAsset().getSuperAsset().getAttackStep(attackStep.getName()));
+  }
+
   protected void generate(TypeSpec.Builder parentBuilder, Asset asset, AttackStep attackStep) {
     ClassName type = ClassName.get(this.pkg, asset.getName(), ucFirst(attackStep.getName()));
     TypeSpec.Builder builder = TypeSpec.classBuilder(type);
@@ -47,8 +59,10 @@ public class DefenseGenerator extends JavaGenerator {
     asBuilder.addMember("name", "$S", ucFirst(attackStep.getName()));
     builder.addAnnotation(asBuilder.build());
 
+    var description = getDescription(attackStep);
     asBuilder = AnnotationSpec.builder(typeDescription);
-    asBuilder.addMember("text", "$S", ucFirst(attackStep.getName()));
+    asBuilder.addMember(
+        "text", "$S", description == null ? ucFirst(attackStep.getName()) : description);
     builder.addAnnotation(asBuilder.build());
 
     builder.addModifiers(Modifier.PUBLIC);
