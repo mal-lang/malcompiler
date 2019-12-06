@@ -254,104 +254,64 @@ public class Generator extends JavaGenerator {
     javaFile.writeTo(this.output);
   }
 
-  private void createCategories(TypeSpec.Builder parentBuilder) {
-    // Get all categories (and "Attacker") in alphabetical order
-    Set<String> catSet = new HashSet<>();
-    for (var category : lang.getCategories().values()) {
-      catSet.add(category.getName());
-    }
-    catSet.add("Attacker");
-    List<String> catList = new ArrayList<>();
-    catList.addAll(catSet);
-    catList.sort(Comparator.naturalOrder());
+  private List<String> getSortedCategories() {
+    Set<String> categorySet = new HashSet<>(lang.getCategories().keySet());
+    categorySet.add("Attacker");
 
-    // Get all category descriptions
-    Map<String, String> catDesc = new LinkedHashMap<>();
-    for (var cat : catList) {
-      var category = lang.getCategory(cat);
-      if (category == null) {
-        catDesc.put(cat, "");
-        continue;
-      }
-      var desc = category.getMeta().get("user");
-      if (desc == null) {
-        catDesc.put(cat, "");
-        continue;
-      }
-      catDesc.put(cat, desc);
+    List<String> categoryList = new ArrayList<>(categorySet);
+    categoryList.sort(Comparator.naturalOrder());
+
+    return categoryList;
+  }
+
+  private String getCategoryDescription(String name) {
+    var category = lang.getCategory(name);
+    if (category == null) {
+      return "";
+    }
+    var description = category.getMeta().get("user");
+    if (description == null) {
+      return "";
+    }
+    return description;
+  }
+
+  private void createCategories(TypeSpec.Builder parentBuilder) {
+    var categories = getSortedCategories();
+
+    Map<String, String> categoryDescriptions = new LinkedHashMap<>();
+    for (var category : categories) {
+      categoryDescriptions.put(category, getCategoryDescription(category));
     }
 
     // Create initializer for categories field
-    var initBuilder = new StringBuilder();
-    var paramBuilder = new ArrayList<Object>();
-    var it1 = catList.iterator();
-    initBuilder.append("$T.of(\n");
-    paramBuilder.add(List.class);
-    while (it1.hasNext()) {
-      var cat = it1.next();
-      initBuilder.append("    $S");
-      if (it1.hasNext()) {
-        initBuilder.append(",\n");
-      } else {
-        initBuilder.append(")");
-      }
-      paramBuilder.add(cat);
+    var categoriesInitializer = new UnmodifiableInitializer(List.class, "of");
+    for (var category : categories) {
+      categoriesInitializer.addElement("$S", category);
     }
-
-    // Create categories field
-    var stringList = ParameterizedTypeName.get(List.class, String.class);
-    parentBuilder.addField(
-        FieldSpec.builder(
-                stringList, "categories", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-            .initializer(initBuilder.toString(), paramBuilder.toArray())
-            .build());
+    categoriesInitializer.build();
 
     // Create initializer for categoryDescriptions field
-    initBuilder = new StringBuilder();
-    paramBuilder = new ArrayList<>();
-    var it2 = catDesc.entrySet().iterator();
-    initBuilder.append("$T.ofEntries(\n");
-    paramBuilder.add(Map.class);
-    while (it2.hasNext()) {
-      var entry = it2.next();
-      initBuilder.append("    $T.entry($S, $S)");
-      if (it2.hasNext()) {
-        initBuilder.append(",\n");
-      } else {
-        initBuilder.append(")");
-      }
-      paramBuilder.add(Map.class);
-      paramBuilder.add(entry.getKey());
-      paramBuilder.add(entry.getValue());
+    var categoryDescriptionsInitializer = new UnmodifiableInitializer(Map.class, "ofEntries");
+    for (var entry : categoryDescriptions.entrySet()) {
+      categoryDescriptionsInitializer.addElement(
+          "$T.entry($S, $S)", Map.class, entry.getKey(), entry.getValue());
     }
+    categoryDescriptionsInitializer.build();
+
+    // Create categories field
+    createStaticFinalField(
+        parentBuilder,
+        ParameterizedTypeName.get(List.class, String.class),
+        "categories",
+        categoriesInitializer);
 
     // Create categoryDescriptions field
-    var stringMap = ParameterizedTypeName.get(Map.class, String.class, String.class);
-    parentBuilder.addField(
-        FieldSpec.builder(
-                stringMap,
-                "categoryDescriptions",
-                Modifier.PRIVATE,
-                Modifier.STATIC,
-                Modifier.FINAL)
-            .initializer(initBuilder.toString(), paramBuilder.toArray())
-            .build());
-
-    // Create getters
-    parentBuilder.addMethod(
-        MethodSpec.methodBuilder("getCategories")
-            .addModifiers(Modifier.PUBLIC)
-            .addModifiers(Modifier.STATIC)
-            .returns(stringList)
-            .addStatement("return categories")
-            .build());
-    parentBuilder.addMethod(
-        MethodSpec.methodBuilder("getCategoryDescriptions")
-            .addModifiers(Modifier.PUBLIC)
-            .addModifiers(Modifier.STATIC)
-            .returns(stringMap)
-            .addStatement("return categoryDescriptions")
-            .build());
+    createStaticFinalField(
+        parentBuilder,
+        ParameterizedTypeName.get(Map.class, String.class, String.class),
+        "categoryDescriptions",
+        categoryDescriptionsInitializer);
   }
 
   private void createAttacker() throws IOException, CompilerException {
