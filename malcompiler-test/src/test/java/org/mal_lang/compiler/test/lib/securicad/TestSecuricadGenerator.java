@@ -349,33 +349,18 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
   }
 
   @Test
-  public void testAllFeaturesNotGenerated() {
-    String[] expectedErrors = {
-      "[GENERATOR ERROR] Category 'C1' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
-      "[GENERATOR ERROR] Category 'C2' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
-      "[GENERATOR ERROR] Category 'C3' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
-      ""
-    };
-    assertLangNotGenerated("all-features/all-features.mal", expectedErrors);
+  public void testAllFeaturesGenerated() {
+    assertLangGenerated("all-features/all-features.mal");
   }
 
   @Test
-  public void testComplexNotGenerated() {
-    String[] expectedErrors = {
-      "[GENERATOR ERROR] Category 'Person' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
-      "[GENERATOR ERROR] Category 'Hardware' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
-      ""
-    };
-    assertLangNotGenerated("analyzer/complex.mal", expectedErrors);
+  public void testComplexGenerated() {
+    assertLangGenerated("analyzer/complex.mal");
   }
 
   @Test
-  public void testBledNotGenerated() {
-    String[] expectedErrors = {
-      "[GENERATOR ERROR] Category 'LatestAndGreatest' must be one of (Attacker, Communication, Container, Networking, Security, System, User, Zone)",
-      ""
-    };
-    assertLangNotGenerated("bled/bled.mal", expectedErrors);
+  public void testBledGenerated() {
+    assertLangGenerated("bled/bled.mal");
   }
 
   @Test

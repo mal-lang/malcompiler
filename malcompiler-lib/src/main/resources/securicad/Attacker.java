@@ -1,6 +1,5 @@
 import com.foreseeti.corelib.AssociationManager;
 import com.foreseeti.corelib.DefaultValue;
-import com.foreseeti.corelib.FAnnotations.Category;
 import com.foreseeti.corelib.FAnnotations.DisplayClass;
 import com.foreseeti.corelib.FAnnotations.TypeName;
 import com.foreseeti.corelib.FClass;
@@ -11,7 +10,7 @@ import com.foreseeti.simulator.BaseLangLink;
 import com.foreseeti.simulator.Defense;
 import java.util.Set;
 
-@DisplayClass(supportCapexOpex = false, category = Category.Attacker)
+@DisplayClass(supportCapexOpex = false, category = "Attacker")
 @TypeName(name = "Attacker")
 public class Attacker extends AbstractAttacker {
   public Attacker() {
