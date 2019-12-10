@@ -29,31 +29,24 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.CompilerException;
 import org.mal_lang.compiler.lib.JavaGenerator;
 import org.mal_lang.compiler.lib.Lang;
 import org.mal_lang.compiler.lib.Lang.Asset;
-import org.mal_lang.compiler.lib.Lang.Category;
 import org.mal_lang.compiler.lib.Lang.Link;
 import org.mal_lang.compiler.lib.MalInfo;
 
 public class Generator extends JavaGenerator {
-  private static final List<String> CATEGORIES =
-      List.of(
-          "Attacker",
-          "Communication",
-          "Container",
-          "Networking",
-          "Security",
-          "System",
-          "User",
-          "Zone");
   private final File output;
   private final Lang lang;
   private final File icons;
@@ -113,7 +106,6 @@ public class Generator extends JavaGenerator {
 
     removeDebugSteps(this.lang);
     validateNames(this.lang);
-    validateCategories();
     checkSteps(this.lang);
   }
 
@@ -170,22 +162,6 @@ public class Generator extends JavaGenerator {
           removeSubAttackSteps(lang, attackStep);
         }
       }
-    }
-  }
-
-  private void validateCategories() throws CompilerException {
-    boolean err = false;
-    for (Category category : lang.getCategories().values()) {
-      if (!CATEGORIES.contains(category.getName())) {
-        LOGGER.error(
-            String.format(
-                "Category '%s' must be one of (%s)",
-                category.getName(), String.join(", ", CATEGORIES)));
-        err = true;
-      }
-    }
-    if (err) {
-      throw error();
     }
   }
 
@@ -272,9 +248,70 @@ public class Generator extends JavaGenerator {
       codeBlock.addStatement("DATA.put($S, $S)", entry.getKey(), entry.getValue());
     }
     builder.addStaticBlock(codeBlock.build());
+    createCategories(builder);
 
     JavaFile javaFile = JavaFile.builder(this.pkg, builder.build()).build();
     javaFile.writeTo(this.output);
+  }
+
+  private List<String> getSortedCategories() {
+    Set<String> categorySet = new HashSet<>(lang.getCategories().keySet());
+    categorySet.add("Attacker");
+
+    List<String> categoryList = new ArrayList<>(categorySet);
+    categoryList.sort(Comparator.naturalOrder());
+
+    return categoryList;
+  }
+
+  private String getCategoryDescription(String name) {
+    var category = lang.getCategory(name);
+    if (category == null) {
+      return "";
+    }
+    var description = category.getMeta().get("user");
+    if (description == null) {
+      return "";
+    }
+    return description;
+  }
+
+  private void createCategories(TypeSpec.Builder parentBuilder) {
+    var categories = getSortedCategories();
+
+    Map<String, String> categoryDescriptions = new LinkedHashMap<>();
+    for (var category : categories) {
+      categoryDescriptions.put(category, getCategoryDescription(category));
+    }
+
+    // Create initializer for categories field
+    var categoriesInitializer = new UnmodifiableInitializer(List.class, "of");
+    for (var category : categories) {
+      categoriesInitializer.addElement("$S", category);
+    }
+    categoriesInitializer.build();
+
+    // Create initializer for categoryDescriptions field
+    var categoryDescriptionsInitializer = new UnmodifiableInitializer(Map.class, "ofEntries");
+    for (var entry : categoryDescriptions.entrySet()) {
+      categoryDescriptionsInitializer.addElement(
+          "$T.entry($S, $S)", Map.class, entry.getKey(), entry.getValue());
+    }
+    categoryDescriptionsInitializer.build();
+
+    // Create categories field
+    createStaticFinalField(
+        parentBuilder,
+        ParameterizedTypeName.get(List.class, String.class),
+        "categories",
+        categoriesInitializer);
+
+    // Create categoryDescriptions field
+    createStaticFinalField(
+        parentBuilder,
+        ParameterizedTypeName.get(Map.class, String.class, String.class),
+        "categoryDescriptions",
+        categoryDescriptionsInitializer);
   }
 
   private void createAttacker() throws IOException, CompilerException {

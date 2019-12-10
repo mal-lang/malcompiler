@@ -172,10 +172,9 @@ public class AssetGenerator extends JavaGenerator {
   }
 
   private void createAssetAnnotations(TypeSpec.Builder parentBuilder, Asset asset) {
-    ClassName category = ClassName.get("com.foreseeti.corelib.FAnnotations", "Category");
     ClassName displayClass = ClassName.get("com.foreseeti.corelib.FAnnotations", "DisplayClass");
     AnnotationSpec.Builder builder = AnnotationSpec.builder(displayClass);
-    builder.addMember("category", "$T.$L", category, asset.getCategory().getName());
+    builder.addMember("category", "$S", asset.getCategory().getName());
     parentBuilder.addAnnotation(builder.build());
 
     ClassName typeName = ClassName.get("com.foreseeti.corelib.FAnnotations", "TypeName");

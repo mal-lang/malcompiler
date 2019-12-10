@@ -16,14 +16,18 @@
 package org.mal_lang.compiler.lib;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.Lang.Asset;
 import org.mal_lang.compiler.lib.Lang.StepAttackStep;
 import org.mal_lang.compiler.lib.Lang.StepBinOp;
@@ -60,6 +64,70 @@ public abstract class JavaGenerator extends Generator {
     } else {
       return str.substring(0, 1).toUpperCase() + str.substring(1, str.length());
     }
+  }
+
+  /**
+   * Creates a public static final field without an initializer and a corresponding getter.
+   *
+   * @param parentBuilder the builder to add the field to
+   * @param type the type of the field
+   * @param name the name of the field
+   */
+  protected static void createStaticFinalField(
+      TypeSpec.Builder parentBuilder, TypeName type, String name) {
+    createStaticFinalField(parentBuilder, type, name, null);
+  }
+
+  /**
+   * Creates a public static final field without an initializer and a corresponding getter.
+   *
+   * @param parentBuilder the builder to add the field to
+   * @param type the type of the field
+   * @param name the name of the field
+   */
+  protected static void createStaticFinalField(
+      TypeSpec.Builder parentBuilder, Type type, String name) {
+    createStaticFinalField(parentBuilder, TypeName.get(type), name);
+  }
+
+  /**
+   * Creates a public static final field with an initializer and a corresponding getter.
+   *
+   * @param parentBuilder the builder to add the field to
+   * @param type the type of the field
+   * @param name the name of the field
+   * @param initializer the field's initiailzer
+   */
+  protected static void createStaticFinalField(
+      TypeSpec.Builder parentBuilder,
+      TypeName type,
+      String name,
+      UnmodifiableInitializer initializer) {
+    var fieldBuilder =
+        FieldSpec.builder(type, name, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
+    if (initializer != null) {
+      fieldBuilder.initializer(initializer.getFormat(), initializer.getArgs());
+    }
+    parentBuilder.addField(fieldBuilder.build());
+    parentBuilder.addMethod(
+        MethodSpec.methodBuilder(String.format("get%s", ucFirst(name)))
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .returns(type)
+            .addStatement("return $N", name)
+            .build());
+  }
+
+  /**
+   * Creates a public static final field with an initializer and a corresponding getter.
+   *
+   * @param parentBuilder the builder to add the field to
+   * @param type the type of the field
+   * @param name the name of the field
+   * @param initializer the field's initiailzer
+   */
+  protected static void createStaticFinalField(
+      TypeSpec.Builder parentBuilder, Type type, String name, UnmodifiableInitializer initializer) {
+    createStaticFinalField(parentBuilder, TypeName.get(type), name, initializer);
   }
 
   /** Statement is an unevaluated javapoet statement. */
@@ -141,6 +209,54 @@ public abstract class JavaGenerator extends Generator {
       if (!format.isEmpty()) {
         builder.endControlFlow();
       }
+    }
+  }
+
+  /**
+   * UnmodifiableInitializer is used to build an initializer for unmodifiable types, e.g.
+   * List.of(...), Set.of(...), Map.ofEntries(...), etc.
+   */
+  protected static class UnmodifiableInitializer {
+    private StringBuilder initializerBuilder = new StringBuilder();
+    private List<Object> argumentBuilder = new ArrayList<>();
+    private int length = 0;
+
+    /**
+     * Creates a new UnmodifiableInitializer
+     *
+     * @param type the type of the initializer
+     * @param method the static method of type to use
+     */
+    public UnmodifiableInitializer(Type type, String method) {
+      initializerBuilder.append("$T.$N(");
+      argumentBuilder.add(type);
+      argumentBuilder.add(method);
+    }
+
+    public UnmodifiableInitializer addElement(String format, Object... args) {
+      if (length > 0) {
+        initializerBuilder.append(",");
+      }
+      initializerBuilder.append("\n    ");
+      initializerBuilder.append(format);
+      for (var arg : args) {
+        argumentBuilder.add(arg);
+      }
+      length++;
+      return this;
+    }
+
+    public UnmodifiableInitializer build() {
+      initializerBuilder.append(")");
+      return this;
+    }
+
+    public String getFormat() {
+      return initializerBuilder.toString();
+    }
+
+    public Object[] getArgs() {
+      return argumentBuilder.toArray();
     }
   }
 

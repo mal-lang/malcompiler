@@ -6,17 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 public class FAnnotations {
-  public static enum Category {
-    Attacker,
-    Communication,
-    Container,
-    Networking,
-    Security,
-    System,
-    User,
-    Zone
-  }
-
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.FIELD)
   public @interface Association {
@@ -34,7 +23,7 @@ public class FAnnotations {
   public @interface DisplayClass {
     public boolean supportCapexOpex() default true;
 
-    public Category category();
+    public String category();
   }
 
   @Retention(RetentionPolicy.RUNTIME)
