@@ -20,7 +20,7 @@ public class AttackStep {
   public static final double infinity = Double.MAX_VALUE;
   public double ttc = Double.MAX_VALUE;
   public Set<AttackStep> expectedParents = new HashSet<>();
-  Set<AttackStep> visitedParents = new HashSet<>();
+  public Set<AttackStep> visitedParents = new HashSet<>();
   public static List<AttackStep> allAttackSteps = new ArrayList<>();
   public String assetName;
   public String assetClassName;
