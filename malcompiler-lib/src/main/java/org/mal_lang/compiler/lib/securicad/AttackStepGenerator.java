@@ -323,7 +323,7 @@ public class AttackStepGenerator extends JavaGenerator {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("isTrace");
     builder.addModifiers(Modifier.PUBLIC);
     builder.returns(TypeName.BOOLEAN);
-    builder.addStatement("return $L", attackStep.hasTag("trace"));
+    builder.addStatement("return $L", attackStep.hasInheritedTag("trace"));
     parentBuilder.addMethod(builder.build());
   }
 
