@@ -252,7 +252,7 @@ public class AssetGenerator extends JavaGenerator {
 
     // @annotations
     createFieldAnnotation(builder, attackStep.getName(), index);
-    if (!attackStep.hasTag("hidden")) {
+    if (!attackStep.hasInheritedTag("hidden")) {
       ClassName display = ClassName.get("com.foreseeti.corelib.FAnnotations", "Display");
       builder.addAnnotation(display);
     }
