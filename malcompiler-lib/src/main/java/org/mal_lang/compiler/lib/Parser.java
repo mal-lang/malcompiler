@@ -561,17 +561,17 @@ public class Parser {
     return new AST.Variable(firstToken, id, e);
   }
 
-  // <expr> ::= <step> ((UNION | INTERSECT | MINUS) <step>)*
+  // <expr> ::= <steps> ((UNION | INTERSECT | MINUS) <steps>)*
   private AST.Expr _parseExpr() throws CompilerException {
     var firstToken = tok;
 
-    var lhs = _parseStep();
+    var lhs = _parseSteps();
     while (tok.type == TokenType.UNION
         || tok.type == TokenType.INTERSECT
         || tok.type == TokenType.MINUS) {
       var setType = tok.type;
       _next();
-      var rhs = _parseStep();
+      var rhs = _parseSteps();
       if (setType == TokenType.UNION) {
         lhs = new AST.UnionExpr(firstToken, lhs, rhs);
       } else if (setType == TokenType.INTERSECT) {
@@ -583,64 +583,48 @@ public class Parser {
     return lhs;
   }
 
-  // <step> ::= <transitive> (DOT <transitive>)*
-  private AST.Expr _parseStep() throws CompilerException {
+  // <steps> ::= <step> (DOT <step>)*
+  private AST.Expr _parseSteps() throws CompilerException {
     var firstToken = tok;
 
-    var lhs = _parseTransitive();
+    var lhs = _parseStep();
     while (tok.type == TokenType.DOT) {
       _next();
-      var rhs = _parseTransitive();
+      var rhs = _parseStep();
       lhs = new AST.StepExpr(firstToken, lhs, rhs);
     }
     return lhs;
   }
 
-  // <transitive> ::= <subtype> STAR?
-  private AST.Expr _parseTransitive() throws CompilerException {
+  // <step> ::= (LPAREN <expr> RPAREN | ID (LPAREN RPAREN)?) (STAR | <type>)*
+  private AST.Expr _parseStep() throws CompilerException {
     var firstToken = tok;
 
-    var e = _parseSubType();
-    if (tok.type == TokenType.STAR) {
+    AST.Expr e = null;
+    if (tok.type == TokenType.LPAREN) {
       _next();
-      e = new AST.TransitiveExpr(firstToken, e);
-    }
-    return e;
-  }
-
-  // <subtype> ::= <prim> <type>?
-  private AST.Expr _parseSubType() throws CompilerException {
-    var firstToken = tok;
-
-    var e = _parsePrim();
-    if (tok.type == TokenType.LBRACKET) {
-      var id = _parseType();
-      e = new AST.SubTypeExpr(firstToken, e, id);
-    }
-    return e;
-  }
-
-  // <prim> ::= ID (LPAREN RPAREN)? | LPAREN <expr> RPAREN
-  private AST.Expr _parsePrim() throws CompilerException {
-    var firstToken = tok;
-
-    if (tok.type == TokenType.ID) {
+      e = _parseExpr();
+      _expect(TokenType.RPAREN);
+    } else if (tok.type == TokenType.ID) {
       var id = _parseID();
+      e = new AST.IDExpr(firstToken, id);
       if (tok.type == TokenType.LPAREN) {
         _next();
         _expect(TokenType.RPAREN);
-        return new AST.CallExpr(firstToken, id);
-      } else {
-        return new AST.IDExpr(firstToken, id);
+        e = new AST.CallExpr(firstToken, id);
       }
-    } else if (tok.type == TokenType.LPAREN) {
-      _next();
-      var e = _parseExpr();
-      _expect(TokenType.RPAREN);
-      return e;
     } else {
-      throw exception(TokenType.ID, TokenType.LPAREN);
+      throw exception(TokenType.LPAREN, TokenType.ID);
     }
+    while (tok.type == TokenType.STAR || tok.type == TokenType.LBRACKET) {
+      if (tok.type == TokenType.STAR) {
+        _next();
+        e = new AST.TransitiveExpr(firstToken, e);
+      } else if (tok.type == TokenType.LBRACKET) {
+        e = new AST.SubTypeExpr(firstToken, e, _parseType());
+      }
+    }
+    return e;
   }
 
   // <associations> ::= ASSOCIATIONS LCURLY <associations1>? RCURLY

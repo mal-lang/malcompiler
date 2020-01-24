@@ -23,11 +23,9 @@
 <reaches>       ::= (INHERIT | OVERRIDE) <expr> (COMMA <expr>)*
 
 <variable>      ::= LET ID ASSIGN <expr>
-<expr>          ::= <step> ((UNION | INTERSECT | MINUS) <step>)*
-<step>          ::= <transitive> (DOT <transitive>)*
-<transitive>    ::= <subtype> STAR?
-<subtype>       ::= <prim> <type>?
-<prim>          ::= ID (LPAREN RPAREN)? | LPAREN <expr> RPAREN
+<expr>          ::= <steps> ((UNION | INTERSECT | MINUS) <steps>)*
+<steps>         ::= <step> (DOT <step>)*
+<step>          ::= (LPAREN <expr> RPAREN | ID (LPAREN RPAREN)?) (STAR | <type>)*
 
 <associations>  ::= ASSOCIATIONS LCURLY <associations1>? RCURLY
 <associations1> ::= ID <association> (ID (<meta2> | <association>))*

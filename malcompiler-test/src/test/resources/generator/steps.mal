@@ -1,0 +1,35 @@
+#id: "steps"
+#version: "0.0.0"
+
+category System {
+  asset Alpha {
+    | compromise ->
+      bravos.subbravos*.access,
+      bravos.subbravos*[SubBravo].access,
+      bravos[SubBravo].subbravos*.access,
+      bravos[SubBravo].subbravos[SubBravo]*.access,
+      bravos.subbravos**.access,
+      bravos.subbravos**[SubBravo].access,
+      bravos[SubBravo].subbravos**[SubBravo]*.access,
+      bravos[SubSubBravo].access,
+      bravos[SubBravo][SubSubBravo].access,
+      bravos.SUB()*.access,
+      bravos.SUB()**.access,
+      bravos[SubBravo].SUB()*.access,
+      bravos[SubBravo].SUB()[SubBravo]*.access,
+      bravos.(SUB()*)*.access
+  }
+  asset Bravo {
+    let SUB = subbravos
+    | access
+  }
+  asset SubBravo extends Bravo {
+  }
+  asset SubSubBravo extends SubBravo {
+  }
+}
+
+associations {
+  Alpha [alphas] * <-- _ --> * [bravos] Bravo
+  Bravo [subbravos] * <-- _ --> * [parentbravos] Bravo
+}
