@@ -107,6 +107,7 @@ public class Generator extends JavaGenerator {
     removeDebugSteps(this.lang);
     validateNames(this.lang);
     checkSteps(this.lang);
+    fillAlwaysQualifiedNames(this.lang);
   }
 
   private static Lang.AttackStep getTargetStep(Lang.StepExpr expr) {
@@ -166,7 +167,7 @@ public class Generator extends JavaGenerator {
   }
 
   private void _generate() throws IOException, CompilerException {
-    AssetGenerator ag = new AssetGenerator(LOGGER, pkg, output, icons, lang);
+    AssetGenerator ag = new AssetGenerator(LOGGER, pkg, output, icons, lang, alwaysQualifiedNames);
     for (Asset asset : lang.getAssets().values()) {
       ag.generate(asset);
     }

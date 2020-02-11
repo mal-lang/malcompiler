@@ -94,18 +94,13 @@ public class Generator extends JavaGenerator {
 
     validateNames(this.lang);
     checkSteps(this.lang);
+    fillAlwaysQualifiedNames(this.lang);
   }
 
   private void _generate() throws IOException, CompilerException {
     for (Asset asset : lang.getAssets().values()) {
-      var javaFile = JavaFile.builder(pkg, createAsset(asset));
-      for (var a : lang.getAssets().values()) {
-        for (var b : a.getAttackSteps().values()) {
-          javaFile.alwaysQualify(ucFirst(b.getName()));
-        }
-      }
-      javaFile.skipJavaLangImports(true);
-      javaFile.build().writeTo(this.output);
+      var javaFile = JavaFile.builder(pkg, createAsset(asset)).build();
+      javaFile.writeTo(this.output);
     }
     if (core) {
       _generateCore();
@@ -211,6 +206,7 @@ public class Generator extends JavaGenerator {
   private TypeSpec createAsset(Asset asset) {
     LOGGER.info(String.format("Creating '%s.java'", asset.getName()));
     TypeSpec.Builder builder = TypeSpec.classBuilder(asset.getName());
+    builder.alwaysQualify(this.alwaysQualifiedNames);
     builder.addModifiers(Modifier.PUBLIC);
     if (asset.isAbstract()) {
       builder.addModifiers(Modifier.ABSTRACT);
