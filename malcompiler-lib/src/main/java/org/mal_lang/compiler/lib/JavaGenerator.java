@@ -24,6 +24,7 @@ import com.squareup.javapoet.TypeSpec;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.SourceVersion;
@@ -43,6 +44,7 @@ import org.mal_lang.compiler.lib.Lang.StepUnion;
 public abstract class JavaGenerator extends Generator {
 
   protected String pkg;
+  protected String[] alwaysQualifiedNames;
 
   protected JavaGenerator(boolean verbose, boolean debug) {
     this(verbose, debug, "");
@@ -309,6 +311,20 @@ public abstract class JavaGenerator extends Generator {
     }
     if (err) {
       throw error();
+    }
+  }
+
+  protected void fillAlwaysQualifiedNames(Lang lang) {
+    var alwaysQualifiedNames = new LinkedHashSet<String>();
+    for (var asset : lang.getAssets().values()) {
+      for (var attackStepName : asset.getAttackSteps().keySet()) {
+        alwaysQualifiedNames.add(ucFirst(attackStepName));
+      }
+    }
+    this.alwaysQualifiedNames = new String[alwaysQualifiedNames.size()];
+    var iterator = alwaysQualifiedNames.iterator();
+    for (int i = 0; i < alwaysQualifiedNames.size(); i++) {
+      this.alwaysQualifiedNames[i] = iterator.next();
     }
   }
 

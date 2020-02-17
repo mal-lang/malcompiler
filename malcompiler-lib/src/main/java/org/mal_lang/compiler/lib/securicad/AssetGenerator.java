@@ -53,12 +53,20 @@ public class AssetGenerator extends JavaGenerator {
   private final AttackStepGenerator asGen;
   private final DefenseGenerator defGen;
   private final VariableGenerator varGen;
+  private final String[] alwaysQualifiedNames;
 
-  protected AssetGenerator(MalLogger LOGGER, String pkg, File output, File icons, Lang lang) {
+  protected AssetGenerator(
+      MalLogger LOGGER,
+      String pkg,
+      File output,
+      File icons,
+      Lang lang,
+      String[] alwaysQualifiedNames) {
     super(LOGGER, pkg);
     this.output = output;
     this.icons = icons;
     this.lang = lang;
+    this.alwaysQualifiedNames = alwaysQualifiedNames;
     asGen = new AttackStepGenerator(LOGGER, pkg);
     defGen = new DefenseGenerator(LOGGER, pkg);
     varGen = new VariableGenerator(LOGGER, pkg);
@@ -67,6 +75,7 @@ public class AssetGenerator extends JavaGenerator {
   protected void generate(Asset asset) throws IOException {
     LOGGER.info(String.format("Creating '%s.java'", asset.getName()));
     TypeSpec.Builder builder = TypeSpec.classBuilder(asset.getName());
+    builder.alwaysQualify(this.alwaysQualifiedNames);
 
     // @annotations
     createAssetAnnotations(builder, asset);
@@ -143,14 +152,8 @@ public class AssetGenerator extends JavaGenerator {
       createClearCache(builder, asset, variables);
     }
 
-    var file = JavaFile.builder(this.pkg, builder.build());
-    for (var a : lang.getAssets().values()) {
-      for (var b : a.getAttackSteps().values()) {
-        file.alwaysQualify(ucFirst(b.getName()));
-      }
-    }
-    file.skipJavaLangImports(true);
-    file.build().writeTo(this.output);
+    var file = JavaFile.builder(this.pkg, builder.build()).build();
+    file.writeTo(this.output);
   }
 
   private void createClearCache(
