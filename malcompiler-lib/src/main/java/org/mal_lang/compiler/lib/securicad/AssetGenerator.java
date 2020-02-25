@@ -161,6 +161,9 @@ public class AssetGenerator extends JavaGenerator {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
     builder.addAnnotation(Override.class);
     builder.addModifiers(Modifier.PUBLIC);
+    if (asset.hasSuperAsset()) {
+      builder.addStatement("super.clearGraphCache()");
+    }
     for (var variable : variables) {
       builder.addStatement("_cache$N = null", variable);
     }

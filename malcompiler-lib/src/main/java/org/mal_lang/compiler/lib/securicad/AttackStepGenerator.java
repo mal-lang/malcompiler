@@ -102,15 +102,16 @@ public class AttackStepGenerator extends JavaGenerator {
       caches.add(parentCacheName);
     }
 
-    if (!caches.isEmpty()) {
-      MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
-      builder.addAnnotation(Override.class);
-      builder.addModifiers(Modifier.PUBLIC);
-      for (var cache : caches) {
-        builder.addStatement("$N = null", cache);
-      }
-      parentBuilder.addMethod(builder.build());
+    MethodSpec.Builder builder = MethodSpec.methodBuilder("clearGraphCache");
+    builder.addAnnotation(Override.class);
+    builder.addModifiers(Modifier.PUBLIC);
+    if (attackStep.hasParent()) {
+      builder.addStatement("super.clearGraphCache()");
     }
+    for (var cache : caches) {
+      builder.addStatement("$N = null", cache);
+    }
+    parentBuilder.addMethod(builder.build());
   }
 
   ////////////////////
