@@ -32,6 +32,7 @@ public class Parser {
   private Set<File> included;
   private File currentFile;
   private Path originPath;
+  public boolean includeImports = true;
 
   private Parser(File file, boolean verbose, boolean debug) throws IOException {
     Locale.setDefault(Locale.ROOT);
@@ -62,6 +63,12 @@ public class Parser {
   public static AST parse(File file, boolean verbose, boolean debug)
       throws IOException, CompilerException {
     return new Parser(file, verbose, debug).parseLog();
+  }
+
+  public static AST parse(File file, boolean readImports) throws IOException, CompilerException {
+    var parser = new Parser(file, false, false);
+    parser.includeImports = readImports;
+    return parser.parseLog();
   }
 
   private static AST parse(
@@ -199,6 +206,9 @@ public class Parser {
     _expect(TokenType.INCLUDE);
     var firstTok = tok;
     var filename = _parseString();
+    if (!includeImports) {
+      return new AST();
+    }
     var file = new File(filename);
 
     if (!file.isAbsolute()) {

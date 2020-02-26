@@ -36,6 +36,7 @@ import org.mal_lang.compiler.lib.MalLogger;
 import org.mal_lang.compiler.lib.Parser;
 import org.mal_lang.compiler.lib.Token;
 import org.mal_lang.compiler.lib.TokenType;
+import org.mal_lang.formatter.Formatter;
 
 public class Main {
   private static boolean useSGR = System.console() != null;
@@ -44,6 +45,7 @@ public class Main {
     public boolean lexer = false;
     public boolean parser = false;
     public boolean analyzer = false;
+    public boolean formatter = false;
     public String target = "reference";
     public Map<String, String> args = new HashMap<>();
     public boolean verbose = false;
@@ -200,6 +202,7 @@ public class Main {
     int PARSER = cli.addOption('p', "parser", NO_ARGUMENT, "Run the parser and print the AST");
     int ANALYZER =
         cli.addOption('a', "analyzer", NO_ARGUMENT, "Run the analyzer and print the results");
+    int FORMATTER = cli.addOption('f', "format", NO_ARGUMENT, "Run the formatter");
     int TARGET = cli.addOption('t', "target", REQUIRED_ARGUMENT, "TARGET", "Compilation target");
     int ARGS = cli.addOption("args", REQUIRED_ARGUMENT, "ARGS", "Code generation arguments");
     int VERBOSE = cli.addOption('v', "verbose", NO_ARGUMENT, "Print verbose output");
@@ -223,6 +226,8 @@ public class Main {
         opts.parser = true;
       } else if (value == ANALYZER) {
         opts.analyzer = true;
+      } else if (value == FORMATTER) {
+        opts.formatter = true;
       } else if (value == TARGET) {
         opts.target = opt.getArgument();
       } else if (value == ARGS) {
@@ -271,6 +276,9 @@ public class Main {
         System.out.print(ast.toString());
       } else if (opts.analyzer) {
         Analyzer.analyze(Parser.parse(file), opts.verbose, opts.debug);
+      } else if (opts.formatter) {
+        var bytes = Formatter.prettyPrint(file, 100);
+        System.out.println(new String(bytes));
       } else if (opts.target.equals("reference")) {
         AST ast = Parser.parse(file);
         Analyzer.analyze(ast);

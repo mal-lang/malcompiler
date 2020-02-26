@@ -35,6 +35,7 @@ public class Lexer {
   private int startLine;
   private int startCol;
   private List<Byte> lexeme;
+  private List<Token> comments = new ArrayList<>();
   private boolean eof;
 
   private static Map<String, TokenType> keywords;
@@ -195,12 +196,13 @@ public class Lexer {
           consume();
           return createToken(TokenType.INTERSECT);
         } else if (peek('/')) {
-          while (!eof && !peek('\n')) {
+          while (!eof && !peek('\n') && !peek('\r')) {
             consume();
           }
-          if (!eof) {
-            consume();
-          }
+          createComment(TokenType.SINGLECOMMENT);
+          //          if (!eof) {
+          //            consume();
+          //          }
           return next();
         } else if (peek('*')) {
           consume();
@@ -214,6 +216,7 @@ public class Lexer {
             consume();
           }
           consume(2);
+          createComment(TokenType.MULTICOMMENT);
           return next();
         } else {
           return createToken(TokenType.DIVIDE);
@@ -343,7 +346,16 @@ public class Lexer {
     }
   }
 
-  private Token createToken(TokenType type) {
+  private void createComment(TokenType type) {
+    var lexemeString = getLexemeString();
+    lexemeString = lexemeString.substring(2, lexemeString.length());
+    if (type == TokenType.MULTICOMMENT) {
+      lexemeString = lexemeString.substring(0, lexemeString.length() - 2);
+    }
+    comments.add(new Token(type, filename, startLine, startCol, lexemeString));
+  }
+
+  private Token createRawToken(TokenType type) {
     switch (type) {
       case INT:
         return new Token(type, filename, startLine, startCol, Integer.parseInt(getLexemeString()));
@@ -363,6 +375,59 @@ public class Lexer {
       default:
         return new Token(type, filename, startLine, startCol);
     }
+  }
+
+  private void readTrailingComments() throws CompilerException {
+    startLine = line;
+    startCol = col;
+    lexeme = new ArrayList<>();
+    if (eof || input[index] == (byte) '\n') {
+      return;
+    }
+    byte c = consume();
+    switch (c) {
+      case ' ':
+      case '\t':
+        readTrailingComments();
+        return;
+      case '/':
+        if (peek("/")) {
+          while (!eof && !peek('\n') && !peek('\r')) {
+            consume();
+          }
+          createComment(TokenType.SINGLECOMMENT);
+          return;
+        } else if (peek("*")) {
+          consume();
+          while (!peek("*/")) {
+            if (eof) {
+              throw exception(
+                  String.format(
+                      "Unterminated comment starting at %s",
+                      new Position(filename, startLine, startCol)));
+            }
+            consume();
+          }
+          consume(2);
+          createComment(TokenType.MULTICOMMENT);
+          readTrailingComments();
+          return;
+        }
+      default:
+        index--;
+        col--;
+        return;
+    }
+  }
+
+  private Token createToken(TokenType type) throws CompilerException {
+    var token = createRawToken(type);
+    token.preComments = new ArrayList<>(comments);
+    comments.clear();
+    readTrailingComments();
+    token.postComments = new ArrayList<>(comments);
+    comments.clear();
+    return token;
   }
 
   private CompilerException exception(String msg) {

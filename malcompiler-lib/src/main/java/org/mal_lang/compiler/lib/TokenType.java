@@ -16,6 +16,8 @@
 package org.mal_lang.compiler.lib;
 
 public enum TokenType {
+  SINGLECOMMENT("single line comment"),
+  MULTICOMMENT("multi line comment"),
   EOF("end-of-file"),
 
   INCLUDE("'include'"),

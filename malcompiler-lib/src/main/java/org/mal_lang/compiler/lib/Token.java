@@ -15,11 +15,16 @@
  */
 package org.mal_lang.compiler.lib;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Token extends Position {
   public final TokenType type;
   public final String stringValue;
   public final double doubleValue;
   public final int intValue;
+  public List<Token> preComments = new ArrayList<>();
+  public List<Token> postComments = new ArrayList<>();
 
   public Token(TokenType type, String filename, int line, int col) {
     super(filename, line, col);
@@ -35,6 +40,14 @@ public class Token extends Position {
     this.stringValue = stringValue;
     this.doubleValue = 0.0;
     this.intValue = 0;
+  }
+
+  public Token(Token tok) {
+    super(tok.filename, tok.line, tok.col);
+    type = tok.type;
+    stringValue = tok.stringValue;
+    doubleValue = tok.doubleValue;
+    intValue = tok.intValue;
   }
 
   public Token(TokenType type, String filename, int line, int col, double doubleValue) {
