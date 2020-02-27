@@ -172,6 +172,21 @@ public class Main {
     lines.add(SGR.of());
     lines.add(SGR.of(SGR.bold("Args:"), " [", SGR.italicized("d3"), "]"));
     lines.add(SGR.of("  Not yet implemented"));
+    lines.add(SGR.of());
+    lines.add(SGR.of(SGR.bold("Args:"), " [", SGR.italicized("format"), "]"));
+    lines.add(
+        CLIParser.getSGROptionLine(
+            SGR.of(SGR.fgRGB(135, 206, 235, "margin"), "=", SGR.italicized("MARGIN")),
+            "Use MARGIN as maximum line width"));
+    lines.add(
+        CLIParser.getSGROptionLine(
+            SGR.of(
+                SGR.fgRGB(135, 206, 235, "inplace"),
+                "=",
+                SGR.italicized("true"),
+                "|",
+                SGR.italicized("false")),
+            "Specifies if the formatter should format inplace"));
     if (useSGR) {
       for (var line : lines) {
         System.err.println(line.getSGRString());
@@ -277,8 +292,7 @@ public class Main {
       } else if (opts.analyzer) {
         Analyzer.analyze(Parser.parse(file), opts.verbose, opts.debug);
       } else if (opts.formatter) {
-        var bytes = Formatter.prettyPrint(file, 100);
-        System.out.println(new String(bytes));
+        Formatter.prettyPrint(file, opts.args);
       } else if (opts.target.equals("reference")) {
         AST ast = Parser.parse(file);
         Analyzer.analyze(ast);

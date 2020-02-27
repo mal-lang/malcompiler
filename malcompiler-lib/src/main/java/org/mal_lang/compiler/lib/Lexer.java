@@ -416,6 +416,7 @@ public class Lexer {
       default:
         index--;
         col--;
+        eof = false;
         return;
     }
   }

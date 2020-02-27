@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 Foreseeti AB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.mal_lang.formatter;
 
 import java.io.ByteArrayOutputStream;
@@ -7,15 +22,39 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Stack;
 import org.mal_lang.compiler.lib.AST;
 import org.mal_lang.compiler.lib.CompilerException;
 import org.mal_lang.compiler.lib.MalLogger;
 
+/**
+ * This formatter is based on the algorithm described in "Prettyprinting" by Derek C. Oppen.
+ *
+ * <p>Oppen, Dereck C. "Prettyprinting." ACM Transactions on Programming Languages and Systems
+ * (TOPLAS) 2, no. 4 (1980): 465-483.
+ */
 public class Formatter {
 
-  public static byte[] prettyPrint(File file, int lineWidth) throws IOException, CompilerException {
-    return new Formatter(file, lineWidth).scan();
+  public static byte[] prettyPrint(File file, int lineWidth, int indent)
+      throws IOException, CompilerException {
+    return new Formatter(file, lineWidth, indent).scan();
+  }
+
+  public static void prettyPrint(File file, Map<String, String> opts)
+      throws IOException, CompilerException {
+    int indent = opts.containsKey("indent") ? Integer.parseInt(opts.get("indent")) : 2;
+    boolean inplace =
+        opts.containsKey("inplace") ? Boolean.parseBoolean(opts.get("inplace")) : false;
+    int margin = opts.containsKey("margin") ? Integer.parseInt(opts.get("margin")) : 2;
+    var bytes = prettyPrint(file, margin, indent);
+    if (inplace) {
+      var stream = new FileOutputStream(file, false);
+      stream.write(bytes);
+      stream.close();
+    } else {
+      System.out.print(new String(bytes));
+    }
   }
 
   private class Block {
@@ -35,12 +74,14 @@ public class Formatter {
   private MalLogger LOGGER;
   private ByteArrayOutputStream out = new ByteArrayOutputStream();
   private AST ast;
+  private int indent;
 
-  private Formatter(File file, int lineWidth) throws IOException, CompilerException {
+  private Formatter(File file, int lineWidth, int indent) throws IOException, CompilerException {
     Locale.setDefault(Locale.ROOT);
     LOGGER = new MalLogger("FORMATTER", false, false);
     margin = lineWidth;
     space = margin;
+    this.indent = indent;
     this.file = file;
     try {
       ast = org.mal_lang.compiler.lib.Parser.parse(file, false);
@@ -112,7 +153,7 @@ public class Formatter {
   private int total = 1;
 
   private byte[] scan() throws IOException, CompilerException {
-    var parser = new Parser(file, tokens);
+    var parser = new Parser(file, tokens, indent);
     parser.parse();
     while (!tokens.isEmpty()) {
       var token = tokens.pollLast();
@@ -154,17 +195,20 @@ public class Formatter {
         }
       }
     }
+    // We might produce empty lines which only have whitespace
+    String trimmed = out.toString().replaceAll("(?m) +$", "");
+    var bytes = trimmed.getBytes();
     var tempFile = File.createTempFile("formatted", ".tmp");
     tempFile.deleteOnExit();
     var outputStream = new FileOutputStream(tempFile);
     try {
-      outputStream.write(out.toByteArray());
+      outputStream.write(bytes);
       var newAst = org.mal_lang.compiler.lib.Parser.parse(tempFile, false);
       if (!ast.syntacticallyEqual(newAst)) {
         throw new CompilerException(
             "The formatter has produced an AST that differs from the input.");
       }
-      return out.toByteArray();
+      return bytes;
     } catch (CompilerException e) {
       LOGGER.error("The formatter has produced an invalid AST. Please report this as a bug.");
       LOGGER.print();

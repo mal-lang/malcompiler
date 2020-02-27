@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 Foreseeti AB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.mal_lang.compiler.test.formatter;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -11,11 +26,11 @@ import org.mal_lang.formatter.Formatter;
 
 public class TestFormatter extends MalTest {
 
-  public void outputEqual(String unformattedPath, String formattedPath, int lineWidth) {
+  public void outputEqual(String unformattedPath, String formattedPath, int lineWidth, int indent) {
     String formattedString = assertReadFileClassPath(formattedPath);
     File input = assertGetFileClassPath(unformattedPath);
     try {
-      String formatted = new String(Formatter.prettyPrint(input, lineWidth));
+      String formatted = new String(Formatter.prettyPrint(input, lineWidth, indent));
       if (!formattedString.equals(formatted)) {
         fail(String.format("%s formatted does not equal %s", unformattedPath, formattedPath));
       }
@@ -27,15 +42,35 @@ public class TestFormatter extends MalTest {
   public void formats(String path) {
     File file = assertGetFileClassPath(path);
     try {
-      Formatter.prettyPrint(file, 100);
+      Formatter.prettyPrint(file, 100, 2);
     } catch (IOException | CompilerException e) {
       fail(getOut() + e.getMessage());
     }
   }
 
   @Test
-  public void testEqualOutput() {
-    outputEqual("formatter/readable.mal", "formatter/readable.ans", 100);
+  public void testReadable() {
+    outputEqual("formatter/readable.mal", "formatter/readable.ans", 100, 2);
+  }
+
+  @Test
+  public void testOneline() {
+    outputEqual("formatter/oneline.mal", "formatter/oneline.ans", 100, 2);
+  }
+
+  @Test
+  public void testMargin50() {
+    outputEqual("formatter/margin.mal", "formatter/margin50.ans", 50, 2);
+  }
+
+  @Test
+  public void testMargin30() {
+    outputEqual("formatter/margin.mal", "formatter/margin30.ans", 30, 2);
+  }
+
+  @Test
+  public void testMargin100_8() {
+    outputEqual("formatter/margin.mal", "formatter/margin100_8.ans", 100, 8);
   }
 
   @Test
@@ -100,11 +135,9 @@ public class TestFormatter extends MalTest {
 
   @Test
   public void testVehicleLang() {
-    // TODO: vehicleLang.mal should be ok - it's fine when you format using the commandline, there's
-    // something about line 183 and '’', line: "...vehicle’s..."
-    // formats("vehicleLang/vehicleLang.mal");
-    // formats("vehicleLang/vehicleLangEncryption.mal"); // Doesn't compile
-    formats("vehicleLang/vehicleLangEthernet.mal");
-    formats("vehicleLang/vehicleLangPublicInterfaces.mal");
+    formats("vehiclelang/vehicleLang.mal");
+    // formats("vehiclelang/vehicleLangEncryption.mal"); // Doesn't compile
+    formats("vehiclelang/vehicleLangEthernet.mal");
+    formats("vehiclelang/vehicleLangPublicInterfaces.mal");
   }
 }

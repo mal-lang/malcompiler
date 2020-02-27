@@ -26,14 +26,14 @@ category System
         very.long.expression
         /\
         very.long.expression
-    
+
     | compromise @tag @tag2 {C, I} [Infinity() * (9 ^ 4)]
       -> someasset.compromise.(access() /\ blocked)[One].open,
          // other steps
          compromise,
          read
   }
-  
+
   abstract asset Empty
   {
   }
