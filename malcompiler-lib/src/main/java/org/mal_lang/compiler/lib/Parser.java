@@ -32,7 +32,7 @@ public class Parser {
   private Set<File> included;
   private File currentFile;
   private Path originPath;
-  public boolean includeImports = true;
+  private boolean includeImports = true;
 
   private Parser(File file, boolean verbose, boolean debug) throws IOException {
     Locale.setDefault(Locale.ROOT);

@@ -15,6 +15,7 @@
  */
 package org.mal_lang.compiler.test.formatter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -44,8 +45,26 @@ public class TestFormatter extends MalTest {
     try {
       Formatter.prettyPrint(file, 100, 2);
     } catch (IOException | CompilerException e) {
-      fail(getOut() + e.getMessage());
+      fail(e.getMessage());
     }
+  }
+
+  @Test
+  public void testInvalid() {
+    File file = assertGetFileClassPath("parser/bad-asset1.mal");
+    try {
+      Formatter.prettyPrint(file, 100, 2);
+      fail("bad-asset1.mal should not compile");
+    } catch (IOException | CompilerException e) {
+      assertEquals("There were syntax errors", e.getMessage());
+    }
+    assertEmptyOut();
+    String[] expected = {
+      "[PARSER ERROR] <bad-asset1.mal:2:3> expected 'abstract', 'asset', or '}', found identifier",
+      "[FORMATTER ERROR] Code to be formatted must be syntactically valid",
+      ""
+    };
+    assertErrLines(expected);
   }
 
   @Test

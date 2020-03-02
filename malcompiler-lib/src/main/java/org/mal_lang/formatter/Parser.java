@@ -220,7 +220,7 @@ public class Parser {
       createString(String.format("%s/*%s*/", space ? " " : "", comment.stringValue));
     }
     if (newline || singleComment) {
-      createBreak("", 0);
+      tokens.push(new Token.CommentBreak("", 0));
       createEnd();
     }
   }
@@ -235,7 +235,23 @@ public class Parser {
     tokens.push(new Token.End());
   }
 
+  private void removeLastCommentBreak() {
+    var it = tokens.iterator();
+    while (it.hasNext()) {
+      var next = it.next();
+      if (next instanceof Token.CommentBreak) {
+        it.remove();
+        break;
+      } else if (next instanceof Token.String || next instanceof Token.Break) {
+        break;
+      }
+    }
+  }
+
   private void createBreak(String value, int indent) {
+    if (value.isEmpty()) {
+      removeLastCommentBreak();
+    }
     tokens.push(new Token.Break(value, indent));
   }
 

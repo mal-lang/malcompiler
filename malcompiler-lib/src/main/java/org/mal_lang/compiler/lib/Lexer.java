@@ -200,9 +200,6 @@ public class Lexer {
             consume();
           }
           createComment(TokenType.SINGLECOMMENT);
-          //          if (!eof) {
-          //            consume();
-          //          }
           return next();
         } else if (peek('*')) {
           consume();
@@ -423,12 +420,12 @@ public class Lexer {
 
   private Token createToken(TokenType type) throws CompilerException {
     var token = createRawToken(type);
-    token.preComments = new ArrayList<>(comments);
+    var preComments = new ArrayList<>(comments);
     comments.clear();
     readTrailingComments();
-    token.postComments = new ArrayList<>(comments);
+    var postComments = new ArrayList<>(comments);
     comments.clear();
-    return token;
+    return new Token(token, preComments, postComments);
   }
 
   private CompilerException exception(String msg) {

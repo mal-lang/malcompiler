@@ -16,8 +16,6 @@
 package org.mal_lang.formatter;
 
 public class Token {
-  private static final int DEFAULT_INDENT = 2;
-
   public static interface Base {}
 
   public static class String implements Base {
@@ -38,11 +36,17 @@ public class Token {
     }
   }
 
+  public static class CommentBreak extends Break {
+    public CommentBreak(java.lang.String value, int indent) {
+      super(value, indent);
+    }
+  }
+
   public static enum BlockBreakType {
     ALWAYS, // always break children, even if they fit line
     CONSISTENT, // break if children doesn't fit (and do so for every child and align start of rows)
     INCONSISTENT, // default, break if children doesn't fit and indent breaks
-    FIT // Not used here
+    FIT // Not used directly, set if block fits on one line
   }
 
   public static class Begin implements Base {

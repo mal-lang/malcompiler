@@ -24,5 +24,4 @@ module org.mal_lang.compiler.lib {
   requires java.logging;
   requires java.desktop;
   requires svgSalamander;
-  requires jdk.compiler;
 }
