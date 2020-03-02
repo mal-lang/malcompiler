@@ -15,6 +15,7 @@
  */
 package org.mal_lang.compiler.lib.securicad;
 
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -51,6 +52,7 @@ public class AttackStepGenerator extends JavaGenerator {
   protected void generate(TypeSpec.Builder parentBuilder, Asset asset, AttackStep attackStep) {
     ClassName type = ClassName.get(this.pkg, asset.getName(), ucFirst(attackStep.getName()));
     TypeSpec.Builder builder = TypeSpec.classBuilder(type);
+    createCIA(builder, attackStep);
     builder.addModifiers(Modifier.PUBLIC);
     if (attackStep.hasParent()) {
       AttackStep parent = attackStep.getAsset().getSuperAsset().getAttackStep(attackStep.getName());
@@ -294,6 +296,27 @@ public class AttackStepGenerator extends JavaGenerator {
 
   ////////////////////
   // HELPERS
+
+  private void createCIA(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
+    if (attackStep.hasCIA()) {
+      var cia = attackStep.getCIA();
+      if (cia.C || cia.I || cia.A) {
+        var risk = ClassName.get("com.foreseeti.corelib.FAnnotations", "Risk");
+        var riskType = ClassName.get("com.foreseeti.corelib.FAnnotations", "RiskType");
+        var riskTypeBuilder = AnnotationSpec.builder(riskType);
+        if (cia.C) {
+          riskTypeBuilder.addMember("type", "$T.Confidentiality", risk);
+        }
+        if (cia.I) {
+          riskTypeBuilder.addMember("type", "$T.Integrity", risk);
+        }
+        if (cia.A) {
+          riskTypeBuilder.addMember("type", "$T.Availability", risk);
+        }
+        parentBuilder.addAnnotation(riskTypeBuilder.build());
+      }
+    }
+  }
 
   private ClassName getExtend(Asset asset, AttackStep attackStep) {
     switch (attackStep.getType()) {

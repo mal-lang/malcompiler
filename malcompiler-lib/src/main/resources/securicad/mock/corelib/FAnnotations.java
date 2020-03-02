@@ -37,4 +37,16 @@ public class FAnnotations {
   public @interface TypeName {
     public String name();
   }
+
+  public enum Risk {
+    Confidentiality,
+    Integrity,
+    Availability
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  public @interface RiskType {
+    public Risk[] type();
+  }
 }
