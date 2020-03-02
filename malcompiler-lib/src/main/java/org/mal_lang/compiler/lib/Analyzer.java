@@ -15,6 +15,7 @@
  */
 package org.mal_lang.compiler.lib;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -204,44 +205,40 @@ public class Analyzer {
   }
 
   private void checkMetas() {
-    Map<String, List<AST.Meta>> catMetas = new HashMap<>();
-    for (AST.Category category : ast.getCategories()) {
-      List<AST.Meta> meta = category.meta;
-      if (catMetas.containsKey(category.name.id)) {
-        meta.addAll(0, catMetas.get(category.name.id));
+    // Collect meta info from categories
+    Map<String, List<AST.Meta>> categoryMetas = new HashMap<>();
+    for (var category : ast.getCategories()) {
+      if (!categoryMetas.containsKey(category.name.id)) {
+        categoryMetas.put(category.name.id, new ArrayList<>());
       }
-      checkMeta(meta);
-      catMetas.put(category.name.id, meta);
-      for (AST.Asset asset : category.assets) {
+      categoryMetas.get(category.name.id).addAll(category.meta);
+    }
+    // Check meta info for categories
+    for (var metas : categoryMetas.values()) {
+      checkMeta(metas);
+    }
+    // Check meta info for assets and attack steps
+    for (var category : ast.getCategories()) {
+      for (var asset : category.assets) {
         checkMeta(asset.meta);
-        for (AST.AttackStep attackStep : asset.attackSteps) {
+        for (var attackStep : asset.attackSteps) {
           checkMeta(attackStep.meta);
         }
       }
     }
-    for (AST.Association assoc : ast.getAssociations()) {
-      checkMeta(assoc.meta);
+    // Check meta info for associations
+    for (var association : ast.getAssociations()) {
+      checkMeta(association.meta);
     }
   }
 
   private void checkMeta(List<AST.Meta> lst) {
     Map<String, AST.Meta> metas = new HashMap<>();
-    for (AST.Meta meta : lst) {
+    for (var meta : lst) {
       if (!metas.containsKey(meta.type.id)) {
-        switch (meta.type.id) {
-          case "user":
-          case "developer":
-          case "modeler":
-            metas.put(meta.type.id, meta);
-            break;
-          default:
-            error(
-                meta,
-                String.format(
-                    "Metadata type '%s' must be 'user', 'developer' or 'modeler'", meta.type.id));
-        }
+        metas.put(meta.type.id, meta);
       } else {
-        AST.Meta prevDef = metas.get(meta.type.id);
+        var prevDef = metas.get(meta.type.id);
         error(
             meta,
             String.format(

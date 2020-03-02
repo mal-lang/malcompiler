@@ -23,7 +23,9 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.Distributions;
@@ -63,6 +65,9 @@ public class AttackStepGenerator extends JavaGenerator {
       builder.superclass(getExtend(asset, attackStep));
     }
 
+    // meta info field
+    createMetaInfoField(builder, attackStep);
+
     // empty constructor
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder();
     constructor.addModifiers(Modifier.PUBLIC);
@@ -81,6 +86,7 @@ public class AttackStepGenerator extends JavaGenerator {
 
     createSteps(builder, exprGen, attackStep);
     createGetDescription(builder, attackStep);
+    createGetMetaInfo(builder);
     createTraceabilityHelper(builder, attackStep);
 
     parentBuilder.addType(builder.build());
@@ -330,6 +336,35 @@ public class AttackStepGenerator extends JavaGenerator {
     }
   }
 
+  private static Map<String, String> getMetaInfoMap(AttackStep attackStep) {
+    Map<String, String> metaInfoMap = null;
+    if (attackStep.hasParent()) {
+      metaInfoMap =
+          getMetaInfoMap(attackStep.getAsset().getSuperAsset().getAttackStep(attackStep.getName()));
+    } else {
+      metaInfoMap = new HashMap<>();
+    }
+    metaInfoMap.putAll(attackStep.getMeta());
+    return metaInfoMap;
+  }
+
+  private void createMetaInfoField(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
+    var metaInfoMap = getMetaInfoMap(attackStep);
+    var initializer = new UnmodifiableInitializer(Map.class, "ofEntries");
+    for (var entry : metaInfoMap.entrySet()) {
+      initializer.addElement("$T.entry($S, $S)", Map.class, entry.getKey(), entry.getValue());
+    }
+    initializer.build();
+    parentBuilder.addField(
+        FieldSpec.builder(
+                ParameterizedTypeName.get(Map.class, String.class, String.class),
+                "metaInfo",
+                Modifier.PRIVATE,
+                Modifier.FINAL)
+            .initializer(initializer.getFormat(), initializer.getArgs())
+            .build());
+  }
+
   private void createGetDescription(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
     String description = attackStep.getMeta().get("user");
     if (description != null) {
@@ -341,6 +376,22 @@ public class AttackStepGenerator extends JavaGenerator {
               .addStatement("return $S", description)
               .build());
     }
+  }
+
+  private void createGetMetaInfo(TypeSpec.Builder parentBulider) {
+    parentBulider.addMethod(
+        MethodSpec.methodBuilder("getMetaInfo")
+            .addModifiers(Modifier.PUBLIC)
+            .returns(ParameterizedTypeName.get(Map.class, String.class, String.class))
+            .addStatement("return metaInfo")
+            .build());
+    parentBulider.addMethod(
+        MethodSpec.methodBuilder("getMetaInfo")
+            .addModifiers(Modifier.PUBLIC)
+            .returns(String.class)
+            .addParameter(String.class, "type")
+            .addStatement("return metaInfo.get(type)")
+            .build());
   }
 
   private void createTraceabilityHelper(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
