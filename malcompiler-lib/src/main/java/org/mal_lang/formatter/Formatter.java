@@ -55,7 +55,9 @@ public class Formatter {
         fos = new FileOutputStream(file, false);
         fos.write(bytes);
       } finally {
-        fos.close();
+        if (fos != null) {
+          fos.close();
+        }
       }
     } else {
       System.out.print(new String(bytes));
@@ -216,7 +218,9 @@ public class Formatter {
       LOGGER.print();
       throw e;
     } finally {
-      fos.close();
+      if (fos != null) {
+        fos.close();
+      }
     }
   }
 }

@@ -135,8 +135,7 @@ public class Parser {
     createBreak(" ", 0);
     consumeToken(tok.stringValue);
     createEnd();
-    // createEnd();
-    // block will be closed above
+    // Block left open will be closed above
   }
 
   private void parseMult() {
@@ -321,15 +320,16 @@ public class Parser {
     consumeToken("{");
     // ATTACKSTEPS
     first = true;
-    loop:
-    while (true) {
+    boolean isMore = true;
+    while (isMore) {
       switch (tok.type) {
         case LET:
           parseVariable();
           first = false;
           break;
         case RCURLY:
-          break loop;
+          isMore = false;
+          break;
         default:
           parseAttackStep(first);
           first = false;
