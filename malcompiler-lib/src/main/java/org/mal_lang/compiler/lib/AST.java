@@ -24,27 +24,6 @@ public class AST {
   private List<Association> associations = new ArrayList<>();
   private List<Define> defines = new ArrayList<>();
 
-  public boolean syntacticallyEqual(AST other) {
-    var otherC = other.getCategories();
-    var otherA = other.getAssociations();
-    var otherD = other.getDefines();
-    if (categories.size() != otherC.size()
-        || associations.size() != otherA.size()
-        || defines.size() != otherD.size()) {
-      return false;
-    }
-    for (int i = 0; i < categories.size(); i++) {
-      if (!categories.get(i).syntacticallyEqual(otherC.get(i))) return false;
-    }
-    for (int i = 0; i < associations.size(); i++) {
-      if (!associations.get(i).syntacticallyEqual(otherA.get(i))) return false;
-    }
-    for (int i = 0; i < defines.size(); i++) {
-      if (!defines.get(i).syntacticallyEqual(otherD.get(i))) return false;
-    }
-    return true;
-  }
-
   @Override
   public String toString() {
     var sb = new StringBuilder();
@@ -102,10 +81,6 @@ public class AST {
     public String toString() {
       return String.format("ID(%s, \"%s\")", posString(), id);
     }
-
-    public boolean syntacticallyEqual(ID other) {
-      return id.equals(other.id);
-    }
   }
 
   public static class Define extends Position {
@@ -116,10 +91,6 @@ public class AST {
       super(pos);
       this.key = key;
       this.value = value;
-    }
-
-    public boolean syntacticallyEqual(Define other) {
-      return key.syntacticallyEqual(other.key) && value.equals(other.value);
     }
 
     @Override
@@ -172,10 +143,6 @@ public class AST {
       sb.append(String.format("%s}", indent));
       return sb.toString();
     }
-
-    public boolean syntacticallyEqual(Meta other) {
-      return type.syntacticallyEqual(other.type) && string.equals(other.string);
-    }
   }
 
   public static class Category extends Position {
@@ -188,19 +155,6 @@ public class AST {
       this.name = name;
       this.meta = meta;
       this.assets = assets;
-    }
-
-    public boolean syntacticallyEqual(Category other) {
-      if (meta.size() != other.meta.size() || assets.size() != other.assets.size()) {
-        return false;
-      }
-      for (int i = 0; i < meta.size(); i++) {
-        if (!meta.get(i).syntacticallyEqual(other.meta.get(i))) return false;
-      }
-      for (int i = 0; i < assets.size(); i++) {
-        if (!assets.get(i).syntacticallyEqual(other.assets.get(i))) return false;
-      }
-      return name.syntacticallyEqual(other.name);
     }
 
     public String toString(int spaces) {
@@ -252,27 +206,6 @@ public class AST {
       this.meta = meta;
       this.attackSteps = attackSteps;
       this.variables = variables;
-    }
-
-    public boolean syntacticallyEqual(Asset other) {
-      if (meta.size() != other.meta.size()
-          || attackSteps.size() != other.attackSteps.size()
-          || variables.size() != other.variables.size()) {
-        return false;
-      }
-      for (int i = 0; i < meta.size(); i++) {
-        if (!meta.get(i).syntacticallyEqual(other.meta.get(i))) return false;
-      }
-      for (int i = 0; i < attackSteps.size(); i++) {
-        if (!attackSteps.get(i).syntacticallyEqual(other.attackSteps.get(i))) return false;
-      }
-      for (int i = 0; i < variables.size(); i++) {
-        if (!variables.get(i).syntacticallyEqual(other.variables.get(i))) return false;
-      }
-      if (parent.isPresent() && !parent.get().syntacticallyEqual(other.parent.get())) {
-        return false;
-      }
-      return isAbstract == other.isAbstract && name.syntacticallyEqual(other.name);
     }
 
     public String toString(int spaces) {
@@ -348,30 +281,6 @@ public class AST {
       this.meta = meta;
       this.requires = requires;
       this.reaches = reaches;
-    }
-
-    public boolean syntacticallyEqual(AttackStep other) {
-      if (cia.isPresent()) {
-        if (cia.get().size() != other.cia.get().size()) return false;
-        for (int i = 0; i < cia.get().size(); i++) {
-          if (cia.get().get(i) != other.cia.get().get(i)) return false;
-        }
-      }
-      if ((ttc.isPresent() && !ttc.get().syntacticallyEqual(other.ttc.get()))
-          || (requires.isPresent() && !requires.get().syntacticallyEqual(other.requires.get()))
-          || (reaches.isPresent() && !reaches.get().syntacticallyEqual(other.reaches.get()))) {
-        return false;
-      }
-      if (tags.size() != other.tags.size() || meta.size() != other.meta.size()) {
-        return false;
-      }
-      for (int i = 0; i < tags.size(); i++) {
-        if (!tags.get(i).syntacticallyEqual(other.tags.get(i))) return false;
-      }
-      for (int i = 0; i < meta.size(); i++) {
-        if (!meta.get(i).syntacticallyEqual(other.meta.get(i))) return false;
-      }
-      return type == other.type && name.syntacticallyEqual(other.name);
     }
 
     public String toString(int spaces) {
@@ -450,10 +359,6 @@ public class AST {
     public TTCExpr(Position pos) {
       super(pos);
     }
-
-    public boolean syntacticallyEqual(TTCExpr other) {
-      return true;
-    }
   }
 
   public abstract static class TTCBinaryExpr extends TTCExpr {
@@ -464,12 +369,6 @@ public class AST {
       super(pos);
       this.lhs = lhs;
       this.rhs = rhs;
-    }
-
-    @Override
-    public boolean syntacticallyEqual(TTCExpr expr) {
-      var other = (TTCBinaryExpr) expr;
-      return lhs.syntacticallyEqual(other.lhs) && rhs.syntacticallyEqual(other.rhs);
     }
   }
 
@@ -482,11 +381,6 @@ public class AST {
     public String toString() {
       return String.format("TTCAddExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
-
-    @Override
-    public boolean syntacticallyEqual(TTCExpr expr) {
-      return super.syntacticallyEqual(expr) && expr instanceof TTCAddExpr;
-    }
   }
 
   public static class TTCSubExpr extends TTCBinaryExpr {
@@ -497,11 +391,6 @@ public class AST {
     @Override
     public String toString() {
       return String.format("TTCSubExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
-    }
-
-    @Override
-    public boolean syntacticallyEqual(TTCExpr expr) {
-      return super.syntacticallyEqual(expr) && expr instanceof TTCSubExpr;
     }
   }
 
@@ -514,11 +403,6 @@ public class AST {
     public String toString() {
       return String.format("TTCMulExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
-
-    @Override
-    public boolean syntacticallyEqual(TTCExpr expr) {
-      return super.syntacticallyEqual(expr) && expr instanceof TTCMulExpr;
-    }
   }
 
   public static class TTCDivExpr extends TTCBinaryExpr {
@@ -530,11 +414,6 @@ public class AST {
     public String toString() {
       return String.format("TTCDivExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
-
-    @Override
-    public boolean syntacticallyEqual(TTCExpr expr) {
-      return super.syntacticallyEqual(expr) && expr instanceof TTCDivExpr;
-    }
   }
 
   public static class TTCPowExpr extends TTCBinaryExpr {
@@ -545,11 +424,6 @@ public class AST {
     @Override
     public String toString() {
       return String.format("TTCPowExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
-    }
-
-    @Override
-    public boolean syntacticallyEqual(TTCExpr expr) {
-      return super.syntacticallyEqual(expr) && expr instanceof TTCPowExpr;
     }
   }
 
@@ -573,19 +447,6 @@ public class AST {
       sb.append(')');
       return sb.toString();
     }
-
-    @Override
-    public boolean syntacticallyEqual(TTCExpr expr) {
-      var other = (TTCFuncExpr) expr;
-      if (params.size() != other.params.size()) {
-        return false;
-      }
-      for (int i = 0; i < params.size(); i++) {
-        // TODO: float inaccuracy
-        if (!params.get(i).equals(other.params.get(i))) return false;
-      }
-      return name.syntacticallyEqual(other.name);
-    }
   }
 
   public static class TTCNumExpr extends TTCExpr {
@@ -600,11 +461,6 @@ public class AST {
     public String toString() {
       return String.format("TTCNumExpr(%s, %f)", posString(), value);
     }
-
-    @Override
-    public boolean syntacticallyEqual(TTCExpr expr) {
-      return value == ((TTCNumExpr) expr).value;
-    }
   }
 
   public static class Requires extends Position {
@@ -613,16 +469,6 @@ public class AST {
     public Requires(Position pos, List<Expr> requires) {
       super(pos);
       this.requires = requires;
-    }
-
-    public boolean syntacticallyEqual(Requires other) {
-      if (requires.size() != other.requires.size()) {
-        return false;
-      }
-      for (int i = 0; i < requires.size(); i++) {
-        if (!requires.get(i).syntacticallyEqual(other.requires.get(i))) return false;
-      }
-      return true;
     }
 
     public String toString(int spaces) {
@@ -645,16 +491,6 @@ public class AST {
       this.reaches = reaches;
     }
 
-    public boolean syntacticallyEqual(Reaches other) {
-      if (reaches.size() != other.reaches.size()) {
-        return false;
-      }
-      for (int i = 0; i < reaches.size(); i++) {
-        if (!reaches.get(i).syntacticallyEqual(other.reaches.get(i))) return false;
-      }
-      return inherits == other.inherits;
-    }
-
     public String toString(int spaces) {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
@@ -675,10 +511,6 @@ public class AST {
       super(pos);
       this.name = name;
       this.expr = expr;
-    }
-
-    public boolean syntacticallyEqual(Variable other) {
-      return name.syntacticallyEqual(other.name) && expr.syntacticallyEqual(other.expr);
     }
 
     @Override
@@ -707,10 +539,6 @@ public class AST {
       super(pos);
     }
 
-    public boolean syntacticallyEqual(Expr expr) {
-      return true;
-    }
-
     public static String listToString(List<Expr> exprs, String name, int spaces) {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
@@ -736,12 +564,6 @@ public class AST {
       this.lhs = lhs;
       this.rhs = rhs;
     }
-
-    @Override
-    public boolean syntacticallyEqual(Expr expr) {
-      var other = (BinaryExpr) expr;
-      return lhs.syntacticallyEqual(other.lhs) && rhs.syntacticallyEqual(other.rhs);
-    }
   }
 
   public static class UnionExpr extends BinaryExpr {
@@ -752,11 +574,6 @@ public class AST {
     @Override
     public String toString() {
       return String.format("UnionExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
-    }
-
-    @Override
-    public boolean syntacticallyEqual(Expr expr) {
-      return super.syntacticallyEqual(expr) && expr instanceof UnionExpr;
     }
   }
 
@@ -770,11 +587,6 @@ public class AST {
       return String.format(
           "DifferenceExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
-
-    @Override
-    public boolean syntacticallyEqual(Expr expr) {
-      return super.syntacticallyEqual(expr) && expr instanceof DifferenceExpr;
-    }
   }
 
   public static class IntersectionExpr extends BinaryExpr {
@@ -787,11 +599,6 @@ public class AST {
       return String.format(
           "IntersectionExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
-
-    @Override
-    public boolean syntacticallyEqual(Expr expr) {
-      return super.syntacticallyEqual(expr) && expr instanceof IntersectionExpr;
-    }
   }
 
   public static class StepExpr extends BinaryExpr {
@@ -803,11 +610,6 @@ public class AST {
     public String toString() {
       return String.format("StepExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
-
-    @Override
-    public boolean syntacticallyEqual(Expr expr) {
-      return super.syntacticallyEqual(expr) && expr instanceof StepExpr;
-    }
   }
 
   public abstract static class UnaryExpr extends Expr {
@@ -816,12 +618,6 @@ public class AST {
     public UnaryExpr(Position pos, Expr e) {
       super(pos);
       this.e = e;
-    }
-
-    @Override
-    public boolean syntacticallyEqual(Expr expr) {
-      var other = (UnaryExpr) expr;
-      return e.syntacticallyEqual(other.e);
     }
   }
 
@@ -833,11 +629,6 @@ public class AST {
     @Override
     public String toString() {
       return String.format("TransitiveExpr(%s, %s)", posString(), e.toString());
-    }
-
-    @Override
-    public boolean syntacticallyEqual(Expr expr) {
-      return super.syntacticallyEqual(expr) && expr instanceof TransitiveExpr;
     }
   }
 
@@ -854,11 +645,6 @@ public class AST {
       return String.format(
           "SubTypeExpr(%s, %s, %s)", posString(), e.toString(), subType.toString());
     }
-
-    @Override
-    public boolean syntacticallyEqual(Expr expr) {
-      return super.syntacticallyEqual(expr) && expr instanceof SubTypeExpr;
-    }
   }
 
   public static class IDExpr extends Expr {
@@ -873,11 +659,6 @@ public class AST {
     public String toString() {
       return String.format("IDExpr(%s, %s)", posString(), id.toString());
     }
-
-    @Override
-    public boolean syntacticallyEqual(Expr expr) {
-      return id.syntacticallyEqual(((IDExpr) expr).id);
-    }
   }
 
   public static class CallExpr extends Expr {
@@ -891,11 +672,6 @@ public class AST {
     @Override
     public String toString() {
       return String.format("CallExpr(%s, %s)", posString(), id.toString());
-    }
-
-    @Override
-    public boolean syntacticallyEqual(Expr expr) {
-      return id.syntacticallyEqual(((CallExpr) expr).id);
     }
   }
 
@@ -928,22 +704,6 @@ public class AST {
       this.rightField = rightField;
       this.rightAsset = rightAsset;
       this.meta = meta;
-    }
-
-    public boolean syntacticallyEqual(Association other) {
-      if (meta.size() != other.meta.size()) {
-        return false;
-      }
-      for (int i = 0; i < meta.size(); i++) {
-        if (!meta.get(i).syntacticallyEqual(other.meta.get(i))) return false;
-      }
-      return leftAsset.syntacticallyEqual(other.leftAsset)
-          && leftField.syntacticallyEqual(other.leftField)
-          && leftMult == other.leftMult
-          && linkName.syntacticallyEqual(other.linkName)
-          && rightMult == other.rightMult
-          && rightField.syntacticallyEqual(other.rightField)
-          && rightAsset.syntacticallyEqual(other.rightAsset);
     }
 
     public String toString(int spaces) {

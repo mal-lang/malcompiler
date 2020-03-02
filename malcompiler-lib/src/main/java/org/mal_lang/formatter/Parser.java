@@ -47,7 +47,6 @@ public class Parser {
     createBegin(Token.BlockBreakType.ALWAYS, 0);
     next();
     boolean first = true;
-    loop:
     while (true) {
       switch (tok.type) {
         case CATEGORY:
@@ -67,12 +66,12 @@ public class Parser {
           first = false;
           break;
         case EOF:
-          break loop;
+          createEnd();
+          return;
         default:
           throw new RuntimeException(tok.type + "");
       }
     }
-    createEnd();
   }
 
   private void parseAssociations() {
@@ -239,10 +238,10 @@ public class Parser {
     var it = tokens.iterator();
     while (it.hasNext()) {
       var next = it.next();
-      if (next instanceof Token.CommentBreak) {
-        it.remove();
-        break;
-      } else if (next instanceof Token.String || next instanceof Token.Break) {
+      if (!(next instanceof Token.Begin || next instanceof Token.End)) {
+        if (next instanceof Token.CommentBreak) {
+          it.remove();
+        }
         break;
       }
     }
@@ -365,47 +364,47 @@ public class Parser {
     createBegin(Token.BlockBreakType.ALWAYS, defaultIndent);
 
     createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
-    {
-      var value = tok.type.toString();
-      consumeToken(value.substring(1, value.length() - 1));
+
+    var value = tok.type.toString();
+    consumeToken(value.substring(1, value.length() - 1));
+    createBreak(" ", 0);
+    consumeToken(tok.stringValue);
+
+    while (tok.type == TokenType.AT) {
       createBreak(" ", 0);
+      consumeToken("@");
       consumeToken(tok.stringValue);
+    }
 
-      while (tok.type == TokenType.AT) {
-        createBreak(" ", 0);
-        consumeToken("@");
-        consumeToken(tok.stringValue);
-      }
-
-      if (tok.type == TokenType.LCURLY) {
-        createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
-        createBreak(" ", 0);
-        consumeToken("{");
-        if (tok.type != TokenType.RCURLY) {
+    if (tok.type == TokenType.LCURLY) {
+      createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+      createBreak(" ", 0);
+      consumeToken("{");
+      if (tok.type != TokenType.RCURLY) {
+        value = tok.type.toString();
+        consumeToken(value.substring(1, value.length() - 1));
+        while (tok.type == TokenType.COMMA) {
+          consumeToken(",");
+          createBreak(" ", 0);
           value = tok.type.toString();
           consumeToken(value.substring(1, value.length() - 1));
-          while (tok.type == TokenType.COMMA) {
-            consumeToken(",");
-            createBreak(" ", 0);
-            value = tok.type.toString();
-            consumeToken(value.substring(1, value.length() - 1));
-          }
         }
-        consumeToken("}");
-        createEnd();
       }
-      if (tok.type == TokenType.LBRACKET) {
-        createBreak(" ", 0);
-        createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
-        consumeToken("[");
-        if (tok.type != TokenType.RBRACKET) {
-          parseTTCExpr();
-        }
-        consumeToken("]");
-        createEnd();
-      }
+      consumeToken("}");
       createEnd();
     }
+    if (tok.type == TokenType.LBRACKET) {
+      createBreak(" ", 0);
+      createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+      consumeToken("[");
+      if (tok.type != TokenType.RBRACKET) {
+        parseTTCExpr();
+      }
+      consumeToken("]");
+      createEnd();
+    }
+    createEnd();
+
     parseMeta();
     if (tok.type == TokenType.REQUIRE) {
       parseReachesOrRequires();

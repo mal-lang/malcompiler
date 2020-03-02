@@ -101,6 +101,27 @@ public class Lexer {
     }
   }
 
+  public static boolean syntacticallyEqual(Lexer l1, Lexer l2) {
+    try {
+      var tok1 = l1.next();
+      var tok2 = l2.next();
+      while (tok1.type != TokenType.EOF && tok2.type != TokenType.EOF) {
+        // TODO: Float inaccuracy, some sane threshold
+        if (tok1.type != tok2.type
+            || !tok1.stringValue.equals(tok2.stringValue)
+            || tok1.intValue != tok2.intValue
+            || tok1.doubleValue != tok2.doubleValue) {
+          return false;
+        }
+        tok1 = l1.next();
+        tok2 = l2.next();
+      }
+      return tok1.type == TokenType.EOF && tok2.type == TokenType.EOF;
+    } catch (CompilerException e) {
+      return false;
+    }
+  }
+
   private String getLexemeString() {
     byte[] byteArray = new byte[lexeme.size()];
     for (int i = 0; i < lexeme.size(); i++) {
@@ -410,6 +431,7 @@ public class Lexer {
           readTrailingComments();
           return;
         }
+        // Not a comment, we want to fall-through
       default:
         index--;
         col--;

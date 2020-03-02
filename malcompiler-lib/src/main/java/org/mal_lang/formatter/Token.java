@@ -16,6 +16,8 @@
 package org.mal_lang.formatter;
 
 public class Token {
+  private Token() {}
+
   public static interface Base {}
 
   public static class String implements Base {
@@ -42,7 +44,7 @@ public class Token {
     }
   }
 
-  public static enum BlockBreakType {
+  public enum BlockBreakType {
     ALWAYS, // always break children, even if they fit line
     CONSISTENT, // break if children doesn't fit (and do so for every child and align start of rows)
     INCONSISTENT, // default, break if children doesn't fit and indent breaks
@@ -51,7 +53,7 @@ public class Token {
 
   public static class Begin implements Base {
     public final int indent;
-    public BlockBreakType type;
+    protected BlockBreakType type;
 
     public Begin(BlockBreakType type, int indent) {
       this.indent = indent;

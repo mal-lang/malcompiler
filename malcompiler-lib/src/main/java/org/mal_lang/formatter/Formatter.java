@@ -20,12 +20,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Stack;
-import org.mal_lang.compiler.lib.AST;
 import org.mal_lang.compiler.lib.CompilerException;
+import org.mal_lang.compiler.lib.Lexer;
 import org.mal_lang.compiler.lib.MalLogger;
 
 /**
@@ -49,9 +50,13 @@ public class Formatter {
     int margin = opts.containsKey("margin") ? Integer.parseInt(opts.get("margin")) : 2;
     var bytes = prettyPrint(file, margin, indent);
     if (inplace) {
-      var stream = new FileOutputStream(file, false);
-      stream.write(bytes);
-      stream.close();
+      FileOutputStream fos = null;
+      try {
+        fos = new FileOutputStream(file, false);
+        fos.write(bytes);
+      } finally {
+        fos.close();
+      }
     } else {
       System.out.print(new String(bytes));
     }
@@ -67,13 +72,12 @@ public class Formatter {
     }
   }
 
-  private Stack<Block> spaceStack = new Stack<>();
+  private Deque<Block> spaceStack = new ArrayDeque<>();
   private int margin;
   private int space;
   private File file;
   private MalLogger LOGGER;
   private ByteArrayOutputStream out = new ByteArrayOutputStream();
-  private AST ast;
   private int indent;
 
   private Formatter(File file, int lineWidth, int indent) throws IOException, CompilerException {
@@ -84,7 +88,7 @@ public class Formatter {
     this.indent = indent;
     this.file = file;
     try {
-      ast = org.mal_lang.compiler.lib.Parser.parse(file, false);
+      org.mal_lang.compiler.lib.Parser.parse(file);
     } catch (IOException e) {
       throw e;
     } catch (CompilerException e) {
@@ -113,7 +117,6 @@ public class Formatter {
       output(tok.value);
       space -= l;
     } else if (x instanceof Token.Begin) {
-      // output("/*B*/");
       var tok = (Token.Begin) x;
       if (tok.type == Token.BlockBreakType.ALWAYS) {
         spaceStack.push(new Block(space - tok.indent, Token.BlockBreakType.CONSISTENT));
@@ -123,7 +126,6 @@ public class Formatter {
         spaceStack.push(new Block(0, Token.BlockBreakType.FIT));
       }
     } else if (x instanceof Token.End) {
-      // output("/*E*/");
       spaceStack.pop();
     } else if (x instanceof Token.Break) {
       var tok = (Token.Break) x;
@@ -147,9 +149,9 @@ public class Formatter {
   }
 
   private Deque<Token.Base> tokens = new ArrayDeque<>();
-  private Stack<Integer> blockStartIndex = new Stack<>();
-  private Stack<Integer> size = new Stack<>();
-  private Stack<Token.Base> stream = new Stack<>();
+  private Deque<Integer> blockStartIndex = new ArrayDeque<>();
+  private List<Integer> size = new ArrayList<>();
+  private List<Token.Base> stream = new ArrayList<>();
   private int total = 1;
 
   private byte[] scan() throws IOException, CompilerException {
@@ -158,12 +160,12 @@ public class Formatter {
     while (!tokens.isEmpty()) {
       var token = tokens.pollLast();
       if (token instanceof Token.Begin) {
-        stream.push(token);
-        size.push(-total);
+        stream.add(token);
+        size.add(-total);
         blockStartIndex.push(size.size() - 1);
       } else if (token instanceof Token.End) {
-        stream.push(token);
-        size.push(0);
+        stream.add(token);
+        size.add(0);
         var x = blockStartIndex.pop();
         size.set(x, size.get(x) + total);
         if (stream.get(x) instanceof Token.Break) {
@@ -180,8 +182,8 @@ public class Formatter {
         if (stream.get(x) instanceof Token.Break) {
           size.set(blockStartIndex.pop(), size.get(x) + total);
         }
-        stream.push(token);
-        size.push(-total);
+        stream.add(token);
+        size.add(-total);
         blockStartIndex.push(size.size() - 1);
         total += ((Token.Break) token).value.length();
       } else if (token instanceof Token.String) {
@@ -189,8 +191,8 @@ public class Formatter {
         if (blockStartIndex.isEmpty()) {
           print(tok, tok.value.length());
         } else {
-          stream.push(tok);
-          size.push(tok.value.length());
+          stream.add(tok);
+          size.add(tok.value.length());
           total += tok.value.length();
         }
       }
@@ -200,21 +202,21 @@ public class Formatter {
     var bytes = trimmed.getBytes();
     var tempFile = File.createTempFile("formatted", ".tmp");
     tempFile.deleteOnExit();
-    var outputStream = new FileOutputStream(tempFile);
+    FileOutputStream fos = null;
     try {
-      outputStream.write(bytes);
-      var newAst = org.mal_lang.compiler.lib.Parser.parse(tempFile, false);
-      if (!ast.syntacticallyEqual(newAst)) {
+      fos = new FileOutputStream(tempFile);
+      fos.write(bytes);
+      if (!Lexer.syntacticallyEqual(new Lexer(file), new Lexer(tempFile))) {
         throw new CompilerException(
             "The formatter has produced an AST that differs from the input.");
       }
       return bytes;
-    } catch (CompilerException e) {
+    } catch (Exception e) {
       LOGGER.error("The formatter has produced an invalid AST. Please report this as a bug.");
       LOGGER.print();
       throw e;
     } finally {
-      outputStream.close();
+      fos.close();
     }
   }
 }
