@@ -180,10 +180,6 @@ public class Main {
             "Use MARGIN as maximum line width"));
     lines.add(
         CLIParser.getSGROptionLine(
-            SGR.of(SGR.fgRGB(135, 206, 235, "indent"), "=", SGR.italicized("INDENT")),
-            "Use INDENT as indentation width"));
-    lines.add(
-        CLIParser.getSGROptionLine(
             SGR.of(
                 SGR.fgRGB(135, 206, 235, "inplace"),
                 "=",

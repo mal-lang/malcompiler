@@ -27,11 +27,11 @@ import org.mal_lang.formatter.Formatter;
 
 public class TestFormatter extends MalTest {
 
-  public void outputEqual(String unformattedPath, String formattedPath, int lineWidth, int indent) {
+  public void outputEqual(String unformattedPath, String formattedPath, int lineWidth) {
     String formattedString = assertReadFileClassPath(formattedPath);
     File input = assertGetFileClassPath(unformattedPath);
     try {
-      String formatted = new String(Formatter.prettyPrint(input, lineWidth, indent));
+      String formatted = new String(Formatter.prettyPrint(input, lineWidth));
       if (!formattedString.equals(formatted)) {
         fail(String.format("%s formatted does not equal %s", unformattedPath, formattedPath));
       }
@@ -43,7 +43,7 @@ public class TestFormatter extends MalTest {
   public void formats(String path) {
     File file = assertGetFileClassPath(path);
     try {
-      Formatter.prettyPrint(file, 100, 2);
+      Formatter.prettyPrint(file, 100);
     } catch (IOException | CompilerException e) {
       fail(e.getMessage());
     }
@@ -53,7 +53,7 @@ public class TestFormatter extends MalTest {
   public void testInvalid() {
     File file = assertGetFileClassPath("parser/bad-asset1.mal");
     try {
-      Formatter.prettyPrint(file, 100, 2);
+      Formatter.prettyPrint(file, 100);
       fail("bad-asset1.mal should not compile");
     } catch (IOException | CompilerException e) {
       assertEquals("There were syntax errors", e.getMessage());
@@ -69,27 +69,22 @@ public class TestFormatter extends MalTest {
 
   @Test
   public void testReadable() {
-    outputEqual("formatter/readable.mal", "formatter/readable.ans", 100, 2);
+    outputEqual("formatter/readable.mal", "formatter/readable.ans", 100);
   }
 
   @Test
   public void testOneline() {
-    outputEqual("formatter/oneline.mal", "formatter/oneline.ans", 100, 2);
+    outputEqual("formatter/oneline.mal", "formatter/oneline.ans", 100);
   }
 
   @Test
   public void testMargin50() {
-    outputEqual("formatter/margin.mal", "formatter/margin50.ans", 50, 2);
+    outputEqual("formatter/margin.mal", "formatter/margin50.ans", 50);
   }
 
   @Test
   public void testMargin30() {
-    outputEqual("formatter/margin.mal", "formatter/margin30.ans", 30, 2);
-  }
-
-  @Test
-  public void testMargin100_8() {
-    outputEqual("formatter/margin.mal", "formatter/margin100_8.ans", 100, 8);
+    outputEqual("formatter/margin.mal", "formatter/margin30.ans", 30);
   }
 
   @Test

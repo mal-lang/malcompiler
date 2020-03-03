@@ -37,18 +37,16 @@ import org.mal_lang.compiler.lib.MalLogger;
  */
 public class Formatter {
 
-  public static byte[] prettyPrint(File file, int lineWidth, int indent)
-      throws IOException, CompilerException {
-    return new Formatter(file, lineWidth, indent).scan();
+  public static byte[] prettyPrint(File file, int lineWidth) throws IOException, CompilerException {
+    return new Formatter(file, lineWidth).scan();
   }
 
   public static void prettyPrint(File file, Map<String, String> opts)
       throws IOException, CompilerException {
-    int indent = opts.containsKey("indent") ? Integer.parseInt(opts.get("indent")) : 2;
     boolean inplace =
         opts.containsKey("inplace") ? Boolean.parseBoolean(opts.get("inplace")) : false;
     int margin = opts.containsKey("margin") ? Integer.parseInt(opts.get("margin")) : 2;
-    var bytes = prettyPrint(file, margin, indent);
+    var bytes = prettyPrint(file, margin);
     if (inplace) {
       FileOutputStream fos = null;
       try {
@@ -80,14 +78,12 @@ public class Formatter {
   private File file;
   private MalLogger LOGGER;
   private ByteArrayOutputStream out = new ByteArrayOutputStream();
-  private int indent;
 
-  private Formatter(File file, int lineWidth, int indent) throws IOException, CompilerException {
+  private Formatter(File file, int lineWidth) throws IOException, CompilerException {
     Locale.setDefault(Locale.ROOT);
     LOGGER = new MalLogger("FORMATTER", false, false);
     margin = lineWidth;
     space = margin;
-    this.indent = indent;
     this.file = file;
     try {
       org.mal_lang.compiler.lib.Parser.parse(file);
@@ -120,19 +116,26 @@ public class Formatter {
       space -= l;
     } else if (x instanceof Token.Begin) {
       var tok = (Token.Begin) x;
-      if (tok.type == Token.BlockBreakType.ALWAYS) {
-        spaceStack.push(new Block(space - tok.indent, Token.BlockBreakType.CONSISTENT));
-      } else if (l > space) {
-        spaceStack.push(new Block(space - tok.indent, tok.type));
-      } else {
-        spaceStack.push(new Block(0, Token.BlockBreakType.FIT));
+      switch (tok.type) {
+        case ALWAYS:
+          spaceStack.push(new Block(space - tok.indent, Token.BlockBreakType.CONSISTENT));
+          break;
+        case NEVER:
+          spaceStack.push(new Block(0, Token.BlockBreakType.NEVER));
+          break;
+        default:
+          if (l > space) {
+            spaceStack.push(new Block(space - tok.indent, tok.type));
+          } else {
+            spaceStack.push(new Block(0, Token.BlockBreakType.NEVER));
+          }
       }
     } else if (x instanceof Token.End) {
       spaceStack.pop();
     } else if (x instanceof Token.Break) {
       var tok = (Token.Break) x;
       var block = spaceStack.peek();
-      if (block.type == Token.BlockBreakType.FIT) {
+      if (block.type == Token.BlockBreakType.NEVER) {
         space -= tok.value.length();
         output(tok.value);
       } else if (block.type == Token.BlockBreakType.CONSISTENT) {
@@ -157,7 +160,7 @@ public class Formatter {
   private int total = 1;
 
   private byte[] scan() throws IOException, CompilerException {
-    var parser = new Parser(file, tokens, indent);
+    var parser = new Parser(file, tokens);
     parser.parse();
     while (!tokens.isEmpty()) {
       var token = tokens.pollLast();

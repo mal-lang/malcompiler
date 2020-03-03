@@ -1,19 +1,17 @@
 category System
 {
   abstract asset SomeLongNameThatIsLong extends
-    SomeOtherName
+      SomeOtherName
   {
     let variable1 =
-      steps.that.exists
-        /\
-        combined.with.some.other.steps
+        steps.that.exists
+            /\ combined.with.some.other.steps
     let variable2 = even.more.steps[Step]
 
     | compromise
       -> variable1()[SomeOtherName].substeps*
-           .local.read,
+             .local.read,
          (variable2().after.open
-            -
-            well.named.steps.written)
+              - well.named.steps.written)
   }
 }

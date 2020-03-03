@@ -23,16 +23,17 @@ import org.mal_lang.compiler.lib.Lexer;
 import org.mal_lang.compiler.lib.TokenType;
 
 public class Parser {
+  private static final int INDENT = 2;
   private Lexer lex;
   private org.mal_lang.compiler.lib.Token tok;
   private Deque<Token.Base> tokens;
-  private int defaultIndent;
+  private int lastLine = 1;
+  private boolean allowBreak = false;
 
-  public Parser(File file, Deque<Token.Base> tokens, int indent) throws IOException {
+  public Parser(File file, Deque<Token.Base> tokens) throws IOException {
     var canonicalFile = file.getCanonicalFile();
     this.lex = new Lexer(canonicalFile);
     this.tokens = tokens;
-    this.defaultIndent = indent;
   }
 
   private void next() {
@@ -76,17 +77,17 @@ public class Parser {
 
   private void parseAssociations() {
     createBreak("", 0);
-    createBegin(Token.BlockBreakType.ALWAYS, defaultIndent);
+    createBegin(Token.BlockBreakType.ALWAYS, INDENT);
 
-    createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     consumeToken("associations");
     createEnd();
-    createBreak("", -defaultIndent);
+    createBreak("", -INDENT);
     consumeToken("{");
     if (tok.type == TokenType.ID) {
       parseAsssociations1();
     }
-    createBreak("", -defaultIndent);
+    createBreak("", -INDENT);
     consumeToken("}");
     createEnd();
     createBreak("", 0);
@@ -95,6 +96,7 @@ public class Parser {
   private void parseAsssociations1() {
     var id = tok;
     next();
+    allowBreak = true;
     parseAssociation(id);
     while (tok.type == TokenType.ID) {
       id = tok;
@@ -103,6 +105,7 @@ public class Parser {
         parseMeta2(id);
       } else {
         createEnd(); // closing association block
+        allowBreak = true;
         parseAssociation(id);
       }
     }
@@ -111,14 +114,17 @@ public class Parser {
 
   private void parseAssociation(org.mal_lang.compiler.lib.Token prev) {
     createBreak("", 0);
-    createBegin(Token.BlockBreakType.ALWAYS, defaultIndent);
-    createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+    createBegin(Token.BlockBreakType.ALWAYS, INDENT);
+    createBegin(Token.BlockBreakType.CONSISTENT, 2 * INDENT);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     createToken(prev, prev.stringValue);
     createBreak(" ", 0);
     consumeToken("[");
     consumeToken(tok.stringValue);
     consumeToken("]");
+    createEnd();
     createBreak(" ", 0);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     parseMult();
     createBreak(" ", 0);
     consumeToken("<--");
@@ -128,12 +134,15 @@ public class Parser {
     consumeToken("-->");
     createBreak(" ", 0);
     parseMult();
+    createEnd();
     createBreak(" ", 0);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     consumeToken("[");
     consumeToken(tok.stringValue);
     consumeToken("]");
     createBreak(" ", 0);
     consumeToken(tok.stringValue);
+    createEnd();
     createEnd();
     // Block left open will be closed above
   }
@@ -155,7 +164,7 @@ public class Parser {
   }
 
   private void parseDefine() {
-    createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     consumeToken("#");
     consumeToken(tok.stringValue);
     consumeToken(":");
@@ -166,7 +175,7 @@ public class Parser {
   }
 
   private void parseInclude() {
-    createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     consumeToken("include");
     createBreak(" ", 0);
     consumeToken("\"" + tok.stringValue + "\"");
@@ -184,9 +193,16 @@ public class Parser {
         createComment(comment, false, endLine != token.line);
       }
     }
+    if (allowBreak && token.line - lastLine >= 2) {
+      // allow blanklines
+      createBegin(Token.BlockBreakType.ALWAYS, 0);
+      tokens.push(new Token.Break("", 0)); // dont consume comment break
+      createEnd();
+    }
+    allowBreak = false;
     if (!token.postComments.isEmpty()) {
       // we have at least 1 trailing comment
-      createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+      createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
       createString(value);
       for (var comment : token.postComments) {
         createComment(comment, true, false);
@@ -195,6 +211,8 @@ public class Parser {
     } else {
       createString(value);
     }
+    // postComments are always on the same line as the token
+    lastLine = token.line;
   }
 
   private void consumeToken(String value) {
@@ -208,6 +226,13 @@ public class Parser {
 
   private void createComment(
       org.mal_lang.compiler.lib.Token comment, boolean space, boolean newline) {
+    if (allowBreak && comment.line - lastLine >= 2) {
+      // allow blanklines
+      createBegin(Token.BlockBreakType.ALWAYS, 0);
+      createBreak("", 0);
+      createEnd();
+    }
+    allowBreak = false;
     var singleComment = comment.type == TokenType.SINGLECOMMENT;
     if (newline || singleComment) {
       createBegin(Token.BlockBreakType.ALWAYS, 0);
@@ -220,7 +245,9 @@ public class Parser {
     if (newline || singleComment) {
       tokens.push(new Token.CommentBreak("", 0));
       createEnd();
+      allowBreak = true;
     }
+    lastLine = comment.line;
   }
 
   private Token.Begin createBegin(Token.BlockBreakType type, int indent) {
@@ -258,20 +285,20 @@ public class Parser {
       // Extra break if we are following a previous asset
       createBreak("", 0);
     }
-    createBegin(Token.BlockBreakType.ALWAYS, defaultIndent);
+    createBegin(Token.BlockBreakType.ALWAYS, INDENT);
 
-    createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     consumeToken("category");
-    createBreak(" ", defaultIndent);
+    createBreak(" ", 0);
     consumeToken(tok.stringValue);
     createEnd();
 
     parseMeta();
 
-    createBreak("", -defaultIndent);
+    createBreak("", -INDENT);
     consumeToken("{");
     parseAssets();
-    createBreak("", -defaultIndent);
+    createBreak("", -INDENT);
     consumeToken("}");
     createEnd();
     createBreak("", 0);
@@ -298,8 +325,8 @@ public class Parser {
       createBreak("", 0);
     }
     createBreak("", 0);
-    createBegin(Token.BlockBreakType.ALWAYS, defaultIndent);
-    createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+    createBegin(Token.BlockBreakType.ALWAYS, INDENT);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     if (tok.type == TokenType.ABSTRACT) {
       consumeToken("abstract");
       createBreak(" ", 0);
@@ -316,7 +343,7 @@ public class Parser {
     createEnd();
     parseMeta();
 
-    createBreak("", -defaultIndent);
+    createBreak("", -INDENT);
     consumeToken("{");
     // ATTACKSTEPS
     first = true;
@@ -324,6 +351,7 @@ public class Parser {
     while (isMore) {
       switch (tok.type) {
         case LET:
+          allowBreak = true;
           parseVariable();
           first = false;
           break;
@@ -336,14 +364,14 @@ public class Parser {
           break;
       }
     }
-    createBreak("", -defaultIndent);
+    createBreak("", -INDENT);
     consumeToken("}");
     createEnd();
   }
 
   private void parseVariable() {
     createBreak("", 0);
-    createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     consumeToken("let");
     createBreak(" ", 0);
     consumeToken(tok.stringValue);
@@ -361,9 +389,9 @@ public class Parser {
       createBreak("", 0);
     }
     createBreak("", 0);
-    createBegin(Token.BlockBreakType.ALWAYS, defaultIndent);
+    createBegin(Token.BlockBreakType.ALWAYS, INDENT);
 
-    createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
 
     var value = tok.type.toString();
     consumeToken(value.substring(1, value.length() - 1));
@@ -377,7 +405,7 @@ public class Parser {
     }
 
     if (tok.type == TokenType.LCURLY) {
-      createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+      createBegin(Token.BlockBreakType.INCONSISTENT, INDENT);
       createBreak(" ", 0);
       consumeToken("{");
       if (tok.type != TokenType.RCURLY) {
@@ -395,7 +423,7 @@ public class Parser {
     }
     if (tok.type == TokenType.LBRACKET) {
       createBreak(" ", 0);
-      createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+      createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
       consumeToken("[");
       if (tok.type != TokenType.RBRACKET) {
         parseTTCExpr();
@@ -420,31 +448,41 @@ public class Parser {
     while (tok.type == TokenType.PLUS || tok.type == TokenType.MINUS) {
       createBreak(" ", 0);
       var value = tok.type.toString();
+      createBegin(Token.BlockBreakType.NEVER, 0);
       consumeToken(value.substring(1, value.length() - 1));
       createBreak(" ", 0);
       parseTTCTerm();
+      createEnd();
     }
   }
 
   private void parseTTCTerm() {
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     parseTTCFact();
     while (tok.type == TokenType.STAR || tok.type == TokenType.DIVIDE) {
       createBreak(" ", 0);
       var value = tok.type.toString();
+      createBegin(Token.BlockBreakType.NEVER, 0);
       consumeToken(value.substring(1, value.length() - 1));
       createBreak(" ", 0);
       parseTTCFact();
+      createEnd();
     }
+    createEnd();
   }
 
   private void parseTTCFact() {
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     parseTTCPrim();
     if (tok.type == TokenType.POWER) {
       createBreak(" ", 0);
+      createBegin(Token.BlockBreakType.NEVER, 0);
       consumeToken("^");
       createBreak(" ", 0);
       parseTTCFact();
+      createEnd();
     }
+    createEnd();
   }
 
   private void parseTTCPrim() {
@@ -464,7 +502,9 @@ public class Parser {
       }
     } else if (tok.type == TokenType.LPAREN) {
       consumeToken("(");
+      createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
       parseTTCExpr();
+      createEnd();
       consumeToken(")");
     } else if (tok.type == TokenType.INT || tok.type == TokenType.FLOAT) {
       parseNumber();
@@ -485,17 +525,19 @@ public class Parser {
     var value = tok.type.toString();
     consumeToken(value.substring(1, value.length() - 1));
     createString(" ");
+    allowBreak = true;
     parseExpr();
     while (tok.type == TokenType.COMMA) {
       consumeToken(",");
       createBreak("", 0);
+      allowBreak = true;
       parseExpr();
     }
     createEnd();
   }
 
   private void parseExpr() {
-    var block = createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+    var block = createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     parseSteps();
     while (tok.type == TokenType.UNION
         || tok.type == TokenType.INTERSECT
@@ -503,15 +545,17 @@ public class Parser {
       block.type = Token.BlockBreakType.CONSISTENT;
       createBreak(" ", 0);
       var value = tok.type.toString();
+      createBegin(Token.BlockBreakType.NEVER, 0);
       consumeToken(value.substring(1, value.length() - 1));
       createBreak(" ", 0);
       parseSteps();
+      createEnd();
     }
     createEnd();
   }
 
   private void parseSteps() {
-    createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     parseStep();
     while (tok.type == TokenType.DOT) {
       createBreak("", 0);
@@ -546,7 +590,7 @@ public class Parser {
 
   private void parseMeta2(org.mal_lang.compiler.lib.Token prev) {
     createBreak("", 0);
-    createBegin(Token.BlockBreakType.INCONSISTENT, defaultIndent);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     createToken(prev, prev.stringValue);
     createBreak(" ", 0);
     consumeToken("info");

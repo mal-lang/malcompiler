@@ -48,7 +48,7 @@ public class Token {
     ALWAYS, // always break children, even if they fit line
     CONSISTENT, // break if children doesn't fit (and do so for every child and align start of rows)
     INCONSISTENT, // default, break if children doesn't fit and indent breaks
-    FIT // Not used directly, set if block fits on one line
+    NEVER // never break
   }
 
   public static class Begin implements Base {
