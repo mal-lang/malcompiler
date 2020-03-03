@@ -17,12 +17,8 @@ package org.mal_lang.compiler.lib.securicad;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
-import java.util.HashMap;
-import java.util.Map;
 import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.JavaGenerator;
 import org.mal_lang.compiler.lib.Lang.Asset;
@@ -80,7 +76,7 @@ public class DefenseGenerator extends JavaGenerator {
     }
 
     // meta info field
-    createMetaInfoField(builder, attackStep);
+    Generator.createMetaInfoField(builder, Generator.getMetaInfoMap(attackStep));
 
     // default constructor
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder();
@@ -114,7 +110,7 @@ public class DefenseGenerator extends JavaGenerator {
     }
     builder.addMethod(constructor.build());
 
-    createGetMetaInfo(builder);
+    Generator.createGetMetaInfo(builder);
 
     if (attackStep.isConditionalDefense()) {
       createIsEnabled(builder, attackStep);
@@ -123,51 +119,6 @@ public class DefenseGenerator extends JavaGenerator {
     createDisable(builder, asset, attackStep);
 
     parentBuilder.addType(builder.build());
-  }
-
-  private static Map<String, String> getMetaInfoMap(AttackStep attackStep) {
-    Map<String, String> metaInfoMap = null;
-    if (attackStep.hasParent()) {
-      metaInfoMap =
-          getMetaInfoMap(attackStep.getAsset().getSuperAsset().getAttackStep(attackStep.getName()));
-    } else {
-      metaInfoMap = new HashMap<>();
-    }
-    metaInfoMap.putAll(attackStep.getMeta());
-    return metaInfoMap;
-  }
-
-  private void createMetaInfoField(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
-    var metaInfoMap = getMetaInfoMap(attackStep);
-    var initializer = new UnmodifiableInitializer(Map.class, "ofEntries");
-    for (var entry : metaInfoMap.entrySet()) {
-      initializer.addElement("$T.entry($S, $S)", Map.class, entry.getKey(), entry.getValue());
-    }
-    initializer.build();
-    parentBuilder.addField(
-        FieldSpec.builder(
-                ParameterizedTypeName.get(Map.class, String.class, String.class),
-                "metaInfo",
-                Modifier.PRIVATE,
-                Modifier.FINAL)
-            .initializer(initializer.getFormat(), initializer.getArgs())
-            .build());
-  }
-
-  private void createGetMetaInfo(TypeSpec.Builder parentBulider) {
-    parentBulider.addMethod(
-        MethodSpec.methodBuilder("getMetaInfo")
-            .addModifiers(Modifier.PUBLIC)
-            .returns(ParameterizedTypeName.get(Map.class, String.class, String.class))
-            .addStatement("return metaInfo")
-            .build());
-    parentBulider.addMethod(
-        MethodSpec.methodBuilder("getMetaInfo")
-            .addModifiers(Modifier.PUBLIC)
-            .returns(String.class)
-            .addParameter(String.class, "type")
-            .addStatement("return metaInfo.get(type)")
-            .build());
   }
 
   private void createIsEnabled(TypeSpec.Builder parentBuilder, AttackStep attackStep) {

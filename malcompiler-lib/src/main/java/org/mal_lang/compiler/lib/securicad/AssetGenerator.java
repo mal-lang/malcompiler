@@ -32,11 +32,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.lang.model.element.Modifier;
@@ -97,6 +95,7 @@ public class AssetGenerator extends JavaGenerator {
 
     // class fields
     createFields(builder, asset);
+    Generator.createMetaInfoField(builder, Generator.getMetaInfoMap(asset));
 
     // constructors
     createEmptyConstructor(builder);
@@ -110,7 +109,7 @@ public class AssetGenerator extends JavaGenerator {
 
     // getters
     createGetDescription(builder, asset);
-    createGetMetaInfo(builder);
+    Generator.createGetMetaInfo(builder);
     createGetTTCColoringElements(builder, asset);
     if (!asset.hasSuperAsset()) {
       createGetAttackSteps(builder);
@@ -217,36 +216,6 @@ public class AssetGenerator extends JavaGenerator {
         createAttackStepField(parentBuilder, asset, attackStep, index++);
       }
     }
-
-    createMetaInfoField(parentBuilder, asset);
-  }
-
-  private static Map<String, String> getMetaInfoMap(Asset asset) {
-    Map<String, String> metaInfoMap = null;
-    if (asset.hasSuperAsset()) {
-      metaInfoMap = getMetaInfoMap(asset.getSuperAsset());
-    } else {
-      metaInfoMap = new HashMap<>();
-    }
-    metaInfoMap.putAll(asset.getMeta());
-    return metaInfoMap;
-  }
-
-  private void createMetaInfoField(TypeSpec.Builder parentBuilder, Asset asset) {
-    var metaInfoMap = getMetaInfoMap(asset);
-    var initializer = new UnmodifiableInitializer(Map.class, "ofEntries");
-    for (var entry : metaInfoMap.entrySet()) {
-      initializer.addElement("$T.entry($S, $S)", Map.class, entry.getKey(), entry.getValue());
-    }
-    initializer.build();
-    parentBuilder.addField(
-        FieldSpec.builder(
-                ParameterizedTypeName.get(Map.class, String.class, String.class),
-                "metaInfo",
-                Modifier.PRIVATE,
-                Modifier.FINAL)
-            .initializer(initializer.getFormat(), initializer.getArgs())
-            .build());
   }
 
   private void createField(TypeSpec.Builder parentBuilder, Field field, int index) {
@@ -390,22 +359,6 @@ public class AssetGenerator extends JavaGenerator {
               .addStatement("return $S", description)
               .build());
     }
-  }
-
-  private void createGetMetaInfo(TypeSpec.Builder parentBuilder) {
-    parentBuilder.addMethod(
-        MethodSpec.methodBuilder("getMetaInfo")
-            .addModifiers(Modifier.PUBLIC)
-            .returns(ParameterizedTypeName.get(Map.class, String.class, String.class))
-            .addStatement("return metaInfo")
-            .build());
-    parentBuilder.addMethod(
-        MethodSpec.methodBuilder("getMetaInfo")
-            .addModifiers(Modifier.PUBLIC)
-            .returns(String.class)
-            .addParameter(String.class, "type")
-            .addStatement("return metaInfo.get(type)")
-            .build());
   }
 
   private File getAssetIcon(Asset asset, String type) {
