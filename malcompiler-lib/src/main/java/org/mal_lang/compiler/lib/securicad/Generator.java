@@ -43,6 +43,7 @@ import org.mal_lang.compiler.lib.CompilerException;
 import org.mal_lang.compiler.lib.JavaGenerator;
 import org.mal_lang.compiler.lib.Lang;
 import org.mal_lang.compiler.lib.Lang.Asset;
+import org.mal_lang.compiler.lib.Lang.AttackStep;
 import org.mal_lang.compiler.lib.Lang.Link;
 import org.mal_lang.compiler.lib.MalInfo;
 
@@ -405,5 +406,60 @@ public class Generator extends JavaGenerator {
       var targetFile = new File(outputDirectory, file);
       Files.copy(resourceStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
+  }
+
+  static Map<String, String> getMetaInfoMap(AttackStep attackStep) {
+    Map<String, String> metaInfoMap = null;
+    if (attackStep.hasParent()) {
+      var parent = attackStep.getAsset().getSuperAsset().getAttackStep(attackStep.getName());
+      metaInfoMap = getMetaInfoMap(parent);
+    } else {
+      metaInfoMap = new HashMap<>();
+    }
+    metaInfoMap.putAll(attackStep.getMeta());
+    return metaInfoMap;
+  }
+
+  static Map<String, String> getMetaInfoMap(Asset asset) {
+    Map<String, String> metaInfoMap = null;
+    if (asset.hasSuperAsset()) {
+      var parent = asset.getSuperAsset();
+      metaInfoMap = getMetaInfoMap(parent);
+    } else {
+      metaInfoMap = new HashMap<>();
+    }
+    metaInfoMap.putAll(asset.getMeta());
+    return metaInfoMap;
+  }
+
+  private static TypeName mapStringString =
+      ParameterizedTypeName.get(Map.class, String.class, String.class);
+
+  static void createMetaInfoField(TypeSpec.Builder parentBuilder, Map<String, String> metaInfoMap) {
+    var initializer = new UnmodifiableInitializer(Map.class, "ofEntries");
+    for (var entry : metaInfoMap.entrySet()) {
+      initializer.addElement("$T.entry($S, $S)", Map.class, entry.getKey(), entry.getValue());
+    }
+    initializer.build();
+    parentBuilder.addField(
+        FieldSpec.builder(mapStringString, "metaInfo", Modifier.PRIVATE, Modifier.FINAL)
+            .initializer(initializer.getFormat(), initializer.getArgs())
+            .build());
+  }
+
+  static void createGetMetaInfo(TypeSpec.Builder parentBuilder) {
+    parentBuilder.addMethod(
+        MethodSpec.methodBuilder("getMetaInfo")
+            .addModifiers(Modifier.PUBLIC)
+            .returns(mapStringString)
+            .addStatement("return metaInfo")
+            .build());
+    parentBuilder.addMethod(
+        MethodSpec.methodBuilder("getMetaInfo")
+            .addModifiers(Modifier.PUBLIC)
+            .returns(String.class)
+            .addParameter(String.class, "type")
+            .addStatement("return metaInfo.get(type)")
+            .build());
   }
 }

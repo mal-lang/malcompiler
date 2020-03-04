@@ -75,6 +75,9 @@ public class DefenseGenerator extends JavaGenerator {
       builder.superclass(ClassName.get(this.pkg, asset.getName(), "LocalDefense"));
     }
 
+    // meta info field
+    Generator.createMetaInfoField(builder, Generator.getMetaInfoMap(attackStep));
+
     // default constructor
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder();
     constructor.addModifiers(Modifier.PUBLIC);
@@ -106,6 +109,8 @@ public class DefenseGenerator extends JavaGenerator {
           "setEvidenceDistribution($T.getBernoulliDist($L))", fmath, func.dist.getMean());
     }
     builder.addMethod(constructor.build());
+
+    Generator.createGetMetaInfo(builder);
 
     if (attackStep.isConditionalDefense()) {
       createIsEnabled(builder, attackStep);

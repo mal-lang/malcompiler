@@ -63,6 +63,9 @@ public class AttackStepGenerator extends JavaGenerator {
       builder.superclass(getExtend(asset, attackStep));
     }
 
+    // meta info field
+    Generator.createMetaInfoField(builder, Generator.getMetaInfoMap(attackStep));
+
     // empty constructor
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder();
     constructor.addModifiers(Modifier.PUBLIC);
@@ -81,6 +84,7 @@ public class AttackStepGenerator extends JavaGenerator {
 
     createSteps(builder, exprGen, attackStep);
     createGetDescription(builder, attackStep);
+    Generator.createGetMetaInfo(builder);
     createTraceabilityHelper(builder, attackStep);
 
     parentBuilder.addType(builder.build());

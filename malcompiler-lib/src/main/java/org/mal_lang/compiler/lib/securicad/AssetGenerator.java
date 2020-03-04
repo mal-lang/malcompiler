@@ -95,6 +95,7 @@ public class AssetGenerator extends JavaGenerator {
 
     // class fields
     createFields(builder, asset);
+    Generator.createMetaInfoField(builder, Generator.getMetaInfoMap(asset));
 
     // constructors
     createEmptyConstructor(builder);
@@ -108,6 +109,7 @@ public class AssetGenerator extends JavaGenerator {
 
     // getters
     createGetDescription(builder, asset);
+    Generator.createGetMetaInfo(builder);
     createGetTTCColoringElements(builder, asset);
     if (!asset.hasSuperAsset()) {
       createGetAttackSteps(builder);
