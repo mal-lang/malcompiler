@@ -15,6 +15,7 @@
  */
 package org.mal_lang.compiler.lib.securicad;
 
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -432,34 +433,15 @@ public class Generator extends JavaGenerator {
     return metaInfoMap;
   }
 
-  private static TypeName mapStringString =
-      ParameterizedTypeName.get(Map.class, String.class, String.class);
-
-  static void createMetaInfoField(TypeSpec.Builder parentBuilder, Map<String, String> metaInfoMap) {
-    var initializer = new UnmodifiableInitializer(Map.class, "ofEntries");
+  static void createMetaInfoAnnotations(
+      TypeSpec.Builder parentBuilder, Map<String, String> metaInfoMap) {
+    var metaInfo = ClassName.get("com.foreseeti.corelib.FAnnotations", "MetaInfo");
     for (var entry : metaInfoMap.entrySet()) {
-      initializer.addElement("$T.entry($S, $S)", Map.class, entry.getKey(), entry.getValue());
+      parentBuilder.addAnnotation(
+          AnnotationSpec.builder(metaInfo)
+              .addMember("key", "$S", entry.getKey())
+              .addMember("value", "$S", entry.getValue())
+              .build());
     }
-    initializer.build();
-    parentBuilder.addField(
-        FieldSpec.builder(mapStringString, "metaInfo", Modifier.PRIVATE, Modifier.FINAL)
-            .initializer(initializer.getFormat(), initializer.getArgs())
-            .build());
-  }
-
-  static void createGetMetaInfo(TypeSpec.Builder parentBuilder) {
-    parentBuilder.addMethod(
-        MethodSpec.methodBuilder("getMetaInfo")
-            .addModifiers(Modifier.PUBLIC)
-            .returns(mapStringString)
-            .addStatement("return metaInfo")
-            .build());
-    parentBuilder.addMethod(
-        MethodSpec.methodBuilder("getMetaInfo")
-            .addModifiers(Modifier.PUBLIC)
-            .returns(String.class)
-            .addParameter(String.class, "type")
-            .addStatement("return metaInfo.get(type)")
-            .build());
   }
 }

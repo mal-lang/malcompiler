@@ -53,6 +53,7 @@ public class AttackStepGenerator extends JavaGenerator {
     ClassName type = ClassName.get(this.pkg, asset.getName(), ucFirst(attackStep.getName()));
     TypeSpec.Builder builder = TypeSpec.classBuilder(type);
     createCIA(builder, attackStep);
+    Generator.createMetaInfoAnnotations(builder, Generator.getMetaInfoMap(attackStep));
     builder.addModifiers(Modifier.PUBLIC);
     if (attackStep.hasParent()) {
       AttackStep parent = attackStep.getAsset().getSuperAsset().getAttackStep(attackStep.getName());
@@ -62,9 +63,6 @@ public class AttackStepGenerator extends JavaGenerator {
     } else {
       builder.superclass(getExtend(asset, attackStep));
     }
-
-    // meta info field
-    Generator.createMetaInfoField(builder, Generator.getMetaInfoMap(attackStep));
 
     // empty constructor
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder();
@@ -84,7 +82,6 @@ public class AttackStepGenerator extends JavaGenerator {
 
     createSteps(builder, exprGen, attackStep);
     createGetDescription(builder, attackStep);
-    Generator.createGetMetaInfo(builder);
     createTraceabilityHelper(builder, attackStep);
 
     parentBuilder.addType(builder.build());
