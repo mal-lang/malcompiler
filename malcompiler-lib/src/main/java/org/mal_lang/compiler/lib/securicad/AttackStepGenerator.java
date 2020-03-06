@@ -345,11 +345,24 @@ public class AttackStepGenerator extends JavaGenerator {
   }
 
   private void createTraceabilityHelper(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
-    MethodSpec.Builder builder = MethodSpec.methodBuilder("isTrace");
-    builder.addModifiers(Modifier.PUBLIC);
-    builder.returns(TypeName.BOOLEAN);
-    builder.addStatement("return $L", attackStep.hasInheritedTag("trace"));
-    parentBuilder.addMethod(builder.build());
+    parentBuilder.addMethod(
+        MethodSpec.methodBuilder("isTrace")
+            .addModifiers(Modifier.PUBLIC)
+            .returns(TypeName.BOOLEAN)
+            .addStatement("return $L", attackStep.hasInheritedTag("trace"))
+            .build());
+    parentBuilder.addMethod(
+        MethodSpec.methodBuilder("isTraceLeft")
+            .addModifiers(Modifier.PUBLIC)
+            .returns(TypeName.BOOLEAN)
+            .addStatement("return $L", attackStep.hasInheritedTag("traceLeft"))
+            .build());
+    parentBuilder.addMethod(
+        MethodSpec.methodBuilder("isTraceRight")
+            .addModifiers(Modifier.PUBLIC)
+            .returns(TypeName.BOOLEAN)
+            .addStatement("return $L", attackStep.hasInheritedTag("traceRight"))
+            .build());
   }
 
   private static void createSetField(TypeSpec.Builder parentBuilder, String name) {
