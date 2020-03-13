@@ -43,6 +43,10 @@ public class SecuriCADMojo extends MalMojo {
   @Parameter(property = "mal.securicad.icons")
   private File icons;
 
+  /** Specifies if debug steps should be kept. */
+  @Parameter(property = "mal.securicad.debug")
+  private boolean keepDebugSteps;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     init();
@@ -73,6 +77,8 @@ public class SecuriCADMojo extends MalMojo {
       validateFileIsDirectory(icons);
       args.put("icons", icons.getPath());
     }
+
+    args.put("debug", Boolean.toString(keepDebugSteps));
 
     // Generate code
     log.info(String.format("Compiling MAL specification %s", input.getPath()));

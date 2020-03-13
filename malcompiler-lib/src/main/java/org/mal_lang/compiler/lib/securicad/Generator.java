@@ -53,6 +53,7 @@ public class Generator extends JavaGenerator {
   private final Lang lang;
   private final File icons;
   private final boolean mock;
+  private final boolean keepDebugSteps;
 
   public static void generate(Lang lang, Map<String, String> args)
       throws CompilerException, IOException {
@@ -105,8 +106,25 @@ public class Generator extends JavaGenerator {
           throw error("Optional argument 'mock' must be either 'true' or 'false'");
       }
     }
+    if (!args.containsKey("debug")) {
+      this.keepDebugSteps = false;
+    } else {
+      switch (args.get("debug").toLowerCase().strip()) {
+        case "true":
+          this.keepDebugSteps = true;
+          break;
+        case "false":
+          this.keepDebugSteps = false;
+          break;
+        default:
+          throw error("Optional argument 'debug' must be either 'true' or 'false'");
+      }
+    }
 
-    removeDebugSteps(this.lang);
+    if (!keepDebugSteps) {
+      removeDebugSteps(this.lang);
+    }
+
     validateNames(this.lang);
     checkSteps(this.lang);
     fillAlwaysQualifiedNames(this.lang);
