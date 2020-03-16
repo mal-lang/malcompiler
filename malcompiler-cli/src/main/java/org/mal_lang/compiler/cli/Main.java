@@ -123,11 +123,13 @@ public class Main {
     lines.add(
         CLIParser.getSGROptionLine(
             SGR.of(
+                "[",
                 SGR.fgRGB(135, 206, 235, "core"),
                 "=",
-                SGR.italicized("true"),
+                SGR.italicized(SGR.bold("true")),
                 "|",
-                SGR.italicized("false")),
+                SGR.italicized("false"),
+                "]"),
             "Specifies if the core package should be generated"));
     lines.add(SGR.of());
     lines.add(SGR.of(SGR.bold("Args:"), " [", SGR.italicized("securicad"), "]"));
@@ -141,13 +143,30 @@ public class Main {
             String.format("Use PACKAGE as the package for the generated%nsources")));
     lines.add(
         CLIParser.getSGROptionLine(
+            SGR.of("[", SGR.fgRGB(135, 206, 235, "icons"), "=", SGR.italicized("PATH"), "]"),
+            "Icons are located at PATH"));
+    lines.add(
+        CLIParser.getSGROptionLine(
             SGR.of(
-                SGR.fgRGB(135, 206, 235, "core"),
+                "[",
+                SGR.fgRGB(135, 206, 235, "mock"),
                 "=",
                 SGR.italicized("true"),
                 "|",
-                SGR.italicized("false")),
-            "Specifies if the core package should be generated"));
+                SGR.italicized(SGR.bold("false")),
+                "]"),
+            String.format("Specifies if mocked dependencies should be%ngenerated")));
+    lines.add(
+        CLIParser.getSGROptionLine(
+            SGR.of(
+                "[",
+                SGR.fgRGB(135, 206, 235, "debug"),
+                "=",
+                SGR.italicized("true"),
+                "|",
+                SGR.italicized(SGR.bold("false")),
+                "]"),
+            "Specifies if debug steps should be kept"));
     lines.add(SGR.of());
     lines.add(SGR.of(SGR.bold("Args:"), " [", SGR.italicized("d3"), "]"));
     lines.add(SGR.of("  Not yet implemented"));

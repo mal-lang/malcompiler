@@ -202,6 +202,37 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
     assertFalse(simulatorDir.exists(), String.format("%s exists", simulatorDir));
   }
 
+  private void assertDebugInvalid(Lang lang, Map<String, String> args) {
+    String[] expectedErrors = {
+      "[GENERATOR ERROR] Optional argument 'debug' must be either 'true' or 'false'", ""
+    };
+    assertGeneratorErrors(lang, args, expectedErrors);
+  }
+
+  private void assertDebugStepPresent(String clsDir, String asset, String attackStep) {
+    var classLoader = assertLoadLang(clsDir);
+    try {
+      var cls = classLoader.loadClass(String.format("lang.%s", asset));
+      var field = cls.getField(attackStep);
+    } catch (ClassNotFoundException e) {
+      fail(e.getMessage());
+    } catch (NoSuchFieldException e) {
+      fail(e.getMessage());
+    }
+  }
+
+  private void assertDebugStepAbsent(String clsDir, String asset, String attackStep) {
+    var classLoader = assertLoadLang(clsDir);
+    try {
+      var cls = classLoader.loadClass(String.format("lang.%s", asset));
+      var field = cls.getField(attackStep);
+      fail(String.format("%s.%s should not exist", asset, attackStep));
+    } catch (ClassNotFoundException e) {
+      fail(e.getMessage());
+    } catch (NoSuchFieldException e) {
+    }
+  }
+
   @Test
   public void testBadPath() {
     assertPathMissing(null, Map.of());
@@ -334,6 +365,49 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
     assertEmptyOut();
     assertEmptyErr();
     removedArgs = Set.of();
+  }
+
+  @Test
+  public void testBadDebug() {
+    var outDir = getNewTmpDir("test-securicad-generator");
+    assertDebugInvalid(emptyLang, Map.of("path", outDir, "debug", "yes"));
+  }
+
+  @Test
+  public void testGoodDebug() {
+    String outDir = null;
+    String clsDir = null;
+    Map<String, String> backupDefaultArgs = null;
+
+    // Test that {"debug": "true"} is OK
+    outDir = getNewTmpDir("test-securicad-generator");
+    assertGeneratorOK(emptyLang, Map.of("path", outDir, "debug", "true"));
+    resetTestSystem();
+    // Test that {"debug": "True "} is OK
+    outDir = getNewTmpDir("test-securicad-generator");
+    assertGeneratorOK(emptyLang, Map.of("path", outDir, "debug", "True "));
+    resetTestSystem();
+    // Test that {"debug": "false"} is OK
+    outDir = getNewTmpDir("test-securicad-generator");
+    assertGeneratorOK(emptyLang, Map.of("path", outDir, "debug", "false"));
+    resetTestSystem();
+    // Test that {"debug": "False "} is OK
+    outDir = getNewTmpDir("test-securicad-generator");
+    assertGeneratorOK(emptyLang, Map.of("path", outDir, "debug", "False "));
+    resetTestSystem();
+    // Test that {"debug": "true"} keeps debug steps
+    backupDefaultArgs = defaultArgs;
+    defaultArgs = Map.of("package", "lang", "mock", "true", "debug", "true");
+    clsDir = assertLangGenerated("generator/debug-step.mal");
+    assertDebugStepPresent(clsDir, "Alpha", "access");
+    defaultArgs = backupDefaultArgs;
+    resetTestSystem();
+    // Test that {"debug": "false"} doesn't keep debug steps
+    backupDefaultArgs = defaultArgs;
+    defaultArgs = Map.of("package", "lang", "mock", "true", "debug", "false");
+    clsDir = assertLangGenerated("generator/debug-step.mal");
+    assertDebugStepAbsent(clsDir, "Alpha", "access");
+    defaultArgs = backupDefaultArgs;
   }
 
   @Test
