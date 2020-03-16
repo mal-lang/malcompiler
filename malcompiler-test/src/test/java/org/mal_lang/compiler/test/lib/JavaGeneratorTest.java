@@ -24,6 +24,9 @@ import static org.mal_lang.compiler.test.lib.AssertLang.assertGetLangClassPath;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -105,17 +108,7 @@ public abstract class JavaGeneratorTest extends MalTest {
   }
 
   private void generateLang(Lang lang, String sourcesDir) throws IOException, CompilerException {
-    generateLang(lang, sourcesDir, Map.of());
-  }
-
-  private void generateLang(Lang lang, String sourcesDir, Map<String, String> args)
-      throws IOException, CompilerException {
-    var newArgs = new HashMap<String, String>();
-    for (var entry : args.entrySet()) {
-      newArgs.put(entry.getKey(), entry.getValue());
-    }
-    newArgs.put("path", sourcesDir);
-    generate(lang, Map.copyOf(newArgs));
+    generate(lang, Map.of("path", sourcesDir));
   }
 
   private List<String> getJavaFilesToCompile(File sourcesDir) {
@@ -141,17 +134,13 @@ public abstract class JavaGeneratorTest extends MalTest {
     return files;
   }
 
-  protected void assertLangGenerated(String langPath) {
-    assertLangGenerated(langPath, Map.of());
-  }
-
-  protected void assertLangGenerated(String langPath, Map<String, String> args) {
+  protected String assertLangGenerated(String langPath) {
     var sourcesDir = getNewTmpDir("java-generator-test");
     var classesDir = getNewTmpDir("java-generator-test");
     var lang = assertGetLangClassPath(langPath);
     resetTestSystem();
     try {
-      generateLang(lang, sourcesDir, args);
+      generateLang(lang, sourcesDir);
       assertEmptyOut();
       assertEmptyErr();
       // Check that all assets were generated
@@ -177,8 +166,10 @@ public abstract class JavaGeneratorTest extends MalTest {
       if (res != 0) {
         failPrintOutErr("Generated code didn't compile");
       }
+      return classesDir;
     } catch (IOException | CompilerException e) {
       failPrintOutErr(e.getMessage());
+      return null;
     }
   }
 
@@ -196,5 +187,17 @@ public abstract class JavaGeneratorTest extends MalTest {
       assertEmptyOut();
       assertErrLines(expectedErrors);
     }
+  }
+
+  protected ClassLoader assertLoadLang(String clsDir) {
+    URL[] urls = null;
+    try {
+      var url = new File(clsDir).toURI().toURL();
+      urls = new URL[] {url};
+    } catch (MalformedURLException e) {
+      fail(e.getMessage());
+      return null;
+    }
+    return new URLClassLoader(urls);
   }
 }
