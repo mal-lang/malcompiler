@@ -391,7 +391,7 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
     outDir = getNewTmpDir("test-securicad-generator");
     assertGeneratorOK(emptyLang, Map.of("path", outDir, "debug", "false"));
     resetTestSystem();
-    // Test that {"debug": "True "} is OK
+    // Test that {"debug": "False "} is OK
     outDir = getNewTmpDir("test-securicad-generator");
     assertGeneratorOK(emptyLang, Map.of("path", outDir, "debug", "False "));
     resetTestSystem();
