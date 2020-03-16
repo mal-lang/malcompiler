@@ -384,6 +384,11 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
   }
 
   @Test
+  public void testKeepDebugSteps() {
+    assertLangGenerated("generator/debug-step.mal", Map.ofEntries(Map.entry("debug", "true")));
+  }
+
+  @Test
   public void testNaming() {
     String[] expectedErrors = {
       "[GENERATOR ERROR] Attack step 'a1' shares name with its asset 'A1'",

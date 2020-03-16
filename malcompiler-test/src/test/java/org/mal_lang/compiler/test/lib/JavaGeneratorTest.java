@@ -105,7 +105,17 @@ public abstract class JavaGeneratorTest extends MalTest {
   }
 
   private void generateLang(Lang lang, String sourcesDir) throws IOException, CompilerException {
-    generate(lang, Map.of("path", sourcesDir));
+    generateLang(lang, sourcesDir, Map.of());
+  }
+
+  private void generateLang(Lang lang, String sourcesDir, Map<String, String> args)
+      throws IOException, CompilerException {
+    var newArgs = new HashMap<String, String>();
+    for (var entry : args.entrySet()) {
+      newArgs.put(entry.getKey(), entry.getValue());
+    }
+    newArgs.put("path", sourcesDir);
+    generate(lang, Map.copyOf(newArgs));
   }
 
   private List<String> getJavaFilesToCompile(File sourcesDir) {
@@ -132,12 +142,16 @@ public abstract class JavaGeneratorTest extends MalTest {
   }
 
   protected void assertLangGenerated(String langPath) {
+    assertLangGenerated(langPath, Map.of());
+  }
+
+  protected void assertLangGenerated(String langPath, Map<String, String> args) {
     var sourcesDir = getNewTmpDir("java-generator-test");
     var classesDir = getNewTmpDir("java-generator-test");
     var lang = assertGetLangClassPath(langPath);
     resetTestSystem();
     try {
-      generateLang(lang, sourcesDir);
+      generateLang(lang, sourcesDir, args);
       assertEmptyOut();
       assertEmptyErr();
       // Check that all assets were generated
