@@ -1,0 +1,25 @@
+#id: "subtype"
+#version: "1.0.0"
+
+category Assets {
+  abstract asset Resource {
+  }
+
+  asset User extends Resource {
+    | assume
+      //-> actions[Assume].perform
+  }
+
+  abstract asset Action {
+    | perform
+  }
+
+  asset Assume extends Action {
+    | perform
+      -> resources[User].assume
+  }
+}
+
+associations {
+  Resource [resources] * <-- ResourceAction --> * [actions] Action
+}
