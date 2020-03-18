@@ -481,4 +481,9 @@ public class TestSecuricadGenerator extends JavaGeneratorTest {
   public void testSteps() {
     assertLangGenerated("generator/steps.mal");
   }
+
+  @Test
+  public void testSubtype() {
+    assertLangGenerated("generator/subtype.mal");
+  }
 }

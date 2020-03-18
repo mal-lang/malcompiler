@@ -436,11 +436,11 @@ public abstract class JavaGenerator extends Generator {
     if (source != null && subSource != null && !source.equals(subSource)) {
       ClassName type = ClassName.get(pkg, subSource.getName());
       if (af.hasPrefix()) {
-        String prefix = String.format("((%s) %s)", subSource.getName(), af.prefix);
+        String prefix = String.format("((%s) %s)", type.canonicalName(), af.prefix);
         return af.addStatement(new AutoFlow(prefix, "if ($N instanceof $T)", af.prefix, type));
       } else {
         // no prefix, use CLASS.this
-        String prefix = String.format("((%s) %s.this)", subSource.getName(), asset.getName());
+        String prefix = String.format("((%s) %s.this)", type.canonicalName(), asset.getName());
         return af.addStatement(
             new AutoFlow(prefix, "if ($N.this instanceof $T)", asset.getName(), type));
       }
