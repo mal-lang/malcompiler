@@ -111,6 +111,7 @@ public class Main {
     lines.add(SGR.bold("Targets:"));
     lines.add(SGR.of("  reference [", SGR.italicized("default"), "]"));
     lines.add(SGR.of("  securicad"));
+    lines.add(SGR.of("  format"));
     lines.add(SGR.of("  d3"));
     lines.add(SGR.of());
     lines.add(SGR.of(SGR.bold("Args:"), " [", SGR.italicized("reference"), "]"));
@@ -217,7 +218,6 @@ public class Main {
     int PARSER = cli.addOption('p', "parser", NO_ARGUMENT, "Run the parser and print the AST");
     int ANALYZER =
         cli.addOption('a', "analyzer", NO_ARGUMENT, "Run the analyzer and print the results");
-    int FORMATTER = cli.addOption('f', "format", NO_ARGUMENT, "Run the formatter");
     int TARGET = cli.addOption('t', "target", REQUIRED_ARGUMENT, "TARGET", "Compilation target");
     int ARGS = cli.addOption("args", REQUIRED_ARGUMENT, "ARGS", "Code generation arguments");
     int VERBOSE = cli.addOption('v', "verbose", NO_ARGUMENT, "Print verbose output");
@@ -241,8 +241,6 @@ public class Main {
         opts.parser = true;
       } else if (value == ANALYZER) {
         opts.analyzer = true;
-      } else if (value == FORMATTER) {
-        opts.formatter = true;
       } else if (value == TARGET) {
         opts.target = opt.getArgument();
       } else if (value == ARGS) {
@@ -291,7 +289,7 @@ public class Main {
         System.out.print(ast.toString());
       } else if (opts.analyzer) {
         Analyzer.analyze(Parser.parse(file), opts.verbose, opts.debug);
-      } else if (opts.formatter) {
+      } else if (opts.target.equals("format")) {
         Formatter.prettyPrint(file, opts.args);
       } else if (opts.target.equals("reference")) {
         AST ast = Parser.parse(file);

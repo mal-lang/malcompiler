@@ -106,7 +106,6 @@ public class Lexer {
       var tok1 = l1.next();
       var tok2 = l2.next();
       while (tok1.type != TokenType.EOF && tok2.type != TokenType.EOF) {
-        // TODO: Float inaccuracy, some sane threshold
         if (tok1.type != tok2.type
             || !tok1.stringValue.equals(tok2.stringValue)
             || tok1.intValue != tok2.intValue
@@ -396,10 +395,13 @@ public class Lexer {
   }
 
   private void readTrailingComments() throws CompilerException {
+    // Trailing comments are all comments followed on the same line as the previous
+    // token, including comments that follow previous trailing comments by exactly 1
+    // line.
     startLine = line;
     startCol = col;
     lexeme = new ArrayList<>();
-    if (eof || input[index] == (byte) '\n') {
+    if (eof || peek('\n')) {
       return;
     }
     byte c = consume();
@@ -409,13 +411,18 @@ public class Lexer {
         readTrailingComments();
         return;
       case '/':
-        if (peek("/")) {
+        if (peek('/')) {
           while (!eof && !peek('\n') && !peek('\r')) {
             consume();
           }
           createComment(TokenType.SINGLECOMMENT);
+          if (!eof) {
+            // consume the following newline and continue looking for comments
+            consume();
+            readTrailingComments();
+          }
           return;
-        } else if (peek("*")) {
+        } else if (peek('*')) {
           consume();
           while (!peek("*/")) {
             if (eof) {
@@ -442,10 +449,10 @@ public class Lexer {
 
   private Token createToken(TokenType type) throws CompilerException {
     var token = createRawToken(type);
-    var preComments = new ArrayList<>(comments);
+    var preComments = List.copyOf(comments);
     comments.clear();
     readTrailingComments();
-    var postComments = new ArrayList<>(comments);
+    var postComments = List.copyOf(comments);
     comments.clear();
     return new Token(token, preComments, postComments);
   }

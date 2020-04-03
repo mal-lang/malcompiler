@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.mal_lang.compiler.lib.CompilerException;
-import org.mal_lang.compiler.lib.Lexer;
 import org.mal_lang.compiler.lib.MalLogger;
 
 /**
@@ -43,19 +42,28 @@ public class Formatter {
 
   public static void prettyPrint(File file, Map<String, String> opts)
       throws IOException, CompilerException {
-    boolean inplace =
-        opts.containsKey("inplace") ? Boolean.parseBoolean(opts.get("inplace")) : false;
-    int margin = opts.containsKey("margin") ? Integer.parseInt(opts.get("margin")) : 2;
+    boolean inplace = false;
+    if (opts.containsKey("inplace")) {
+      switch (opts.get("inplace").toLowerCase().strip()) {
+        case "true":
+          inplace = true;
+          break;
+        case "false":
+          inplace = false;
+          break;
+        default:
+          throw new CompilerException(
+              "Optional argument 'inplace' must be either 'true' or 'false'");
+      }
+    }
+    int margin = opts.containsKey("margin") ? Integer.parseInt(opts.get("margin")) : 100;
+    if (margin < 0) {
+      throw new CompilerException("Optional argument 'margin' must be a positive integer");
+    }
     var bytes = prettyPrint(file, margin);
     if (inplace) {
-      FileOutputStream fos = null;
-      try {
-        fos = new FileOutputStream(file, false);
+      try (var fos = new FileOutputStream(file, false)) {
         fos.write(bytes);
-      } finally {
-        if (fos != null) {
-          fos.close();
-        }
       }
     } else {
       System.out.print(new String(bytes));
@@ -194,11 +202,11 @@ public class Formatter {
       } else if (token instanceof Token.String) {
         var tok = (Token.String) token;
         if (blockStartIndex.isEmpty()) {
-          print(tok, tok.value.length());
+          print(tok, tok.length);
         } else {
           stream.add(tok);
-          size.add(tok.value.length());
-          total += tok.value.length();
+          size.add(tok.length);
+          total += tok.length;
         }
       }
     }
@@ -211,10 +219,9 @@ public class Formatter {
     try {
       fos = new FileOutputStream(tempFile);
       fos.write(bytes);
-      if (!Lexer.syntacticallyEqual(new Lexer(file), new Lexer(tempFile))) {
-        throw new CompilerException(
-            "The formatter has produced an AST that differs from the input.");
-      }
+      /*if (!Lexer.syntacticallyEqual(new Lexer(file), new Lexer(tempFile))) {
+        throw new CompilerException("The formatter has produced an AST that differs from the input.");
+      }*/
       return bytes;
     } catch (Exception e) {
       LOGGER.error("The formatter has produced an invalid AST. Please report this as a bug.");

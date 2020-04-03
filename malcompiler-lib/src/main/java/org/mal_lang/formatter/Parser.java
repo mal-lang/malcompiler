@@ -27,8 +27,7 @@ public class Parser {
   private Lexer lex;
   private org.mal_lang.compiler.lib.Token tok;
   private Deque<Token.Base> tokens;
-  private int lastLine = 1;
-  private boolean allowBreak = false;
+  private int currentLine = 1;
 
   public Parser(File file, Deque<Token.Base> tokens) throws IOException {
     var canonicalFile = file.getCanonicalFile();
@@ -44,59 +43,72 @@ public class Parser {
     }
   }
 
+  public void checkFirst(boolean first) {
+    if (!first) {
+      createBreak("", 0);
+      currentLine++;
+    }
+  }
+
   public void parse() {
     createBegin(Token.BlockBreakType.ALWAYS, 0);
     next();
     boolean first = true;
     while (true) {
+      // Category and Associations are separated by a blank line if they are not the
+      // first top-level element
       switch (tok.type) {
         case CATEGORY:
-          parseCategory(first);
-          first = false;
+          checkFirst(first);
+          parseCategory();
           break;
         case ASSOCIATIONS:
+          checkFirst(first);
           parseAssociations();
-          first = false;
           break;
         case INCLUDE:
           parseInclude();
-          first = false;
           break;
         case HASH:
           parseDefine();
-          first = false;
           break;
         case EOF:
+          for (var comment : tok.preComments) {
+            allowUserBreak(comment);
+            createComment(comment, tok);
+          }
           createEnd();
           return;
         default:
           throw new RuntimeException(tok.type + "");
       }
+      first = false;
     }
   }
 
   private void parseAssociations() {
-    createBreak("", 0);
     createBegin(Token.BlockBreakType.ALWAYS, INDENT);
 
     createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     consumeToken("associations");
     createEnd();
     createBreak("", -INDENT);
+    currentLine++;
     consumeToken("{");
     if (tok.type == TokenType.ID) {
       parseAsssociations1();
     }
     createBreak("", -INDENT);
+    currentLine++;
     consumeToken("}");
     createEnd();
     createBreak("", 0);
+    currentLine++;
   }
 
   private void parseAsssociations1() {
     var id = tok;
     next();
-    allowBreak = true;
     parseAssociation(id);
     while (tok.type == TokenType.ID) {
       id = tok;
@@ -105,7 +117,6 @@ public class Parser {
         parseMeta2(id);
       } else {
         createEnd(); // closing association block
-        allowBreak = true;
         parseAssociation(id);
       }
     }
@@ -114,10 +125,12 @@ public class Parser {
 
   private void parseAssociation(org.mal_lang.compiler.lib.Token prev) {
     createBreak("", 0);
+    currentLine++;
     createBegin(Token.BlockBreakType.ALWAYS, INDENT);
-    createBegin(Token.BlockBreakType.CONSISTENT, 2 * INDENT);
     createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    createToken(prev, prev.stringValue);
+    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
+    // Allow user blank lines between associations
+    createToken(prev, prev.stringValue, true);
     createBreak(" ", 0);
     consumeToken("[");
     consumeToken(tok.stringValue);
@@ -172,6 +185,7 @@ public class Parser {
     consumeToken("\"" + tok.stringValue + "\"");
     createEnd();
     createBreak("", 0);
+    currentLine++;
   }
 
   private void parseInclude() {
@@ -181,73 +195,111 @@ public class Parser {
     consumeToken("\"" + tok.stringValue + "\"");
     createEnd();
     createBreak("", 0);
-  }
-
-  private void createToken(org.mal_lang.compiler.lib.Token token, String value) {
-    for (int i = 0; i < token.preComments.size(); i++) {
-      var comment = token.preComments.get(i);
-      if (i < token.preComments.size() - 1) {
-        createComment(comment, false, false);
-      } else {
-        int endLine = comment.line + comment.stringValue.split("\n").length - 1;
-        createComment(comment, false, endLine != token.line);
-      }
-    }
-    if (allowBreak && token.line - lastLine >= 2) {
-      // allow blanklines
-      createBegin(Token.BlockBreakType.ALWAYS, 0);
-      tokens.push(new Token.Break("", 0)); // dont consume comment break
-      createEnd();
-    }
-    allowBreak = false;
-    if (!token.postComments.isEmpty()) {
-      // we have at least 1 trailing comment
-      createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-      createString(value);
-      for (var comment : token.postComments) {
-        createComment(comment, true, false);
-      }
-      createEnd();
-    } else {
-      createString(value);
-    }
-    // postComments are always on the same line as the token
-    lastLine = token.line;
-  }
-
-  private void consumeToken(String value) {
-    createToken(tok, value);
-    next();
-  }
-
-  private void createString(String value) {
-    tokens.push(new Token.String(value));
+    currentLine++;
   }
 
   private void createComment(
-      org.mal_lang.compiler.lib.Token comment, boolean space, boolean newline) {
-    if (allowBreak && comment.line - lastLine >= 2) {
-      // allow blanklines
+      org.mal_lang.compiler.lib.Token comment, org.mal_lang.compiler.lib.Token token) {
+    switch (comment.type) {
+      case SINGLECOMMENT:
+        // Never include single comment length
+        createString(String.format("//%s", comment.stringValue), false);
+        createCommentBreak();
+        currentLine = comment.line + 1;
+        break;
+      case MULTICOMMENT:
+        var rows = comment.stringValue.split("\\n", -1);
+        int startLine = comment.line;
+        int endLine = startLine + rows.length - 1;
+
+        createString("/");
+        createBegin(Token.BlockBreakType.ALWAYS, 0);
+        createString("*");
+        for (int i = 0; i < rows.length; i++) {
+          // Only count length if we are on the same line as our token
+          createString(rows[i].strip(), startLine + i == token.line);
+          if (i != rows.length - 1) {
+            createCommentBreak();
+            currentLine++;
+          }
+        }
+        createString("*/");
+        createEnd();
+        currentLine = endLine;
+        break;
+      default:
+        break;
+    }
+  }
+
+  private void removeLastCommentBreak() {
+    var it = tokens.iterator();
+    while (it.hasNext()) {
+      var token = it.next();
+      if (token instanceof Token.CommentBreak) {
+        it.remove();
+        break;
+      } else if (token instanceof Token.String) {
+        break;
+      }
+    }
+  }
+
+  private void allowUserBreak(org.mal_lang.compiler.lib.Token token) {
+    if (token.line - currentLine > 0) {
+      // Token is ahead of expected line
+      tokens.push(new Token.Break("", 0));
+    }
+  }
+
+  private void createToken(
+      org.mal_lang.compiler.lib.Token token, String value, boolean allowBreaks) {
+    if (currentLine > token.line) {
+      // We are in front of our token, this is okay except if this was caused by a
+      // previous trailing comment.
+      removeLastCommentBreak();
+    }
+
+    createBegin(Token.BlockBreakType.ALWAYS, 0);
+    for (var comment : token.preComments) {
+      allowUserBreak(comment);
+      createComment(comment, token);
+    }
+
+    if (allowBreaks || !token.preComments.isEmpty()) {
+      allowUserBreak(token);
+    }
+    createEnd();
+    createString(value);
+    currentLine = token.line;
+    if (!token.postComments.isEmpty()) {
+      createString(" ");
       createBegin(Token.BlockBreakType.ALWAYS, 0);
-      createBreak("", 0);
+      for (var comment : token.postComments) {
+        allowUserBreak(comment);
+        createComment(comment, token);
+      }
+      createCommentBreak();
+      currentLine++;
       createEnd();
     }
-    allowBreak = false;
-    var singleComment = comment.type == TokenType.SINGLECOMMENT;
-    if (newline || singleComment) {
-      createBegin(Token.BlockBreakType.ALWAYS, 0);
-    }
-    if (comment.type == TokenType.SINGLECOMMENT) {
-      createString(String.format("%s//%s", space ? " " : "", comment.stringValue));
-    } else {
-      createString(String.format("%s/*%s*/", space ? " " : "", comment.stringValue));
-    }
-    if (newline || singleComment) {
-      tokens.push(new Token.CommentBreak("", 0));
-      createEnd();
-      allowBreak = true;
-    }
-    lastLine = comment.line;
+  }
+
+  private void consumeToken(String value) {
+    consumeToken(value, false);
+  }
+
+  private void consumeToken(String value, boolean allowBreak) {
+    createToken(tok, value, allowBreak);
+    next();
+  }
+
+  private void createString(String value, boolean includeLength) {
+    tokens.push(new Token.String(value, includeLength));
+  }
+
+  private void createString(String value) {
+    createString(value, true);
   }
 
   private Token.Begin createBegin(Token.BlockBreakType type, int indent) {
@@ -260,31 +312,16 @@ public class Parser {
     tokens.push(new Token.End());
   }
 
-  private void removeLastCommentBreak() {
-    var it = tokens.iterator();
-    while (it.hasNext()) {
-      var next = it.next();
-      if (!(next instanceof Token.Begin || next instanceof Token.End)) {
-        if (next instanceof Token.CommentBreak) {
-          it.remove();
-        }
-        break;
-      }
-    }
-  }
-
   private void createBreak(String value, int indent) {
-    if (value.isEmpty()) {
-      removeLastCommentBreak();
-    }
+    removeLastCommentBreak();
     tokens.push(new Token.Break(value, indent));
   }
 
-  private void parseCategory(boolean first) {
-    if (!first) {
-      // Extra break if we are following a previous asset
-      createBreak("", 0);
-    }
+  private void createCommentBreak() {
+    tokens.push(new Token.CommentBreak("", 0));
+  }
+
+  private void parseCategory() {
     createBegin(Token.BlockBreakType.ALWAYS, INDENT);
 
     createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
@@ -296,35 +333,38 @@ public class Parser {
     parseMeta();
 
     createBreak("", -INDENT);
+    currentLine++;
     consumeToken("{");
     parseAssets();
     createBreak("", -INDENT);
+    currentLine++;
     consumeToken("}");
     createEnd();
     createBreak("", 0);
+    currentLine++;
   }
 
   private void parseAssets() {
     boolean first = true;
     while (true) {
+      // Assets are separated by a blank line if they are not the first asset in a
+      // category
       switch (tok.type) {
         case ABSTRACT:
         case ASSET:
-          parseAsset(first);
-          first = false;
+          checkFirst(first);
+          parseAsset();
           break;
         default:
           return;
       }
+      first = false;
     }
   }
 
-  private void parseAsset(boolean first) {
-    if (!first) {
-      // Extra break if we are following a previous asset
-      createBreak("", 0);
-    }
+  private void parseAsset() {
     createBreak("", 0);
+    currentLine++;
     createBegin(Token.BlockBreakType.ALWAYS, INDENT);
     createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
     if (tok.type == TokenType.ABSTRACT) {
@@ -344,14 +384,16 @@ public class Parser {
     parseMeta();
 
     createBreak("", -INDENT);
+    currentLine++;
     consumeToken("{");
     // ATTACKSTEPS
-    first = true;
+    boolean first = true;
     boolean isMore = true;
     while (isMore) {
+      // Only attacksteps are separated by a blank line if they are not the first
+      // top-level element inside Asset
       switch (tok.type) {
         case LET:
-          allowBreak = true;
           parseVariable();
           first = false;
           break;
@@ -359,10 +401,11 @@ public class Parser {
           isMore = false;
           break;
         default:
-          parseAttackStep(first);
-          first = false;
+          checkFirst(first);
+          parseAttackStep();
           break;
       }
+      first = false;
     }
     createBreak("", -INDENT);
     consumeToken("}");
@@ -371,24 +414,22 @@ public class Parser {
 
   private void parseVariable() {
     createBreak("", 0);
+    currentLine++;
     createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    consumeToken("let");
+    // Allow user blank lines between variable definitions
+    consumeToken("let", true);
     createBreak(" ", 0);
     consumeToken(tok.stringValue);
     createBreak(" ", 0);
     consumeToken("=");
     createBreak(" ", 0);
-    parseExpr();
+    parseExpr(false);
     createEnd();
   }
 
-  private void parseAttackStep(boolean first) {
-    // If we must break attackstep definition we want it all on the same line
-    if (!first) {
-      // Extra break if we are following a previous def
-      createBreak("", 0);
-    }
+  private void parseAttackStep() {
     createBreak("", 0);
+    currentLine++;
     createBegin(Token.BlockBreakType.ALWAYS, INDENT);
 
     createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
@@ -521,24 +562,25 @@ public class Parser {
 
   private void parseReachesOrRequires() {
     createBreak("", 0);
+    currentLine++;
     createBegin(Token.BlockBreakType.ALWAYS, 3);
     var value = tok.type.toString();
-    consumeToken(value.substring(1, value.length() - 1));
-    createString(" ");
-    allowBreak = true;
-    parseExpr();
+    consumeToken(value.substring(1, value.length() - 1) + (tok.postComments.isEmpty() ? " " : ""));
+    // Only allow user blank lines after the first expression
+    parseExpr(false);
     while (tok.type == TokenType.COMMA) {
       consumeToken(",");
       createBreak("", 0);
-      allowBreak = true;
-      parseExpr();
+      currentLine++;
+      parseExpr(true);
     }
     createEnd();
   }
 
-  private void parseExpr() {
+  private void parseExpr(boolean allowBreaks) {
     var block = createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    parseSteps();
+    // allowBreaks is passed to when the first token is read
+    parseSteps(allowBreaks);
     while (tok.type == TokenType.UNION
         || tok.type == TokenType.INTERSECT
         || tok.type == TokenType.MINUS) {
@@ -548,30 +590,32 @@ public class Parser {
       createBegin(Token.BlockBreakType.NEVER, 0);
       consumeToken(value.substring(1, value.length() - 1));
       createBreak(" ", 0);
-      parseSteps();
+      parseSteps(false);
       createEnd();
     }
     createEnd();
   }
 
-  private void parseSteps() {
+  private void parseSteps(boolean allowBreaks) {
     createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    parseStep();
+    // allowBreaks is passed to when the first token is read
+    parseStep(allowBreaks);
     while (tok.type == TokenType.DOT) {
       createBreak("", 0);
       consumeToken(".");
-      parseStep();
+      parseStep(false);
     }
     createEnd();
   }
 
-  private void parseStep() {
+  private void parseStep(boolean allowBreaks) {
+    // Only allow user blank lines on first token read
     if (tok.type == TokenType.LPAREN) {
-      consumeToken("(");
-      parseExpr();
+      consumeToken("(", allowBreaks);
+      parseExpr(false);
       consumeToken(")");
     } else if (tok.type == TokenType.ID) {
-      consumeToken(tok.stringValue);
+      consumeToken(tok.stringValue, allowBreaks);
       if (tok.type == TokenType.LPAREN) {
         consumeToken("(");
         consumeToken(")");
@@ -590,8 +634,9 @@ public class Parser {
 
   private void parseMeta2(org.mal_lang.compiler.lib.Token prev) {
     createBreak("", 0);
+    currentLine++;
     createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    createToken(prev, prev.stringValue);
+    createToken(prev, prev.stringValue, false);
     createBreak(" ", 0);
     consumeToken("info");
     consumeToken(":");

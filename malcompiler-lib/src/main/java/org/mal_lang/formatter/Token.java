@@ -22,9 +22,15 @@ public class Token {
 
   public static class String implements Base {
     public final java.lang.String value;
+    public final int length;
 
     public String(java.lang.String value) {
+      this(value, true);
+    }
+
+    public String(java.lang.String value, boolean includeLength) {
       this.value = value;
+      this.length = includeLength ? value.length() : 0;
     }
   }
 

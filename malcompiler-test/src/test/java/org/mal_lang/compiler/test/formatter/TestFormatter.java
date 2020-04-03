@@ -68,6 +68,11 @@ public class TestFormatter extends MalTest {
   }
 
   @Test
+  public void testComments() {
+    outputEqual("formatter/comments.mal", "formatter/comments.ans", 100);
+  }
+
+  @Test
   public void testReadable() {
     outputEqual("formatter/readable.mal", "formatter/readable.ans", 100);
   }

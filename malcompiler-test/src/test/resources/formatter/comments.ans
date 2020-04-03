@@ -1,0 +1,46 @@
+category Something
+{
+  // multiple single line
+  // comments with a user
+
+  // made blank line
+  // between them
+
+  asset Something
+  {
+    | something
+      -> something.something, // trailing comment that the
+                              // user put on separate lines
+         something.something
+
+    & something
+      -> // comment as first step entry
+         something.something,
+
+         something.something // user made blank line before this line
+                             // with some extra comment text here
+  }
+}
+
+/*
+ multi
+ line
+ comment
+ */
+/*
+ * multi
+ *   line
+ *     comment
+ */
+associations
+{
+  // very long single line comment before a line that should fit on one line without breaking
+  A1 [a1] 1 <-- L --> 1 [a2] A2
+
+  A1 [a1] 1 <-- L --> 1 [a2] A2 // very long comment trailing a line that should fit despite this comment
+}
+
+/*
+ * multi line comment
+ * placed at the end
+ */
