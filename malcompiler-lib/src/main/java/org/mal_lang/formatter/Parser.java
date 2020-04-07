@@ -236,10 +236,10 @@ public class Parser {
     var it = tokens.iterator();
     while (it.hasNext()) {
       var token = it.next();
-      if (token instanceof Token.CommentBreak) {
-        it.remove();
-        break;
-      } else if (token instanceof Token.String) {
+      if (token instanceof Token.CommentBreak || token instanceof Token.String) {
+        if (token instanceof Token.CommentBreak) {
+          it.remove();
+        }
         break;
       }
     }
@@ -395,7 +395,6 @@ public class Parser {
       switch (tok.type) {
         case LET:
           parseVariable();
-          first = false;
           break;
         case RCURLY:
           isMore = false;
