@@ -76,6 +76,10 @@ limitations under the License.
       <groupId>guru.nidi.com.kitfox</groupId>
       <artifactId>svgSalamander</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.json</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

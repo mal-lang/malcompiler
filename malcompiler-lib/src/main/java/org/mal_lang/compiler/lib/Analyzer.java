@@ -37,7 +37,7 @@ public class Analyzer {
   private Map<AST.Variable, Integer> variableReferenceCount = new HashMap<>();
   private Map<AST.Association, Map<String, Integer>> fieldReferenceCount = new HashMap<>();
 
-  private AST ast;
+  public final AST ast;
   private boolean failed;
 
   private Analyzer(AST ast, boolean verbose, boolean debug) {
@@ -46,12 +46,14 @@ public class Analyzer {
     this.ast = ast;
   }
 
-  public static void analyze(AST ast) throws CompilerException {
-    analyze(ast, false, false);
+  public static Analyzer analyze(AST ast) throws CompilerException {
+    return analyze(ast, false, false);
   }
 
-  public static void analyze(AST ast, boolean verbose, boolean debug) throws CompilerException {
-    new Analyzer(ast, verbose, debug).analyzeLog();
+  public static Analyzer analyze(AST ast, boolean verbose, boolean debug) throws CompilerException {
+    var analyzer = new Analyzer(ast, verbose, debug);
+    analyzer.analyzeLog();
+    return analyzer;
   }
 
   private void analyzeLog() throws CompilerException {
@@ -705,7 +707,7 @@ public class Analyzer {
     }
   }
 
-  private AST.Asset checkToAsset(AST.Asset asset, AST.Expr expr) {
+  public AST.Asset checkToAsset(AST.Asset asset, AST.Expr expr) {
     if (expr instanceof AST.StepExpr) {
       return checkStepExpr(asset, (AST.StepExpr) expr);
     } else if (expr instanceof AST.IDExpr) {
@@ -846,7 +848,7 @@ public class Analyzer {
     }
   }
 
-  private AST.Asset getAsset(AST.ID name) {
+  public AST.Asset getAsset(AST.ID name) {
     if (assets.containsKey(name.id)) {
       return assets.get(name.id);
     } else {
@@ -855,7 +857,7 @@ public class Analyzer {
     }
   }
 
-  private AST.ID hasStep(AST.Asset asset, String name) {
+  public AST.ID hasStep(AST.Asset asset, String name) {
     Scope<AST.AttackStep> scope = steps.get(asset.name.id);
     AST.AttackStep attackStep = scope.lookdown(name);
     if (attackStep != null) {
