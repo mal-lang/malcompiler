@@ -9,21 +9,19 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.json.Json;
-import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
-import org.mal_lang.compiler.lib.AST;
-import org.mal_lang.compiler.lib.AST.Asset;
-import org.mal_lang.compiler.lib.AST.IDExpr;
-import org.mal_lang.compiler.lib.Analyzer;
 import org.mal_lang.compiler.lib.CompilerException;
+import org.mal_lang.compiler.lib.Lang;
+import org.mal_lang.compiler.lib.Lang.StepAttackStep;
+import org.mal_lang.compiler.lib.Lang.StepBinOp;
 
 public class Generator extends org.mal_lang.compiler.lib.Generator {
-  public static void generate(Analyzer analyzer, Map<String, String> args)
+  public static void generate(Lang lang, Map<String, String> args)
       throws CompilerException, FileNotFoundException {
-    new Generator(analyzer, args);
+    new Generator(lang, args);
   }
 
-  private Generator(Analyzer analyzer, Map<String, String> args)
+  private Generator(Lang lang, Map<String, String> args)
       throws CompilerException, FileNotFoundException {
     super(false, false);
     Locale.setDefault(Locale.ROOT);
@@ -37,85 +35,69 @@ public class Generator extends org.mal_lang.compiler.lib.Generator {
 
     var json = Json.createObjectBuilder();
     var assets = Json.createArrayBuilder();
-    for (var category : analyzer.ast.getCategories()) {
-      for (var asset : category.assets) {
-        var jsonAsset = Json.createObjectBuilder();
-        jsonAsset.add("name", asset.name.id);
-        if (!asset.attackSteps.isEmpty()) {
-          var attackSteps = Json.createArrayBuilder();
-          for (var attackStep : asset.attackSteps) {
-            var jsonAttackStep = Json.createObjectBuilder();
-            jsonAttackStep.add("name", attackStep.name.id);
-            switch (attackStep.type) {
-              case ANY:
-                jsonAttackStep.add("type", "or");
-                break;
-              case ALL:
-                jsonAttackStep.add("type", "and");
-                break;
-              case DEFENSE:
-              case EXIST:
-              case NOTEXIST:
-                jsonAttackStep.add("type", "defense");
-                break;
-              default:
-                throw new RuntimeException("Invalid attack step type " + attackStep.type);
-            }
-
-            JsonArrayBuilder targets = Json.createArrayBuilder();
-
-            Asset parent = asset;
-            while (parent.parent.isPresent()) {
-              var name = parent.parent.get();
-              parent = analyzer.getAsset(name);
-              if (analyzer.hasStep(asset, attackStep.name.id) != null) {
-                JsonObjectBuilder jsonStep = Json.createObjectBuilder();
-                jsonStep.add("name", attackStep.name.id);
-                jsonStep.add("entity_name", parent.name.id);
-                jsonStep.add("size", 4000);
-                targets.add(jsonStep);
-                break;
-              }
-            }
-
-            if (attackStep.reaches.isPresent()) {
-              for (var expr : attackStep.reaches.get().reaches) {
-                String step = "";
-                String target = "";
-                if (expr instanceof IDExpr) {
-                  step = ((IDExpr) expr).id.id;
-                  target = asset.name.id;
-                } else {
-                  var stepExpr = (AST.StepExpr) expr;
-                  step = ((IDExpr) stepExpr.rhs).id.id;
-                  target = analyzer.checkToAsset(asset, stepExpr.lhs).name.id;
-                }
-                JsonObjectBuilder jsonStep = Json.createObjectBuilder();
-                jsonStep.add("name", step);
-                jsonStep.add("entity_name", target);
-                jsonStep.add("size", 4000);
-                targets.add(jsonStep);
-              }
-            }
-            jsonAttackStep.add("targets", targets);
-            attackSteps.add(jsonAttackStep);
+    for (var asset : lang.getAssets().values()) {
+      var jsonAsset = Json.createObjectBuilder();
+      jsonAsset.add("name", asset.getName());
+      if (!asset.getAttackSteps().isEmpty()) {
+        var attackSteps = Json.createArrayBuilder();
+        for (var attackStep : asset.getAttackSteps().values()) {
+          var jsonAttackStep = Json.createObjectBuilder();
+          jsonAttackStep.add("name", attackStep.getName());
+          switch (attackStep.getType()) {
+            case ANY:
+              jsonAttackStep.add("type", "or");
+              break;
+            case ALL:
+              jsonAttackStep.add("type", "and");
+              break;
+            case DEFENSE:
+            case EXIST:
+            case NOTEXIST:
+              jsonAttackStep.add("type", "defense");
+              break;
+            default:
+              throw new RuntimeException("Invalid attack step type " + attackStep.getType());
           }
-          jsonAsset.add("children", attackSteps);
+
+          var targets = Json.createArrayBuilder();
+
+          if (asset.hasSuperAsset()) {
+            // getAttackStep will traverse all parents
+            var as = asset.getSuperAsset().getAttackStep(attackStep.getName());
+            if (as != null) {
+              JsonObjectBuilder jsonStep = Json.createObjectBuilder();
+              jsonStep.add("name", as.getName());
+              jsonStep.add("entity_name", as.getAsset().getName());
+              jsonStep.add("size", 4000);
+              targets.add(jsonStep);
+            }
+          }
+
+          for (var expr : attackStep.getReaches()) {
+            StepAttackStep as;
+            // either stepBinOp or stepAttackStep
+            if (expr instanceof StepAttackStep) {
+              as = (StepAttackStep) expr;
+            } else {
+              as = (StepAttackStep) ((StepBinOp) expr).rhs;
+            }
+            JsonObjectBuilder jsonStep = Json.createObjectBuilder();
+            jsonStep.add("name", as.attackStep.getName());
+            jsonStep.add("entity_name", as.attackStep.getAsset().getName());
+            jsonStep.add("size", 4000);
+            targets.add(jsonStep);
+          }
+          jsonAttackStep.add("targets", targets);
+          attackSteps.add(jsonAttackStep);
         }
-        assets.add(jsonAsset);
+        jsonAsset.add("children", attackSteps);
       }
+      assets.add(jsonAsset);
     }
     json.add("children", assets);
     var jsonString = json.build().toString();
 
-    String name = "";
-    for (var define : analyzer.ast.getDefines()) {
-      if (define.key.id.equals("id")) {
-        name = define.value;
-        break;
-      }
-    }
-
+    var name = lang.getDefine("id");
     var output = new File(outputDir, "visualization." + name + ".html");
     var is = getClass().getResourceAsStream("/d3/visualization.html");
     var reader = new BufferedReader(new InputStreamReader(is));

@@ -288,8 +288,9 @@ public class Main {
             lang, opts.args, opts.verbose, opts.debug);
       } else if (opts.target.equals("d3")) {
         AST ast = Parser.parse(file);
-        Analyzer analyzer = Analyzer.analyze(ast);
-        org.mal_lang.compiler.lib.d3.Generator.generate(analyzer, opts.args);
+        Analyzer.analyze(ast);
+        Lang lang = LangConverter.convert(ast);
+        org.mal_lang.compiler.lib.d3.Generator.generate(lang, opts.args);
       } else {
         throw new CompilerException(String.format("Invalid compilation target %s", opts.target));
       }
