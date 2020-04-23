@@ -14,6 +14,7 @@ import org.mal_lang.compiler.lib.CompilerException;
 import org.mal_lang.compiler.lib.Lang;
 import org.mal_lang.compiler.lib.Lang.StepAttackStep;
 import org.mal_lang.compiler.lib.Lang.StepBinOp;
+import org.mal_lang.compiler.lib.Lang.StepExpr;
 
 public class Generator extends org.mal_lang.compiler.lib.Generator {
   public static void generate(Lang lang, Map<String, String> args)
@@ -74,13 +75,7 @@ public class Generator extends org.mal_lang.compiler.lib.Generator {
           }
 
           for (var expr : attackStep.getReaches()) {
-            StepAttackStep as;
-            // either stepBinOp or stepAttackStep
-            if (expr instanceof StepAttackStep) {
-              as = (StepAttackStep) expr;
-            } else {
-              as = (StepAttackStep) ((StepBinOp) expr).rhs;
-            }
+            var as = getAttackStep(expr);
             JsonObjectBuilder jsonStep = Json.createObjectBuilder();
             jsonStep.add("name", as.attackStep.getName());
             jsonStep.add("entity_name", as.attackStep.getAsset().getName());
@@ -106,6 +101,16 @@ public class Generator extends org.mal_lang.compiler.lib.Generator {
 
     try (var pw = new PrintWriter(output)) {
       pw.write(content);
+    }
+  }
+
+  private StepAttackStep getAttackStep(StepExpr expr) {
+    if (expr instanceof StepAttackStep) {
+      return (StepAttackStep) expr;
+    } else if (expr instanceof StepBinOp) {
+      return getAttackStep(((StepBinOp) expr).rhs);
+    } else {
+      throw new RuntimeException("Unexpected expression " + expr);
     }
   }
 }
