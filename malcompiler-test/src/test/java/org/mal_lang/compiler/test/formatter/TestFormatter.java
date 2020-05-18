@@ -31,7 +31,7 @@ public class TestFormatter extends MalTest {
     String formattedString = assertReadFileClassPath(formattedPath);
     File input = assertGetFileClassPath(unformattedPath);
     try {
-      String formatted = new String(Formatter.prettyPrint(input, lineWidth));
+      String formatted = new String(Formatter.format(input, lineWidth, false));
       if (!formattedString.equals(formatted)) {
         fail(String.format("%s formatted does not equal %s", unformattedPath, formattedPath));
       }
@@ -43,7 +43,7 @@ public class TestFormatter extends MalTest {
   public void formats(String path) {
     File file = assertGetFileClassPath(path);
     try {
-      Formatter.prettyPrint(file, 100);
+      Formatter.format(file, 100, false);
     } catch (IOException | CompilerException e) {
       fail(e.getMessage());
     }
@@ -53,7 +53,7 @@ public class TestFormatter extends MalTest {
   public void testInvalid() {
     File file = assertGetFileClassPath("parser/bad-asset1.mal");
     try {
-      Formatter.prettyPrint(file, 100);
+      Formatter.format(file, 100, false);
       fail("bad-asset1.mal should not compile");
     } catch (IOException | CompilerException e) {
       assertEquals("There were syntax errors", e.getMessage());

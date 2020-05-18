@@ -1,5 +1,4 @@
 #myDefine: "1.0.0"
-
 // Some comment
 category System
   developer /*secret inline comment*/ info: "Readable code"
@@ -8,29 +7,19 @@ category System
   asset myAsset extends otherAsset
     user info: "Something something"
   {
-    let myVar =
-        very.long.expression
-            /\ very.long.expression
-            /\ very.long.expression
-            /\ very.long.expression
-            /\ very.long.expression
-            /\ very.long.expression
-            /\ very.long.expression
-            /\ very.long.expression
-            /\ very.long.expression
-
+    let myVar = very.long.expression /\ very.long.expression /\ very.long.expression
+                    /\ very.long.expression /\ very.long.expression /\ very.long.expression
+                    /\ very.long.expression /\ very.long.expression /\ very.long.expression
     | compromise @tag @tag2 {C, I} [Infinity() * (9 ^ 4)]
       -> someasset.compromise.(access() /\ blocked)[One].open,
          // other steps
          compromise,
          read
   }
-
   abstract asset Empty
   {
   }
 }
-
 associations
 {
   From [type] 1..* <-- name --> 1 [type2] To

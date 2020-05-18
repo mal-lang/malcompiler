@@ -17,22 +17,35 @@ package org.mal_lang.formatter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Deque;
+import java.util.ArrayList;
+import java.util.List;
 import org.mal_lang.compiler.lib.CompilerException;
 import org.mal_lang.compiler.lib.Lexer;
+import org.mal_lang.compiler.lib.Token;
 import org.mal_lang.compiler.lib.TokenType;
+import org.mal_lang.formatter.blocks.Block;
+import org.mal_lang.formatter.blocks.IndentBlock;
+import org.mal_lang.formatter.blocks.LineBlock;
+import org.mal_lang.formatter.blocks.MultiBlock;
+import org.mal_lang.formatter.blocks.StackBlock;
+import org.mal_lang.formatter.blocks.TextBlock;
+import org.mal_lang.formatter.blocks.WrapBlock;
 
 public class Parser {
-  private static final int INDENT = 2;
   private Lexer lex;
-  private org.mal_lang.compiler.lib.Token tok;
-  private Deque<Token.Base> tokens;
-  private int currentLine = 1;
+  private Token tok;
+  private StackBlock block;
+  private int currentLine;
+  private boolean allowBreaks = true;
 
-  public Parser(File file, Deque<Token.Base> tokens) throws IOException {
+  public Parser(File file) throws IOException {
     var canonicalFile = file.getCanonicalFile();
     this.lex = new Lexer(canonicalFile);
-    this.tokens = tokens;
+  }
+
+  public String getOutput(int margin) {
+    block.update(0, margin);
+    return block.getOutput();
   }
 
   private void next() {
@@ -43,612 +56,508 @@ public class Parser {
     }
   }
 
-  public void checkFirst(boolean first) {
-    if (!first) {
-      createBreak("", 0);
-      currentLine++;
-    }
-  }
-
   public void parse() {
-    createBegin(Token.BlockBreakType.ALWAYS, 0);
+    currentLine = 1;
+    block = new StackBlock();
     next();
-    boolean first = true;
     while (true) {
-      // Category and Associations are separated by a blank line if they are not the
-      // first top-level element
       switch (tok.type) {
-        case CATEGORY:
-          checkFirst(first);
-          parseCategory();
-          break;
-        case ASSOCIATIONS:
-          checkFirst(first);
-          parseAssociations();
-          break;
         case INCLUDE:
-          parseInclude();
+          parseInclude(block);
+          break;
+        case CATEGORY:
+          parseCategory(block);
           break;
         case HASH:
-          parseDefine();
+          parseDefine(block);
+          break;
+        case ASSOCIATIONS:
+          parseAssociations(block);
           break;
         case EOF:
-          for (var comment : tok.preComments) {
-            allowUserBreak(comment);
-            createComment(comment, tok);
-          }
-          createEnd();
+          block.add(blockify(""));
           return;
         default:
           throw new RuntimeException(tok.type + "");
       }
-      first = false;
     }
   }
 
-  private void parseAssociations() {
-    createBegin(Token.BlockBreakType.ALWAYS, INDENT);
-
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    consumeToken("associations");
-    createEnd();
-    createBreak("", -INDENT);
-    currentLine++;
-    consumeToken("{");
-    if (tok.type == TokenType.ID) {
-      parseAsssociations1();
-    }
-    createBreak("", -INDENT);
-    currentLine++;
-    consumeToken("}");
-    createEnd();
-    createBreak("", 0);
-    currentLine++;
+  private Block blockify() {
+    return blockify(false);
   }
 
-  private void parseAsssociations1() {
-    var id = tok;
-    next();
-    parseAssociation(id);
-    while (tok.type == TokenType.ID) {
-      id = tok;
-      next();
-      if (tok.type == TokenType.INFO) {
-        parseMeta2(id);
-      } else {
-        createEnd(); // closing association block
-        parseAssociation(id);
-      }
-    }
-    createEnd(); // Closing association block
+  private Block blockify(String string) {
+    return blockify(string, false);
   }
 
-  private void parseAssociation(org.mal_lang.compiler.lib.Token prev) {
-    createBreak("", 0);
-    currentLine++;
-    createBegin(Token.BlockBreakType.ALWAYS, INDENT);
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    // Allow user blank lines between associations
-    createToken(prev, prev.stringValue, true);
-    createBreak(" ", 0);
-    consumeToken("[");
-    consumeToken(tok.stringValue);
-    consumeToken("]");
-    createEnd();
-    createBreak(" ", 0);
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    parseMult();
-    createBreak(" ", 0);
-    consumeToken("<--");
-    createBreak(" ", 0);
-    consumeToken(tok.stringValue);
-    createBreak(" ", 0);
-    consumeToken("-->");
-    createBreak(" ", 0);
-    parseMult();
-    createEnd();
-    createBreak(" ", 0);
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    consumeToken("[");
-    consumeToken(tok.stringValue);
-    consumeToken("]");
-    createBreak(" ", 0);
-    consumeToken(tok.stringValue);
-    createEnd();
-    createEnd();
-    // Block left open will be closed above
+  private Block blockify(boolean stackBlockLast) {
+    var value = tok.type.toString();
+    return blockify(value.substring(1, value.length() - 1), stackBlockLast);
   }
 
-  private void parseMult() {
-    parseMultUnit();
-    if (tok.type == TokenType.RANGE) {
-      consumeToken("..");
-      parseMultUnit();
-    }
-  }
-
-  private void parseMultUnit() {
-    if (tok.type == TokenType.INT) {
-      consumeToken(Integer.toString(tok.intValue));
+  private Block multilineComment(String value) {
+    var lines = value.split("\\n", -1);
+    if (lines.length == 1) {
+      return new TextBlock("/*" + value + "*/");
     } else {
-      consumeToken("*");
+      var line = new LineBlock(new TextBlock("/"));
+      var block = new StackBlock(new TextBlock("*" + lines[0].stripTrailing()));
+      for (int i = 1; i < lines.length - 1; i++) {
+        block.add(new TextBlock(lines[i].strip()));
+      }
+      block.add(new TextBlock(lines[lines.length - 1].stripLeading() + "*/"));
+      line.add(block);
+      return line;
     }
   }
 
-  private void parseDefine() {
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    consumeToken("#");
-    consumeToken(tok.stringValue);
-    consumeToken(":");
-    createBreak(" ", 0);
-    consumeToken("\"" + tok.stringValue + "\"");
-    createEnd();
-    createBreak("", 0);
-    currentLine++;
-  }
+  private Block blockify(String string, boolean stackBlockLast) {
+    var pre = new StackBlock();
+    var line = new LineBlock();
 
-  private void parseInclude() {
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    consumeToken("include");
-    createBreak(" ", 0);
-    consumeToken("\"" + tok.stringValue + "\"");
-    createEnd();
-    createBreak("", 0);
-    currentLine++;
-  }
-
-  private void createComment(
-      org.mal_lang.compiler.lib.Token comment, org.mal_lang.compiler.lib.Token token) {
-    switch (comment.type) {
-      case SINGLECOMMENT:
-        // Never include single comment length
-        createString(String.format("//%s", comment.stringValue), false);
-        createCommentBreak();
-        currentLine = comment.line + 1;
-        break;
-      case MULTICOMMENT:
-        var rows = comment.stringValue.split("\\n", -1);
-        int startLine = comment.line;
-        int endLine = startLine + rows.length - 1;
-
-        createString("/");
-        createBegin(Token.BlockBreakType.ALWAYS, 0);
-        createString("*");
-        for (int i = 0; i < rows.length; i++) {
-          // Only count length if we are on the same line as our token
-          createString(rows[i].strip(), startLine + i == token.line);
-          if (i != rows.length - 1) {
-            createCommentBreak();
-            currentLine++;
-          }
+    for (var comment : tok.preComments) {
+      if (currentLine + 1 < comment.line) {
+        pre.add(new TextBlock(""));
+        currentLine = comment.line;
+      }
+      if (comment.type == TokenType.SINGLECOMMENT) {
+        pre.add(new TextBlock("//" + comment.stringValue));
+        currentLine = comment.line;
+      } else {
+        int end = comment.line + comment.stringValue.split("\\n", -1).length - 1;
+        if (end == tok.line) {
+          line.add(multilineComment(comment.stringValue));
+        } else {
+          pre.add(multilineComment(comment.stringValue));
         }
-        createString("*/");
-        createEnd();
-        currentLine = endLine;
-        break;
-      default:
-        break;
-    }
-  }
-
-  private void removeLastCommentBreak() {
-    var it = tokens.iterator();
-    while (it.hasNext()) {
-      var token = it.next();
-      if (token instanceof Token.CommentBreak || token instanceof Token.String) {
-        if (token instanceof Token.CommentBreak) {
-          it.remove();
-        }
-        break;
+        currentLine = end;
       }
     }
-  }
-
-  private void allowUserBreak(org.mal_lang.compiler.lib.Token token) {
-    if (token.line - currentLine > 0) {
-      // Token is ahead of expected line
-      tokens.push(new Token.Break("", 0));
+    if (currentLine + 1 < tok.line && allowBreaks) {
+      pre.add(new TextBlock(""));
+      currentLine = tok.line;
     }
-  }
+    line.add(new TextBlock(string));
+    pre.add(line);
+    currentLine = tok.line;
 
-  private void createToken(
-      org.mal_lang.compiler.lib.Token token, String value, boolean allowBreaks) {
-    if (currentLine > token.line) {
-      // We are in front of our token, this is okay except if this was caused by a
-      // previous trailing comment.
-      removeLastCommentBreak();
-    }
-
-    createBegin(Token.BlockBreakType.ALWAYS, 0);
-    for (var comment : token.preComments) {
-      allowUserBreak(comment);
-      createComment(comment, token);
-    }
-
-    if (allowBreaks || !token.preComments.isEmpty()) {
-      allowUserBreak(token);
-    }
-    createEnd();
-    createString(value);
-    currentLine = token.line;
-    if (!token.postComments.isEmpty()) {
-      createString(" ");
-      createBegin(Token.BlockBreakType.ALWAYS, 0);
-      for (var comment : token.postComments) {
-        allowUserBreak(comment);
-        createComment(comment, token);
+    var post = new StackBlock();
+    boolean lastSingle = false;
+    for (var comment : tok.postComments) {
+      if (comment.type == TokenType.SINGLECOMMENT) {
+        // Cost is free to allow comments to span across margin
+        post.add(new TextBlock("//" + comment.stringValue, true));
+        lastSingle = true;
+        currentLine = comment.line;
+      } else {
+        post.add(multilineComment(comment.stringValue));
+        lastSingle = false;
+        currentLine = comment.line + comment.stringValue.split("\\n", -1).length - 1;
       }
-      createCommentBreak();
-      currentLine++;
-      createEnd();
     }
-  }
-
-  private void consumeToken(String value) {
-    consumeToken(value, false);
-  }
-
-  private void consumeToken(String value, boolean allowBreak) {
-    createToken(tok, value, allowBreak);
+    if (lastSingle && !stackBlockLast) {
+      post.add(new TextBlock(""));
+    }
     next();
+    if (post.getSize() > 0) {
+      return new LineBlock(pre, new TextBlock(" "), post);
+    } else {
+      return pre;
+    }
   }
 
-  private void createString(String value, boolean includeLength) {
-    tokens.push(new Token.String(value, includeLength));
+  private void parseInclude(MultiBlock block) {
+    var include = blockify();
+    allowBreaks = false;
+    var filePath = blockify("\"" + tok.stringValue + "\"");
+    block.add(new WrapBlock(" ", 4, include, filePath));
+    allowBreaks = true;
   }
 
-  private void createString(String value) {
-    createString(value, true);
+  private void parseDefine(MultiBlock block) {
+    var hash = blockify();
+    allowBreaks = false;
+    var hashKeyColon = new LineBlock(hash, blockify(tok.stringValue), blockify());
+    var stringValue = blockify("\"" + tok.stringValue + "\"");
+    block.add(new WrapBlock(" ", 4, hashKeyColon, stringValue));
+    allowBreaks = true;
   }
 
-  private Token.Begin createBegin(Token.BlockBreakType type, int indent) {
-    var block = new Token.Begin(type, indent);
-    tokens.push(block);
-    return block;
+  private void parseCategory(MultiBlock block) {
+    var category = new StackBlock();
+    var categoryToken = blockify();
+    allowBreaks = false;
+    var name = blockify(tok.stringValue, true);
+    category.add(new WrapBlock(" ", 4, categoryToken, name));
+    allowBreaks = true;
+    var metas = parseMetas();
+    if (!metas.isEmpty()) {
+      category.add(new IndentBlock(2, new StackBlock(metas)));
+    }
+    var open = blockify(true);
+    var assets = new StackBlock();
+    parseAssets(assets);
+    var close = blockify(true);
+    if (assets.getSize() > 0) {
+      category.add(open, new IndentBlock(2, assets), close);
+    } else {
+      category.add(open, close);
+    }
+    block.add(category);
   }
 
-  private void createEnd() {
-    tokens.push(new Token.End());
-  }
-
-  private void createBreak(String value, int indent) {
-    removeLastCommentBreak();
-    tokens.push(new Token.Break(value, indent));
-  }
-
-  private void createCommentBreak() {
-    tokens.push(new Token.CommentBreak("", 0));
-  }
-
-  private void parseCategory() {
-    createBegin(Token.BlockBreakType.ALWAYS, INDENT);
-
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    consumeToken("category");
-    createBreak(" ", 0);
-    consumeToken(tok.stringValue);
-    createEnd();
-
-    parseMeta();
-
-    createBreak("", -INDENT);
-    currentLine++;
-    consumeToken("{");
-    parseAssets();
-    createBreak("", -INDENT);
-    currentLine++;
-    consumeToken("}");
-    createEnd();
-    createBreak("", 0);
-    currentLine++;
-  }
-
-  private void parseAssets() {
-    boolean first = true;
-    while (true) {
-      // Assets are separated by a blank line if they are not the first asset in a
-      // category
+  private void parseAssets(StackBlock block) {
+    boolean more = true;
+    while (more) {
       switch (tok.type) {
-        case ABSTRACT:
-        case ASSET:
-          checkFirst(first);
-          parseAsset();
+        case RCURLY:
+          more = false;
           break;
         default:
-          return;
+          parseAsset(block);
+          break;
       }
-      first = false;
     }
   }
 
-  private void parseAsset() {
-    createBreak("", 0);
-    currentLine++;
-    createBegin(Token.BlockBreakType.ALWAYS, INDENT);
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
+  private void parseAsset(MultiBlock block) {
+    var asset = new StackBlock();
+    var def = new ArrayList<Block>();
     if (tok.type == TokenType.ABSTRACT) {
-      consumeToken("abstract");
-      createBreak(" ", 0);
+      def.add(blockify());
+      allowBreaks = false;
     }
-    consumeToken("asset");
-    createBreak(" ", 0);
-    consumeToken(tok.stringValue);
+    def.add(blockify());
+    allowBreaks = false;
+    def.add(blockify(tok.stringValue));
     if (tok.type == TokenType.EXTENDS) {
-      createBreak(" ", 0);
-      consumeToken("extends");
-      createBreak(" ", 0);
-      consumeToken(tok.stringValue);
+      def.add(blockify());
+      def.add(blockify(tok.stringValue));
     }
-    createEnd();
-    parseMeta();
-
-    createBreak("", -INDENT);
-    currentLine++;
-    consumeToken("{");
-    // ATTACKSTEPS
-    boolean first = true;
-    boolean isMore = true;
-    while (isMore) {
-      // Only attacksteps are separated by a blank line if they are not the first
-      // top-level element inside Asset
+    asset.add(new WrapBlock(" ", 4, def));
+    allowBreaks = true;
+    var metas = parseMetas();
+    if (!metas.isEmpty()) {
+      asset.add(new IndentBlock(2, new StackBlock(metas)));
+    }
+    var open = blockify(true);
+    var content = new StackBlock();
+    boolean more = true;
+    while (more) {
       switch (tok.type) {
         case LET:
-          parseVariable();
+          parseVariable(content);
           break;
         case RCURLY:
-          isMore = false;
+          more = false;
           break;
         default:
-          checkFirst(first);
-          parseAttackStep();
+          parseAttackStep(content);
           break;
       }
-      first = false;
     }
-    createBreak("", -INDENT);
-    consumeToken("}");
-    createEnd();
+    var close = blockify(true);
+    if (content.getSize() > 0) {
+      asset.add(open, new IndentBlock(2, content), close);
+    } else {
+      asset.add(open, close);
+    }
+    block.add(asset);
   }
 
-  private void parseVariable() {
-    createBreak("", 0);
-    currentLine++;
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    // Allow user blank lines between variable definitions
-    consumeToken("let", true);
-    createBreak(" ", 0);
-    consumeToken(tok.stringValue);
-    createBreak(" ", 0);
-    consumeToken("=");
-    createBreak(" ", 0);
-    parseExpr(false);
-    createEnd();
+  private void parseVariable(StackBlock block) {
+    var let = blockify();
+    allowBreaks = false;
+    var def =
+        new LineBlock(
+            let, new TextBlock(" "), blockify(tok.stringValue), new TextBlock(" "), blockify());
+    block.add(new WrapBlock(" ", 4, def, parseExpr()));
+    allowBreaks = true;
   }
 
-  private void parseAttackStep() {
-    createBreak("", 0);
-    currentLine++;
-    createBegin(Token.BlockBreakType.ALWAYS, INDENT);
-
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-
-    var value = tok.type.toString();
-    consumeToken(value.substring(1, value.length() - 1));
-    createBreak(" ", 0);
-    consumeToken(tok.stringValue);
-
-    while (tok.type == TokenType.AT) {
-      createBreak(" ", 0);
-      consumeToken("@");
-      consumeToken(tok.stringValue);
-    }
-
+  private void parseAttackStep(MultiBlock block) {
+    var attackStep = new StackBlock();
+    var def = new ArrayList<Block>();
+    var type = blockify();
+    allowBreaks = false;
+    def.add(new LineBlock(type, new TextBlock(" "), blockify(tok.stringValue)));
+    def.addAll(parseTags());
     if (tok.type == TokenType.LCURLY) {
-      createBegin(Token.BlockBreakType.INCONSISTENT, INDENT);
-      createBreak(" ", 0);
-      consumeToken("{");
-      if (tok.type != TokenType.RCURLY) {
-        value = tok.type.toString();
-        consumeToken(value.substring(1, value.length() - 1));
-        while (tok.type == TokenType.COMMA) {
-          consumeToken(",");
-          createBreak(" ", 0);
-          value = tok.type.toString();
-          consumeToken(value.substring(1, value.length() - 1));
-        }
-      }
-      consumeToken("}");
-      createEnd();
+      def.add(parseCIA());
     }
     if (tok.type == TokenType.LBRACKET) {
-      createBreak(" ", 0);
-      createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-      consumeToken("[");
-      if (tok.type != TokenType.RBRACKET) {
-        parseTTCExpr();
-      }
-      consumeToken("]");
-      createEnd();
+      def.add(parseTTC());
     }
-    createEnd();
+    attackStep.add(new WrapBlock(" ", 4, def));
+    allowBreaks = true;
 
-    parseMeta();
+    var metas = parseMetas();
+    if (!metas.isEmpty()) {
+      attackStep.add(new IndentBlock(2, new StackBlock(metas)));
+    }
+
     if (tok.type == TokenType.REQUIRE) {
-      parseReachesOrRequires();
+      parseExprList(attackStep);
     }
     if (tok.type == TokenType.INHERIT || tok.type == TokenType.OVERRIDE) {
-      parseReachesOrRequires();
+      parseExprList(attackStep);
     }
-    createEnd();
+    block.add(attackStep);
   }
 
-  private void parseTTCExpr() {
-    parseTTCTerm();
+  private List<Block> parseTags() {
+    var tags = new ArrayList<Block>();
+    while (tok.type == TokenType.AT) {
+      tags.add(new LineBlock(blockify(), blockify(tok.stringValue)));
+    }
+    return tags;
+  }
+
+  private LineBlock parseCIA() {
+    var cia = new LineBlock(blockify());
+    if (tok.type != TokenType.RCURLY) {
+      cia.add(blockify());
+      while (tok.type == TokenType.COMMA) {
+        cia.add(blockify());
+        cia.add(new TextBlock(" "));
+        cia.add(blockify());
+      }
+    }
+    cia.add(blockify());
+    return cia;
+  }
+
+  private LineBlock parseTTC() {
+    var ttc = new LineBlock();
+    ttc.add(blockify());
+    allowBreaks = false;
+    if (tok.type != TokenType.RBRACKET) {
+      ttc.add(parseTTCExpr());
+    }
+    ttc.add(blockify());
+    allowBreaks = true;
+    return ttc;
+  }
+
+  private LineBlock parseTTCExpr() {
+    Block steps = parseTTCTerm();
     while (tok.type == TokenType.PLUS || tok.type == TokenType.MINUS) {
-      createBreak(" ", 0);
-      var value = tok.type.toString();
-      createBegin(Token.BlockBreakType.NEVER, 0);
-      consumeToken(value.substring(1, value.length() - 1));
-      createBreak(" ", 0);
-      parseTTCTerm();
-      createEnd();
+      var left = steps;
+      var operand = blockify();
+      var right = parseTTCTerm();
+      steps = new WrapBlock(" ", 4, left, operand, right);
     }
+    return new LineBlock(steps);
   }
 
-  private void parseTTCTerm() {
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    parseTTCFact();
+  private LineBlock parseTTCTerm() {
+    Block steps = parseTTCFact();
     while (tok.type == TokenType.STAR || tok.type == TokenType.DIVIDE) {
-      createBreak(" ", 0);
-      var value = tok.type.toString();
-      createBegin(Token.BlockBreakType.NEVER, 0);
-      consumeToken(value.substring(1, value.length() - 1));
-      createBreak(" ", 0);
-      parseTTCFact();
-      createEnd();
+      var left = steps;
+      var operand = blockify();
+      var right = parseTTCFact();
+      steps = new WrapBlock(" ", 4, left, operand, right);
     }
-    createEnd();
+    return new LineBlock(steps);
   }
 
-  private void parseTTCFact() {
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    parseTTCPrim();
+  private LineBlock parseTTCFact() {
+    Block steps = parseTTCPrim();
     if (tok.type == TokenType.POWER) {
-      createBreak(" ", 0);
-      createBegin(Token.BlockBreakType.NEVER, 0);
-      consumeToken("^");
-      createBreak(" ", 0);
-      parseTTCFact();
-      createEnd();
+      var left = steps;
+      var operand = blockify();
+      var right = parseTTCFact();
+      steps = new WrapBlock(" ", 4, left, operand, right);
     }
-    createEnd();
+    return new LineBlock(steps);
   }
 
-  private void parseTTCPrim() {
+  private Block parseTTCPrim() {
+    var prim = new LineBlock();
     if (tok.type == TokenType.ID) {
-      consumeToken(tok.stringValue);
+      prim.add(blockify(tok.stringValue));
       if (tok.type == TokenType.LPAREN) {
-        consumeToken("(");
+        prim.add(blockify());
         if (tok.type == TokenType.INT || tok.type == TokenType.FLOAT) {
-          parseNumber();
+          prim.add(parseNumber());
           while (tok.type == TokenType.COMMA) {
-            consumeToken(",");
-            createBreak(" ", 0);
-            parseNumber();
+            prim.add(blockify());
+            prim.add(new TextBlock(" "));
+            prim.add(parseNumber());
           }
         }
-        consumeToken(")");
+        prim.add(blockify());
       }
     } else if (tok.type == TokenType.LPAREN) {
-      consumeToken("(");
-      createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-      parseTTCExpr();
-      createEnd();
-      consumeToken(")");
-    } else if (tok.type == TokenType.INT || tok.type == TokenType.FLOAT) {
-      parseNumber();
-    }
-  }
-
-  private void parseNumber() {
-    if (tok.type == TokenType.INT) {
-      consumeToken(Integer.toString(tok.intValue));
+      prim.add(blockify());
+      prim.add(parseTTCExpr());
+      prim.add(blockify());
     } else {
-      consumeToken(Double.toString(tok.doubleValue));
+      prim.add(parseNumber());
+    }
+    return prim;
+  }
+
+  private Block parseNumber() {
+    if (tok.type == TokenType.INT) {
+      return blockify(Integer.toString(tok.intValue));
+    } else {
+      return blockify(Double.toString(tok.doubleValue));
     }
   }
 
-  private void parseReachesOrRequires() {
-    createBreak("", 0);
-    currentLine++;
-    createBegin(Token.BlockBreakType.ALWAYS, 3);
-    var value = tok.type.toString();
-    consumeToken(value.substring(1, value.length() - 1) + (tok.postComments.isEmpty() ? " " : ""));
-    // Only allow user blank lines after the first expression
-    parseExpr(false);
+  private void parseExprList(MultiBlock block) {
+    // Transfer arrows post comment to contents precomments to avoid shifting future stackblock
+    var comments = new ArrayList<>(tok.postComments);
+    tok = new Token(tok, tok.preComments, List.of());
+    var arrow = blockify();
+    comments.addAll(tok.preComments);
+    tok = new Token(tok, comments, tok.postComments);
+    var content = new StackBlock();
+    var expr = parseExpr();
     while (tok.type == TokenType.COMMA) {
-      consumeToken(",");
-      createBreak("", 0);
-      currentLine++;
-      parseExpr(true);
+      expr.add(blockify(true));
+      content.add(expr);
+      expr = parseExpr();
     }
-    createEnd();
+    content.add(expr);
+    block.add(new IndentBlock(2, new LineBlock(arrow, new TextBlock(" "), content)));
   }
 
-  private void parseExpr(boolean allowBreaks) {
-    var block = createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    // allowBreaks is passed to when the first token is read
-    parseSteps(allowBreaks);
+  private LineBlock parseExpr() {
+    var steps = parseSteps();
     while (tok.type == TokenType.UNION
         || tok.type == TokenType.INTERSECT
         || tok.type == TokenType.MINUS) {
-      block.type = Token.BlockBreakType.CONSISTENT;
-      createBreak(" ", 0);
-      var value = tok.type.toString();
-      createBegin(Token.BlockBreakType.NEVER, 0);
-      consumeToken(value.substring(1, value.length() - 1));
-      createBreak(" ", 0);
-      parseSteps(false);
-      createEnd();
+      var left = steps;
+      var operand = blockify();
+      var right = parseSteps();
+      steps = new WrapBlock(" ", 4, left, operand, right);
     }
-    createEnd();
+    return new LineBlock(steps);
   }
 
-  private void parseSteps(boolean allowBreaks) {
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    // allowBreaks is passed to when the first token is read
-    parseStep(allowBreaks);
+  private MultiBlock parseSteps() {
+    var steps = new ArrayList<Block>();
+    // Special wrapblock for when separators could have comments attached.
+    var separators = new ArrayList<Block>();
+    steps.add(parseStep());
     while (tok.type == TokenType.DOT) {
-      createBreak("", 0);
-      consumeToken(".");
-      parseStep(false);
+      separators.add(blockify());
+      steps.add(parseStep());
     }
-    createEnd();
+    return new WrapBlock(separators, 4, steps);
   }
 
-  private void parseStep(boolean allowBreaks) {
-    // Only allow user blank lines on first token read
+  private Block parseStep() {
+    var step = new LineBlock();
     if (tok.type == TokenType.LPAREN) {
-      consumeToken("(", allowBreaks);
-      parseExpr(false);
-      consumeToken(")");
+      step.add(blockify(), parseExpr(), blockify());
     } else if (tok.type == TokenType.ID) {
-      consumeToken(tok.stringValue, allowBreaks);
+      step.add(blockify(tok.stringValue));
       if (tok.type == TokenType.LPAREN) {
-        consumeToken("(");
-        consumeToken(")");
+        step.add(blockify(), blockify());
       }
     }
     while (tok.type == TokenType.STAR || tok.type == TokenType.LBRACKET) {
       if (tok.type == TokenType.STAR) {
-        consumeToken("*");
-      } else if (tok.type == TokenType.LBRACKET) {
-        consumeToken("[");
-        consumeToken(tok.stringValue);
-        consumeToken("]");
+        step.add(blockify());
+      } else {
+        step.add(blockify(), blockify(tok.stringValue), blockify());
       }
     }
+    return step;
   }
 
-  private void parseMeta2(org.mal_lang.compiler.lib.Token prev) {
-    createBreak("", 0);
-    currentLine++;
-    createBegin(Token.BlockBreakType.INCONSISTENT, 2 * INDENT);
-    createToken(prev, prev.stringValue, false);
-    createBreak(" ", 0);
-    consumeToken("info");
-    consumeToken(":");
-    createBreak(" ", 0);
-    consumeToken("\"" + tok.stringValue + "\"");
-    createEnd();
-  }
-
-  private void parseMeta() {
-    while (tok.type == TokenType.ID) {
-      var prev = tok;
-      next();
-      parseMeta2(prev);
+  private void parseAssociations(StackBlock block) {
+    var associations = new StackBlock(blockify());
+    var open = blockify(true);
+    if (tok.type == TokenType.ID) {
+      associations.add(open);
+      var assocs = new StackBlock();
+      parseAssociations1(assocs);
+      associations.add(new IndentBlock(2, assocs), blockify(true));
+    } else {
+      associations.add(open, blockify(true));
     }
+    block.add(associations);
+  }
+
+  private void parseAssociations1(StackBlock block) {
+    var saved = blockify(tok.stringValue);
+    parseAssociation(saved, block);
+    var metas = new ArrayList<Block>();
+    while (tok.type == TokenType.ID) {
+      saved = blockify(tok.stringValue);
+      if (tok.type == TokenType.INFO) {
+        metas.add(parseMeta2(saved));
+      } else {
+        if (!metas.isEmpty()) {
+          block.add(new IndentBlock(2, new StackBlock(metas)));
+          metas.clear();
+        }
+        parseAssociation(saved, block);
+      }
+    }
+    if (!metas.isEmpty()) {
+      block.add(new IndentBlock(2, new StackBlock(metas)));
+    }
+  }
+
+  private void parseAssociation(Block saved, StackBlock block) {
+    allowBreaks = false;
+    var type1 = new LineBlock(blockify(), blockify(tok.stringValue), blockify());
+    var mult1 = parseMult();
+    var arr1 = blockify();
+    var name = blockify(tok.stringValue);
+    var arr2 = blockify();
+    var mult2 = parseMult();
+    var type2 = new LineBlock(blockify(), blockify(tok.stringValue), blockify());
+    var field = blockify(tok.stringValue);
+    block.add(new WrapBlock(" ", 4, saved, type1, mult1, arr1, name, arr2, mult2, type2, field));
+    allowBreaks = true;
+  }
+
+  private LineBlock parseMult() {
+    var mult = parseMultUnit();
+    if (tok.type == TokenType.RANGE) {
+      mult.add(blockify());
+      mult.add(parseMultUnit());
+    }
+    return mult;
+  }
+
+  private LineBlock parseMultUnit() {
+    var mult = new LineBlock();
+    if (tok.type == TokenType.INT) {
+      mult.add(blockify(Integer.toString(tok.intValue)));
+    } else {
+      mult.add(blockify());
+    }
+    return mult;
+  }
+
+  private LineBlock parseMeta2(Block saved) {
+    allowBreaks = false;
+    var block =
+        new LineBlock(
+            saved, // info type
+            new TextBlock(" "),
+            blockify(), // info
+            blockify(), // :
+            new TextBlock(" "),
+            blockify("\"" + tok.stringValue + "\"", true));
+    allowBreaks = true;
+    return block;
+  }
+
+  private List<Block> parseMetas() {
+    var metas = new ArrayList<Block>();
+    while (tok.type == TokenType.ID) {
+      var type = blockify(tok.stringValue);
+      metas.add(parseMeta2(type));
+    }
+    return metas;
   }
 }

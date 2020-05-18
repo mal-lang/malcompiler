@@ -1,12 +1,10 @@
 #id: "oneline"
 #version: "1.0.0"
-
 category System
 {
   abstract asset Device
   {
   }
-
   asset Computer extends Device
   {
     | compromise
@@ -15,7 +13,6 @@ category System
          (public.screen /\ local.screen).damage
   }
 }
-
 associations
 {
   Computer [comp1] 1 <-- link --> 1 [comp2] Computer

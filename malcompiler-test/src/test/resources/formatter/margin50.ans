@@ -1,7 +1,7 @@
 category System
 {
-  abstract asset SomeLongNameThatIsLong extends
-      SomeOtherName
+  abstract asset
+      SomeLongNameThatIsLong extends SomeOtherName
   {
     let variable1 =
         steps.that.exists
@@ -9,8 +9,8 @@ category System
     let variable2 = even.more.steps[Step]
 
     | compromise
-      -> variable1()[SomeOtherName].substeps*
-             .local.read,
+      -> variable1()[SomeOtherName]
+             .substeps*.local.read,
          (variable2().after.open
               - well.named.steps.written)
   }

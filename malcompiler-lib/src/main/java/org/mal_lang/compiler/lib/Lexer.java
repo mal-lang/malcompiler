@@ -416,8 +416,10 @@ public class Lexer {
             consume();
           }
           createComment(TokenType.SINGLECOMMENT);
-          if (!eof) {
-            // consume the following newline and continue looking for comments
+          if (peek("\r\n")) {
+            consume(2);
+            readTrailingComments();
+          } else if (peek('\n')) {
             consume();
             readTrailingComments();
           }

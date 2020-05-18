@@ -45,7 +45,6 @@ public class Main {
     public boolean lexer = false;
     public boolean parser = false;
     public boolean analyzer = false;
-    public boolean formatter = false;
     public String target = "reference";
     public Map<String, String> args = new HashMap<>();
     public boolean verbose = false;
@@ -290,7 +289,7 @@ public class Main {
       } else if (opts.analyzer) {
         Analyzer.analyze(Parser.parse(file), opts.verbose, opts.debug);
       } else if (opts.target.equals("format")) {
-        Formatter.prettyPrint(file, opts.args);
+        Formatter.format(file, opts.args);
       } else if (opts.target.equals("reference")) {
         AST ast = Parser.parse(file);
         Analyzer.analyze(ast);

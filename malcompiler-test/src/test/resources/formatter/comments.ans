@@ -19,6 +19,7 @@ category Something
 
          something.something // user made blank line before this line
                              // with some extra comment text here
+
   }
 }
 
@@ -27,17 +28,20 @@ category Something
  line
  comment
  */
+
 /*
  * multi
  *   line
  *     comment
  */
+
 associations
 {
   // very long single line comment before a line that should fit on one line without breaking
   A1 [a1] 1 <-- L --> 1 [a2] A2
 
   A1 [a1] 1 <-- L --> 1 [a2] A2 // very long comment trailing a line that should fit despite this comment
+
 }
 
 /*
