@@ -16,6 +16,7 @@
 module org.mal_lang.compiler.lib {
   exports org.mal_lang.formatter;
   exports org.mal_lang.compiler.lib;
+  exports org.mal_lang.compiler.lib.d3;
   exports org.mal_lang.compiler.lib.reference;
   exports org.mal_lang.compiler.lib.securicad;
 
@@ -24,4 +25,5 @@ module org.mal_lang.compiler.lib {
   requires java.logging;
   requires java.desktop;
   requires svgSalamander;
+  requires java.json;
 }

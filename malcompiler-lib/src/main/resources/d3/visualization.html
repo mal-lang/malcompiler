@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Visualization of {{NAME}}</title>
+    <style>
+        .node circle {
+            cursor: pointer;
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+        
+        .node rect {
+            cursor: pointer;
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+        
+        .node text {
+            font: 10px sans-serif;
+            pointer-events: none;
+            text-anchor: middle;
+        }
+        
+        line.link {
+            fill: none;
+            stroke: #888;
+            stroke-width: 1.5px;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script>
+        var width = 1260,
+            height = 1024,
+            color = d3.scale.category20c(),
+            root;
+
+        var force = d3.layout.force()
+            .linkDistance(80)
+            .charge(-80)
+            .gravity(.05)
+            .size([width, height])
+            .on("tick", tick);
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        var link = svg.selectAll(".link"),
+            node = svg.selectAll(".node");
+
+        // build the arrow.
+        svg.append("svg:defs").selectAll("marker")
+            .data(["end"]) // Different link/path types can be defined here
+            .enter().append("svg:marker") // This section adds in the arrows
+            .attr("id", String)
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 45)
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("orient", "auto")
+            .append("svg:path")
+            .attr("d", "M0,-5L10,0L0,5");
+
+        root = {{JSON}};
+        initialize(root);
+        set_id(root);
+        update();
+
+        function update() {
+
+            var nodes = [];
+            var links = [];
+
+            root.children.forEach(function(entity) {
+                entity.size = 64000
+                entity.opacity = 0.5
+                if (entity.children) {
+                    entity.children.forEach(function(attack_step) {
+                        if (entity.selected) {
+                            attack_step.show = true;
+                            attack_step.hidden = false;
+                            entity.size = 128000
+                            entity.opacity = 0.1
+                        } else {
+                            attack_step.show = false;
+                            //attack_step.show = true;
+                            attack_step.size = 8000
+                        }
+                    })
+                }
+            })
+
+            root.children.forEach(function(entity) {
+                if (entity.children) {
+                    entity.children.forEach(function(attack_step) {
+                        if (attack_step.selected) {
+                            attack_step.show = true;
+                            attack_step.size = 6000
+                            attack_step.target_steps.forEach(function(target_step) {
+                                if (target_step && !target_step.hidden) {
+                                    target_step.show = true;
+                                }
+                            })
+                            attack_step.source_steps.forEach(function(source_step) {
+                                if (source_step && !source_step.hidden) {
+                                    source_step.show = true;
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+
+            nodes.push(root);
+            if (root.children) {
+                root.children.forEach(
+                    function(entity) {
+                        if (!entity.hidden) {
+                            nodes.push(entity);
+                        }
+                        if (entity.children) {
+                            entity.children.forEach(
+                                function(attack_step) {
+                                    if (attack_step.show)
+                                        nodes.push(attack_step);
+                                }
+                            )
+                        }
+                    }
+                )
+            }
+
+            if (root.children) {
+                root.children.forEach(
+                    function(entity) {
+                        if (entity.children) {
+                            entity.children.forEach(
+                                function(attack_step) {
+                                    if (attack_step.show) {
+                                        if (!entity.hidden) {
+                                            links.push({
+                                                "source": entity,
+                                                "target": attack_step,
+                                                "opacity": 0.25,
+                                                "color": entity.color,
+                                                "arrow": false
+                                            })
+                                        }
+                                        if (attack_step.targets) {
+                                            attack_step.target_steps.forEach(
+                                                function(target_step) {
+                                                    if (target_step)
+                                                        if (target_step.show)
+                                                            links.push({
+                                                                "source": attack_step,
+                                                                "target": target_step,
+                                                                "opacity": 0.5,
+                                                                "color": entity.color,
+                                                                "arrow": true
+                                                            })
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                )
+            }
+
+            // Restart the force layout.
+            force
+                .nodes(nodes)
+                .links(links)
+                .start();
+
+            // Update links.
+            link = link.data(links, function(d) {
+                return 10000 * d.source.id + d.target.id;
+            });
+
+            link.exit().remove();
+
+            link.enter().insert("line", ".node")
+                .attr("class", "link").style("opacity", function(d) {
+                    return d.opacity;
+                }).attr("marker-end", function(d) {
+                    if (d.arrow) {
+                        return "url(#end)";
+                    } else {
+                        return "url(#middle)";
+                    }
+                });
+
+            // Update nodes.
+            node = node.data(nodes, function(d) {
+                return d.id;
+            });
+
+            node.exit().remove();
+
+            var nodeEnter = node.enter().append("g")
+                .attr("class", "node")
+                .on("click", click)
+                .call(force.drag);
+
+            nodeEnter.append("circle").filter(function(d) {
+                    return typeof d.type === "undefined";
+                })
+                .attr("r", function(d) {
+                    return Math.sqrt(d.size) / 10 || 4.5;
+                });
+
+            nodeEnter.append("circle").filter(function(d) {
+                    return d.type === "or";
+                })
+                .attr("r", function(d) {
+                    return Math.sqrt(d.size) / 10 || 4.5;
+                });
+
+            nodeEnter.append("rect").filter(function(d) {
+                    return d.type === "and";
+                })
+                .style("fill", function(d) {
+                    return d.color;
+                })
+                .attr("width", function(d) {
+                    return Math.sqrt(d.size) / 5 || 4.5;
+                }).
+            attr("height", function(d) {
+                return Math.sqrt(d.size) / 5 || 4.5;
+            });
+
+            nodeEnter.append("polygon").filter(function(d) {
+                    return d.type === "defense";
+                })
+                .style("fill", function(d) {
+                    return d.color;
+                })
+                .attr("points", "-8,-8, 0,8, 8,-8");
+
+            node.select("circle").filter(function(d) {
+                    return typeof d.type === "undefined";
+                })
+                .attr("r", function(d) {
+                    return Math.sqrt(d.size) / 10 || 4.5;
+                });
+
+            node.select("circle").filter(function(d) {
+                    return d.type === "or";
+                })
+                .attr("r", function(d) {
+                    return Math.sqrt(d.size) / 10 || 4.5;
+                });
+
+            node.select("rect").filter(function(d) {
+                    return d.type === "and";
+                })
+                .style("fill", function(d) {
+                    return d.color;
+                })
+                .attr("width", function(d) {
+                    return Math.sqrt(d.size) / 5 || 4.5;
+                }).
+            attr("height", function(d) {
+                return Math.sqrt(d.size) / 5 || 4.5;
+            });
+
+            nodeEnter.append("polygon").filter(function(d) {
+                    return d.type === "defense";
+                })
+                .style("fill", function(d) {
+                    return d.color;
+                })
+                .attr("points", "-8,-8, 0,8, 8,-8");
+
+            nodeEnter.append("text")
+                .attr("dy", ".35em")
+                .text(function(d) {
+                    return d.name;
+                })
+                .style("opacity", function(d) {
+                    return d.opacity;
+                });;
+
+            node.select("circle")
+                .style("fill", function(d) {
+                    return d.color;
+                }).style("stroke", function(d) {
+                    if (d.selected) return "#000";
+                    else return "#fff";
+                }).style("opacity", function(d) {
+                    return d.opacity;
+                });
+
+            node.select("rect")
+                .style("fill", function(d) {
+                    return d.color;
+                }).style("stroke", function(d) {
+                    if (d.selected) return "#000";
+                    else return "#fff";
+                }).style("opacity", function(d) {
+                    return d.opacity;
+                });
+
+            node.select("polygon")
+                .style("fill", function(d) {
+                    return d.color;
+                }).style("stroke", function(d) {
+                    if (d.selected) return "#000";
+                    else return "#fff";
+                }).style("opacity", function(d) {
+                    return d.opacity;
+                });
+        }
+
+        function tick() {
+            link.attr("x1", function(d) {
+                    return d.source.x;
+                })
+                .attr("y1", function(d) {
+                    return d.source.y;
+                })
+                .attr("x2", function(d) {
+                    return d.target.x;
+                })
+                .attr("y2", function(d) {
+                    return d.target.y;
+                });
+
+            node.select("circle").attr("transform", function(d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            });
+            node.select("rect").attr("transform", function(d) {
+                return "translate(" + (d.x - Math.sqrt(d.size) / 10) + "," + (d.y - Math.sqrt(d.size) / 10) + ")";
+            });
+            node.select("polygon").attr("transform", function(d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            });
+            node.select("text").attr("transform", function(d) {
+                return "translate(" + d.x + "," + (d.y) + ")";
+            });
+
+        }
+
+        function color(d) {
+            return d.children ? "#3182bd" // collapsed package
+                :
+                d.children ? "#c6dbef" // expanded package
+                :
+                "#fd8d3c"; // leaf node
+        }
+
+        // Toggle children on click.
+        function click(d) {
+            if (d3.event.metaKey) {
+                d.fixed = false;
+            } else {
+                d.fixed = true;
+                if (d3.event.shiftKey) {
+                    d.hidden = true;
+                } else {
+                    if (d3.event.defaultPrevented) return; // ignore drag
+                    if (d.selected)
+                        d.selected = false;
+                    else
+                        d.selected = true;
+
+                }
+            }
+            d3.event.stopPropagation();
+            update();
+        }
+
+        // Returns a list of all nodes under the root.
+        function set_id(root) {
+            i = 0;
+            j = 0;
+
+            function recurse(node) {
+                if (node.children) node.children.forEach(recurse);
+                if (!node.id) node.id = ++i;
+                node.show = false
+                node.selected = false
+            }
+
+            recurse(root);
+        }
+
+        function initialize(root) {
+
+            nodes = []
+            nodes.push(root);
+            root.opacity = 0.0
+            if (root.children) {
+                root.children.forEach(function(entity) {
+                    entity.hidden = false;
+                    nodes.push(entity);
+                    if (entity.children) {
+                        entity.children.forEach(function(attack_step) {
+                            attack_step.target_steps = []
+                            attack_step.source_steps = []
+                            attack_step.entity = entity
+                            attack_step.hidden = false;
+                            nodes.push(attack_step);
+                        })
+                    }
+                })
+            }
+
+            if (root.children) {
+                root.children.forEach(function(entity) {
+                    if (entity.children) {
+                        entity.children.forEach(function(attack_step) {
+                            attack_step.color = color(entity.name)
+                            attack_step.opacity = 1
+                            if (attack_step.targets) {
+                                attack_step.targets.forEach(function(target_ref) {
+                                    var target = nodes.filter(function(attack_step) {
+                                        return attack_step.name == target_ref.name && attack_step.entity.name == target_ref.entity_name;
+                                    })[0]
+                                    if (target) {
+                                        attack_step.target_steps.push(target)
+                                        target.source_steps.push(attack_step)
+                                    }
+                                })
+                            }
+                            entity.color = color(entity.name)
+                            entity.opacity = 0.75
+                        })
+                    }
+                })
+            }
+
+            d3.select("body").on('keydown', function() {
+                if (d3.event.keyCode === 32) {
+                    if (root.children) {
+                        root.children.forEach(function(entity) {
+                            if (entity.hidden) {
+                                entity.hidden = false;
+                            } else {
+                                entity.hidden = true;
+                            }
+                            update();
+                        })
+                    }
+                }
+            })
+        }
+    </script>
+    <p style="font-family:verdana;font-size:11px"> 1. Open an entity.</p>
+    <p style="font-family:verdana;font-size:11px"> 2. Select an attack step.</p>
+    <p style="font-family:verdana;font-size:11px"> 3. Close the entity.</p>
+    <p style="font-family:verdana;font-size:11px"> 4. Navigate forward or backward from the selected attack step.</p>
+    <p style="font-family:verdana;font-size:11px">
+        To hide a specific attack step, shift-click it. To make it reappear, re-open the associated entity.
+    </p>
+    <p style="font-family:verdana;font-size:11px"> Zoom in for a closer view.</p>
+    <p style="font-family:verdana;font-size:11px">
+        To avoid confusing clutter, don't have too many attack steps open at the same time.
+    </p>
+</body>
+
+</html>

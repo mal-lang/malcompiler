@@ -171,7 +171,10 @@ public class Main {
             "Specifies if debug steps should be kept"));
     lines.add(SGR.of());
     lines.add(SGR.of(SGR.bold("Args:"), " [", SGR.italicized("d3"), "]"));
-    lines.add(SGR.of("  Not yet implemented"));
+    lines.add(
+        CLIParser.getSGROptionLine(
+            SGR.of(SGR.fgRGB(135, 206, 235, "path"), "=", SGR.italicized("PATH")),
+            "Write generated sources to PATH"));
     lines.add(SGR.of());
     lines.add(SGR.of(SGR.bold("Args:"), " [", SGR.italicized("format"), "]"));
     lines.add(
@@ -303,7 +306,10 @@ public class Main {
         org.mal_lang.compiler.lib.securicad.Generator.generate(
             lang, opts.args, opts.verbose, opts.debug);
       } else if (opts.target.equals("d3")) {
-        throw new CompilerException("Target 'd3' not yet implemented");
+        AST ast = Parser.parse(file);
+        Analyzer.analyze(ast);
+        Lang lang = LangConverter.convert(ast);
+        org.mal_lang.compiler.lib.d3.Generator.generate(lang, opts.args);
       } else {
         throw new CompilerException(String.format("Invalid compilation target %s", opts.target));
       }
