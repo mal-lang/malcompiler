@@ -188,7 +188,7 @@ public class Main {
                 "=",
                 SGR.italicized("true"),
                 "|",
-                SGR.italicized("false")),
+                SGR.italicized(SGR.bold("false"))),
             "Specifies if the formatter should format inplace"));
     if (useSGR) {
       for (var line : lines) {
