@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Foreseeti AB
+ * Copyright 2020 Foreseeti AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module org.mal_lang.compiler.lib {
-  exports org.mal_lang.formatter;
-  exports org.mal_lang.compiler.lib;
-  exports org.mal_lang.compiler.lib.d3;
-  exports org.mal_lang.compiler.lib.reference;
-  exports org.mal_lang.compiler.lib.securicad;
+package org.mal_lang.formatter.blocks;
 
-  requires com.squareup.javapoet;
-  requires java.compiler;
-  requires java.logging;
-  requires java.desktop;
-  requires svgSalamander;
-  requires java.json;
+public abstract class AbstractBlock implements Block {
+  protected static final int COST_PER_CHARACTER_OVER_MARGIN = 50;
+  protected static final int COST_PER_NEWLINE = 5;
+  protected int cost;
+  protected int index;
+  protected String output;
+
+  @Override
+  public int getCost() {
+    return cost;
+  }
+
+  @Override
+  public int getIndex() {
+    return index;
+  }
+
+  @Override
+  public String getOutput() {
+    return output;
+  }
 }

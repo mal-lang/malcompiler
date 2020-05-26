@@ -35,6 +35,7 @@ public class Lexer {
   private int startLine;
   private int startCol;
   private List<Byte> lexeme;
+  private List<Token> comments = new ArrayList<>();
   private boolean eof;
 
   private static Map<String, TokenType> keywords;
@@ -97,6 +98,26 @@ public class Lexer {
     } catch (IOException e) {
       LOGGER.print();
       throw e;
+    }
+  }
+
+  public static boolean syntacticallyEqual(Lexer l1, Lexer l2) {
+    try {
+      var tok1 = l1.next();
+      var tok2 = l2.next();
+      while (tok1.type != TokenType.EOF && tok2.type != TokenType.EOF) {
+        if (tok1.type != tok2.type
+            || !tok1.stringValue.equals(tok2.stringValue)
+            || tok1.intValue != tok2.intValue
+            || tok1.doubleValue != tok2.doubleValue) {
+          return false;
+        }
+        tok1 = l1.next();
+        tok2 = l2.next();
+      }
+      return tok1.type == TokenType.EOF && tok2.type == TokenType.EOF;
+    } catch (CompilerException e) {
+      return false;
     }
   }
 
@@ -195,12 +216,10 @@ public class Lexer {
           consume();
           return createToken(TokenType.INTERSECT);
         } else if (peek('/')) {
-          while (!eof && !peek('\n')) {
+          while (!eof && !peek('\n') && !peek('\r')) {
             consume();
           }
-          if (!eof) {
-            consume();
-          }
+          createComment(TokenType.SINGLECOMMENT);
           return next();
         } else if (peek('*')) {
           consume();
@@ -214,6 +233,7 @@ public class Lexer {
             consume();
           }
           consume(2);
+          createComment(TokenType.MULTICOMMENT);
           return next();
         } else {
           return createToken(TokenType.DIVIDE);
@@ -343,7 +363,16 @@ public class Lexer {
     }
   }
 
-  private Token createToken(TokenType type) {
+  private void createComment(TokenType type) {
+    var lexemeString = getLexemeString();
+    lexemeString = lexemeString.substring(2, lexemeString.length());
+    if (type == TokenType.MULTICOMMENT) {
+      lexemeString = lexemeString.substring(0, lexemeString.length() - 2);
+    }
+    comments.add(new Token(type, filename, startLine, startCol, lexemeString));
+  }
+
+  private Token createRawToken(TokenType type) {
     switch (type) {
       case INT:
         return new Token(type, filename, startLine, startCol, Integer.parseInt(getLexemeString()));
@@ -363,6 +392,71 @@ public class Lexer {
       default:
         return new Token(type, filename, startLine, startCol);
     }
+  }
+
+  private void readTrailingComments() throws CompilerException {
+    // Trailing comments are all comments followed on the same line as the previous
+    // token, including comments that follow previous trailing comments by exactly 1
+    // line.
+    startLine = line;
+    startCol = col;
+    lexeme = new ArrayList<>();
+    if (eof || peek('\n')) {
+      return;
+    }
+    byte c = consume();
+    switch (c) {
+      case ' ':
+      case '\t':
+        readTrailingComments();
+        return;
+      case '/':
+        if (peek('/')) {
+          while (!eof && !peek('\n') && !peek('\r')) {
+            consume();
+          }
+          createComment(TokenType.SINGLECOMMENT);
+          if (peek("\r\n")) {
+            consume(2);
+            readTrailingComments();
+          } else if (peek('\n')) {
+            consume();
+            readTrailingComments();
+          }
+          return;
+        } else if (peek('*')) {
+          consume();
+          while (!peek("*/")) {
+            if (eof) {
+              throw exception(
+                  String.format(
+                      "Unterminated comment starting at %s",
+                      new Position(filename, startLine, startCol)));
+            }
+            consume();
+          }
+          consume(2);
+          createComment(TokenType.MULTICOMMENT);
+          readTrailingComments();
+          return;
+        }
+        // Not a comment, we want to fall-through
+      default:
+        index--;
+        col--;
+        eof = false;
+        return;
+    }
+  }
+
+  private Token createToken(TokenType type) throws CompilerException {
+    var token = createRawToken(type);
+    var preComments = List.copyOf(comments);
+    comments.clear();
+    readTrailingComments();
+    var postComments = List.copyOf(comments);
+    comments.clear();
+    return new Token(token, preComments, postComments);
   }
 
   private CompilerException exception(String msg) {

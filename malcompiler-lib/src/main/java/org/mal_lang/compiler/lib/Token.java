@@ -15,11 +15,15 @@
  */
 package org.mal_lang.compiler.lib;
 
+import java.util.List;
+
 public class Token extends Position {
   public final TokenType type;
   public final String stringValue;
   public final double doubleValue;
   public final int intValue;
+  public final List<Token> preComments;
+  public final List<Token> postComments;
 
   public Token(TokenType type, String filename, int line, int col) {
     super(filename, line, col);
@@ -27,6 +31,8 @@ public class Token extends Position {
     this.stringValue = "";
     this.doubleValue = 0.0;
     this.intValue = 0;
+    preComments = List.of();
+    postComments = List.of();
   }
 
   public Token(TokenType type, String filename, int line, int col, String stringValue) {
@@ -35,6 +41,18 @@ public class Token extends Position {
     this.stringValue = stringValue;
     this.doubleValue = 0.0;
     this.intValue = 0;
+    preComments = List.of();
+    postComments = List.of();
+  }
+
+  public Token(Token tok, List<Token> preComments, List<Token> postComments) {
+    super(tok.filename, tok.line, tok.col);
+    type = tok.type;
+    stringValue = tok.stringValue;
+    doubleValue = tok.doubleValue;
+    intValue = tok.intValue;
+    this.preComments = preComments;
+    this.postComments = postComments;
   }
 
   public Token(TokenType type, String filename, int line, int col, double doubleValue) {
@@ -43,6 +61,8 @@ public class Token extends Position {
     this.stringValue = "";
     this.doubleValue = doubleValue;
     this.intValue = 0;
+    preComments = List.of();
+    postComments = List.of();
   }
 
   public Token(TokenType type, String filename, int line, int col, int intValue) {
@@ -51,6 +71,8 @@ public class Token extends Position {
     this.stringValue = "";
     this.doubleValue = 0.0;
     this.intValue = intValue;
+    preComments = List.of();
+    postComments = List.of();
   }
 
   @Override

@@ -36,6 +36,7 @@ import org.mal_lang.compiler.lib.MalLogger;
 import org.mal_lang.compiler.lib.Parser;
 import org.mal_lang.compiler.lib.Token;
 import org.mal_lang.compiler.lib.TokenType;
+import org.mal_lang.formatter.Formatter;
 
 public class Main {
   private static boolean useSGR = System.console() != null;
@@ -109,6 +110,7 @@ public class Main {
     lines.add(SGR.bold("Targets:"));
     lines.add(SGR.of("  reference [", SGR.italicized("default"), "]"));
     lines.add(SGR.of("  securicad"));
+    lines.add(SGR.of("  format"));
     lines.add(SGR.of("  d3"));
     lines.add(SGR.of());
     lines.add(SGR.of(SGR.bold("Args:"), " [", SGR.italicized("reference"), "]"));
@@ -173,6 +175,21 @@ public class Main {
         CLIParser.getSGROptionLine(
             SGR.of(SGR.fgRGB(135, 206, 235, "path"), "=", SGR.italicized("PATH")),
             "Write generated sources to PATH"));
+    lines.add(SGR.of());
+    lines.add(SGR.of(SGR.bold("Args:"), " [", SGR.italicized("format"), "]"));
+    lines.add(
+        CLIParser.getSGROptionLine(
+            SGR.of(SGR.fgRGB(135, 206, 235, "margin"), "=", SGR.italicized("MARGIN")),
+            "Use MARGIN as maximum line width"));
+    lines.add(
+        CLIParser.getSGROptionLine(
+            SGR.of(
+                SGR.fgRGB(135, 206, 235, "inplace"),
+                "=",
+                SGR.italicized("true"),
+                "|",
+                SGR.italicized(SGR.bold("false"))),
+            "Specifies if the formatter should format inplace"));
     if (useSGR) {
       for (var line : lines) {
         System.err.println(line.getSGRString());
@@ -274,6 +291,8 @@ public class Main {
         System.out.print(ast.toString());
       } else if (opts.analyzer) {
         Analyzer.analyze(Parser.parse(file), opts.verbose, opts.debug);
+      } else if (opts.target.equals("format")) {
+        Formatter.format(file, opts.args);
       } else if (opts.target.equals("reference")) {
         AST ast = Parser.parse(file);
         Analyzer.analyze(ast);
