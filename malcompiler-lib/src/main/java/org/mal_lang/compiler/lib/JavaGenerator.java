@@ -382,8 +382,10 @@ public abstract class JavaGenerator extends Generator {
     AutoFlow naf = af.addStatement(new AutoFlow(name3, true, "while (!$N.isEmpty())", name2));
     naf.addStatement("$T $N = $N.remove(0)", targetType, name3, name2);
     AutoFlow deep = generateExpr(naf, expr.e, asset);
-    deep.addStatement("$N.add($N)", name1, deep.prefix);
-    deep.addStatement("$N.add($N)", name2, deep.prefix);
+    AutoFlow inner =
+        deep.addStatement(new AutoFlow("", "if (!$N.contains($N))", name1, deep.prefix));
+    inner.addStatement("$N.add($N)", name1, deep.prefix);
+    inner.addStatement("$N.add($N)", name2, deep.prefix);
     String name4 = Name.get();
     return af.addStatement(new AutoFlow(name4, true, "for ($T $N : $N)", targetType, name4, name1));
   }
