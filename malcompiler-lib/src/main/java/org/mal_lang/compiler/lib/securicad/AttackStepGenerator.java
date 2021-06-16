@@ -367,7 +367,7 @@ public class AttackStepGenerator extends JavaGenerator {
             .build());
   }
 
-  private void createGetTags(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
+  protected static void createGetTags(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
     var tagsInitializer = new UnmodifiableInitializer(List.class, "of");
     for (var tag : attackStep.getInheritedTags()) {
       tagsInitializer.addElement("$S", tag);
