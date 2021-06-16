@@ -177,6 +177,7 @@ public class DefenseGenerator extends JavaGenerator {
     builder.addMethod(method.build());
 
     AttackStepGenerator.createSteps(builder, exprGen, attackStep);
+    AttackStepGenerator.createGetTags(builder, attackStep);
 
     parentBuilder.addType(builder.build());
   }
