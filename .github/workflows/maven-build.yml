@@ -1,0 +1,38 @@
+name: Maven Build
+on:
+  pull_request:
+    branches:
+    - master
+jobs:
+  maven-build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+
+    - name: Set up cache for ~/.m2/repository
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: maven-${{ matrix.os }}-java11-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          maven-${{ matrix.os }}-java11-
+          maven-${{ matrix.os }}-
+
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: adopt
+        java-version: 11
+        check-latest: true
+
+    - name: Maven Build
+      run: mvn -B install
+
+    - name: update_mal
+      run: cd update_mal && ./run-tests.sh
