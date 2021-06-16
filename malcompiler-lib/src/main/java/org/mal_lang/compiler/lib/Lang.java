@@ -17,8 +17,10 @@ package org.mal_lang.compiler.lib;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.mal_lang.compiler.lib.Distributions.Distribution;
 
 public class Lang {
@@ -382,11 +384,20 @@ public class Lang {
       if (!this.hasParent()) {
         return false;
       }
-      return this.getAsset().getSuperAsset().getAttackStep(this.getName()).hasInheritedTag(tag);
+      return this.getParent().hasInheritedTag(tag);
     }
 
     public List<String> getTags() {
       return List.copyOf(this.tags);
+    }
+
+    public List<String> getInheritedTags() {
+      Set<String> tags =
+          this.hasParent()
+              ? new LinkedHashSet<>(this.getParent().getInheritedTags())
+              : new LinkedHashSet<>();
+      tags.addAll(this.tags);
+      return List.copyOf(tags);
     }
 
     public void addTag(String tag) {
@@ -456,6 +467,10 @@ public class Lang {
     public boolean hasParent() {
       return this.asset.hasSuperAsset()
           && this.asset.getSuperAsset().getAttackStep(this.name) != null;
+    }
+
+    public AttackStep getParent() {
+      return this.asset.getSuperAsset().getAttackStep(this.name);
     }
   }
 

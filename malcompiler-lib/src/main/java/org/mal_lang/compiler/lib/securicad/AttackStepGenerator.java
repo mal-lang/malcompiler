@@ -24,6 +24,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
 import org.mal_lang.compiler.lib.Distributions;
@@ -83,6 +84,7 @@ public class AttackStepGenerator extends JavaGenerator {
     createSteps(builder, exprGen, attackStep);
     createGetDescription(builder, attackStep);
     createTraceabilityHelper(builder, attackStep);
+    createGetTags(builder, attackStep);
 
     parentBuilder.addType(builder.build());
   }
@@ -362,6 +364,22 @@ public class AttackStepGenerator extends JavaGenerator {
             .addModifiers(Modifier.PUBLIC)
             .returns(TypeName.BOOLEAN)
             .addStatement("return $L", attackStep.hasInheritedTag("traceRight"))
+            .build());
+  }
+
+  private void createGetTags(TypeSpec.Builder parentBuilder, AttackStep attackStep) {
+    var tagsInitializer = new UnmodifiableInitializer(List.class, "of");
+    for (var tag : attackStep.getInheritedTags()) {
+      tagsInitializer.addElement("$S", tag);
+    }
+    tagsInitializer.build();
+
+    parentBuilder.addMethod(
+        MethodSpec.methodBuilder("getTags")
+            .addModifiers(Modifier.PUBLIC)
+            .returns(ParameterizedTypeName.get(List.class, String.class))
+            .addStatement(
+                String.format("return %s", tagsInitializer.getFormat()), tagsInitializer.getArgs())
             .build());
   }
 
