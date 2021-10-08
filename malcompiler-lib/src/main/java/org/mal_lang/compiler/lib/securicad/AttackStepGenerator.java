@@ -203,8 +203,8 @@ public class AttackStepGenerator extends JavaGenerator {
       builder.add(
           "$T.getLogNormalDist($L, $L).sample()",
           fmath,
-          ((Distributions.LogNormal) dist).mean,
-          ((Distributions.LogNormal) dist).standardDeviation);
+          ((Distributions.LogNormal) dist).standardDeviation,
+          ((Distributions.LogNormal) dist).mean);
     } else if (dist instanceof Distributions.Pareto) {
       // scale, shape
       builder.add(
