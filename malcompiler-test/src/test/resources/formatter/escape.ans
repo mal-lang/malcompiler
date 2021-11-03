@@ -1,0 +1,7 @@
+category System
+{
+  asset Computer
+    user info: "newline\nslash\\quote\"tab\tback\brrr\rf\f"
+  {
+  }
+}
