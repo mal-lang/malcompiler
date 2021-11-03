@@ -83,6 +83,11 @@ public class TestFormatter extends MalTest {
   }
 
   @Test
+  public void testEscape() {
+    outputEqual("formatter/escape.mal", "formatter/escape.ans", 100);
+  }
+
+  @Test
   public void testMargin50() {
     outputEqual("formatter/margin.mal", "formatter/margin50.ans", 50);
   }
