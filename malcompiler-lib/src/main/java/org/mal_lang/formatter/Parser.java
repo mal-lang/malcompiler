@@ -547,15 +547,18 @@ public class Parser {
             blockify(), // info
             blockify(), // :
             new TextBlock(" "),
-            blockify("\"" + tok.stringValue
-                    .replace("\\", "\\\\")
-                    .replace("\"", "\\\"")
-                    .replace("\t", "\\t")
-                    .replace("\b", "\\b")
-                    .replace("\n", "\\n")
-                    .replace("\r", "\\r")
-                    .replace("\f", "\\f")
-            + "\"", true));
+            blockify(
+                "\""
+                    + tok.stringValue
+                        .replace("\\", "\\\\")
+                        .replace("\"", "\\\"")
+                        .replace("\t", "\\t")
+                        .replace("\b", "\\b")
+                        .replace("\n", "\\n")
+                        .replace("\r", "\\r")
+                        .replace("\f", "\\f")
+                    + "\"",
+                true));
     allowBreaks = true;
     return block;
   }
