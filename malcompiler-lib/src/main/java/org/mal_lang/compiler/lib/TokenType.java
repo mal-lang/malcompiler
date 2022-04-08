@@ -34,6 +34,7 @@ public enum TokenType {
   A("'A'"),
 
   STRING("string literal"),
+  MULTI_STRING("multi-line string literal"),
   ID("identifier"),
   INT("integer literal"),
   FLOAT("floating point literal"),
