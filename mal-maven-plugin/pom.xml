@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright 2019 Foreseeti AB
+Copyright 2019-2022 Foreseeti AB
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -63,15 +63,11 @@ limitations under the License.
     <url>https://github.com/mal-lang/malcompiler/tree/master/mal-maven-plugin</url>
   </scm>
 
-  <properties>
-    <sonar.coverage.jacoco.xmlReportPaths>../target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-model</artifactId>
-      <version>3.6.1</version>
+      <version>3.8.5</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -81,12 +77,12 @@ limitations under the License.
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
-      <version>3.6.1</version>
+      <version>3.8.5</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-annotations</artifactId>
-      <version>3.6.0</version>
+      <version>3.6.4</version>
     </dependency>
     <dependency>
       <groupId>org.mal-lang</groupId>
@@ -100,7 +96,7 @@ limitations under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>3.6.4</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

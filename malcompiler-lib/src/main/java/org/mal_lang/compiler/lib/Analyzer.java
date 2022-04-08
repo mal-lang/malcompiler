@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Foreseeti AB
+ * Copyright 2019-2022 Foreseeti AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -187,7 +187,8 @@ public class Analyzer {
       if (!version.value.matches("\\d+\\.\\d+\\.\\d+")) {
         error(
             version,
-            "Define 'version' must be valid semantic versioning without pre-release identifier and build metadata");
+            "Define 'version' must be valid semantic versioning without pre-release identifier and"
+                + " build metadata");
       }
     } else {
       error("Missing required define '#version: \"\"'");
@@ -387,7 +388,8 @@ public class Analyzer {
                   error(
                       attackStep,
                       String.format(
-                          "Defense %s.%s may only have 'Enabled', 'Disabled', or 'Bernoulli(p)' as TTC",
+                          "Defense %s.%s may only have 'Enabled', 'Disabled', or 'Bernoulli(p)' as"
+                              + " TTC",
                           asset.name.id, attackStep.name.id));
               }
             }
@@ -417,13 +419,15 @@ public class Analyzer {
       if (func.name.id.equals("Enabled") || func.name.id.equals("Disabled")) {
         error(
             expr,
-            "Distributions 'Enabled' or 'Disabled' may not be used as TTC values in '&' and '|' attack steps");
+            "Distributions 'Enabled' or 'Disabled' may not be used as TTC values in '&' and '|'"
+                + " attack steps");
       } else {
         if (isSubDivExp && Arrays.asList("Bernoulli", "EasyAndUncertain").contains(func.name.id)) {
           error(
               expr,
               String.format(
-                  "TTC distribution '%s' is not available in subtraction, division or exponential expressions.",
+                  "TTC distribution '%s' is not available in subtraction, division or exponential"
+                      + " expressions.",
                   func.name.id));
         }
         try {
@@ -500,7 +504,8 @@ public class Analyzer {
               error(
                   attackStep.name,
                   String.format(
-                      "Cannot override attack step '%s' previously defined at %s with different type '%s' =/= '%s'",
+                      "Cannot override attack step '%s' previously defined at %s with different"
+                          + " type '%s' =/= '%s'",
                       attackStep.name.id, prevDef.name.posString(), attackStep.type, prevDef.type));
             }
           }

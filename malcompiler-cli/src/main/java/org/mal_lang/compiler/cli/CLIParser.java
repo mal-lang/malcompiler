@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Foreseeti AB
+ * Copyright 2019-2022 Foreseeti AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,7 +97,8 @@ public class CLIParser {
     if (!validShortOption(shortOption)) {
       throw new IllegalArgumentException(
           String.format(
-              "Invalid short option %s: Each short option name should be a single alphanumeric character",
+              "Invalid short option %s: Each short option name should be a single alphanumeric"
+                  + " character",
               charToString(shortOption)));
     }
     if (shortOptions.containsKey(Character.valueOf(shortOption))) {
@@ -110,7 +111,8 @@ public class CLIParser {
     if (!validLongOption(longOption)) {
       throw new IllegalArgumentException(
           String.format(
-              "Invalid long option \"%s\": Each long option name should be made of alphanumeric characters and dashes",
+              "Invalid long option \"%s\": Each long option name should be made of alphanumeric"
+                  + " characters and dashes",
               longOption));
     }
     if (longOptions.containsKey(longOption)) {

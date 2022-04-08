@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright 2019 Foreseeti AB
+Copyright 2019-2022 Foreseeti AB
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -65,7 +65,6 @@ limitations under the License.
 
   <properties>
     <project.mainClass>org.mal_lang.compiler.cli.Main</project.mainClass>
-    <sonar.coverage.jacoco.xmlReportPaths>../target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
 
   <dependencies>
@@ -79,10 +78,24 @@ limitations under the License.
   <build>
     <resources>
       <resource>
-        <directory>${project.basedir}/src/main/resources-filtered</directory>
+        <filtering>false</filtering>
+        <directory>${project.basedir}/src/main/resources</directory>
+      </resource>
+      <resource>
         <filtering>true</filtering>
+        <directory>${project.basedir}/src/main/resources-filtered</directory>
       </resource>
     </resources>
+    <testResources>
+      <testResource>
+        <filtering>false</filtering>
+        <directory>${project.basedir}/src/test/resources</directory>
+      </testResource>
+      <testResource>
+        <filtering>true</filtering>
+        <directory>${project.basedir}/src/test/resources-filtered</directory>
+      </testResource>
+    </testResources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
