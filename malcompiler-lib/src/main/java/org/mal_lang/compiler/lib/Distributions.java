@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Foreseeti AB
+ * Copyright 2019-2022 Foreseeti AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -268,7 +268,8 @@ public class Distributions {
     public static void validate(List<Double> params) throws CompilerException {
       if (params == null || params.size() != 2) {
         throw new CompilerException(
-            "Expected exactly two parameters (mean, standardDeviation), for LogNormal distribution");
+            "Expected exactly two parameters (mean, standardDeviation), for LogNormal"
+                + " distribution");
       } else if (params.get(1) <= 0) {
         throw new CompilerException(
             String.format(
@@ -347,11 +348,13 @@ public class Distributions {
     public static void validate(List<Double> params) throws CompilerException {
       if (params == null || params.size() != 2) {
         throw new CompilerException(
-            "Expected exactly two parameters (mean, standardDeviation), for TruncatedNormal distribution");
+            "Expected exactly two parameters (mean, standardDeviation), for TruncatedNormal"
+                + " distribution");
       } else if (params.get(1) <= 0) {
         throw new CompilerException(
             String.format(
-                "%s is not in valid range 'standardDeviation > 0', for TruncatedNormal distribution",
+                "%s is not in valid range 'standardDeviation > 0', for TruncatedNormal"
+                    + " distribution",
                 params.get(1)));
       }
     }

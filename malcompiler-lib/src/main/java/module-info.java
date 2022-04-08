@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Foreseeti AB
+ * Copyright 2019-2022 Foreseeti AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,5 +25,5 @@ module org.mal_lang.compiler.lib {
   requires java.logging;
   requires java.desktop;
   requires svgSalamander;
-  requires java.json;
+  requires jakarta.json;
 }

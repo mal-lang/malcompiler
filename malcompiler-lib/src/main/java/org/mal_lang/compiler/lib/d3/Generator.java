@@ -1,5 +1,7 @@
 package org.mal_lang.compiler.lib.d3;
 
+import jakarta.json.Json;
+import jakarta.json.JsonObjectBuilder;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,8 +10,6 @@ import java.io.PrintWriter;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.json.Json;
-import javax.json.JsonObjectBuilder;
 import org.mal_lang.compiler.lib.CompilerException;
 import org.mal_lang.compiler.lib.Lang;
 import org.mal_lang.compiler.lib.Lang.StepAttackStep;
