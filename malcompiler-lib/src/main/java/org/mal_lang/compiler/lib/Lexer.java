@@ -250,6 +250,57 @@ public class Lexer {
       case '^':
         return createToken(TokenType.POWER);
       case '"':
+        if (peek("\"\"")) {
+          consume(2);
+          while (peek(' ') || peek('\t')) {
+            consume();
+          }
+          if (peek('\r')) {
+            consume();
+            if (peek('\n')) {
+              consume();
+            }
+          } else if (peek('\n')) {
+            consume();
+          } else {
+            throw exception("Expected line terminator");
+          }
+          lexeme = new ArrayList<>();
+          while (!peek("\"\"\"")) {
+            if (eof) {
+              throw exception(
+                  String.format(
+                      "Unterminated multi-line string starting at %s",
+                      new Position(filename, startLine, startCol)));
+            } else if (peek('\r')) {
+              consume();
+              lexeme = lexeme.subList(0, lexeme.size() - 1);
+              lexeme.add((byte) '\n');
+              if (peek('\n')) {
+                consume();
+                lexeme = lexeme.subList(0, lexeme.size() - 1);
+              }
+            } else if (peek('\\')) {
+              consume();
+              if (input[index] < 32 || input[index] > 126) {
+                throw exception(String.format("Invalid escape byte 0x%02X", input[index]));
+              }
+              consume();
+              var lexemeString = getLexemeString();
+              String escapeSequence = lexemeString.substring(lexemeString.length() - 2);
+              lexeme = lexeme.subList(0, lexeme.size() - 2);
+              if (!escapeSequences.containsKey(escapeSequence)) {
+                throw exception(String.format("Invalid escape sequence '%s'", escapeSequence));
+              }
+              lexeme.add(escapeSequences.get(escapeSequence));
+            } else {
+              consume();
+            }
+          }
+          consume(3);
+          lexeme = lexeme.subList(0, lexeme.size() - 3);
+          return createToken(TokenType.MULTI_STRING);
+        }
         while (!peek('"')) {
           if (peek('\\')) {
             consume();
@@ -382,13 +433,55 @@ public class Lexer {
       case ID:
         return new Token(type, filename, startLine, startCol, getLexemeString());
       case STRING:
-        var lexemeString = getLexemeString();
-        return new Token(
-            type,
-            filename,
-            startLine,
-            startCol,
-            lexemeString.substring(1, lexemeString.length() - 1));
+        {
+          var lexemeString = getLexemeString();
+          return new Token(
+              type,
+              filename,
+              startLine,
+              startCol,
+              lexemeString.substring(1, lexemeString.length() - 1));
+        }
+      case MULTI_STRING:
+        {
+          var lexemeString = getLexemeString();
+          var lines = lexemeString.split("\\R");
+
+          // Find minIndent
+          int minIndent = -1;
+          for (int i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            if (!line.isBlank() || i + 1 == lines.length) {
+              var indent = 0;
+              for (int j = 0; j < line.length(); j++) {
+                if (!Character.isWhitespace(line.charAt(j))) {
+                  break;
+                }
+                indent += 1;
+              }
+              if (minIndent == -1 || indent < minIndent) {
+                minIndent = indent;
+              }
+            }
+          }
+
+          // Strip lines
+          var newLines = new String[lines.length];
+          for (int i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            if (line.isBlank()) {
+              newLines[i] = "";
+            } else {
+              if (minIndent != -1) {
+                line = line.substring(minIndent);
+              }
+              newLines[i] = line.stripTrailing();
+            }
+          }
+
+          return new Token(
+              TokenType.STRING, filename, startLine, startCol, String.join("\n", newLines));
+        }
       default:
         return new Token(type, filename, startLine, startCol);
     }
